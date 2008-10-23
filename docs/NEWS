@@ -1,0 +1,72 @@
+
+Waxeye News
+===========
+
+2008/10/? - 0.6.0
+----------
+
+=> Improved error reporting.
+
+=> Upgraded Waxeye codebase to PLT version 4.
+
+
+2008/08/24 - 0.5.0
+----------
+
+=> Added vertical pruning non-terminals
+
+=> Fixed nested closure generation
+
+=> Fixed bug in nested unwinds
+
+
+2008/08/05 - 0.4.0
+----------
+
+=> Added ruby target
+
+=> Added new java target
+
+=> Added new scheme target
+
+=> Added case-insensitive strings
+
+=> Moved to new runtime design
+
+=> Moved to MIT/X11 license
+
+
+2008/03/20 - 0.3.1
+----------
+
+=> Added Scheme-based build system
+
+=> Fixed Error Reporting for Grammars
+
+
+2008/02/16 - 0.3.0
+----------
+
+=> Added Modular, Composable Grammars
+
+=> Added char-class set compression
+
+=> Added Json Grammar and tests
+
+=> Improved command-line interface
+
+=> Improved (simplified) Java API
+
+
+2008/01/17 - 0.2.0
+----------
+
+=> Added Grammar Testing
+
+=> Added Simple C Target
+
+
+2008/01/06 - 0.1.0
+----------
+
+=> Initial Release

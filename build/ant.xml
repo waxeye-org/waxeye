@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Waxeye Parser Generator - waxeye.org
+Copyright (C) 2008 Orlando D. A. R. Hill
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+ 
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+ 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!-- Most of the build process is handled here.                             -->
+<!-- The location of libraries is configured in the properties file.        -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+<project name="waxeye" default="" basedir="..">
+
+    <!-- ====================================================================== -->
+    <!-- INITIALISATION                                                         -->
+    <!-- ====================================================================== -->
+    <target name="init" depends="">
+        <!-- Project properties  -->
+        <property name="project.name" value="waxeye" />
+        <property name="project.title" value="Waxeye Parser Generator" />
+        <property name="project.version" value="0.5.0" />
+
+        <!-- Import environment variables -->
+        <property environment="env" />
+
+        <!-- Use property files -->
+        <property file="build/properties" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- PREPARE CLASSPATH                                                      -->
+    <!-- ====================================================================== -->
+    <target name="prepare" depends="init">
+        <!-- Compilation classpath -->
+        <path id="build.classpath" />
+
+        <!-- Test Compilation classpath -->
+        <path id="build.classpath.test">
+            <path refid="build.classpath" />
+            <pathelement location="${TESTNG_LIB}" />
+            <pathelement path="tmp/classes" />
+        </path>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- DIRECTORIES FOR BUILD                                                  -->
+    <!-- ====================================================================== -->
+    <target name="dirs-build" depends="init">
+        <mkdir dir="tmp/classes" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- DIRECTORIES FOR BUILD-TEST                                             -->
+    <!-- ====================================================================== -->
+    <target name="dirs-build-test" depends="init">
+        <mkdir dir="tmp/test" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- DIRECTORIES FOR JAR                                                    -->
+    <!-- ====================================================================== -->
+    <target name="dirs-jar" depends="init">
+        <mkdir dir="lib" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- DIRECTORIES FOR JAVADOC                                                -->
+    <!-- ====================================================================== -->
+    <target name="dirs-javadoc" depends="init">
+        <mkdir dir="docs" />
+        <mkdir dir="docs/javadoc" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- CLEAN-ALL                                                              -->
+    <!-- ====================================================================== -->
+    <target name="clean-all"
+        depends="clean, clean-javadoc" />
+
+    <!-- ====================================================================== -->
+    <!-- CLEAN                                                                  -->
+    <!-- ====================================================================== -->
+    <target name="clean" depends="init">
+        <delete dir="build/eclipse" />
+        <delete dir="tmp/classes" />
+        <delete dir="tmp/test" />
+        <delete dir="tmp/test-output" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- CLEAN-JAVADOC                                                          -->
+    <!-- ====================================================================== -->
+    <target name="clean-javadoc" depends="init">
+        <delete dir="docs/javadoc" />
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- COMPILE                                                                -->
+    <!-- ====================================================================== -->
+    <target name="compile" depends="prepare, dirs-build">
+        <javac debug="${build.debug}" deprecation="${build.deprecation}"
+            destdir="tmp/classes" target="${build.jdk-version.target}"
+            source="${build.jdk-version.source}" optimize="${build.optimize}"
+            srcdir="src/java">
+            <classpath refid="build.classpath" />
+        </javac>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- COMPILE TESTS                                                          -->
+    <!-- ====================================================================== -->
+    <target name="compile-test" depends="compile, dirs-build-test">
+        <javac debug="${build.debug}" deprecation="${build.deprecation}"
+               destdir="tmp/test" target="${build.jdk-version.target}"
+               source="${build.jdk-version.source}" optimize="${build.optimize}"
+               srcdir="test/java">
+            <classpath refid="build.classpath.test"/>
+        </javac>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- TESTNG TESTS                                                           -->
+    <!-- ====================================================================== -->
+    <target name="testng" depends="compile-test">
+        <java classname="org.testng.TestNG" fork="true">
+            <classpath location="tmp/test" />
+            <classpath refid="build.classpath.test" />
+            <arg value="-d" />
+            <arg value="tmp/test-output" />
+            <arg value="test/java/testng.xml" />
+            <jvmarg value="-enableassertions" />
+        </java>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- CHECKSTYLE                                                             -->
+    <!-- ====================================================================== -->
+    <target name="checkstyle" depends="prepare">
+        <taskdef resource="checkstyletask.properties" classpath="${CHECKSTYLE_LIB}" />
+        <checkstyle config="build/checkstyle.xml">
+            <fileset dir="src/java" includes="**/*.java" />
+            <property key="checkstyle.cache.file"
+                file="tmp/checkstyle.cache" />
+            <classpath refid="build.classpath" />
+        </checkstyle>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- CHECKSTYLE-TESTS                                                       -->
+    <!-- ====================================================================== -->
+    <target name="checkstyle-tests" depends="prepare">
+        <taskdef resource="checkstyletask.properties" classpath="${CHECKSTYLE_LIB}" />
+        <checkstyle config="build/checkstyle.xml">
+            <fileset dir="test/java" includes="**/*.java" />
+            <property key="checkstyle.cache.file"
+                file="build/checkstyle.cache" />
+            <classpath refid="build.classpath"/>
+        </checkstyle>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- JAR                                                                    -->
+    <!-- ====================================================================== -->
+    <target name="jar" depends="compile, dirs-jar">
+        <delete file="lib/${project.name}.jar" />
+        <jar basedir="tmp/classes"
+             jarfile="lib/${project.name}.jar">
+            <include name="**/*.class" />
+        </jar>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- JAVADOC                                                                -->
+    <!-- ====================================================================== -->
+    <target name="javadoc" depends="prepare, dirs-javadoc">
+        <uptodate property="javadoc.unneeded" targetfile="docs/javadoc/index.html">
+            <srcfiles dir="src/java" includes="**/*.java,**/*.html" />
+        </uptodate>
+        <antcall target="javadoc.api" />
+    </target>
+
+    <target name="javadoc.api" unless="javadoc.unneeded" depends="prepare, dirs-javadoc">
+        <mkdir dir="docs/javadoc" />
+        <javadoc author="true" version="true" access="protected" 
+             doctitle="${project.title}" bottom="${project.title}"
+             source="${build.jdk-version.source}" destdir="docs/javadoc"
+             sourcepath="src/java" packagenames="*"
+             windowtitle="${project.title} version ${project.version}">
+            <classpath refid="build.classpath" />
+        </javadoc>
+    </target>
+</project>

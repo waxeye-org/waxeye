@@ -1,0 +1,126 @@
+
+============================================
+| Waxeye Parser Generator                  |
+| v 0.5.0                                  |
+| www.waxeye.org                           |
+| Copyright (C) 2008 Orlando D. A. R. Hill |
+============================================
+
+
+What is Waxeye?
+===============
+
+Waxeye makes language development easy and fun. With Waxeye, you can rapidly
+explore ideas for the syntax of your language.
+
+Whether you are creating a full programming language, a domain-specific
+language or just a simple data format, Waxeye will get you there faster.
+
+
+Features
+========
+
+* Scanner-less Parsing
+
+* Language Independent, Reusable Grammars
+
+* Modular, Composable Grammars
+
+* Grammar Testing
+
+* Automatic AST Generation
+
+* Choice of Programming Language
+  - Java
+  - Ruby
+  - Scheme
+
+
+User Manual
+===========
+
+Waxeye's user manual is in 'docs/manual.html'. The latest version is also
+online at http://waxeye.org/manual.html.
+
+
+Installation
+============
+
+Unix, OSX:
+1. Extract the files of the distribution.
+
+2. Copy the 'waxeye' directory to where you wish to install it.
+
+3. Add the 'bin/waxeye' binary to your search path. e.g. If you have '~/bin' in
+   your PATH and installed waxeye to '/usr/local/waxeye' then you might do the
+   following. ln -s /usr/local/waxeye/bin/waxeye ~/bin/
+
+
+Windows:
+1. Extract the files of the distribution.
+
+2. Copy the 'waxeye' directory to where you wish to install it.
+
+
+Building
+========
+
+1. Install MzScheme v4; either with DrScheme or alone.
+   http://download.plt-scheme.org
+
+2. Install Waxeye's backend for PLT Scheme.
+   Unix, OSX:
+   sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/plt/lib/plt/collects/
+
+   Windows:
+   Copy the directory 'src/scheme/waxeye' into your PLT-Scheme 'collects'
+   directory. For example, that might be 'C:\Program Files\PLT\collects'.
+
+3. Build Waxeye
+   Unix, OSX:
+   ./build/unix
+
+   Windows:
+
+   - If your PLT-Scheme installation isn't 'C:\Program Files\PLT' then you will
+   need to modify 'build\exe.bat' to use the correct path.
+
+   - From your Waxeye installation directory, run the 'build\exe.bat' script in a
+   command prompt.
+
+   - When the script has finished, press 'y' then 'Enter' to remove the
+   temporary files.
+
+
+Running
+=======
+
+Unix, OSX:
+Use 'waxeye'.
+
+Windows:
+Use a command prompt to run `waxeye.exe`. Note: If using the interpreter under
+Windows, you will need to press 'Ctrl-z' and then 'Enter' after the input you
+want to interpret.
+
+
+License
+=======
+
+MIT/X11 - All files (except the user manual) are under the permissive MIT/X11
+license.
+
+GNU FDL - Waxeye's user manual is under the GNU Free Documentation License.
+This includes the files 'doc/book/book' and 'doc/manual.html'.
+
+
+Support
+=======
+
+Feel free to contact me, if you are having trouble or want to give feedback.
+
+Either email me directly:
+orlandodarhill at Gmail.com
+
+Or signup and post on the mailing list:
+https://lists.sourceforge.net/lists/listinfo/waxeye-users

@@ -1,0 +1,12 @@
+# Copyright (C) 2008 Orlando D. A. R. Hill
+
+# Compilation settings
+build.debug = true
+build.deprecation = true
+build.jdk-version.source = 1.5
+build.jdk-version.target = 1.5
+build.optimize = true
+
+# Testing libraries
+CHECKSTYLE_LIB = ${env.CHECKSTYLE_LIB}
+TESTNG_LIB = ${env.TESTNG_LIB}

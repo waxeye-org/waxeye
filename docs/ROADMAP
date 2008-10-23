@@ -1,0 +1,56 @@
+Waxeye Development Roadmap
+==========================
+
+
+== 0.6.0 ==
+
+* C target
+
+* Better error reporting
+
+
+== 0.7.0 ==
+
+* Left-recursive grammars with left-corner parsing
+
+
+== 0.8.0 ==
+
+* Context-sensitive parsing
+
+
+== 0.9.0 ==
+
+* Minimise states
+
+
+== 0.10.0 ==
+
+* APIs for new languages
+  - Python
+  - Common Lisp
+  - Haskell
+  - C#
+
+
+== 0.11.0 ==
+
+* Error recovery
+
+
+== 0.12.0 ==
+
+* APIs for new languages
+  - C++
+  - OCaml
+  - Lua
+  - ActionScript
+  - JavaScript
+  - Factor
+  - D
+  - Perl
+
+
+== 0.13.0 ==
+
+* Ambiguity checking

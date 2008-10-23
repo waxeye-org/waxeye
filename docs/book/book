@@ -1,0 +1,1621 @@
+Language Development with Waxeye
+================================
+Orlando D._A._R. Hill
+v0.5.0, August 2008
+
+
+The latest version of this manual can be found online at
+http://waxeye.org/manual.html[].
+
+Copyright (C) 2008 Orlando D. A. R. Hill
+
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.2 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no
+Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included
+in the section entitled "GNU Free Documentation License".
+
+
+
+== Introduction ==
+
+As programmers, we are required to make use of data that is presented in a
+variety of formats. In order to extract and manipulate the desired information,
+we need the ability to navigate the structure of the language the data is
+written in. Unless the language is very simple, we must use a parser that
+understands the language and gives us the data in a form we can more readily
+use.
+
+Manually creating parsers can be boring and time consuming. It is, therefore,
+common to use a use parser generator to do the grunt work of constructing the
+parser. This is where Waxeye comes in handy.
+
+
+//////////////////////////////////////////////
+Who is Waxeye for?
+Why do we want a parser generator?
+When do we want to parse?
+Examples of when you would want to use Waxeye.
+//////////////////////////////////////////////
+
+
+
+== Getting Started ==
+
+=== Downloading ===
+
+You can download the latest version of Waxeye from
+http://sourceforge.net/projects/waxeye[Sourceforge].
+
+
+=== Requirements ===
+
+There are no external dependencies needed to run a pre-built version of Waxeye.
+If you build from source, you'll need http://download.plt-scheme.org[MzScheme].
+
+To use a generated parser, you need a supported programming language to run it
+from.
+
+
+=== Installation ===
+
+==== Unix and MacOSX ====
+1. Extract the files of the distribution.
+
+2. Copy the 'waxeye' directory to where you wish to install it.
+
+3. Add the 'bin/waxeye' binary to your search path. e.g. If you have `\~/bin` in
+   your PATH and installed waxeye to '/usr/local/waxeye' then you might do the
+   following.
+
+-------------------------------------------------------------------------------
+ln -s /usr/local/waxeye/bin/waxeye ~/bin/
+-------------------------------------------------------------------------------
+
+==== Windows ====
+
+1. Extract the files of the distribution.
+
+2. Copy the 'waxeye' directory to where you wish to install it.
+
+
+=== Running ===
+
+Currently, Waxeye may be used from a command-line interface. You can use it as
+a command-line tool or as part of a script or build-system. There are plans to
+develop a graphical tool at a later stage.
+
+==== Unix and MacOSX ====
+
+Run Waxeye by executing the `waxeye` binary.
+
+==== Windows ====
+
+Use a command prompt to run `waxeye.exe`.
+
+
+
+== Quick Guide ==
+
+This chapter gives a brief overview of how to use Waxeye. All material
+presented here will be covered in greater detail throughout the following
+chapters. The main purpose of this chapter is to jump-start those already
+familiar with parser generators. If you are just beginning to learn about
+parsing, feel free to skip this chapter and return to it later on.
+
+
+=== Grammars ===
+
+To describe a language with Waxeye, write a series of non-terminal definitions
+in a grammar file. By convention, Waxeye grammars end with the `.waxeye` file
+extension.
+
+A non-terminal definition is of the following form:
+
+'Name' `\<-` '+expressions'
+
+Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+Example <- A | B
+-------------------------------------------------------------------------------
+
+To define a non-terminal whose result will never be included in the AST, use
+this form:
+
+'Name' `<:` '+expressions'
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+Example <: *([ \t] | Comment)
+-------------------------------------------------------------------------------
+
+By default, the first non-terminal in a Waxeye grammar file is treated as the
+starting symbol of the language.
+
+
+=== Expressions ===
+
+An expression can be any of the following types:
+
+`.`
+
+Matches any character from the input.
+
+`\'text\'`
+
+Matches `text` in the input.
+
+`"text"`
+
+Matches `text` in the input while ignores case. This equivalent to the
+expression `[tT][eE][xX][tT]` but, is much more readable.
+
+`[a-z_-]`
+
+Character-class that matches either a lower-case English character, `_` or `-`.
+
+`NT`
+
+References the non-terminal named `NT`.
+
+`(`'e'`)`
+
+Raises the precedence of the expression 'e'.
+
+///////////////////////////////////////////////////////////////////////////////
+`@action<a, b>`
+
+References the context-action `action` and gives the action the data held by
+the labels `a` and `b`. These are used for context-sensitive parsing. Not fully
+implemented yet.
+
+`a=`'e'
+
+Labels the expression 'e' with the label `a`. Not fully implemented yet.
+///////////////////////////////////////////////////////////////////////////////
+
+`:`'e'
+
+Doesn't include the result of e when building the AST.
+
+`*`'e'
+
+Puts 'e' within a closure.
+
+`\+`'e'
+
+Puts 'e' within a plus-closure.
+
+`?`'e'
+
+Puts 'e' within an optional.
+
+`!`'e'
+
+Checks that 'e' fails.
+
+`&`'e'
+
+Checks that 'e' succeeds.
+
+'e1 e2'
+
+Matches 'e1' and 'e2' in sequence.
+
+'e1'`|`'e2'
+
+Tries to match 'e1' and, if that fails, tries to match 'e2'.
+
+
+
+== Basic Concepts ==
+
+=== What is a parser? ===
+
+When we want to understand data that has been written in a language of interest
+(L), we need to break our data into units of the language. A parser (P), for
+language L is a program specifically designed to perform that task. We give P
+data that is written in L and P will split our data based on how L is
+structured.
+
+When language L is simple, it is easy for us to, manually, write our parser in
+the programming language of our choice. However, as the structural complexity
+of L increases, so, too, does the size and complexity of the parser program.
+
+Manually writing and maintaining a large parser soon becomes a tedious and
+laborious job. Thankfully, automating boring tasks is exactly what computers
+were designed for. Enter parser generators.
+
+
+=== What is a parser generator? ===
+
+A parser generator is a tool to help software developers by automating the
+process of creating a parser. Just like compilers and assemblers, a parser
+generator takes a description of a program, automatically does the dirty work
+for you and gives you your program as output. Each accepts input in one
+language (L1), performs various transformations and creates output in another
+language (L2).
+
+ L1 --> Compiler         --> L2
+ L1 --> Assembler        --> L2
+ L1 --> Parser Generator --> L2
+
+The key difference between the three tools is the level of abstraction held by
+each of the input and output languages. The assembler works at the lowest level
+by taking assembly files and producing machine code. The compiler works above
+the assembler by taking a more abstract programming language and generating
+assembly files or machine code directly. Finally, the parser generator has the
+highest level of abstraction and transforms a 'grammar file' into programming
+language source code for a compiler to process.
+
+
+=== What is a grammar file? ===
+
+A grammar file is a file that describes a language. To generate a parser for a
+language (L), you must supply the parser generator with a grammar file that
+describes L.
+
+
+=== What is the result of a parser? ===
+
+To make the most of your data, it must be presented in a form that is easy to
+understand and manipulate. The most effective form for this is a tree.
+
+A Waxeye parser will automatically represent your data as an Abstract Syntax
+Tree (AST). The layout of the AST is based on the structure of your language's
+grammar.
+
+
+///////////////////////////////////////////////////////////////////////////////
+== Short Example ==
+
+This chapter will introduce you to the basic work-flow used with Waxeye. In the
+process, we will iteratively develop the grammar of a simple real-world
+language.
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+== Waxeye Grammars ==
+
+We can define a language as the set of strings it contains. While it is
+sometimes possible to specify a language simply by enumerating all of its
+strings, such an approach has significant drawbacks. To try to write out each
+string in our language would, likely, be very time consuming and, potentially,
+take forever.
+
+Suppose we need to read time information from within files as part of a larger
+program. In a trivial case, the time information may be presented as two digits
+for the hours, a colon `:`, and then two digits for the minutes.
+
+-------------------------------------------------------------------------------
+00:00, 00:01, 00:02, ... 14:23, 14:24, 14:25, ... 23:57, 23:58, 23:59
+-------------------------------------------------------------------------------
+
+We could describe our time language this way, but writing all 1,440 possible
+hour/minute combinations wouldn't be much fun. Not to mention how bad things
+would be if we extended our language to include date information.
+
+As another example, consider the language that consists of all strings of one
+or more alphabet character.
+
+-------------------------------------------------------------------------------
+a, b, c, ... z, aa, ab, ac, ... az, aaa, aab, aac, ...
+-------------------------------------------------------------------------------
+
+Even worse than our time example, this language is infinite. It would be
+impossible for us to explicitly list every string in the language.
+
+If we want to talk about such languages, we need a notation that is more
+abstract and compact than simply writing out each string. We call such a
+notation a grammar.
+
+
+
+=== Expression Types ===
+
+A grammar is made up of expressions. These expressions give us a succinct
+representation of a language and allow us to describe its syntactic structure.
+
+
+==== Atomic Expressions ====
+
+===== Wildcard =====
+`.`
+
+Matches any character from the input.
+
+
+===== Literal =====
+`\'text\'`
+
+Matches `text` in the input.
+
+
+===== Case-insensitive Literal =====
+`"text"`
+
+Matches `text` in the input while ignores case. This equivalent to the
+expression `[tT][eE][xX][tT]` but, is much more readable.
+
+
+===== Character Class =====
+`[a-z_-]`
+
+Character-class that matches either a lower-case English character, `_` or
+`-`.
+
+
+===== Non-terminal =====
+`NT`
+
+References the non-terminal named `NT`.
+
+
+===== Parentheses =====
+`(`'e'`)`
+
+Raises the precedence of the expression 'e'.
+
+
+///////////////////////////////////////////////////////////////////////////////
+===== Context Actions =====
+`@action<a, b>`
+
+References the context-action `action` and gives the action the data held by
+the labels `a` and `b`. These are used for context-sensitive parsing. Not fully
+implemented yet.
+///////////////////////////////////////////////////////////////////////////////
+
+
+==== Prefix Expressions ====
+
+===== Void =====
+`:`'e'
+
+Doesn't include the result of e when building the AST.
+
+
+===== Closure =====
+`*`'e'
+
+Puts 'e' within a closure.
+
+
+===== Plus =====
+`\+`'e'
+
+Puts 'e' within a plus-closure.
+
+
+===== Optional =====
+`?`'e'
+
+Puts 'e' within an optional.
+
+
+===== Negative Check =====
+`!`'e'
+
+Checks that 'e' fails.
+
+
+===== Positive Check =====
+`&`'e'
+
+Checks that 'e' succeeds.
+
+
+///////////////////////////////////////////////////////////////////////////////
+===== Labels =====
+`a=`'e'
+
+Labels the expression 'e' with the label `a`. Not fully implemented yet.
+///////////////////////////////////////////////////////////////////////////////
+
+
+==== Sequence Expressions ====
+'e1 e2'
+
+Matches 'e1' and 'e2' in sequence.
+
+
+==== Alternation Expressions ====
+'e1'`|`'e2'
+
+Tries to match 'e1' and, if that fails, tries to match 'e2'.
+
+
+=== Precedence ===
+
+In Waxeye grammars, some expressions can have other expressions nested within
+them. When we use parentheses, we are explicitly denoting the nesting structure
+of the expressions.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+((?A) B) | C
+-------------------------------------------------------------------------------
+
+At times, this can seem needlessly verbose. In many cases, we are able to omit
+the parentheses in favor of a shorter notation. We do this by exploiting the
+precedence of each expression type.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+?A B | C
+-------------------------------------------------------------------------------
+
+The precedence of an expression determines the priority it has when resolving
+implicitly nested expressions. Each expression type has a level of precedence
+relative to all other types. There are four different precedence levels in
+Waxeye grammars.
+
+
+==== Level 4 ====
+
+The highest precedence is held by the atomic expressions. Because these
+expressions cannot, themselves, contain expressions, there is no need to
+consider which expressions are nested within them.
+
+
+==== Level 3 ====
+
+The prefix expressions hold the next precedence level. Their nesting is
+resolved directly after the atomic expressions.
+
+
+==== Level 2 ====
+
+Sequences of expressions are formed once the atomic and prefix expressions have
+been resolved.
+
+
+==== Level 1 ====
+
+Finally, once all other expressions have been resolved, the different choices of
+the alternation expression are resolved.
+
+
+
+=== Pruning Non-terminals ===
+
+Sometimes, creating a new AST node from a non-terminal will give us more
+information than we need. To make it easier to process the AST, we can remove
+this vertical noise by using the 'pruning' non-terminal type. This non-terminal
+type has the following form:
+
+'Name' `\<=` '+expressions'
+
+When 'Name' has successfully parsed a string, one of three things will happen,
+depending on the number of results to be included from 'Name'\'s expressions.
+
+* If there are no expression results to be included, nothing new will be added
+  to the AST.
+
+* If there is one expression result to be included, that result will take the
+  place of the 'Name' AST node.
+
+* Otherwise, a new 'Name' AST node will be created, just like a normal
+  non-terminal.
+
+
+To help understand how this works, consider an example from a simple arithmetic
+grammar.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+Product <- Number *([*/] Number)
+
+Number  <- +[0-9]
+-------------------------------------------------------------------------------
+
+If we use the 'Product' rule to parse the string `3*7`, we get a tree with
+'Product' at the root and, below that, a 'Number', a `*` character and then
+another 'Number'.
+
+-------------------------------------------------------------------------------
+Product
+->  Number
+    |   3
+|   *
+->  Number
+    |   7
+-------------------------------------------------------------------------------
+
+However, if the 'Product' rule parses a string with just one 'Number' in it, we
+will get a tree that is slightly bigger than we need. Parsing the string `5`
+produces the following tree. 
+
+-------------------------------------------------------------------------------
+Product
+->  Number
+    |   5
+-------------------------------------------------------------------------------
+
+In this case, having a 'Product' node at the root of the AST isn't necessary.
+If we want to, we can rewrite the original grammar to use a pruning
+non-terminal.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+Product <= Number *([*/] Number)
+
+Number  <- +[0-9]
+-------------------------------------------------------------------------------
+
+Now, when we use 'Product' to parse `3*7`, we will get the same result as
+before but, when parsing `5`, we get an AST with 'Number' as the root.
+
+-------------------------------------------------------------------------------
+Number
+|   5
+-------------------------------------------------------------------------------
+
+
+As a second example, let's look at a grammar for nested parentheses.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+A <- :'(' A :')' | B
+
+B <- 'b'
+-------------------------------------------------------------------------------
+
+Here are some example inputs and their resulting ASTs:
+
+Input: `b`
+
+-------------------------------------------------------------------------------
+A
+->  B
+    |   b
+-------------------------------------------------------------------------------
+
+Input: `(b)`
+
+-------------------------------------------------------------------------------
+A
+->  A
+    ->  B
+        |   b
+-------------------------------------------------------------------------------
+
+Input: `\(((b)))`
+
+-------------------------------------------------------------------------------
+A
+->  A
+    ->  A
+        ->  A
+            ->  B
+                |   b
+-------------------------------------------------------------------------------
+
+Unless we want to know the number of parentheses matched, trees like these
+contain more information than we need. Again, we are able to solve this by
+rewriting the grammar using a 'pruning' non-terminal.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+A <= :'(' A :')' | B
+
+B <- 'b'
+-------------------------------------------------------------------------------
+
+This time, parsing the input `\(((b)))` gives us a much shorter tree.
+
+-------------------------------------------------------------------------------
+B
+|   b
+-------------------------------------------------------------------------------
+
+
+=== Comments ===
+
+There are two types of comments in Waxeye grammars; single-line and multi-line.
+
+==== Single-line ====
+
+Single-line comments start at the first `#` outside of an atomic expression and
+extend until the end of the line.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+# This is a single-line comment.
+-------------------------------------------------------------------------------
+
+
+==== Multi-line ====
+
+Multi-line comments are opened at the first `/\*` outside of an atomic
+expression and closed with a `\*/`.
+
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+/* This is a multi-line comment. */
+-------------------------------------------------------------------------------
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+/* This is, also,
+   a multi-line comment. */
+-------------------------------------------------------------------------------
+
+
+As an added convenience for when editing a grammar, multi-line comments can be
+nested within each other. This is handy when you want to comment out a section
+of the grammar that already contains a comment.
+
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+/*
+
+This is the outer comment.
+
+A <- 'a'
+
+/*
+ * This is the inner comment.
+ */
+B <- 'b'
+
+*/
+-------------------------------------------------------------------------------
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+== Extended Example ==
+todo
+
+
+== Using the Interpreter ==
+todo
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+== Using Waxeye ==
+
+This chapter will show you how to setup Waxeye for your programming language.
+It covers language specific installation requirements and presents some basic
+boilerplate code to get you started. You can find copies of this boilerplate
+code in `src/boilerplate/`.
+
+The example grammar we'll be using can be found in `grammars/num.waxeye`. You
+may wish to copy it to the directory you're working in so you can experiment
+with extending and modifying the grammar.
+
+[source,waxeye]
+-------------------------------------------------------------------------------
+Num <- '0' | [1-9] *[0-9]
+-------------------------------------------------------------------------------
+
+
+=== Using Waxeye from Java ===
+
+Waxeye's Java runtime is compatible with version 1.5 and 1.6 of the JRE. It
+should also be possible to use Waxeye with JRE versions 1.3 and 1.4 of by
+retrofitting the classes with http://retroweaver.sourceforge.net[Retroweaver]
+or http://retrotranslator.sourceforge.net[Retrotranslator].
+
+==== Install ====
+
+To use a Waxeye parser from Java, you need Waxeye's Java runtime in your
+classpath. The required classes are in the Jar file `lib/waxeye.jar`.
+
+==== Generate Parser ====
+
+-------------------------------------------------------------------------------
+waxeye -g java . num.waxeye
+-------------------------------------------------------------------------------
+
+==== Use Parser ====
+
+[source,java]
+-------------------------------------------------------------------------------
+import org.waxeye.ast.IAST;
+import org.waxeye.ast.print.ArrowPrinter;
+import org.waxeye.input.InputBuffer;
+
+public class Example
+{
+    public static void main(final String[] args)
+    {
+        // Create our parser
+        final Parser parser = new Parser();
+
+        // Setup our input
+        final InputBuffer input = new InputBuffer("42".toCharArray());
+
+        // Parse our input
+        final IAST<Type> ast = parser.parse(input).getAST();
+
+        if (ast != null)
+        {
+            // Print our ast
+            new ArrowPrinter<Type>().print(ast);
+        }
+        else
+        {
+            System.out.println("parse error");
+        }
+    }
+}
+-------------------------------------------------------------------------------
+
+==== Run ====
+
+-------------------------------------------------------------------------------
+javac -cp .:$WAXEYE_HOME/lib/waxeye.jar Example.java
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+java -cp .:$WAXEYE_HOME/lib/waxeye.jar Example
+-------------------------------------------------------------------------------
+
+
+
+=== Using Waxeye from Ruby ===
+
+Waxeye's Ruby runtime is compatible with Ruby version 1.8.6.
+
+
+==== Install ====
+
+Install the Waxeye gem; either from Rubyforge or, from the gem file in `lib`.
+
+-------------------------------------------------------------------------------
+# Install the Waxeye gem from Rubyforge
+sudo gem install waxeye
+-------------------------------------------------------------------------------
+
+==== Generate Parser ====
+
+-------------------------------------------------------------------------------
+waxeye -g ruby . num.waxeye
+-------------------------------------------------------------------------------
+
+==== Use Parser ====
+
+[source,ruby]
+-------------------------------------------------------------------------------
+require 'rubygems'
+require 'waxeye'
+require 'parser'
+
+# Create our parser
+p = Parser.new()
+
+# Parse our input
+ast = p.parse("42")
+
+# Print our AST
+ast.display
+-------------------------------------------------------------------------------
+
+==== Run ====
+
+-------------------------------------------------------------------------------
+ruby example.rb
+-------------------------------------------------------------------------------
+
+
+
+=== Using Waxeye from Scheme ===
+
+Waxeye's Scheme runtime is compatible with v372 and v4 of PLT-Scheme's
+http://download.plt-scheme.org/[MzScheme]. You will need to have MzScheme
+installed to use it; either by itself or with DrScheme.
+
+==== Install ====
+
+Install the waxeye collection in your preferred place where MzScheme can find
+it.
+
+-------------------------------------------------------------------------------
+# Install the Waxeye collection; change to your install paths as needed
+sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/plt/lib/plt/collects/
+-------------------------------------------------------------------------------
+
+==== Generate Parser ====
+
+-------------------------------------------------------------------------------
+waxeye -g scheme . num.waxeye
+-------------------------------------------------------------------------------
+
+==== Use Parser ====
+
+[source,scheme]
+-------------------------------------------------------------------------------
+;;; Create some boiler-plate code in 'example.scm'
+(module
+example
+mzscheme
+
+(require "parser.scm")
+
+(define (run)
+  ;; Parse our input
+  (let ((ast (parser "42")))
+    ;; Print the ast
+    (if (ast? ast)
+        (display-ast ast)
+        (display-parse-error ast))))
+
+(run)
+)
+-------------------------------------------------------------------------------
+
+==== Run from v372 ====
+
+-------------------------------------------------------------------------------
+mzscheme -mv -t example.scm
+-------------------------------------------------------------------------------
+
+==== Run from v4 ====
+
+-------------------------------------------------------------------------------
+mzscheme -t example.scm
+-------------------------------------------------------------------------------
+
+
+
+== Grammar Testing ==
+
+This example is taken from `test/grammars/waxeye.scm` in the Waxeye
+distribution.
+
+[source,scheme]
+-------------------------------------------------------------------------------
+;; These are tests for the 'Grammar' non-terminal
+(Grammar ; <- This is the non-terminal's name
+
+ ;; Following the name are pairs of input string and expected output. The
+ ;; output is either the keyword 'pass', the keyword 'fail' or an AST. The AST
+ ;; specifies the structure of the expected tree, the names of the nodes and
+ ;; the individual characters. If you don't want to specify the whole tree,
+ ;; just use the wild-card symbol '*.' for the portion of the tree you want to
+ ;; skip.
+
+ "" ; <- This is the input
+ (Grammar) ; <- This is the expected output
+
+ "A <- 'a'"
+ pass ; <- The keyword 'pass'
+
+ "A"
+ fail ; <- The keyword 'fail'
+
+ "A <- 'a' B <- 'b'"
+ (Grammar (Definition (Identifier #\A) *.)  ; <- Here we skip some of
+          (Definition (Identifier #\B) *.)) ;    Definition's children
+
+ "A <- 'a'"
+ (Grammar (*.)) ; <- Here we specify a child tree of any type
+
+ "A <- [a-z] *[a-z0-9]"
+ (Grammar (Definition (Identifier #\A) (LeftArrow) (Alternation *.)))
+
+ "A <- 'a'"
+ (Grammar (Definition (Identifier #\A)
+            (LeftArrow) (Alternation (Sequence (Unit (Literal #\a))))))
+ )
+-------------------------------------------------------------------------------
+
+
+
+== Modular Grammars ==
+
+It is sometimes desirable to have a grammar split across multiple files and to
+have a final grammar built from those files. We can do this by using a
+modular grammar.
+
+Having our grammar split in this way provides us with the opportunity to
+manipulate the definition of the non-terminals and, in the process, create new
+languages. Depending on how we compose our final grammar, we can create vastly
+different languages from the same base grammars and only need to change the one
+modular grammar.
+
+One of the biggest advantages of modular grammars is that they make it very
+easy to embed one language within another. Many languages can be thought of in
+this way. Prime examples are when a programming language is embedded within XML
+or HTML. Or, going the other way, you could embed a data language like SQL
+within a programming language.
+
+There are also cases when a language's syntax changes subtly over time. We
+want to have parsers for each version of the language but without duplicating
+large parts of our grammars.
+
+
+=== Grammar Composition ===
+
+A modular grammar is made up of expressions that pull together non-modular
+grammars. Some modular expressions can have other expressions nested within
+them. An expression is one of the following:
+
+* '"grammar.waxeye"' +
+  A path to a '.waxeye' file. This path should either be relative to the
+  modular grammar or be an absolute path.
+
+* '(rename modular-exp (old-name . new-name) ...)' +
+  Renames the specified non-terminals with their new names.
+
+* '(only modular-exp non-term ...)' +
+  Includes only the listed non-terminals.
+
+* '(all-except modular-exp non-term ...)' +
+  Includes all non-terminals except those listed.
+
+* '(prefix prefix modular-exp)' +
+   Prefixes the names of non-terminals from 'modular-exp'.
+
+* '(prefix-only prefix modular-exp non-term ...)' +
+  Prefixes only the listed non-terminals.
+
+* '(prefix-all-except prefix modular-exp non-term ...)' +
+  Prefixes all non-terminals except those listed.
+
+* '(join modular-exp ...)' +
+  Combines the results of multiple modular expressions into a single
+  expression. Not needed at the top-level.
+
+
+
+== Waxeye Options ==
+
+-------------------------------------------------------------------------------
+waxeye [ <option> ... ] <grammar>
+ where <option> is one of
+ Waxeye modes:
+/ -g <language> <dir> : Generate
+| -i : Interpret
+\ -t <test> : Test
+ Grammar options:
+  -m : Modular Grammar - default: false
+  -s <start> : Starting non-terminal - default: first non-terminal
+ Parser options:
+  -c <comment> : Header comment for generated files - default: none
+  -e <eof> : Check parser consumes all input - default: true
+  -n <namespace> : Module or package namespace - default: none
+  -p <prefix> : Name prefix for generated files - default: none
+ Misc options:
+  --debug : Activates debug information
+  --version : Prints version number and copyright notice
+  --help, -h : Show this help
+  -- : Do not treat any remaining argument as a switch (at this level)
+ /|\ Brackets indicate mutually exclusive options.
+ Multiple single-letter switches can be combined after one `-'; for
+  example: `-h-' is the same as `-h --'
+-------------------------------------------------------------------------------
+
+=== Waxeye Modes ===
+
+-------------------------------------------------------------------------------
+grammar
+-------------------------------------------------------------------------------
+
+The grammar file describing the language you want to parse. It is the last
+argument given to Waxeye and is required by all of Waxeye's operating modes.
+
+
+==== Generate ====
+
+-------------------------------------------------------------------------------
+-g <language> <dir>
+-------------------------------------------------------------------------------
+
+Creates a parser written in the specified programming language. Writes the
+parser's files to the specified directory.
+
+Currently supported programming languages:
+
+* java
+* ruby
+* scheme
+
+-------------------------------------------------------------------------------
+waxeye -g scheme . grammar.waxeye
+-------------------------------------------------------------------------------
+
+
+==== Interpret ====
+
+-------------------------------------------------------------------------------
+-i
+-------------------------------------------------------------------------------
+
+Parses input as a string from the language defined by the grammar. Displays the
+resulting AST or parse error.
+
+-------------------------------------------------------------------------------
+waxeye -i grammar.waxeye < input.txt
+-------------------------------------------------------------------------------
+
+
+==== Test ====
+
+-------------------------------------------------------------------------------
+-t <test>
+-------------------------------------------------------------------------------
+
+Runs the tests in the specified test file for the language defined by the
+grammar. Displays any test errors.
+
+-------------------------------------------------------------------------------
+waxeye -t tests.scm grammar.waxeye
+-------------------------------------------------------------------------------
+
+
+=== Grammar Options ===
+
+-------------------------------------------------------------------------------
+-m
+-------------------------------------------------------------------------------
+
+Indicates that the grammar is a modular grammar.
+
+-------------------------------------------------------------------------------
+-s <start>
+-------------------------------------------------------------------------------
+
+Specifies the non-terminal that starts the language. Default - The first
+non-terminal in the grammar.
+
+
+=== Parser Options ===
+
+-------------------------------------------------------------------------------
+-c <comment>
+-------------------------------------------------------------------------------
+
+The file to be used as the header comment of generated files. Default - none.
+
+
+-------------------------------------------------------------------------------
+-e <eof>
+-------------------------------------------------------------------------------
+
+Whether to check that the parser consumes all input. Default - true.
+
+
+-------------------------------------------------------------------------------
+-n <namespace>
+-------------------------------------------------------------------------------
+
+The module or package namespace. Default - none.
+
+
+-------------------------------------------------------------------------------
+-p <prefix>
+-------------------------------------------------------------------------------
+
+The name prefix for any generated files. Default - none.
+
+
+=== Misc Options ===
+
+-------------------------------------------------------------------------------
+--debug
+-------------------------------------------------------------------------------
+
+Activates debug information.
+
+
+-------------------------------------------------------------------------------
+--version
+-------------------------------------------------------------------------------
+
+Prints the version number and copyright notice.
+
+
+-------------------------------------------------------------------------------
+--help, -h
+-------------------------------------------------------------------------------
+
+Prints a message describing the available command-line options.
+
+
+///////////////////////////////////////////////////////////////////////////////
+== Grammar Cookbook ==
+
+This chapter gives you recipes for some of the common situations faced when
+writing grammars.
+
+=== Removing Implicit Information ===
+
+e.g.
+
+Assignment <- Variable '=' Expression
+
+Change to:
+Assignment <- Variable :'=' Expression
+
+
+=== Whitespace ===
+
+TODO
+
+=== Comments ===
+
+* Single-line comments
+* Multi-line comments
+* Nested comments
+
+=== End of Line Encoding ===
+
+TODO
+
+=== Quoted Strings ===
+
+TODO
+
+=== Delimited Lists ===
+
+TODO
+
+=== Optionally Delimited Expressions ===
+
+TODO
+
+=== Escape Sequences ===
+
+TODO
+
+=== Nested Expressions ===
+
+TODO
+
+=== Arithmetic Expressions ===
+
+TODO
+
+=== Case Insensitive Keywords ===
+
+TODO
+
+=== Keywords as Identifiers ===
+
+TODO
+
+=== Embedded Languages ===
+
+TODO
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+== Having Trouble? ==
+
+This chapter will help you when you get stuck. It has solutions to common
+problems and tells you how to get help, online, if you are still having
+trouble.
+
+=== Common Pitfalls ===
+
+TODO
+
+
+=== Community Support ===
+
+TODO
+
+
+== Future Improvements ===
+
+This chapter talks about some of the upcoming features that will make using
+Waxeye even more fun.
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+== GNU Free Documentation License ==
+
+...............................................................................
+                GNU Free Documentation License
+                  Version 1.2, November 2002
+
+
+ Copyright (C) 2000,2001,2002  Free Software Foundation, Inc.
+     51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+0. PREAMBLE
+
+The purpose of this License is to make a manual, textbook, or other
+functional and useful document "free" in the sense of freedom: to
+assure everyone the effective freedom to copy and redistribute it,
+with or without modifying it, either commercially or noncommercially.
+Secondarily, this License preserves for the author and publisher a way
+to get credit for their work, while not being considered responsible
+for modifications made by others.
+
+This License is a kind of "copyleft", which means that derivative
+works of the document must themselves be free in the same sense.  It
+complements the GNU General Public License, which is a copyleft
+license designed for free software.
+
+We have designed this License in order to use it for manuals for free
+software, because free software needs free documentation: a free
+program should come with manuals providing the same freedoms that the
+software does.  But this License is not limited to software manuals;
+it can be used for any textual work, regardless of subject matter or
+whether it is published as a printed book.  We recommend this License
+principally for works whose purpose is instruction or reference.
+
+
+1. APPLICABILITY AND DEFINITIONS
+
+This License applies to any manual or other work, in any medium, that
+contains a notice placed by the copyright holder saying it can be
+distributed under the terms of this License.  Such a notice grants a
+world-wide, royalty-free license, unlimited in duration, to use that
+work under the conditions stated herein.  The "Document", below,
+refers to any such manual or work.  Any member of the public is a
+licensee, and is addressed as "you".  You accept the license if you
+copy, modify or distribute the work in a way requiring permission
+under copyright law.
+
+A "Modified Version" of the Document means any work containing the
+Document or a portion of it, either copied verbatim, or with
+modifications and/or translated into another language.
+
+A "Secondary Section" is a named appendix or a front-matter section of
+the Document that deals exclusively with the relationship of the
+publishers or authors of the Document to the Document's overall subject
+(or to related matters) and contains nothing that could fall directly
+within that overall subject.  (Thus, if the Document is in part a
+textbook of mathematics, a Secondary Section may not explain any
+mathematics.)  The relationship could be a matter of historical
+connection with the subject or with related matters, or of legal,
+commercial, philosophical, ethical or political position regarding
+them.
+
+The "Invariant Sections" are certain Secondary Sections whose titles
+are designated, as being those of Invariant Sections, in the notice
+that says that the Document is released under this License.  If a
+section does not fit the above definition of Secondary then it is not
+allowed to be designated as Invariant.  The Document may contain zero
+Invariant Sections.  If the Document does not identify any Invariant
+Sections then there are none.
+
+The "Cover Texts" are certain short passages of text that are listed,
+as Front-Cover Texts or Back-Cover Texts, in the notice that says that
+the Document is released under this License.  A Front-Cover Text may
+be at most 5 words, and a Back-Cover Text may be at most 25 words.
+
+A "Transparent" copy of the Document means a machine-readable copy,
+represented in a format whose specification is available to the
+general public, that is suitable for revising the document
+straightforwardly with generic text editors or (for images composed of
+pixels) generic paint programs or (for drawings) some widely available
+drawing editor, and that is suitable for input to text formatters or
+for automatic translation to a variety of formats suitable for input
+to text formatters.  A copy made in an otherwise Transparent file
+format whose markup, or absence of markup, has been arranged to thwart
+or discourage subsequent modification by readers is not Transparent.
+An image format is not Transparent if used for any substantial amount
+of text.  A copy that is not "Transparent" is called "Opaque".
+
+Examples of suitable formats for Transparent copies include plain
+ASCII without markup, Texinfo input format, LaTeX input format, SGML
+or XML using a publicly available DTD, and standard-conforming simple
+HTML, PostScript or PDF designed for human modification.  Examples of
+transparent image formats include PNG, XCF and JPG.  Opaque formats
+include proprietary formats that can be read and edited only by
+proprietary word processors, SGML or XML for which the DTD and/or
+processing tools are not generally available, and the
+machine-generated HTML, PostScript or PDF produced by some word
+processors for output purposes only.
+
+The "Title Page" means, for a printed book, the title page itself,
+plus such following pages as are needed to hold, legibly, the material
+this License requires to appear in the title page.  For works in
+formats which do not have any title page as such, "Title Page" means
+the text near the most prominent appearance of the work's title,
+preceding the beginning of the body of the text.
+
+A section "Entitled XYZ" means a named subunit of the Document whose
+title either is precisely XYZ or contains XYZ in parentheses following
+text that translates XYZ in another language.  (Here XYZ stands for a
+specific section name mentioned below, such as "Acknowledgements",
+"Dedications", "Endorsements", or "History".)  To "Preserve the Title"
+of such a section when you modify the Document means that it remains a
+section "Entitled XYZ" according to this definition.
+
+The Document may include Warranty Disclaimers next to the notice which
+states that this License applies to the Document.  These Warranty
+Disclaimers are considered to be included by reference in this
+License, but only as regards disclaiming warranties: any other
+implication that these Warranty Disclaimers may have is void and has
+no effect on the meaning of this License.
+
+
+2. VERBATIM COPYING
+
+You may copy and distribute the Document in any medium, either
+commercially or noncommercially, provided that this License, the
+copyright notices, and the license notice saying this License applies
+to the Document are reproduced in all copies, and that you add no other
+conditions whatsoever to those of this License.  You may not use
+technical measures to obstruct or control the reading or further
+copying of the copies you make or distribute.  However, you may accept
+compensation in exchange for copies.  If you distribute a large enough
+number of copies you must also follow the conditions in section 3.
+
+You may also lend copies, under the same conditions stated above, and
+you may publicly display copies.
+
+
+3. COPYING IN QUANTITY
+
+If you publish printed copies (or copies in media that commonly have
+printed covers) of the Document, numbering more than 100, and the
+Document's license notice requires Cover Texts, you must enclose the
+copies in covers that carry, clearly and legibly, all these Cover
+Texts: Front-Cover Texts on the front cover, and Back-Cover Texts on
+the back cover.  Both covers must also clearly and legibly identify
+you as the publisher of these copies.  The front cover must present
+the full title with all words of the title equally prominent and
+visible.  You may add other material on the covers in addition.
+Copying with changes limited to the covers, as long as they preserve
+the title of the Document and satisfy these conditions, can be treated
+as verbatim copying in other respects.
+
+If the required texts for either cover are too voluminous to fit
+legibly, you should put the first ones listed (as many as fit
+reasonably) on the actual cover, and continue the rest onto adjacent
+pages.
+
+If you publish or distribute Opaque copies of the Document numbering
+more than 100, you must either include a machine-readable Transparent
+copy along with each Opaque copy, or state in or with each Opaque copy
+a computer-network location from which the general network-using
+public has access to download using public-standard network protocols
+a complete Transparent copy of the Document, free of added material.
+If you use the latter option, you must take reasonably prudent steps,
+when you begin distribution of Opaque copies in quantity, to ensure
+that this Transparent copy will remain thus accessible at the stated
+location until at least one year after the last time you distribute an
+Opaque copy (directly or through your agents or retailers) of that
+edition to the public.
+
+It is requested, but not required, that you contact the authors of the
+Document well before redistributing any large number of copies, to give
+them a chance to provide you with an updated version of the Document.
+
+
+4. MODIFICATIONS
+
+You may copy and distribute a Modified Version of the Document under
+the conditions of sections 2 and 3 above, provided that you release
+the Modified Version under precisely this License, with the Modified
+Version filling the role of the Document, thus licensing distribution
+and modification of the Modified Version to whoever possesses a copy
+of it.  In addition, you must do these things in the Modified Version:
+
+A. Use in the Title Page (and on the covers, if any) a title distinct
+   from that of the Document, and from those of previous versions
+   (which should, if there were any, be listed in the History section
+   of the Document).  You may use the same title as a previous version
+   if the original publisher of that version gives permission.
+B. List on the Title Page, as authors, one or more persons or entities
+   responsible for authorship of the modifications in the Modified
+   Version, together with at least five of the principal authors of the
+   Document (all of its principal authors, if it has fewer than five),
+   unless they release you from this requirement.
+C. State on the Title page the name of the publisher of the
+   Modified Version, as the publisher.
+D. Preserve all the copyright notices of the Document.
+E. Add an appropriate copyright notice for your modifications
+   adjacent to the other copyright notices.
+F. Include, immediately after the copyright notices, a license notice
+   giving the public permission to use the Modified Version under the
+   terms of this License, in the form shown in the Addendum below.
+G. Preserve in that license notice the full lists of Invariant Sections
+   and required Cover Texts given in the Document's license notice.
+H. Include an unaltered copy of this License.
+I. Preserve the section Entitled "History", Preserve its Title, and add
+   to it an item stating at least the title, year, new authors, and
+   publisher of the Modified Version as given on the Title Page.  If
+   there is no section Entitled "History" in the Document, create one
+   stating the title, year, authors, and publisher of the Document as
+   given on its Title Page, then add an item describing the Modified
+   Version as stated in the previous sentence.
+J. Preserve the network location, if any, given in the Document for
+   public access to a Transparent copy of the Document, and likewise
+   the network locations given in the Document for previous versions
+   it was based on.  These may be placed in the "History" section.
+   You may omit a network location for a work that was published at
+   least four years before the Document itself, or if the original
+   publisher of the version it refers to gives permission.
+K. For any section Entitled "Acknowledgements" or "Dedications",
+   Preserve the Title of the section, and preserve in the section all
+   the substance and tone of each of the contributor acknowledgements
+   and/or dedications given therein.
+L. Preserve all the Invariant Sections of the Document,
+   unaltered in their text and in their titles.  Section numbers
+   or the equivalent are not considered part of the section titles.
+M. Delete any section Entitled "Endorsements".  Such a section
+   may not be included in the Modified Version.
+N. Do not retitle any existing section to be Entitled "Endorsements"
+   or to conflict in title with any Invariant Section.
+O. Preserve any Warranty Disclaimers.
+
+If the Modified Version includes new front-matter sections or
+appendices that qualify as Secondary Sections and contain no material
+copied from the Document, you may at your option designate some or all
+of these sections as invariant.  To do this, add their titles to the
+list of Invariant Sections in the Modified Version's license notice.
+These titles must be distinct from any other section titles.
+
+You may add a section Entitled "Endorsements", provided it contains
+nothing but endorsements of your Modified Version by various
+parties--for example, statements of peer review or that the text has
+been approved by an organization as the authoritative definition of a
+standard.
+
+You may add a passage of up to five words as a Front-Cover Text, and a
+passage of up to 25 words as a Back-Cover Text, to the end of the list
+of Cover Texts in the Modified Version.  Only one passage of
+Front-Cover Text and one of Back-Cover Text may be added by (or
+through arrangements made by) any one entity.  If the Document already
+includes a cover text for the same cover, previously added by you or
+by arrangement made by the same entity you are acting on behalf of,
+you may not add another; but you may replace the old one, on explicit
+permission from the previous publisher that added the old one.
+
+The author(s) and publisher(s) of the Document do not by this License
+give permission to use their names for publicity for or to assert or
+imply endorsement of any Modified Version.
+
+
+5. COMBINING DOCUMENTS
+
+You may combine the Document with other documents released under this
+License, under the terms defined in section 4 above for modified
+versions, provided that you include in the combination all of the
+Invariant Sections of all of the original documents, unmodified, and
+list them all as Invariant Sections of your combined work in its
+license notice, and that you preserve all their Warranty Disclaimers.
+
+The combined work need only contain one copy of this License, and
+multiple identical Invariant Sections may be replaced with a single
+copy.  If there are multiple Invariant Sections with the same name but
+different contents, make the title of each such section unique by
+adding at the end of it, in parentheses, the name of the original
+author or publisher of that section if known, or else a unique number.
+Make the same adjustment to the section titles in the list of
+Invariant Sections in the license notice of the combined work.
+
+In the combination, you must combine any sections Entitled "History"
+in the various original documents, forming one section Entitled
+"History"; likewise combine any sections Entitled "Acknowledgements",
+and any sections Entitled "Dedications".  You must delete all sections
+Entitled "Endorsements".
+
+
+6. COLLECTIONS OF DOCUMENTS
+
+You may make a collection consisting of the Document and other documents
+released under this License, and replace the individual copies of this
+License in the various documents with a single copy that is included in
+the collection, provided that you follow the rules of this License for
+verbatim copying of each of the documents in all other respects.
+
+You may extract a single document from such a collection, and distribute
+it individually under this License, provided you insert a copy of this
+License into the extracted document, and follow this License in all
+other respects regarding verbatim copying of that document.
+
+
+7. AGGREGATION WITH INDEPENDENT WORKS
+
+A compilation of the Document or its derivatives with other separate
+and independent documents or works, in or on a volume of a storage or
+distribution medium, is called an "aggregate" if the copyright
+resulting from the compilation is not used to limit the legal rights
+of the compilation's users beyond what the individual works permit.
+When the Document is included in an aggregate, this License does not
+apply to the other works in the aggregate which are not themselves
+derivative works of the Document.
+
+If the Cover Text requirement of section 3 is applicable to these
+copies of the Document, then if the Document is less than one half of
+the entire aggregate, the Document's Cover Texts may be placed on
+covers that bracket the Document within the aggregate, or the
+electronic equivalent of covers if the Document is in electronic form.
+Otherwise they must appear on printed covers that bracket the whole
+aggregate.
+
+
+8. TRANSLATION
+
+Translation is considered a kind of modification, so you may
+distribute translations of the Document under the terms of section 4.
+Replacing Invariant Sections with translations requires special
+permission from their copyright holders, but you may include
+translations of some or all Invariant Sections in addition to the
+original versions of these Invariant Sections.  You may include a
+translation of this License, and all the license notices in the
+Document, and any Warranty Disclaimers, provided that you also include
+the original English version of this License and the original versions
+of those notices and disclaimers.  In case of a disagreement between
+the translation and the original version of this License or a notice
+or disclaimer, the original version will prevail.
+
+If a section in the Document is Entitled "Acknowledgements",
+"Dedications", or "History", the requirement (section 4) to Preserve
+its Title (section 1) will typically require changing the actual
+title.
+
+
+9. TERMINATION
+
+You may not copy, modify, sublicense, or distribute the Document except
+as expressly provided for under this License.  Any other attempt to
+copy, modify, sublicense or distribute the Document is void, and will
+automatically terminate your rights under this License.  However,
+parties who have received copies, or rights, from you under this
+License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+
+10. FUTURE REVISIONS OF THIS LICENSE
+
+The Free Software Foundation may publish new, revised versions
+of the GNU Free Documentation License from time to time.  Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.  See
+http://www.gnu.org/copyleft/.
+
+Each version of the License is given a distinguishing version number.
+If the Document specifies that a particular numbered version of this
+License "or any later version" applies to it, you have the option of
+following the terms and conditions either of that specified version or
+of any later version that has been published (not as a draft) by the
+Free Software Foundation.  If the Document does not specify a version
+number of this License, you may choose any version ever published (not
+as a draft) by the Free Software Foundation.
+
+
+ADDENDUM: How to use this License for your documents
+
+To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and
+license notices just after the title page:
+
+    Copyright (c)  YEAR  YOUR NAME.
+    Permission is granted to copy, distribute and/or modify this document
+    under the terms of the GNU Free Documentation License, Version 1.2
+    or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+    A copy of the license is included in the section entitled "GNU
+    Free Documentation License".
+
+If you have Invariant Sections, Front-Cover Texts and Back-Cover Texts,
+replace the "with...Texts." line with this:
+
+    with the Invariant Sections being LIST THEIR TITLES, with the
+    Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+
+If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
+
+If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License,
+to permit their use in free software.
+...............................................................................
