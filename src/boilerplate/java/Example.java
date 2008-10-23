@@ -25,6 +25,7 @@
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.print.ArrowPrinter;
 import org.waxeye.input.InputBuffer;
+import org.waxeye.parser.ParseResult;
 
 public class Example
 {
@@ -37,16 +38,17 @@ public class Example
         final InputBuffer input = new InputBuffer("42".toCharArray());
 
         // Parse our input
-        final IAST<Type> ast = parser.parse(input).getAST();
+        final ParseResult<Type> result = parser.parse(input);
+        final IAST<Type> ast = result.getAST();
 
+        // Print our ast
         if (ast != null)
         {
-            // Print our ast
             new ArrowPrinter<Type>().print(ast);
         }
         else
         {
-            System.out.println("parse error");
+            System.out.println(result.getError());
         }
     }
 }
