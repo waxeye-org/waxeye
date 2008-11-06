@@ -144,7 +144,7 @@ module Waxeye
         @error_pos = 0
         @error_line = 1
         @error_col = 0
-        @error_nt = ''
+        @error_nt = @automata[start].type
       end
 
       def parse()

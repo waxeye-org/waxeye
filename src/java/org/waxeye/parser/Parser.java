@@ -154,7 +154,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             this.errorPos = 0;
             this.errorLine = 1;
             this.errorCol = 0;
-            this.errorNT = "";
+            this.errorNT = automata.get(start).getType().name();
         }
 
         /**

@@ -41,7 +41,7 @@ mzscheme
            (error-pos 0)
            (error-line 1)
            (error-col 0)
-           (error-nt "")
+           (error-nt (fa-type (vector-ref automata start)))
            (fa-stack '())
            (cache (make-hash-table 'equal)))
       (define (match-automaton index)
