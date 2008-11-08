@@ -27,7 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
-         "code.scm" "code-util.scm" "dfa.scm" "gen.scm" "version.scm")
+         "code.scm" "dfa.scm" "gen.scm" "version.scm")
 (provide gen-scheme gen-scheme-parser code-scheme-comment-base)
 
 

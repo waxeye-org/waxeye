@@ -28,7 +28,7 @@ mzscheme
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
          (only (lib "list.ss" "mzlib") filter)
-         "action.scm" "code.scm" "code-util.scm" "dfa.scm" "gen.scm" "version.scm")
+         "action.scm" "code.scm" "dfa.scm" "gen.scm" "version.scm")
 (provide gen-java code-java-comment-base)
 
 

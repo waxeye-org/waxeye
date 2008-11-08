@@ -167,4 +167,38 @@ mzscheme
   (syntax-rules ()
     ((_ a ...) (begin (code-s "(") a ... (code-s ")")))))
 
+
+(define (camel-case-lower s)
+  (let ((sl (string->list s)))
+    (if (null? sl)
+        ""
+        (list->string (cons (char-downcase (car sl)) (cdr sl))))))
+
+
+(define (camel-case-upper s)
+  (let ((sl (string->list s)))
+    (if (null? sl)
+        ""
+        (list->string (cons (char-upcase (car sl)) (cdr sl))))))
+
+
+(define (string->upper s)
+  (list->string (map char-upcase (string->list s))))
+
+
+(define (escape-for-java-char? ch)
+  (or (equal? ch #\\) (equal? ch #\')))
+
+
+(define (escape-java-string s)
+  (define (escape-java-string-iter sl)
+    (if (null? sl)
+        '()
+        (if (equal? (car sl) #\")
+            (cons #\\ (cons #\" (escape-java-string-iter (cdr sl))))
+            (cons (car sl) (escape-java-string-iter (cdr sl))))))
+
+  (list->string (escape-java-string-iter (string->list s))))
+
+
 )

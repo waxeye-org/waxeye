@@ -27,7 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
-         "code.scm" "code-util.scm" "dfa.scm" "gen.scm" (only "scheme.scm" code-scheme-comment-base) "version.scm")
+         "code.scm" "dfa.scm" "gen.scm" (only "scheme.scm" code-scheme-comment-base) "version.scm")
 (provide gen-ruby)
 
 

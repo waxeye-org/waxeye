@@ -27,7 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
-         "code.scm" "code-util.scm" "dfa.scm" "gen.scm" (only "java.scm" code-java-comment-base) "version.scm")
+         "code.scm" "dfa.scm" "gen.scm" (only "java.scm" code-java-comment-base) "version.scm")
 (provide gen-c)
 
 
