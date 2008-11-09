@@ -108,8 +108,8 @@ mzscheme
 ~a
 mzscheme
 
-(require (lib \"ast.ss\" \"waxeye\") (lib \"fa.ss\" \"waxeye\") (lib \"parser.ss\" \"waxeye\"))
-(provide ~a (all-from (lib \"ast.ss\" \"waxeye\")))
+(require (lib "ast.ss" "waxeye") (lib "fa.ss" "waxeye") (lib "parser.ss" "waxeye"))
+(provide ~a (all-from (lib "ast.ss" "waxeye")))
 
 ~a
 )
