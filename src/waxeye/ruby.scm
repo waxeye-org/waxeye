@@ -32,18 +32,15 @@ mzscheme
 
 
 (define (code-bool b)
-  (code-s (if b
-              "true"
-              "false")))
+  (if b "true" "false"))
 
 
 (define (gen-ruby grammar path)
-  (code-indent-unit! "  ")
-  (gen-parser grammar)
-  (dump-output (string-append path (if *name-prefix*
+  (indent-unit! 2)
+  (dump-string (gen-parser grammar)
+               (string-append path (if *name-prefix*
                                        (string-append (camel-case-lower *name-prefix*) "_parser.rb")
-                                       "parser.rb")))
-  (clear-output))
+                                       "parser.rb"))))
 
 
 (define (ruby-comment lines)
@@ -142,7 +139,8 @@ mzscheme
                         (code-i)
                         (fn a))
                       (cdr ss))))
-    (code-s "]")))
+    (code-s "]")
+    "gen-fas"))
 
 
 (define (gen-parser grammar)
@@ -150,44 +148,44 @@ mzscheme
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-       (code-is "class ")
-       (code-s parser-name)
-       (code-sn " < Waxeye::WaxeyeParser")
-       (code-iu
-        (code-is "@@start = ")
-        (code-sn *start-index*)
-        (code-is "@@eof_check = ")
-        (code-bool *eof-check*)
-        (code-n)
-        (code-is "@@line_counting = :")
-        (code-sn *line-counting*)
-        (code-is "@@tab_width = ")
-        (code-sn *tab-width*)
-        (code-is "@@automata = ")
-        (gen-fas (make-automata grammar))
-        (code-n)
-        (code-n)
-        (code-isn "def initialize()")
-        (code-iu (code-isn "super(@@start, @@eof_check, @@line_counting, @@tab_width, @@automata)"))
-        (code-isn "end"))
-       (code-isn "end"))
+       (format "~aclass ~a < Waxeye::WaxeyeParser\n~a~aend\n"
+               (ind)
+               parser-name
+               (indent (format
+"~a@@start = ~a
+~a@@eof_check = ~a
+~a@@line_counting = :~a
+~a@@tab_width = ~a
+~a@@automata = ~a
 
-    (if *file-header*
-        (ruby-comment *file-header*)
-        (ruby-comment *default-header*))
-    (code-n)
+~adef initialize()
+~a
+~aend
+"
+(ind)
+*start-index*
+(ind)
+(code-bool *eof-check*)
+(ind)
+*line-counting*
+(ind)
+*tab-width*
+(ind)
+(gen-fas (make-automata grammar))
+(ind)
+(indent (format "~asuper(@@start, @@eof_check, @@line_counting, @@tab_width, @@automata)" (ind)))
+(ind)))
+               (ind)
+               ))
 
-    (code-sn "require 'waxeye'")
-    (code-n)
-
-    (if *module-name*
-        (begin
-          (code-s "module ")
-          (code-sn *module-name*)
-          (code-n)
-          (code-iu
-           (gen-parser-class))
-          (code-sn "end"))
-        (gen-parser-class))))
+    (format "~a\nrequire 'waxeye'\n\n~a"
+            (if *file-header*
+                (ruby-comment *file-header*)
+                (ruby-comment *default-header*))
+            (if *module-name*
+                (format "module ~a\n~aend\n"
+                        *module-name*
+                        (indent (gen-parser-class)))
+                (gen-parser-class)))))
 
 )
