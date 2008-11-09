@@ -29,9 +29,16 @@ mzscheme
 
 (provide (all-defined))
 
+(define *indent-unit* 4)
+(define *indent-level* 0)
+
 (define *code-output-list* '())
 (define *code-indent-level* 0)
 (define *code-indent-unit* "    ")
+
+
+(define (indent-unit! val)
+  (set! *indent-unit* val))
 
 
 (define (code-indent-unit! val)
@@ -40,6 +47,11 @@ mzscheme
 
 (define (clear-output)
   (set! *code-output-list* '()))
+
+
+(define (dump-string s path)
+  (call-with-output-file path (lambda (p)
+                                (display s p)) 'replace))
 
 
 (define (dump-output path)
@@ -57,6 +69,41 @@ mzscheme
             (display (car list) port)))
 
   (display-code-iter *code-output-list*))
+
+
+;; Constructs the indentation string
+(define (ind)
+  (let ((il '()))
+    (let loop ((i 0))
+      (when (< i *indent-level*)
+            (let loop ((j 0))
+              (when (< j *indent-unit*)
+                    (set! il (cons #\space il))
+                    (loop (+ j 1))))
+            (loop (+ i 1))))
+    (list->string il)))
+
+
+(define (indent+ n)
+  (set! *indent-level* (+ *indent-level* n)))
+
+
+(define (indent- n)
+  (set! *indent-level* (- *indent-level* n)))
+
+
+(define-syntax indent
+  (syntax-rules ()
+    ((_ a) (indentn 1 a))))
+
+
+(define-syntax indentn
+  (syntax-rules ()
+    ((_ num a) (begin
+                 (indent+ num)
+                 (let ((val a))
+                   (indent- num)
+                   val)))))
 
 
 (define-syntax code-iu
