@@ -53,44 +53,29 @@ mzscheme
 (define (gen-scheme-trans a)
   (define (gen-list-item a)
     (if (char? a)
-        (code-s (format "~s" a))
-        (code-paren
-         (code-s "cons ")
-         (code-s (format "~s" (car a)))
-         (code-s " ")
-         (code-s (format "~s" (cdr a))))))
+        (format "~s" a)
+        (format "(cons ~s ~s)" (car a) (cdr a))))
   (cond
-   ((symbol? a) (code-s (format "'~s" a)))
+   ((symbol? a) (format "'~s" a))
    ((list? a)
-    (code-s "(list ")
-    (gen-list-item (car a))
-    (for-each (lambda (b)
-                (code-s " ")
-                (gen-list-item b))
-              (cdr a))
-    (code-s ")"))
-   (else (code-s (format "~s" a)))))
+    (format "(list ~a~a)"
+            (gen-list-item (car a))
+            (string-concat (map (lambda (b)
+                                  (format " ~a" (gen-list-item b)))
+                                (cdr a)))))
+   (else (format "~s" a))))
 
 
 (define (gen-scheme-edge a)
-  (code-n)
-  (code-i)
-  (code-paren
-   (code-s "make-edge")
-   (code-s " ")
-   (gen-scheme-trans (edge-t a))
-   (code-s " ")
-   (code-s (edge-s a))
-   (code-s " ")
-   (code-s (edge-v a))))
+  (format "\n~a(make-edge ~a ~a ~a)"
+          (ind)
+          (gen-scheme-trans (edge-t a))
+          (edge-s a)
+          (edge-v a)))
 
 
 (define (gen-scheme-edges edges)
-  (code-iu
-   (code-paren
-    (code-s "list")
-    (for-each gen-scheme-edge edges)))
-  "edges")
+  (indent (format "(list~a)" (string-concat (map gen-scheme-edge edges)))))
 
 
 (define (gen-scheme-state a)
@@ -116,30 +101,6 @@ mzscheme
   (let ((parser-name (if *name-prefix*
                          (string-append *name-prefix* "-parser")
                          "parser")))
-    (code-iu-num
-     2
-     (code-n)
-     (code-n)
-     (code-paren
-      (code-s "define ")
-      (code-s parser-name)
-      (code-s " ")
-      (code-paren
-       (code-s "make-parser")
-       (code-s " ")
-       (code-s *start-index*)
-       (code-s " ")
-       (code-s (if *eof-check*
-                   "#t"
-                   "#f"))
-       (code-s " ")
-       (code-s (format "~s" *line-counting*))
-       (code-s " ")
-       (code-s *tab-width*)
-       (code-s " ")
-       (code-s "automata"))))
-    (code-n)
-
     (format
 #<<EOF
 ~a
@@ -168,10 +129,18 @@ parser-name
 #<<EOF
 (define automata
 ~a~a)
+
+(define ~a (make-parser ~a ~a ~s ~a automata))
 EOF
 
 (ind)
-(indent (format "(vector~a)" (string-concat (map gen-scheme-fa (vector->list (make-automata grammar))))))))
+(indent (format "(vector~a)" (string-concat (map gen-scheme-fa (vector->list (make-automata grammar))))))
+parser-name
+*start-index*
+*eof-check*
+*line-counting*
+*tab-width*
+))
 
 )))
 
