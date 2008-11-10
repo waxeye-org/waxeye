@@ -26,7 +26,6 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "parser.ss" "waxeye")
-         "code.scm"
          "dfa.scm"
          "gen.scm"
          "scheme.scm"

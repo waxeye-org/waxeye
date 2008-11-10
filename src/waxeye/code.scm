@@ -36,43 +36,12 @@ mzscheme
 (define *indent-unit* 4)
 (define *indent-level* 0)
 
-(define *code-output-list* '())
-(define *code-indent-level* 0)
-(define *code-indent-unit* "    ")
-
-
 (define (indent-unit! val)
   (set! *indent-unit* val))
-
-
-(define (code-indent-unit! val)
-  (set! *code-indent-unit* val))
-
-
-(define (clear-output)
-  (set! *code-output-list* '()))
-
 
 (define (dump-string s path)
   (call-with-output-file path (lambda (p)
                                 (display s p)) 'replace))
-
-
-(define (dump-output path)
-  (call-with-output-file path display-code-port 'replace))
-
-
-(define (display-code)
-  (display-code-port (current-output-port)))
-
-
-(define (display-code-port port)
-  (define (display-code-iter list)
-    (unless (null? list)
-            (display-code-iter (cdr list))
-            (display (car list) port)))
-
-  (display-code-iter *code-output-list*))
 
 
 ;; Constructs the indentation string
@@ -112,115 +81,6 @@ mzscheme
 
 (define (bool->s b)
   (if b "true" "false"))
-
-
-(define-syntax code-iu
-  (syntax-rules ()
-    ((_ a ...) (begin (code-indent) a ... (code-unindent)))))
-
-
-(define-syntax code-iu-num
-  (syntax-rules ()
-    ((_ num a ...) (begin (code-indent-num num) a ... (code-unindent-num num)))))
-
-
-(define-syntax code-brace
-  (syntax-rules ()
-    ((_ a ...) (begin (code-isn "{") (code-iu a ...) (code-isn "}")))))
-
-
-(define-syntax code-sep
-  (syntax-rules ()
-    ((_ a) a)
-    ((_ a b ...)
-     (begin
-       a
-       (code-n)
-       (code-sep b ...)))))
-
-
-(define (code-space . data)
-  (for-each (lambda (a)
-              (code-s a)
-              (code-s " "))
-            data))
-
-
-(define (code-indent)
-  (code-indent-num 1))
-
-
-(define (code-indent-num num)
-  (set! *code-indent-level* (+ *code-indent-level* num)))
-
-
-(define (code-unindent)
-  (code-unindent-num 1))
-
-
-(define (code-unindent-num num)
-  (set! *code-indent-level* (- *code-indent-level* num)))
-
-
-(define (code-i)
-  (let loop ((i 0))
-    (when (< i *code-indent-level*)
-          (set! *code-output-list* (cons *code-indent-unit* *code-output-list*))
-          (loop (+ i 1)))))
-
-
-(define (code-n)
-  (set! *code-output-list* (cons "\n" *code-output-list*)))
-
-
-(define (code-s s)
-  (unless (equal? s "")
-          (set! *code-output-list* (cons s *code-output-list*))))
-
-
-(define (code-sn s)
-  (code-s s)
-  (code-n))
-
-
-(define (code-es . list)
-  (for-each code-s list))
-
-
-(define (code-esn . list)
-  (for-each code-sn list))
-
-
-(define (code-is s)
-  (unless (equal? s "")
-          (code-i)
-          (set! *code-output-list* (cons s *code-output-list*))))
-
-
-(define (code-isn s)
-  (code-is s)
-  (code-n))
-
-
-(define (code-eisn . list)
-  (for-each code-isn list))
-
-
-(define (code-p fn list)
-  (fn (string-concat list)))
-
-
-(define (code-psn . list)
-  (code-p code-sn list))
-
-
-(define (code-pisn . list)
-  (code-p code-isn list))
-
-
-(define-syntax code-paren
-  (syntax-rules ()
-    ((_ a ...) (begin (code-s "(") a ... (code-s ")")))))
 
 
 (define (comment-bookend top unit bot lines)

@@ -27,7 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
-         "code.scm" "dfa.scm" "gen.scm")
+         "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-c)
 
 
@@ -49,67 +49,49 @@ mzscheme
 
 
 (define (gen-c grammar path)
+  (indent-unit! 2)
   (gen-c-names)
-  (code-indent-unit! "  ")
-  (gen-header grammar)
-  (dump-output (string-append path *c-header-name*))
-  (clear-output)
-  (gen-parser grammar)
-  (dump-output (string-append path *c-source-name*))
-  (clear-output))
-
-
-(define (bool->string b)
-  (if b
-      "true"
-      "false"))
+  (dump-string (gen-header grammar) (string-append path *c-header-name*))
+  (dump-string (gen-parser grammar) (string-append path *c-source-name*)))
 
 
 (define (c-comment lines)
-  (comment-base "/*" lines))
+  (comment-bookend "/*" " *" " */" lines))
 
 
 (define (gen-trans a)
-(define (gen-char t)
-  (code-s "\"")
-  (when (escape-for-java-char? t)
-        (code-s "\\"))
-  (code-s (cond
-           ((equal? t #\") "\\\"")
-           ((equal? t #\linefeed) "\\n")
-           ((equal? t #\tab) "\\t")
-           ((equal? t #\return) "\\r")
-           (else t)))
-  (code-s "\""))
+  (define (gen-char t)
+    (format "\"~a~a\""
+            (if (escape-for-java-char? t) "\\" "")
+            (cond
+             ((equal? t #\") "\\\"")
+             ((equal? t #\linefeed) "\\n")
+             ((equal? t #\tab) "\\t")
+             ((equal? t #\return) "\\r")
+             (else t))))
   (define (gen-char-class-item a)
     (if (char? a)
         (gen-char a)
-        (begin
-          (code-s (char->integer (car a)))
-          (code-s "..")
-          (code-s (char->integer (cdr a))))))
+        (format "~a..~a"
+                (char->integer (car a))
+                (char->integer (cdr a)))))
   (cond
-   ((symbol? a) (code-s (format ":_~a" a)))
+   ((symbol? a) (format ":_~a" a))
    ((list? a)
-    (code-s "[")
-    (gen-char-class-item (car a))
-    (for-each (lambda (b)
-                (code-s ", ")
-                (gen-char-class-item b))
-              (cdr a))
-    (code-s "]"))
+    (format "[~a~a]"
+            (gen-char-class-item (car a))
+            (string-concat (map (lambda (b)
+                                  (string-append ", " (gen-char-class-item b)))
+                                (cdr a)))))
    ((char? a) (gen-char a))
-   (else (code-s a))))
+   (else a)))
 
 
 (define (gen-edge a)
-  (code-s "Waxeye::Edge.new")
-  (code-paren
-   (gen-trans (edge-t a))
-   (code-s ", ")
-   (code-s (edge-s a))
-   (code-s ", ")
-   (code-s (bool->string (edge-v a)))))
+  (format "Waxeye::Edge.new(~a, ~a, ~a)"
+          (gen-trans (edge-t a))
+          (edge-s a)
+          (bool->s (edge-v a))))
 
 
 (define (gen-edges d)
@@ -117,11 +99,9 @@ mzscheme
 
 
 (define (gen-state a)
-  (code-s "Waxeye::State.new")
-  (code-paren
-   (gen-edges (state-edges a))
-   (code-s ", ")
-   (code-s (bool->string (state-match a)))))
+  (format "Waxeye::State.new(~a, ~a)"
+          (gen-edges (state-edges a))
+          (bool->s (state-match a))))
 
 
 (define (gen-states d)
@@ -129,21 +109,17 @@ mzscheme
 
 
 (define (gen-fa a)
-  (code-s "Waxeye::Automaton.new")
-  (code-paren
-   (code-s ":")
-   (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-     (cond
-      ((equal? type "!") (code-s "_not"))
-      ((equal? type "&") (code-s "_and"))
-      (else (code-s type))))
-   (code-s ", ")
-   (gen-states (fa-states a))
-   (code-s ", :")
-   (code-s (case (fa-mode a)
-             ((voidArrow) "void")
-             ((pruneArrow) "prune")
-             ((leftArrow) "left")))))
+  (format "Waxeye::Automaton.new(:~a, ~a, :~a)"
+          (let ((type (camel-case-lower (symbol->string (fa-type a)))))
+            (cond
+             ((equal? type "!") "_not")
+             ((equal? type "&") "_and")
+             (else type)))
+          (gen-states (fa-states a))
+          (case (fa-mode a)
+            ((voidArrow) "void")
+            ((pruneArrow) "prune")
+            ((leftArrow) "left"))))
 
 
 (define (gen-fas d)
@@ -152,19 +128,16 @@ mzscheme
 
 (define (gen-array fn data)
   (let ((ss (vector->list data)))
-    (code-s "[")
-    (code-iu
-    (unless (null? ss)
-            (fn (car ss))
-            (for-each (lambda (a)
-                        (code-s ",\n")
-                        (code-i)
-                        (fn a))
-                      (cdr ss))))
-    (code-s "]")))
+    (format "[~a]"
+            (indent (if (null? ss)
+                        ""
+                        (string-append (fn (car ss))
+                                       (string-concat (map (lambda (a)
+                                                             (string-append ",\n" (ind) (fn a)))
+                                                           (cdr ss)))))))))
 
 
-(define (code-c-header-comment)
+(define (c-header-comment)
   (if *file-header*
       (c-comment *file-header*)
       (c-comment *default-header*)))
@@ -175,62 +148,70 @@ mzscheme
         (parser-name (if *name-prefix*
                          (string-append (camel-case-upper *name-prefix*) "parser")
                          "parser")))
-    (code-c-header-comment)
-    (code-n)
+    (format "~a
+#ifndef ~a_H_
+#define ~a_H_
 
-    (code-psn "#ifndef " (string->upper *c-parser-name*) "_H_")
-    (code-psn "#define " (string->upper *c-parser-name*) "_H_")
-    (code-n)
-    (code-sn "#include \"waxeye.h\"")
-    (code-n)
-    (code-psn "enum " *c-type-name* " {")
-    (code-iu
-     (code-is (string->upper (car non-terms)))
-     (for-each (lambda (a)
-                 (code-sn ",")
-                 (code-is (string->upper a)))
-               (cdr non-terms))
-     (code-n))
-    (code-sn "};")
-    (code-n)
-    (code-psn "#ifndef " (string->upper *c-parser-name*) "_C_")
-    (code-n)
-    (code-psn "extern struct parser_t* make_" *c-parser-name* "();")
-    (code-n)
-    (code-psn "#endif /* " (string->upper *c-parser-name*) "_C_ */")
-    (code-psn "#endif /* " (string->upper *c-parser-name*) "_H_ */")))
+#include \"waxeye.h\"
+
+enum ~a {
+~a
+};
+
+#ifndef ~a_C_
+
+extern struct parser_t* make_~a();
+
+#endif /* ~a_C_ */
+#endif /* ~a_H_ */
+"
+            (c-header-comment)
+            (string->upper *c-parser-name*)
+            (string->upper *c-parser-name*)
+            *c-type-name*
+            (indent
+             (string-append
+              (ind)
+              (string->upper (car non-terms))
+              (string-concat
+               (map (lambda (a)
+                      (string-append "," (ind) (string->upper a)))
+                    (cdr non-terms)))))
+            (string->upper *c-parser-name*)
+            *c-parser-name*
+            (string->upper *c-parser-name*)
+            (string->upper *c-parser-name*))))
 
 
 (define (gen-parser grammar)
-  (define (gen-parser-class)
-    (code-i)
-    (code-psn "struct parser_t* make_" *c-parser-name* "() {")
-    (code-iu
-     (code-pisn "const size_t start = " (number->string *start-index*) ";")
-     (code-pisn "const bool eof_check = " (bool->string *eof-check*) ";")
-     (let ((automata (make-automata grammar)))
-       (code-pisn "const size_t num_automata = " (number->string (vector-length automata)) ";")
-       (code-is "const fa_t *automata = ")
-       (gen-fas automata))
-     (code-n)
-     (code-n)
-     (code-isn "return parser_new(start, automata, num_automata, eof_check);"))
-    (code-isn "}"))
+  (let ((automata (make-automata grammar)))
+    (format "~a
+#define ~a_C_
+#include \"~a\"
 
-  (code-c-header-comment)
-  (code-n)
-  (code-psn "#define " (string->upper *c-parser-name*) "_C_")
-  (code-psn "#include \"" *c-header-name* "\"")
-  (code-n)
+struct parser_t* make_~a() {
+~a
+}
+"
+            (c-header-comment)
+            (string->upper *c-parser-name*)
+            *c-header-name*
+            *c-parser-name*
+            (indent
+             (format "~aconst size_t start = ~a;
+~aconst bool eof_check = ~a;
+~aconst size_t num_automata = ~a;
+~aconst fa_t *automata = ~a
 
-  (if *module-name*
-      (begin
-        (code-s "module ")
-        (code-sn *module-name*)
-        (code-n)
-        (code-iu
-         (gen-parser-class))
-        (code-sn "end"))
-      (gen-parser-class)))
+~areturn parser_new(start, automata, num_automata, eof_check);"
+                     (ind)
+                     (number->string *start-index*)
+                     (ind)
+                     (bool->s *eof-check*)
+                     (ind)
+                     (number->string (vector-length automata))
+                     (ind)
+                     (gen-fas automata)
+                     (ind))))))
 
 )

@@ -28,7 +28,6 @@ mzscheme
 (require waxeye/ast
          scheme/cmdline
          "c.scm"
-         "code.scm"
          "debug.scm"
          "file.scm"
          "gen.scm"
