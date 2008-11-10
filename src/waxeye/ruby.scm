@@ -48,51 +48,42 @@ mzscheme
 
 
 (define (gen-trans a)
-(define (gen-char t)
-  (code-s "\"")
-  (when (escape-for-java-char? t)
-        (code-s "\\"))
-  (code-s (cond
-           ((equal? t #\") "\\\"")
-           ((equal? t #\linefeed) "\\n")
-           ((equal? t #\tab) "\\t")
-           ((equal? t #\return) "\\r")
-           (else t)))
-  (code-s "\""))
+  (define (gen-char t)
+    (format "\"~a~a\""
+            (if (escape-for-java-char? t) "\\" "")
+            (cond
+             ((equal? t #\") "\\\"")
+             ((equal? t #\linefeed) "\\n")
+             ((equal? t #\tab) "\\t")
+             ((equal? t #\return) "\\r")
+             (else t))))
   (define (gen-char-class-item a)
     (if (char? a)
         (gen-char a)
-        (begin
-          (code-s (char->integer (car a)))
-          (code-s "..")
-          (code-s (char->integer (cdr a))))))
+        (format "~a..~a"
+                (char->integer (car a))
+                (char->integer (cdr a)))))
   (cond
-   ((symbol? a) (code-s (format ":_~a" a)))
+   ((symbol? a) (format ":_~a" a))
    ((list? a)
-    (code-s "[")
-    (gen-char-class-item (car a))
-    (for-each (lambda (b)
-                (code-s ", ")
-                (gen-char-class-item b))
-              (cdr a))
-    (code-s "]"))
+    (format "[~a~a]"
+            (gen-char-class-item (car a))
+            (string-concat (map (lambda (b)
+                                  (string-append ", " (gen-char-class-item b)))
+                                (cdr a)))))
    ((char? a) (gen-char a))
-   (else (code-s a))))
+   (else a)))
 
 
 (define (gen-edge a)
-  (code-s "Waxeye::Edge.new")
-  (code-paren
-   (gen-trans (edge-t a))
-   (code-s ", ")
-   (code-s (edge-s a))
-   (code-s ", ")
-   (code-bool (edge-v a))))
+  (format "Waxeye::Edge.new(~a, ~a, ~a)"
+          (gen-trans (edge-t a))
+          (edge-s a)
+          (code-bool (edge-v a))))
 
 
 (define (gen-edges d)
-  ;;(gen-array gen-edge (list->vector d))
-  "edges")
+  (gen-array gen-edge (list->vector d)))
 
 
 (define (gen-state a)
