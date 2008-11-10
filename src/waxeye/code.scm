@@ -220,7 +220,7 @@ mzscheme
 
 
 (define (comment-bookend top unit bot lines)
-  (string-append top (comment-base unit lines) bot))
+  (string-append top "\n" (comment-base unit lines) bot "\n"))
 
 
 (define (comment-base unit lines)

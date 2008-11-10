@@ -28,7 +28,7 @@ mzscheme
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
          (only (lib "list.ss" "mzlib") filter)
-         "action.scm" "code.scm" "dfa.scm" "gen.scm")
+         "action.scm" "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-java)
 
 
@@ -76,12 +76,6 @@ mzscheme
      (java:test-block "for" test code ...))))
 
 
-(define-syntax java:while
-  (syntax-rules ()
-    ((java:while test code ...)
-     (java:test-block "while" test code ...))))
-
-
 (define-syntax java:if
   (syntax-rules ()
     ((java:if test code ...)
@@ -105,11 +99,11 @@ mzscheme
 
 
 (define (java-comment lines)
-  (comment-bookend "/*" " *" "*/" lines))
+  (comment-bookend "/*" " *" " */" lines))
 
 
 (define (code-java-doc . lines)
-  (comment-bookend "/**" " *" "*/" lines))
+  (comment-bookend "/**" " *" " */" lines))
 
 
 (define (code-java-header-comment)
@@ -133,9 +127,7 @@ mzscheme
 
 (define (gen-java grammar path)
   (gen-java-names)
-  (gen-java-node-type grammar)
-  (dump-output (string-append path *java-node-name* ".java"))
-  (clear-output)
+  (dump-string (java-type grammar) (string-append path *java-node-name* ".java"))
   (gen-java-parser grammar)
   (dump-output (string-append path *java-parser-name* ".java"))
   (clear-output)
@@ -145,23 +137,24 @@ mzscheme
           (clear-output)))
 
 
-(define (gen-java-node-type grammar)
+(define (java-type grammar)
   (let ((non-terms (get-non-terms grammar)))
-    (code-java-header-comment)
-    (gen-java-package)
-    (code-n)
-    (code-java-doc "The types of AST nodes." "" "@author Waxeye Parser Generator")
-    (code-pisn "public enum " *java-node-name*)
-    (code-brace
-     (code-isn "_Empty,")
-     (code-isn "_Char,")
-     (code-isn "_Pos,")
-     (code-is "_Neg")
-     (for-each (lambda (a)
-                 (code-sn ",")
-                 (code-is (camel-case-upper a)))
-               non-terms)
-     (code-n))))
+    (format "~a~a\n~apublic enum ~a\n{\n~a}\n"
+            (code-java-header-comment)
+            (gen-java-package)
+            (code-java-doc "The types of AST nodes." "" "@author Waxeye Parser Generator")
+            *java-node-name*
+            (indent (string-append
+                     (ind) "_Empty,\n"
+                     (ind) "_Char,\n"
+                     (ind) "_Pos,\n"
+                     (ind) "_Neg"
+                     (string-concat (map (lambda (a)
+                                           (format ",\n~a~a"
+                                                   (ind)
+                                                   (camel-case-upper a)))
+                                         non-terms))
+                     "\n")))))
 
 
 (define (gen-java-context)
@@ -211,8 +204,9 @@ mzscheme
 
 
 (define (gen-java-package)
-  (when *module-name*
-        (code-pisn "package " *module-name* ";")))
+  (if *module-name*
+      (format "package ~a;\n" *module-name*)
+      ""))
 
 
 (define (gen-java-imports)
