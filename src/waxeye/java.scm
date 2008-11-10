@@ -35,7 +35,6 @@ mzscheme
 (define *gather* #t)
 (define *java-parser-name* "")
 (define *java-node-name* "")
-(define *java-context-name* "")
 (define *java-tree-type* "")
 (define *num-ok* 0)
 (define *num-tmp* 0)
@@ -119,9 +118,6 @@ mzscheme
   (set! *java-parser-name* (if *name-prefix*
                                (string-append *name-prefix* "Parser")
                                "Parser"))
-  (set! *java-context-name* (if *name-prefix*
-                               (string-append "I" *name-prefix* "Context")
-                               "IContext"))
   (set! *java-tree-type* (string-append "IAST<" *java-node-name* ">")))
 
 
@@ -130,11 +126,7 @@ mzscheme
   (dump-string (java-type grammar) (string-append path *java-node-name* ".java"))
   (gen-java-parser grammar)
   (dump-output (string-append path *java-parser-name* ".java"))
-  (clear-output)
-  (unless (null? *action-list*)
-          (gen-java-context)
-          (dump-output (string-append path *java-context-name* ".java"))
-          (clear-output)))
+  (clear-output))
 
 
 (define (java-type grammar)
@@ -155,39 +147,6 @@ mzscheme
                                                    (camel-case-upper a)))
                                          non-terms))
                      "\n")))))
-
-
-(define (gen-java-context)
-  (code-java-header-comment)
-  (gen-java-package)
-  (code-n)
-  (code-java-doc "The interface for the context of the parser." "" "@author Waxeye Parser Generator")
-  (code-pisn "public interface " *java-context-name*)
-  (code-brace
-   (gen-java-context-method (car *action-list*))
-   (for-each (lambda (a)
-               (code-n)
-               (gen-java-context-method a))
-             (cdr *action-list*))
-   (code-n)))
-
-
-(define (gen-java-context-method exp)
-  (code-is *java-context-name*)
-  (code-s " ")
-  (code-s (camel-case-lower (list->string (ast-c (car (ast-c exp))))))
-  (code-s "(")
-  (let ((labels (cdr (ast-c exp))))
-    (unless (null? labels)
-            (code-s *java-tree-type*)
-            (code-s (list->string (ast-c (car labels))))
-            (for-each (lambda (a)
-                        (code-s ", ")
-                        (code-s *java-tree-type*)
-                        (code-s " ")
-                        (code-s (list->string (ast-c a))))
-                      (cdr labels))))
-  (code-s ");"))
 
 
 (define (gen-java-parser grammar)
