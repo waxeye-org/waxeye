@@ -27,7 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
-         "code.scm" "dfa.scm" "gen.scm")
+         "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-ruby)
 
 
@@ -91,15 +91,14 @@ mzscheme
 
 
 (define (gen-edges d)
-  (gen-array gen-edge (list->vector d)))
+  ;;(gen-array gen-edge (list->vector d))
+  "edges")
 
 
 (define (gen-state a)
-  (code-s "Waxeye::State.new")
-  (code-paren
-   (gen-edges (state-edges a))
-   (code-s ", ")
-   (code-bool (state-match a))))
+  (format "Waxeye::State.new(~a, ~a)"
+          (gen-edges (state-edges a))
+          (code-bool (state-match a))))
 
 
 (define (gen-states d)
@@ -107,21 +106,17 @@ mzscheme
 
 
 (define (gen-fa a)
-  (code-s "Waxeye::Automaton.new")
-  (code-paren
-   (code-s ":")
-   (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-     (cond
-      ((equal? type "!") (code-s "_not"))
-      ((equal? type "&") (code-s "_and"))
-      (else (code-s type))))
-   (code-s ", ")
-   (gen-states (fa-states a))
-   (code-s ", :")
-   (code-s (case (fa-mode a)
-             ((voidArrow) "void")
-             ((pruneArrow) "prune")
-             ((leftArrow) "left")))))
+  (format "Waxeye::Automaton.new(:~a, ~a, :~a)"
+          (let ((type (camel-case-lower (symbol->string (fa-type a)))))
+            (cond
+             ((equal? type "!") "_not")
+             ((equal? type "&") "_and")
+             (else type)))
+          (gen-states (fa-states a))
+          (case (fa-mode a)
+            ((voidArrow) "void")
+            ((pruneArrow) "prune")
+            ((leftArrow) "left"))))
 
 
 (define (gen-fas d)
@@ -130,17 +125,13 @@ mzscheme
 
 (define (gen-array fn data)
   (let ((ss (vector->list data)))
-    (code-s "[")
-    (code-iu
-    (unless (null? ss)
-            (fn (car ss))
-            (for-each (lambda (a)
-                        (code-s ",\n")
-                        (code-i)
-                        (fn a))
-                      (cdr ss))))
-    (code-s "]")
-    "gen-fas"))
+    (format "[~a]"
+            (indent (if (null? ss)
+                        ""
+                        (string-append (fn (car ss))
+                                       (string-concat (map (lambda (a)
+                                                             (string-append ",\n" (ind) (fn a)))
+                                                           (cdr ss)))))))))
 
 
 (define (gen-parser grammar)
