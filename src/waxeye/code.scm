@@ -110,6 +110,10 @@ mzscheme
                    val)))))
 
 
+(define (bool->s b)
+  (if b "true" "false"))
+
+
 (define-syntax code-iu
   (syntax-rules ()
     ((_ a ...) (begin (code-indent) a ... (code-unindent)))))
@@ -220,14 +224,14 @@ mzscheme
 
 
 (define (comment-bookend top unit bot lines)
-  (string-append top "\n" (comment-base unit lines) bot "\n"))
+  (string-append (ind) top "\n" (comment-base unit lines) (ind) bot "\n"))
 
 
 (define (comment-base unit lines)
   (string-concat (map (lambda (a)
                         (if (equal? "" a)
-                            (format "~a\n" unit)
-                            (format "~a ~a\n" unit a)))
+                            (format "~a~a\n" (ind) unit)
+                            (format "~a~a ~a\n" (ind) unit a)))
                       lines)))
 
 

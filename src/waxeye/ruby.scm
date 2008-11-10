@@ -31,10 +31,6 @@ mzscheme
 (provide gen-ruby)
 
 
-(define (code-bool b)
-  (if b "true" "false"))
-
-
 (define (gen-ruby grammar path)
   (indent-unit! 2)
   (dump-string (gen-parser grammar)
@@ -79,7 +75,7 @@ mzscheme
   (format "Waxeye::Edge.new(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
-          (code-bool (edge-v a))))
+          (bool->s (edge-v a))))
 
 
 (define (gen-edges d)
@@ -89,7 +85,7 @@ mzscheme
 (define (gen-state a)
   (format "Waxeye::State.new(~a, ~a)"
           (gen-edges (state-edges a))
-          (code-bool (state-match a))))
+          (bool->s (state-match a))))
 
 
 (define (gen-states d)
@@ -147,7 +143,7 @@ mzscheme
 (ind)
 *start-index*
 (ind)
-(code-bool *eof-check*)
+(bool->s *eof-check*)
 (ind)
 *line-counting*
 (ind)
