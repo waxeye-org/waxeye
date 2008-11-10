@@ -29,11 +29,11 @@
     System.out.println(${(get-expr)});
 }
 "
- (template (string *.) (code *.) (string *.) (code *.) (string *.))
+ (template (string *) (code *) (string *) (code *) (string *))
 
  "def ${(get-name)}(${(get-args)}):${(i)}
 ${(get-code)}${(u)}"
- (template (string *.) (code *.) (string *.) (code *.) (string *.) (code *.) (string *.) (code *.) (code *.))
+ (template (string *) (code *) (string *) (code *) (string *) (code *) (string *) (code *) (code *))
 )
 
 (code

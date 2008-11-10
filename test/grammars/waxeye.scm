@@ -28,7 +28,7 @@
  ;; output is either the keyword 'pass', the keyword 'fail' or an AST. The AST
  ;; specifies the structure of the expected tree, the names of the nodes and
  ;; the individual characters. If you don't want to specify the whole tree,
- ;; just use the wild-card symbol '*.' for the portion of the tree you want to
+ ;; just use the wild-card symbol '*' for the portion of the tree you want to
  ;; skip.
 
  "" ; <- This is the input
@@ -41,14 +41,14 @@
  fail ; <- The keyword 'fail'
 
  "A <- 'a' B <- 'b'"
- (Grammar (Definition (Identifier #\A) *.)  ; <- Here we skip some of
-          (Definition (Identifier #\B) *.)) ;    Definition's children
+ (Grammar (Definition (Identifier #\A) *)  ; <- Here we skip some of
+          (Definition (Identifier #\B) *)) ;    Definition's children
 
  "A <- 'a'"
- (Grammar (*.)) ; <- Here we specify a child tree of any type
+ (Grammar (*)) ; <- Here we specify a child tree of any type
 
  "A <- [a-z] *[a-z0-9]"
- (Grammar (Definition (Identifier #\A) (LeftArrow) (Alternation *.)))
+ (Grammar (Definition (Identifier #\A) (LeftArrow) (Alternation *)))
 
  "A <- 'a'"
  (Grammar (Definition (Identifier #\A)

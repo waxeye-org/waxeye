@@ -89,7 +89,7 @@ mzscheme
   (cond
    ((and (ast? result) (list? expect))
     (let ((type (car expect)) (child (cdr expect)))
-      (or (equal? type '*.)
+      (or (equal? type '*)
           (and (equal? (ast-t result) type) (children-match? (ast-c result) child)))))
    ((and (char? result) (char? expect) (char=? result expect)))
    (else #f)))
@@ -97,9 +97,9 @@ mzscheme
 
 (define (children-match? res expect)
   (if (null? res)
-      (or (null? expect) (equal? (car expect) '*.))
+      (or (null? expect) (equal? (car expect) '*))
       (and (not (null? expect))
-           (or (equal? (car expect) '*.)
+           (or (equal? (car expect) '*)
                (and (is-expected? (car res) (car expect))
                     (children-match? (cdr res) (cdr expect)))))))
 
