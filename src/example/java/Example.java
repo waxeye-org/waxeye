@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.print.ArrowPrinter;
 import org.waxeye.input.InputBuffer;
