@@ -20,16 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# A grammar for simple arithmetic.
+# A grammar for an arithmetic calculator.
+# Supports +,-,*,/, negation, parentheses and floating point numbers.
 
-Calc <- Ws ?(Id :'=' Ws) Sum
+calc  <- ws sum
 
-Id   <- +[a-zA-Z] Ws
+sum   <- prod *([+-] ws prod)
 
-Sum  <= Prod *([+-] Ws Prod)
+prod  <- unary *([*/] ws unary)
 
-Prod <= Num *([*/] Ws Num)
+unary <= '-' ws unary
+       | :'(' ws sum :')' ws
+       | num
 
-Num  <- +[0-9] Ws
+num   <- +[0-9] ?('.' +[0-9]) ws
 
-Ws   <: *[ \t\n\r]
+ws    <: *[ \t\n\r]
