@@ -686,7 +686,7 @@ todo
 This chapter will show you how to setup Waxeye for your programming language.
 It covers language specific installation requirements and presents some basic
 boilerplate code to get you started. You can find copies of this boilerplate
-code in `src/boilerplate/`.
+code in `src/example/`.
 
 The example grammar we'll be using can be found in `grammars/num.waxeye`. You
 may wish to copy it to the directory you're working in so you can experiment
@@ -836,7 +836,7 @@ waxeye -g scheme . num.waxeye
 
 [source,scheme]
 -------------------------------------------------------------------------------
-;;; Create some boiler-plate code in 'example.scm'
+;;; example.scm
 (module
 example
 mzscheme
