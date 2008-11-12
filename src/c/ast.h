@@ -43,7 +43,7 @@ struct ast_error_t {
 };
 
 struct ast_tree_t {
-    char *type;
+    size_t type;
     struct vector_t *children;
 };
 
@@ -60,8 +60,8 @@ struct ast_t {
 
 #ifndef AST_C_
 
-extern void ast_tree_init(struct ast_tree_t *t, char *type, struct vector_t *children);
-extern struct ast_tree_t* ast_tree_new(char *type, struct vector_t *children);
+extern void ast_tree_init(struct ast_tree_t *t, size_t type, struct vector_t *children);
+extern struct ast_tree_t* ast_tree_new(size_t type, struct vector_t *children);
 extern void ast_tree_clear(struct ast_tree_t *t);
 extern void ast_tree_delete(struct ast_tree_t *t);
 extern void ast_tree_recursive_clear(struct ast_tree_t *t);

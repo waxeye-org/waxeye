@@ -28,24 +28,24 @@
 #include "state.h"
 
 enum fa_mode {
-    VOID,
-    PRUNE,
-    LEFT,
-    POS,
-    NEG
+    MODE_VOID,
+    MODE_PRUNE,
+    MODE_LEFT,
+    MODE_POS,
+    MODE_NEG
 };
 
 struct fa_t {
     enum fa_mode mode;
-    char *type;
+    size_t type;
     struct state_t *states;
     size_t num_states;
 };
 
 #ifndef FA_C_
 
-extern void fa_init(struct fa_t *fa, enum fa_mode mode, char *type, struct state_t *states, size_t num_states);
-extern struct fa_t* fa_new(enum fa_mode mode, char *type, struct state_t *states, size_t num_states);
+extern void fa_init(struct fa_t *fa, enum fa_mode mode, size_t type, struct state_t *states, size_t num_states);
+extern struct fa_t* fa_new(enum fa_mode mode, size_t type, struct state_t *states, size_t num_states);
 extern void fa_clear(struct fa_t *fa);
 extern void fa_delete(struct fa_t *fa);
 

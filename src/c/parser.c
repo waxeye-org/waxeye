@@ -332,7 +332,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
     struct ast_t *value = NULL;
 
     switch (automaton->mode) {
-        case POS: {
+        case MODE_POS: {
             restore_pos(ip, start_pos, start_line, start_col, start_cr);
             if (res == NULL) {
                 value = update_error(ip);
@@ -344,7 +344,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             add_to_free_list(ip, res);
             break;
         }
-        case NEG: {
+        case MODE_NEG: {
             restore_pos(ip, start_pos, start_line, start_col, start_cr);
             if (res == NULL) {
                 union ast_data d = { .c = '\0' };
@@ -356,7 +356,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             add_to_free_list(ip, res);
             break;
         }
-        case VOID: {
+        case MODE_VOID: {
             if (res == NULL) {
                 value = update_error(ip);
             }
@@ -367,7 +367,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             add_to_free_list(ip, res);
             break;
         }
-        case PRUNE: {
+        case MODE_PRUNE: {
             if (res == NULL) {
                 value = update_error(ip);
                 add_to_free_list(ip, res);
@@ -386,7 +386,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                         break;
                     }
                     default: {
-                        struct ast_tree_t *t = ast_tree_new(strclone(automaton->type), res);
+                        struct ast_tree_t *t = ast_tree_new(automaton->type, res);
                         union ast_data d = { .tree = t };
                         value = ast_new(AST_TREE, d);
                         break;
@@ -395,13 +395,13 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             }
             break;
         }
-        case LEFT: {
+        case MODE_LEFT: {
             if (res == NULL) {
                 value = update_error(ip);
                 add_to_free_list(ip, res);
             }
             else {
-                struct ast_tree_t *t = ast_tree_new(strclone(automaton->type), res);
+                struct ast_tree_t *t = ast_tree_new(automaton->type, res);
                 union ast_data d = { .tree = t };
                 value = ast_new(AST_TREE, d);
             }

@@ -29,7 +29,7 @@
 #include "fa.h"
 
 
-void fa_init(struct fa_t *a, enum fa_mode mode, char *type, struct state_t *states, size_t num_states) {
+void fa_init(struct fa_t *a, enum fa_mode mode, size_t type, struct state_t *states, size_t num_states) {
     a->mode = mode;
     a->type = type;
     a->states = states;
@@ -37,7 +37,7 @@ void fa_init(struct fa_t *a, enum fa_mode mode, char *type, struct state_t *stat
 }
 
 
-struct fa_t* fa_new(enum fa_mode mode, char *type, struct state_t *states, size_t num_states) {
+struct fa_t* fa_new(enum fa_mode mode, size_t type, struct state_t *states, size_t num_states) {
     struct fa_t *a = malloc(sizeof(struct fa_t));
     assert(a != NULL);
     fa_init(a, mode, type, states, num_states);
@@ -54,8 +54,6 @@ void fa_clear(struct fa_t *a) {
 
     free(a->states);
     a->states = NULL;
-    free(a->type);
-    a->type = NULL;
 }
 
 

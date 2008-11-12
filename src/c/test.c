@@ -62,6 +62,5 @@ int main() {
 
     printf("%d get value2 under each key\n", cache_get(cache, &key) == cache_get(cache, &key2));
 
-
     return 0;
 }

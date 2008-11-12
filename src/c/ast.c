@@ -33,13 +33,13 @@ void ast_recursive_delete(struct ast_t *a);
 void display_ast_iter(size_t indent, struct ast_t *a);
 
 
-void ast_tree_init(struct ast_tree_t *t, char *type, struct vector_t *children) {
+void ast_tree_init(struct ast_tree_t *t, size_t type, struct vector_t *children) {
     t->type = type;
     t->children = children;
 }
 
 
-struct ast_tree_t* ast_tree_new(char *type, struct vector_t *children) {
+struct ast_tree_t* ast_tree_new(size_t type, struct vector_t *children) {
     struct ast_tree_t *t = malloc(sizeof(struct ast_tree_t));
     assert(t != NULL);
     ast_tree_init(t, type, children);
@@ -48,8 +48,6 @@ struct ast_tree_t* ast_tree_new(char *type, struct vector_t *children) {
 
 
 void ast_tree_clear(struct ast_tree_t *t) {
-    free(t->type);
-    t->type = NULL;
     vector_delete(t->children);
     t->children = NULL;
 }
@@ -68,8 +66,6 @@ void ast_tree_recursive_clear(struct ast_tree_t *t) {
         ast_recursive_delete(vector_get(t->children, i));
     }
 
-    free(t->type);
-    t->type = NULL;
     vector_delete(t->children);
     t->children = NULL;
 }
