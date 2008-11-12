@@ -22,29 +22,46 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "ast.h"
-#include "input.h"
-#include "num_parser.h"
+#include "cache.h"
 
 int main() {
-    // Create our parser
-    struct parser_t *parser = parser_new();
 
-    // Setup our input
-    char data[] = "42";
-    struct input_t *input = input_new(data, strlen(data));
+    struct cache_key_t key = {.index = 0, .pos = 0};
+    struct cache_key_t key2 = {.index = 7, .pos = 42};
 
-    // Parse our input
-    struct ast_t *ast = parse(parser, input);
+    struct cache_value_t *v;
+    struct cache_value_t *value;
+    struct cache_value_t *value2;
 
-    // Print our ast
-    display_ast(ast);
+    struct cache_t *cache = cache_new(1024);
+    printf("created cache\n");
 
-    ast_recursive_delete(ast);
-    input_delete(input);
-    parser_delete(parser);
+    v = cache_get(cache, &key);
+    printf("%d get not there cache\n", (int)v);
+
+    value = malloc(sizeof(struct cache_value_t));
+    cache_put(cache, &key, value);
+    printf("put value\n");
+
+    v = cache_get(cache, &key);
+    printf("%d get value\n", v == value);
+
+    value2 = malloc(sizeof(struct cache_value_t));
+    cache_put(cache, &key, value2);
+    printf("put value2\n");
+
+    v = cache_get(cache, &key);
+    printf("%d get value2\n", v == value2);
+
+    cache_put(cache, &key2, value2);
+    printf("put value2 under different key\n");
+
+    printf("%d get value2 under each key\n", cache_get(cache, &key) == cache_get(cache, &key2));
+
 
     return 0;
 }

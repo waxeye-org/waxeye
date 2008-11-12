@@ -30,6 +30,7 @@ LIB_OBJECTS= \
 	edge.o \
 	fa.o \
 	input.o \
+	parser.o \
 	set.o \
 	state.o \
 	trans.o \
@@ -39,11 +40,8 @@ LIB_OBJECTS= \
 lib: $(LIB_OBJECTS)
 	ar cr $(LIB) $(LIB_OBJECTS)
 
-run:
+run: lib
 	$(CC) $(FLAGS) $(LIB) run.c -o run
-
-run_cmd:
-	$(CC) $(FLAGS) $(LIB) run_cmd.c -o run
 
 test:
 	$(CC) $(FLAGS) cache.c test.c -o run
