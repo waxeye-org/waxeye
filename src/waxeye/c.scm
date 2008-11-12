@@ -43,7 +43,7 @@ mzscheme
                        (string-append (camel-case-lower *name-prefix*) "_")
                        ""))
   (set! *c-parser-name* (string-append *c-prefix* "parser"))
-  (set! *c-type-name* (string-append *c-prefix* "node_type"))
+  (set! *c-type-name* (string-append *c-prefix* "type"))
   (set! *c-header-name* (string-append *c-parser-name* ".h"))
   (set! *c-source-name* (string-append *c-parser-name* ".c")))
 
@@ -160,6 +160,7 @@ enum ~a {
 
 #ifndef ~a_C_
 
+extern const char *~a_strings[];
 extern struct parser_t* ~a_new();
 
 #endif /* ~a_C_ */
@@ -175,19 +176,25 @@ extern struct parser_t* ~a_new();
               (string->upper (car non-terms))
               (string-concat
                (map (lambda (a)
-                      (string-append "," (ind) (string->upper a)))
+                      (string-append ",\n" (ind) (string->upper a)))
                     (cdr non-terms)))))
             (string->upper *c-parser-name*)
+            *c-type-name*
             *c-parser-name*
             (string->upper *c-parser-name*)
             (string->upper *c-parser-name*))))
 
 
 (define (gen-parser grammar)
-  (let ((automata (make-automata grammar)))
+  (let ((automata (make-automata grammar))
+        (non-terms (get-non-terms grammar)))
     (format "~a
 #define ~a_C_
 #include \"~a\"
+
+const char *~a_strings[] = {
+~a
+};
 
 struct parser_t* ~a_new() {
 ~a
@@ -196,12 +203,21 @@ struct parser_t* ~a_new() {
             (c-header-comment)
             (string->upper *c-parser-name*)
             *c-header-name*
+            *c-type-name*
+            (indent
+             (string-append
+              (ind)
+              "\"" (string->upper (car non-terms)) "\""
+              (string-concat
+               (map (lambda (a)
+                      (string-append ",\n" (ind) "\"" (string->upper a) "\""))
+                    (cdr non-terms)))))
             *c-parser-name*
             (indent
              (format "~aconst size_t start = ~a;
 ~aconst bool eof_check = ~a;
 ~aconst size_t num_automata = ~a;
-~aconst fa_t *automata = NULL;/*~a*/
+~astruct fa_t *automata = NULL;/*~a*/
 
 ~areturn parser_new(start, automata, num_automata, eof_check);"
                      (ind)
