@@ -30,10 +30,10 @@
 #define INIT_CHILDREN 8
 
 enum ast_type {
-    CHAR,
-    EMPTY,
-    ERROR,
-    TREE
+    AST_CHAR,
+    AST_EMPTY,
+    AST_ERROR,
+    AST_TREE
 };
 
 struct ast_error_t {

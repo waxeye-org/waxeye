@@ -48,7 +48,7 @@ void state_clear(struct state_t *a) {
     size_t i;
 
     for (i = 0; i < a->num_edges; i++) {
-        edge_clear(a->edges[i]);
+        edge_clear(&a->edges[i]);
     }
 
     free(a->edges);

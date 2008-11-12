@@ -45,7 +45,7 @@ struct edge_t* edge_new(struct trans_t t, size_t s, bool v) {
 
 
 void edge_clear(struct edge_t *a) {
-    trans_clear(a->t);
+    trans_clear(&a->t);
 }
 
 

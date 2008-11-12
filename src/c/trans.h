@@ -25,6 +25,8 @@
 #ifndef TRANS_H_
 #define TRANS_H_
 
+#include "set.h"
+
 /*
   Transition is either
   wild card
@@ -33,10 +35,10 @@
   an index for an automaton
  */
 enum trans_type {
-    WILD,
-    CHAR,
-    SET,
-    FA
+    TRANS_WILD,
+    TRANS_CHAR,
+    TRANS_SET,
+    TRANS_FA
 };
 
 union trans_data {

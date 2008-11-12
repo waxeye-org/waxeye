@@ -97,13 +97,13 @@ struct ast_t* ast_new(enum ast_type type, union ast_data data) {
 
 void ast_clear(struct ast_t *a) {
     switch (a->type) {
-        case ERROR:
+        case AST_ERROR:
             free(a->data.error);
             a->data.error = NULL;
             break;
-        case CHAR:
+        case AST_CHAR:
             break;
-        case TREE:
+        case AST_TREE:
             ast_tree_delete(a->data.tree);
             a->data.tree = NULL;
             break;
@@ -121,13 +121,13 @@ void ast_delete(struct ast_t *a) {
 
 void ast_recursive_clear(struct ast_t *a) {
     switch (a->type) {
-        case ERROR:
+        case AST_ERROR:
             free(a->data.error);
             a->data.error = NULL;
             break;
-        case CHAR:
+        case AST_CHAR:
             break;
-        case TREE:
+        case AST_TREE:
             ast_tree_recursive_delete(a->data.tree);
             a->data.tree = NULL;
             break;
@@ -150,7 +150,7 @@ void display_parse_error(struct ast_t *a) {
     }
 
     switch (a->type) {
-        case ERROR:
+        case AST_ERROR:
         {
             struct ast_error_t *error = a->data.error;
             printf("parse error at pos=%d, line=%d, col=%d\n", error->pos, error->line, error->col);
@@ -196,12 +196,12 @@ void display_ast_iter(size_t indent, struct ast_t *a) {
     }
 
     switch (a->type) {
-        case CHAR:
+        case AST_CHAR:
         {
             display_c(indent, a);
             break;
         }
-        case TREE:
+        case AST_TREE:
         {
             display_tree(indent, a);
             break;
@@ -219,13 +219,13 @@ void display_ast(struct ast_t *a) {
     }
 
     switch (a->type) {
-        case ERROR:
+        case AST_ERROR:
         {
             display_parse_error(a);
             break;
         }
-        case CHAR:
-        case TREE:
+        case AST_CHAR:
+        case AST_TREE:
         {
             display_ast_iter(0, a);
             break;

@@ -45,11 +45,11 @@ struct trans_t* trans_new(enum trans_type type, union trans_data data) {
 
 void trans_clear(struct trans_t *a) {
     switch (a->type) {
-        case WILD:
-        case CHAR:
-        case FA:
+        case TRANS_WILD:
+        case TRANS_CHAR:
+        case TRANS_FA:
             break;
-        case SET:
+        case TRANS_SET:
             set_delete(a->data.set);
             a->data.set = NULL;
             break;

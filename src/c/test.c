@@ -26,18 +26,25 @@
 
 #include "ast.h"
 #include "input.h"
-#include "old.h"
+#include "num_parser.h"
 
 int main() {
-    char data[] = "(Cats a n d (Dogs (Fluffy) a n d (MuuMuu)) c h a s e (Mice))\n";
+    // Create our parser
+    struct parser_t *parser = parser_new();
 
+    // Setup our input
+    char data[] = "42";
     struct input_t *input = input_new(data, strlen(data));
-    struct ast_t * ast = parse(input);
 
+    // Parse our input
+    struct ast_t *ast = parse(parser, input);
+
+    // Print our ast
     display_ast(ast);
 
-    input_delete(input);
     ast_recursive_delete(ast);
+    input_delete(input);
+    parser_delete(parser);
 
     return 0;
 }

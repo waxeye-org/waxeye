@@ -20,13 +20,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-all: call
+CC=gcc
+FLAGS=-Wall -Wextra -Wshadow -O3
+
+LIB=libwaxeye.a
+LIB_OBJECTS= \
+	ast.o \
+	cache.o \
+	edge.o \
+	fa.o \
+	input.o \
+	set.o \
+	state.o \
+	trans.o \
+	util.o \
+	vector.o
+
+lib: $(LIB_OBJECTS)
+	ar cr $(LIB) $(LIB_OBJECTS)
 
 run:
-	gcc -Wall -Wextra -Wshadow -o run ast.c input.c old.c run.c util.c vector.c
+	$(CC) $(FLAGS) $(LIB) run.c -o run
 
-run2:
-	gcc -Wall -Wextra -Wshadow -o run cache.c run2.c
+run_cmd:
+	$(CC) $(FLAGS) $(LIB) run_cmd.c -o run
+
+test:
+	$(CC) $(FLAGS) cache.c test.c -o run
 
 clean:
-	rm -f run
+	rm -f run $(LIB_OBJECTS) $(LIB)

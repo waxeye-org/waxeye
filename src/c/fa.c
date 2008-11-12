@@ -49,7 +49,7 @@ void fa_clear(struct fa_t *a) {
     size_t i;
 
     for (i = 0; i < a->num_states; i++) {
-        state_clear(a->states[i]);
+        state_clear(&a->states[i]);
     }
 
     free(a->states);

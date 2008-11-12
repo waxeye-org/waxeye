@@ -188,7 +188,7 @@ struct ast_t* mv(struct inner_parser_t *ip) {
     }
 
     union ast_data d = { .c = ch };
-    return ast_new(CHAR, d);
+    return ast_new(AST_CHAR, d);
 }
 
 
@@ -201,19 +201,19 @@ struct vector_t* match_edge(struct inner_parser_t *ip, struct edge_t *edge) {
     struct ast_t *res;
 
     switch (t->type) {
-        case WILD: {
+        case TRANS_WILD: {
             res = (input_eof(ip->input) ? update_error(ip) : mv(ip));
             break;
         }
-        case CHAR: {
+        case TRANS_CHAR: {
             res = ((input_eof(ip->input) || t->data.c != input_peek(ip->input)) ? update_error(ip) : mv(ip));
             break;
         }
-        case SET: {
+        case TRANS_SET: {
             res = ((input_eof(ip->input) || !set_within_set(t->data.set, input_peek(ip->input))) ? update_error(ip) : mv(ip));
             break;
         }
-        case FA: {
+        case TRANS_FA: {
             res = match_automaton(ip, t->data.fa);
             break;
         }
@@ -230,7 +230,7 @@ struct vector_t* match_edge(struct inner_parser_t *ip, struct edge_t *edge) {
         struct vector_t *tran_res = match_state(ip, edge->s);
 
         if (tran_res != NULL) {
-            if (edge->v || res->type == EMPTY) {
+            if (edge->v || res->type == AST_EMPTY) {
                 vector_add(ip->to_free, res);
                 return tran_res;
             }
@@ -337,7 +337,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             }
             else {
                 union ast_data d = { .c = '\0' };
-                value = ast_new(EMPTY, d);
+                value = ast_new(AST_EMPTY, d);
             }
             add_to_free_list(ip, res);
             break;
@@ -346,7 +346,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             restore_pos(ip, start_pos, start_line, start_col, start_cr);
             if (res == NULL) {
                 union ast_data d = { .c = '\0' };
-                value = ast_new(EMPTY, d);
+                value = ast_new(AST_EMPTY, d);
             }
             else {
                 value = update_error(ip);
@@ -360,7 +360,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             }
             else {
                 union ast_data d = { .c = '\0' };
-                value = ast_new(EMPTY, d);
+                value = ast_new(AST_EMPTY, d);
             }
             add_to_free_list(ip, res);
             break;
@@ -374,7 +374,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                 switch (res->size) {
                     case 0: {
                         union ast_data d = { .c = '\0' };
-                        value = ast_new(EMPTY, d);
+                        value = ast_new(AST_EMPTY, d);
                         add_to_free_list(ip, res);
                         break;
                     }
@@ -386,7 +386,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                     default: {
                         struct ast_tree_t *t = ast_tree_new(strclone(automaton->type), res);
                         union ast_data d = { .tree = t };
-                        value = ast_new(TREE, d);
+                        value = ast_new(AST_TREE, d);
                         break;
                     }
                 }
@@ -401,7 +401,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             else {
                 struct ast_tree_t *t = ast_tree_new(strclone(automaton->type), res);
                 union ast_data d = { .tree = t };
-                value = ast_new(TREE, d);
+                value = ast_new(AST_TREE, d);
             }
             break;
         }
@@ -425,7 +425,7 @@ struct ast_t* create_parse_error(struct inner_parser_t *ip) {
     e->line = ip->error_line;
     e->col = ip->error_col;
     union ast_data d = { .error = e };
-    return ast_new(ERROR, d);
+    return ast_new(AST_ERROR, d);
 }
 
 
