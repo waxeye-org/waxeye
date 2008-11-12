@@ -37,13 +37,15 @@ LIB_OBJECTS= \
 	util.o \
 	vector.o
 
-lib: $(LIB_OBJECTS)
+$(LIB): clean $(LIB_OBJECTS)
 	ar cr $(LIB) $(LIB_OBJECTS)
 
-run: lib
-	$(CC) $(FLAGS) $(LIB) run.c -o run
+lib: $(LIB)
 
-test:
+run: clean $(LIB)
+	$(CC) $(FLAGS) $(LIB) run.c num_parser.c -o run
+
+test: clean
 	$(CC) $(FLAGS) cache.c test.c -o run
 
 clean:

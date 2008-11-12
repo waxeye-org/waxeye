@@ -30,7 +30,7 @@
 
 int main() {
     // Create our parser
-    struct parser_t *parser = parser_new();
+    struct parser_t *parser = num_parser_new();
 
     // Setup our input
     FILE *fp = stdin;

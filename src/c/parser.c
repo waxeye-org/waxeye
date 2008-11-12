@@ -29,6 +29,27 @@
 #include "parser.h"
 
 
+struct inner_parser_t {
+    size_t start;
+    struct fa_t *automata;
+    size_t num_automata;
+    bool eof_check;
+
+    struct input_t *input;
+    size_t line;
+    size_t column;
+    bool last_cr;
+    size_t error_pos;
+    size_t error_line;
+    size_t error_col;
+    struct cache_t *cache;
+    struct vector_t *cache_contents;
+    struct vector_t *states_stack;
+    struct vector_t *to_free;
+};
+
+
+struct vector_t* match_state(struct inner_parser_t *ip, size_t index);
 struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index);
 
 
@@ -52,10 +73,10 @@ void parser_clear(struct parser_t *a) {
     size_t i;
 
     for (i = 0; i < a->num_automata; i++) {
-        fa_clear(a->automata[i]);
+        fa_clear(&a->automata[i]);
     }
 
-    free(automata);
+    free(a->automata);
     a->automata = NULL;
 }
 
@@ -64,26 +85,6 @@ void parser_delete(struct parser_t *a) {
     parser_clear(a);
     free(a);
 }
-
-
-struct inner_parser_t {
-    size_t start;
-    struct fa_t *automata;
-    size_t num_automata;
-    bool eof_check;
-
-    struct input_t *input;
-    size_t line;
-    size_t column;
-    bool last_cr;
-    size_t error_pos;
-    size_t error_line;
-    size_t error_col;
-    struct cache_t *cache;
-    struct vector_t *cache_contents;
-    struct vector_t *states_stack;
-    struct vector_t *to_free;
-};
 
 
 void inner_parser_init(struct inner_parser_t *a, size_t start,
@@ -159,7 +160,7 @@ struct ast_t* update_error(struct inner_parser_t *ip) {
     if (ip->error_pos < ip->input->pos) {
         ip->error_pos = ip->input->pos;
         ip->error_line = ip->line;
-        ip->error_col = ip->col;
+        ip->error_col = ip->column;
     }
 
     return NULL;
@@ -195,8 +196,8 @@ struct ast_t* mv(struct inner_parser_t *ip) {
 struct vector_t* match_edge(struct inner_parser_t *ip, struct edge_t *edge) {
     size_t start_pos = ip->input->pos;
     size_t start_line = ip->line;
-    size_t start_col = ip->col;
-    bool start_cr = ip->last_ct;
+    size_t start_col = ip->column;
+    bool start_cr = ip->last_cr;
     struct trans_t *t = &edge->t;
     struct ast_t *res;
 
@@ -258,7 +259,7 @@ struct vector_t* match_edges(struct inner_parser_t *ip, struct edge_t *edges,
         return NULL;
     }
     else {
-        struct vector_t *res = match_edge(ip, edges[index]);
+        struct vector_t *res = match_edge(ip, &edges[index]);
 
         if (res != NULL) {
             return res;
@@ -271,7 +272,8 @@ struct vector_t* match_edges(struct inner_parser_t *ip, struct edge_t *edges,
 
 
 struct vector_t* match_state(struct inner_parser_t *ip, size_t index) {
-    struct state_t *state = &((fa_t*)vector_peek(states_stack))->states[index];
+    struct fa_t *automaton = vector_peek(ip->states_stack);
+    struct state_t *state = &automaton->states[index];
 
     struct vector_t *res = match_edges(ip, state->edges, state->num_edges, 0);
 
@@ -321,7 +323,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
     size_t start_line = ip->line;
     size_t start_col = ip->column;
     bool start_cr = ip->last_cr;
-    struct fa_t *automaton = ip->automata[index];
+    struct fa_t *automaton = &ip->automata[index];
 
     vector_push(ip->states_stack, automaton->states);
     struct vector_t *res = match_state(ip, 0);
@@ -379,7 +381,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                         break;
                     }
                     case 1: {
-                        value = vector_get(0);
+                        value = vector_get(res, 0);
                         vector_delete(res);
                         break;
                     }
@@ -411,7 +413,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
         }
     }
 
-    cache_value = cach_value_new(value, ip->input->pos, ip->line,
+    cache_value = cache_value_new(value, ip->input->pos, ip->line,
                                  ip->column, ip->last_cr);
     cache_put(ip->cache, &key, cache_value);
     vector_add(ip->cache_contents, cache_value);

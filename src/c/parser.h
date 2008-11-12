@@ -27,8 +27,10 @@
 
 #include <stdbool.h>
 #include "ast.h"
+#include "cache.h"
 #include "fa.h"
 #include "input.h"
+#include "util.h"
 
 struct parser_t {
     size_t start;

@@ -160,7 +160,7 @@ enum ~a {
 
 #ifndef ~a_C_
 
-extern struct parser_t* make_~a();
+extern struct parser_t* ~a_new();
 
 #endif /* ~a_C_ */
 #endif /* ~a_H_ */
@@ -189,7 +189,7 @@ extern struct parser_t* make_~a();
 #define ~a_C_
 #include \"~a\"
 
-struct parser_t* make_~a() {
+struct parser_t* ~a_new() {
 ~a
 }
 "
@@ -201,7 +201,7 @@ struct parser_t* make_~a() {
              (format "~aconst size_t start = ~a;
 ~aconst bool eof_check = ~a;
 ~aconst size_t num_automata = ~a;
-~aconst fa_t *automata = ~a
+~aconst fa_t *automata = NULL;/*~a*/
 
 ~areturn parser_new(start, automata, num_automata, eof_check);"
                      (ind)
