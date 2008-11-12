@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
-
-#include "ast.h"
-#include "input.h"
 #include "num_parser.h"
 
 int main() {

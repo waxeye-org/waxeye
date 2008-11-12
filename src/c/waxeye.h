@@ -25,6 +25,9 @@
 #ifndef WAXEYE_H_
 #define WAXEYE_H_
 
+#include <stdlib.h>
+#include "ast.h"
+#include "input.h"
 #include "parser.h"
 
 #endif /* WAXEYE_H_ */

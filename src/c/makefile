@@ -43,10 +43,10 @@ $(LIB): clean $(LIB_OBJECTS)
 lib: $(LIB)
 
 run: clean $(LIB)
-	$(CC) $(FLAGS) $(LIB) run.c num_parser.c -o run
+	$(CC) $(FLAGS) num_parser.c run.c $(LIB) -o run
 
 test: clean
 	$(CC) $(FLAGS) cache.c test.c -o run
 
 clean:
-	rm -f run $(LIB_OBJECTS) $(LIB)
+	rm -f run *.o *.a

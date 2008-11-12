@@ -49,7 +49,7 @@ mzscheme
 
 
 (define (gen-c grammar path)
-  (indent-unit! 2)
+  (indent-unit! 4)
   (gen-c-names)
   (dump-string (gen-header grammar) (string-append path *c-header-name*))
   (dump-string (gen-parser grammar) (string-append path *c-source-name*)))
