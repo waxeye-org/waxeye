@@ -27,6 +27,7 @@ mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
+         (only (lib "list.ss" "mzlib") filter)
          "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-c)
 
@@ -57,84 +58,6 @@ mzscheme
 
 (define (c-comment lines)
   (comment-bookend "/*" " *" " */" lines))
-
-
-(define (gen-trans a)
-  (define (gen-char t)
-    (format "\"~a~a\""
-            (if (escape-for-java-char? t) "\\" "")
-            (cond
-             ((equal? t #\") "\\\"")
-             ((equal? t #\linefeed) "\\n")
-             ((equal? t #\tab) "\\t")
-             ((equal? t #\return) "\\r")
-             (else t))))
-  (define (gen-char-class-item a)
-    (if (char? a)
-        (gen-char a)
-        (format "~a..~a"
-                (char->integer (car a))
-                (char->integer (cdr a)))))
-  (cond
-   ((symbol? a) (format ":_~a" a))
-   ((list? a)
-    (format "[~a~a]"
-            (gen-char-class-item (car a))
-            (string-concat (map (lambda (b)
-                                  (string-append ", " (gen-char-class-item b)))
-                                (cdr a)))))
-   ((char? a) (gen-char a))
-   (else a)))
-
-
-(define (gen-edge a)
-  (format "Waxeye::Edge.new(~a, ~a, ~a)"
-          (gen-trans (edge-t a))
-          (edge-s a)
-          (bool->s (edge-v a))))
-
-
-(define (gen-edges d)
-  (gen-array gen-edge (list->vector d)))
-
-
-(define (gen-state a)
-  (format "Waxeye::State.new(~a, ~a)"
-          (gen-edges (state-edges a))
-          (bool->s (state-match a))))
-
-
-(define (gen-states d)
-  (gen-array gen-state d))
-
-
-(define (gen-fa a)
-  (format "Waxeye::Automaton.new(:~a, ~a, :~a)"
-          (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-            (cond
-             ((equal? type "!") "_not")
-             ((equal? type "&") "_and")
-             (else type)))
-          (gen-states (fa-states a))
-          (case (fa-mode a)
-            ((voidArrow) "void")
-            ((pruneArrow) "prune")
-            ((leftArrow) "left"))))
-
-
-(define (gen-fas d)
-  (gen-array gen-fa d))
-
-
-(define (gen-array fn data)
-  (let ((ss (vector->list data)))
-    (format "[~a]"
-            (indent (if (null? ss)
-                        ""
-                        (string-append (fn (car ss))
-                                       (string-concat (map (lambda (a)
-                                                             (string-append ",\n" (ind) (fn a)))
-                                                           (cdr ss)))))))))
 
 
 (define (c-header-comment)
@@ -216,18 +139,138 @@ struct parser_t* ~a_new() {
             (indent
              (format "~aconst size_t start = ~a;
 ~aconst bool eof_check = ~a;
+~asize_t num_edges;
+~asize_t num_states;
 ~aconst size_t num_automata = ~a;
-~astruct fa_t *automata = NULL;/*~a*/
+~astruct edge_t *edges;
+~astruct state_t *states;
+~astruct fa_t *automata = calloc(num_automata, sizeof(struct fa_t));
+~aassert(automata != NULL);
 
-~areturn parser_new(start, automata, num_automata, eof_check);"
+~a~areturn parser_new(start, automata, num_automata, eof_check);"
                      (ind)
                      (number->string *start-index*)
                      (ind)
                      (bool->s *eof-check*)
-                     (ind)
+                     (ind) (ind) (ind)
                      (number->string (vector-length automata))
-                     (ind)
-                     (gen-fas automata)
+                     (ind) (ind) (ind) (ind)
+                     (mapi->s gen-fa (vector->list automata))
                      (ind))))))
+
+
+(define (mapi->s fn l)
+  (string-concat
+   (let ((i -1))
+     (map (lambda (a)
+            (set! i (+ i 1))
+            (fn i a))
+          l))))
+
+
+(define (gen-mode a)
+  (let ((type (fa-type a)))
+    (cond
+     ((equal? type '&) "POS")
+     ((equal? type '!) "NEG")
+     (else
+      (case (fa-mode a)
+        ((voidArrow) "VOID")
+        ((pruneArrow) "PRUNE")
+        ((leftArrow) "LEFT"))))))
+
+
+(define (gen-fa i a)
+  (format "~anum_states = ~a;
+~astates = calloc(num_states, sizeof(struct state_t));
+~aassert(states != NULL);
+~a~aautomata[~a] = fa_new(MODE_~a, ~a, states, num_states);\n\n"
+          (ind)
+          (vector-length (fa-states a))
+          (ind) (ind)
+          (mapi->s gen-state (vector->list (fa-states a)))
+          (ind)
+          i
+          (gen-mode a)
+          (let ((type (fa-type a)))
+            (if (or (equal? type '&) (equal? type '&))
+                0
+                (string->upper (symbol->string type))))))
+
+
+(define (gen-state i s)
+  (format "~anum_edges = ~a;
+~aedges = calloc(num_edges, sizeof(struct edge_t));
+~aassert(edges != NULL);
+~a~astates[~a] = state_new(edges, num_edges, ~a);\n"
+          (ind)
+          (length (state-edges s))
+          (ind) (ind)
+          (mapi->s gen-edge (state-edges s))
+          (ind)
+          i
+          (bool->s (state-match s))))
+
+
+(define (gen-edge i e)
+  (format "~aedges[~a] = edge_new(new ~a, ~a, ~a);\n"
+          (ind)
+          i
+          (gen-trans (edge-t e))
+          (edge-s e)
+          (bool->s (edge-v e))))
+
+
+(define (gen-trans t)
+  (cond
+   ((equal? t 'wild) (gen-wild-card-trans))
+   ((integer? t) (gen-automaton-trans t))
+   ((char? t) (gen-char-trans t))
+   ((pair? t) (gen-char-class-trans t))))
+
+
+(define (gen-automaton-trans t)
+  (format "AutomatonTransition<>(~a)" t))
+
+
+(define (gen-char-trans t)
+  (format "CharTransition<>(new char[]{~a}, new char[]{}, new char[]{})" (gen-char t)))
+
+
+(define (gen-char-class-trans t)
+  (let* ((single (filter char? t))
+         (ranges (filter pair? t))
+         (min (map car ranges))
+         (max (map cdr ranges)))
+    (format "CharTransition<>(~a, ~a, ~a)"
+            (gen-char-list single)
+            (gen-char-list min)
+            (gen-char-list max))))
+
+
+(define (gen-char-list l)
+  (format "new char[]{~a}"
+          (if (null? l)
+              ""
+              (string-append
+               (gen-char (car l))
+               (string-concat (map (lambda (a)
+                                     (string-append ", " (gen-char a)))
+                                   (cdr l)))))))
+
+
+(define (gen-char t)
+  (format "'~a~a'"
+          (if (escape-for-java-char? t) "\\" "")
+          (cond
+           ((equal? t #\linefeed) "\\n")
+           ((equal? t #\tab) "\\t")
+           ((equal? t #\return) "\\r")
+           (else t))))
+
+
+(define (gen-wild-card-trans)
+  (format "WildCardTransition<>()"))
+
 
 )

@@ -25,6 +25,7 @@
 #ifndef WAXEYE_H_
 #define WAXEYE_H_
 
+#include <assert.h>
 #include <stdlib.h>
 #include "ast.h"
 #include "input.h"
