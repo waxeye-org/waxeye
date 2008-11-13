@@ -380,11 +380,13 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                         break;
                     }
                     case 1: {
-                        value = vector_get(res, 0);
+                        // Get the last element since the vector is reversed
+                        value = vector_get(res, res->size - 1);
                         vector_delete(res);
                         break;
                     }
                     default: {
+                        vector_reverse(res); // Correct the order of children
                         struct ast_tree_t *t = ast_tree_new(automaton->type, res);
                         union ast_data d = { .tree = t };
                         value = ast_new(AST_TREE, d);
@@ -399,10 +401,10 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                 value = update_error(ip);
             }
             else {
+                vector_reverse(res); // Correct the order of children
                 struct ast_tree_t *t = ast_tree_new(automaton->type, res);
                 union ast_data d = { .tree = t };
                 value = ast_new(AST_TREE, d);
-                add_to_free_list(ip, res);
             }
             break;
         }

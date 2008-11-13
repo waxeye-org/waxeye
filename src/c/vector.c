@@ -119,3 +119,15 @@ void* vector_pop(struct vector_t *v) {
 void* vector_peek(struct vector_t *v) {
     return vector_get(v, v->size - 1);
 }
+
+
+void vector_reverse(struct vector_t *v) {
+    void *tmp;
+    size_t i, last = v->size - 1, half = v->size / 2;
+
+    for (i = 0; i < half; i++) {
+        tmp = v->elements[i];
+        v->elements[i] = v->elements[last - i];
+        v->elements[last - i] = tmp;
+    }
+}

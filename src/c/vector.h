@@ -45,5 +45,7 @@ extern void vector_push(struct vector_t *v, void *element);
 extern void* vector_pop(struct vector_t *v);
 extern void* vector_peek(struct vector_t *v);
 
+extern void vector_reverse(struct vector_t *v);
+
 #endif /* VECTOR_C_ */
 #endif /* VECTOR_H_ */
