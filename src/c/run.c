@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-#include "num_parser.h"
+#include "parser.h"
 
 int main() {
     // Create our parser
-    struct parser_t *parser = num_parser_new();
+    struct parser_t *parser = parser_new();
 
     // Setup our input
     FILE *fp = stdin;
@@ -37,7 +37,7 @@ int main() {
     struct ast_t *ast = parse(parser, input);
 
     // Print our ast
-    display_ast(ast, num_type_strings);
+    display_ast(ast, type_strings);
 
     ast_recursive_delete(ast);
     input_and_data_delete(input);

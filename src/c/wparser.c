@@ -25,8 +25,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define PARSER_C_
-#include "parser.h"
+#define WPARSER_C_
+#include "wparser.h"
+#include "cache.h"
 
 
 struct inner_parser_t {
@@ -61,7 +62,7 @@ void parser_init(struct parser_t *a, size_t start, struct fa_t *automata, size_t
 }
 
 
-struct parser_t* parser_new(size_t start, struct fa_t *automata, size_t num_automata, bool eof_check) {
+struct parser_t* wparser_new(size_t start, struct fa_t *automata, size_t num_automata, bool eof_check) {
     struct parser_t *a = malloc(sizeof(struct parser_t));
     assert(a != NULL);
     parser_init(a, start, automata, num_automata, eof_check);

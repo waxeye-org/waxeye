@@ -22,12 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef PARSER_H_
-#define PARSER_H_
+#ifndef WPARSER_H_
+#define WPARSER_H_
 
 #include <stdbool.h>
 #include "ast.h"
-#include "cache.h"
 #include "fa.h"
 #include "input.h"
 
@@ -38,13 +37,13 @@ struct parser_t {
     bool eof_check;
 };
 
-#ifndef PARSER_C_
+#ifndef WPARSER_C_
 
 extern void parser_init(struct parser_t *s, size_t start, struct fa_t *automata, size_t num_automata, bool eof_check);
-extern struct parser_t* parser_new(size_t start, struct fa_t *automata, size_t num_automata, bool eof_check);
+extern struct parser_t* wparser_new(size_t start, struct fa_t *automata, size_t num_automata, bool eof_check);
 extern void parser_clear(struct parser_t *s);
 extern void parser_delete(struct parser_t *s);
 extern struct ast_t* parse(struct parser_t *parser, struct input_t *input);
 
-#endif /* PARSER_C_ */
-#endif /* PARSER_H_ */
+#endif /* WPARSER_C_ */
+#endif /* WPARSER_H_ */

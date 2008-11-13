@@ -117,6 +117,7 @@ extern struct parser_t* ~a_new();
     (format "~a
 #define ~a_C_
 #include \"~a\"
+#include <assert.h>
 
 const char *~a_strings[] = {
 ~a
@@ -152,7 +153,7 @@ struct parser_t* ~a_new() {
 ~astruct fa_t *automata = calloc(num_automata, sizeof(struct fa_t));
 ~aassert(automata != NULL);
 
-~a~areturn parser_new(start, automata, num_automata, eof_check);"
+~a~areturn wparser_new(start, automata, num_automata, eof_check);"
                      (ind)
                      (number->string *start-index*)
                      (ind)
