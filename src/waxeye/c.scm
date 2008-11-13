@@ -142,6 +142,8 @@ struct parser_t* ~a_new() {
 ~asize_t num_edges;
 ~asize_t num_states;
 ~aconst size_t num_automata = ~a;
+~astruct trans_t trans;
+~aunion trans_data trans_d;
 ~astruct edge_t *edges;
 ~astruct state_t *states;
 ~astruct fa_t *automata = calloc(num_automata, sizeof(struct fa_t));
@@ -154,7 +156,7 @@ struct parser_t* ~a_new() {
                      (bool->s *eof-check*)
                      (ind) (ind) (ind)
                      (number->string (vector-length automata))
-                     (ind) (ind) (ind) (ind)
+                     (ind) (ind) (ind) (ind) (ind) (ind)
                      (mapi->s gen-fa (vector->list automata))
                      (ind))))))
 
@@ -184,7 +186,7 @@ struct parser_t* ~a_new() {
   (format "~anum_states = ~a;
 ~astates = calloc(num_states, sizeof(struct state_t));
 ~aassert(states != NULL);
-~a~aautomata[~a] = fa_new(MODE_~a, ~a, states, num_states);\n\n"
+~a~afa_init(&automata[~a], MODE_~a, ~a, states, num_states);\n\n"
           (ind)
           (vector-length (fa-states a))
           (ind) (ind)
@@ -193,7 +195,7 @@ struct parser_t* ~a_new() {
           i
           (gen-mode a)
           (let ((type (fa-type a)))
-            (if (or (equal? type '&) (equal? type '&))
+            (if (or (equal? type '&) (equal? type '!))
                 0
                 (string->upper (symbol->string type))))))
 
@@ -202,7 +204,7 @@ struct parser_t* ~a_new() {
   (format "~anum_edges = ~a;
 ~aedges = calloc(num_edges, sizeof(struct edge_t));
 ~aassert(edges != NULL);
-~a~astates[~a] = state_new(edges, num_edges, ~a);\n"
+~a~astate_init(&states[~a], edges, num_edges, ~a);\n"
           (ind)
           (length (state-edges s))
           (ind) (ind)
@@ -213,10 +215,10 @@ struct parser_t* ~a_new() {
 
 
 (define (gen-edge i e)
-  (format "~aedges[~a] = edge_new(new ~a, ~a, ~a);\n"
+  (format "~a~aedge_init(&edges[~a], trans, ~a, ~a);\n"
+          (gen-trans (edge-t e))
           (ind)
           i
-          (gen-trans (edge-t e))
           (edge-s e)
           (bool->s (edge-v e))))
 
@@ -230,11 +232,13 @@ struct parser_t* ~a_new() {
 
 
 (define (gen-automaton-trans t)
-  (format "AutomatonTransition<>(~a)" t))
+  (format "~atrans_d.fa = ~a;
+~atrans_init(&trans, TRANS_FA, trans_d);\n"
+          (ind) t (ind)))
 
 
 (define (gen-char-trans t)
-  (format "CharTransition<>(new char[]{~a}, new char[]{}, new char[]{})" (gen-char t)))
+  (format "/*CharTransition<>(new char[]{~a}, new char[]{}, new char[]{})*/" (gen-char t)))
 
 
 (define (gen-char-class-trans t)
@@ -242,7 +246,7 @@ struct parser_t* ~a_new() {
          (ranges (filter pair? t))
          (min (map car ranges))
          (max (map cdr ranges)))
-    (format "CharTransition<>(~a, ~a, ~a)"
+    (format "/*CharTransition<>(~a, ~a, ~a)*/"
             (gen-char-list single)
             (gen-char-list min)
             (gen-char-list max))))
@@ -270,7 +274,9 @@ struct parser_t* ~a_new() {
 
 
 (define (gen-wild-card-trans)
-  (format "WildCardTransition<>()"))
+  (format "~atrans_d.c = '\\0';
+~atrans_init(&trans, TRANS_WILD, trans_d);\n"
+          (ind) (ind)))
 
 
 )
