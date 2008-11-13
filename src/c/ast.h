@@ -74,7 +74,7 @@ extern void ast_delete(struct ast_t *a);
 extern void ast_recursive_clear(struct ast_t *a);
 extern void ast_recursive_delete(struct ast_t *a);
 
-extern void display_ast(struct ast_t *a);
+extern void display_ast(struct ast_t *a, const char *type_strings[]);
 
 #endif /* AST_C_ */
 #endif /* AST_H_ */

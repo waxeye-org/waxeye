@@ -37,7 +37,7 @@ int main() {
     struct ast_t *ast = parse(parser, input);
 
     // Print our ast
-    display_ast(ast);
+    display_ast(ast, num_type_strings);
 
     ast_recursive_delete(ast);
     input_and_data_delete(input);

@@ -30,7 +30,7 @@
 #include "ast.h"
 
 void ast_recursive_delete(struct ast_t *a);
-void display_ast_iter(size_t indent, struct ast_t *a);
+void display_ast_iter(size_t indent, struct ast_t *a, const char *type_strings[]);
 
 
 void ast_tree_init(struct ast_tree_t *t, size_t type, struct vector_t *children) {
@@ -149,7 +149,7 @@ void display_parse_error(struct ast_t *a) {
         case AST_ERROR:
         {
             struct ast_error_t *error = a->data.error;
-            printf("parse error at pos=%d, line=%d, col=%d\n", error->pos, error->line, error->col);
+            printf("parse error: failed to match '' at line=%d, col=%d, pos=%d\n", error->line, error->col, error->pos);
             break;
         }
         default:
@@ -167,7 +167,7 @@ void display_c(size_t indent, struct ast_t *a) {
 }
 
 
-void display_tree(size_t indent, struct ast_t *a) {
+void display_tree(size_t indent, struct ast_t *a, const char *type_strings[]) {
     struct ast_tree_t *tree = a->data.tree;
     struct vector_t *children = tree->children;
     size_t i, len = children->size;
@@ -176,19 +176,18 @@ void display_tree(size_t indent, struct ast_t *a) {
         printf("->  ");
     }
 
-    //printf("%s\n", tree->type);
-    printf("tree\n");
+    printf("%s\n", type_strings[tree->type]);
 
     for (i = 0; i < len; i++) {
-        display_ast_iter(indent + 1, vector_get(children, i));
+        display_ast_iter(indent + 1, vector_get(children, i), type_strings);
     }
 }
 
 
-void display_ast_iter(size_t indent, struct ast_t *a) {
+void display_ast_iter(size_t indent, struct ast_t *a, const char *type_strings[]) {
     size_t i;
 
-    for (i = 0; i < indent; i++) {
+    for (i = 1; i < indent; i++) {
         printf("    ");
     }
 
@@ -200,7 +199,7 @@ void display_ast_iter(size_t indent, struct ast_t *a) {
         }
         case AST_TREE:
         {
-            display_tree(indent, a);
+            display_tree(indent, a, type_strings);
             break;
         }
         default:
@@ -209,7 +208,7 @@ void display_ast_iter(size_t indent, struct ast_t *a) {
 }
 
 
-void display_ast(struct ast_t *a) {
+void display_ast(struct ast_t *a, const char *type_strings[]) {
     if (a == NULL) {
         printf("NULL");
         return;
@@ -224,7 +223,7 @@ void display_ast(struct ast_t *a) {
         case AST_CHAR:
         case AST_TREE:
         {
-            display_ast_iter(0, a);
+            display_ast_iter(0, a, type_strings);
             break;
         }
         default:

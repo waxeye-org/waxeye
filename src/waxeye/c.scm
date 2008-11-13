@@ -133,10 +133,10 @@ struct parser_t* ~a_new() {
             (indent
              (string-append
               (ind)
-              "\"" (string->upper (car non-terms)) "\""
+              "\"" (car non-terms) "\""
               (string-concat
                (map (lambda (a)
-                      (string-append ",\n" (ind) "\"" (string->upper a) "\""))
+                      (string-append ",\n" (ind) "\"" a "\""))
                     (cdr non-terms)))))
             *c-parser-name*
             (indent
