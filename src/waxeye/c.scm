@@ -161,13 +161,16 @@ struct parser_t* ~a_new() {
                      (ind))))))
 
 
+(define (mapi fn l)
+  (let ((i -1))
+    (map (lambda (a)
+           (set! i (+ i 1))
+           (fn i a))
+         l)))
+
+
 (define (mapi->s fn l)
-  (string-concat
-   (let ((i -1))
-     (map (lambda (a)
-            (set! i (+ i 1))
-            (fn i a))
-          l))))
+  (string-concat (mapi fn l)))
 
 
 (define (gen-mode a)
@@ -243,26 +246,48 @@ struct parser_t* ~a_new() {
           (ind) (gen-char t) (ind)))
 
 
+(define *done-cc* #f)
+
 (define (gen-char-class-trans t)
   (let* ((single (filter char? t))
          (ranges (filter pair? t))
          (min (map car ranges))
-         (max (map cdr ranges)))
-    (format "/*CharTransition<>(~a, ~a, ~a)*/"
-            (gen-char-list single)
-            (gen-char-list min)
-            (gen-char-list max))))
+         (max (map cdr ranges))
+         (cc-decl (if *done-cc*
+                      ""
+                      (format "~achar *single;
+~achar *min;
+~achar *max;
+~asize_t num_single;
+~asize_t num_range;\n"
+                              (ind) (ind) (ind) (ind) (ind)))))
+    (set! *done-cc* #t)
+    (format "~a~anum_single = ~a;
+~anum_range = ~a;
+~a
+~a
+~a
+~atrans_d.set = set_new(single, num_single, min, max, num_range);
+~atrans_init(&trans, TRANS_SET, trans_d);\n"
+            cc-decl
+            (ind) (length single)
+            (ind) (length ranges)
+            (gen-char-list "single" "single" single)
+            (gen-char-list "min" "range" min)
+            (gen-char-list "max" "range" max)
+            (ind) (ind))))
 
 
-(define (gen-char-list l)
-  (format "new char[]{~a}"
+(define (gen-char-list name size l)
+  (define (ass-char i c)
+    (format "\n~a~a[~a] = ~a;" (ind) name i (gen-char c)))
+  (format "~a~a = calloc(num_~a, sizeof(char));
+~aassert(~a != NULL);~a"
+          (ind) name size
+          (ind) name
           (if (null? l)
               ""
-              (string-append
-               (gen-char (car l))
-               (string-concat (map (lambda (a)
-                                     (string-append ", " (gen-char a)))
-                                   (cdr l)))))))
+              (mapi->s ass-char l))))
 
 
 (define (gen-char t)

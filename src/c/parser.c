@@ -340,8 +340,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             else {
                 union ast_data d = { .c = '\0' };
                 value = ast_new(AST_EMPTY, d);
+                add_to_free_list(ip, res);
             }
-            add_to_free_list(ip, res);
             break;
         }
         case MODE_NEG: {
@@ -352,8 +352,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             }
             else {
                 value = update_error(ip);
+                add_to_free_list(ip, res);
             }
-            add_to_free_list(ip, res);
             break;
         }
         case MODE_VOID: {
@@ -363,14 +363,13 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             else {
                 union ast_data d = { .c = '\0' };
                 value = ast_new(AST_EMPTY, d);
+                add_to_free_list(ip, res);
             }
-            add_to_free_list(ip, res);
             break;
         }
         case MODE_PRUNE: {
             if (res == NULL) {
                 value = update_error(ip);
-                add_to_free_list(ip, res);
             }
             else {
                 switch (res->size) {
@@ -398,17 +397,19 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
         case MODE_LEFT: {
             if (res == NULL) {
                 value = update_error(ip);
-                add_to_free_list(ip, res);
             }
             else {
                 struct ast_tree_t *t = ast_tree_new(automaton->type, res);
                 union ast_data d = { .tree = t };
                 value = ast_new(AST_TREE, d);
+                add_to_free_list(ip, res);
             }
             break;
         }
         default: {
-            add_to_free_list(ip, res);
+            if (res != NULL) {
+                add_to_free_list(ip, res);
+            }
             break;
         }
     }
