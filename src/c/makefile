@@ -30,11 +30,11 @@ LIB_OBJECTS= \
 	edge.o \
 	fa.o \
 	input.o \
-	parser.o \
 	set.o \
 	state.o \
 	trans.o \
-	vector.o
+	vector.o \
+	wparser.o
 
 $(LIB): clean $(LIB_OBJECTS)
 	ar cr $(LIB) $(LIB_OBJECTS)
@@ -42,7 +42,7 @@ $(LIB): clean $(LIB_OBJECTS)
 lib: $(LIB)
 
 run: clean $(LIB)
-	$(CC) $(FLAGS) num_parser.c run.c $(LIB) -o run
+	$(CC) $(FLAGS) parser.c run.c $(LIB) -o run
 
 test: clean
 	$(CC) $(FLAGS) cache.c test.c -o run
