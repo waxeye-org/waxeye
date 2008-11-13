@@ -34,7 +34,6 @@ LIB_OBJECTS= \
 	set.o \
 	state.o \
 	trans.o \
-	util.o \
 	vector.o
 
 $(LIB): clean $(LIB_OBJECTS)
