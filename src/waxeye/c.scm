@@ -35,6 +35,7 @@ mzscheme
 (define *c-prefix* "")
 (define *c-parser-name* "")
 (define *c-type-name* "")
+(define *c-type-prefix* "")
 (define *c-header-name* "")
 (define *c-source-name* "")
 
@@ -45,6 +46,7 @@ mzscheme
                        ""))
   (set! *c-parser-name* (string-append *c-prefix* "parser"))
   (set! *c-type-name* (string-append *c-prefix* "type"))
+  (set! *c-type-prefix* (string-append (string->upper *c-prefix*) "TYPE_"))
   (set! *c-header-name* (string-append *c-parser-name* ".h"))
   (set! *c-source-name* (string-append *c-parser-name* ".c")))
 
@@ -96,10 +98,11 @@ extern struct parser_t* ~a_new();
             (indent
              (string-append
               (ind)
+              *c-type-prefix*
               (string->upper (car non-terms))
               (string-concat
                (map (lambda (a)
-                      (string-append ",\n" (ind) (string->upper a)))
+                      (string-append ",\n" (ind) *c-type-prefix* (string->upper a)))
                     (cdr non-terms)))))
             (string->upper *c-parser-name*)
             *c-type-name*
@@ -200,7 +203,7 @@ struct parser_t* ~a_new() {
           (let ((type (fa-type a)))
             (if (or (equal? type '&) (equal? type '!))
                 0
-                (string->upper (symbol->string type))))))
+                (string-append *c-type-prefix* (string->upper (symbol->string type)))))))
 
 
 (define (gen-state i s)
