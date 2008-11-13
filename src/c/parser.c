@@ -44,7 +44,7 @@ struct inner_parser_t {
     size_t error_col;
     struct cache_t *cache;
     struct vector_t *cache_contents;
-    struct vector_t *states_stack;
+    struct vector_t *fa_stack;
     struct vector_t *to_free;
 };
 
@@ -93,7 +93,7 @@ void inner_parser_init(struct inner_parser_t *a, size_t start,
                        size_t line, size_t column, bool last_cr,
                        size_t error_pos, size_t error_line, size_t error_col,
                        struct cache_t *cache, struct vector_t *cache_contents,
-                       struct vector_t *states_stack, struct vector_t *to_free) {
+                       struct vector_t *fa_stack, struct vector_t *to_free) {
     a->start = start;
     a->automata = automata;
     a->num_automata = num_automata;
@@ -108,7 +108,7 @@ void inner_parser_init(struct inner_parser_t *a, size_t start,
     a->error_col = error_col;
     a->cache = cache;
     a->cache_contents = cache_contents;
-    a->states_stack = states_stack;
+    a->fa_stack = fa_stack;
     a->to_free = to_free;
 }
 
@@ -119,12 +119,12 @@ struct inner_parser_t* inner_parser_new(size_t start, struct fa_t *automata,
                                         size_t column, bool last_cr, size_t error_pos,
                                         size_t error_line, size_t error_col,
                                         struct cache_t *cache, struct vector_t *cache_contents,
-                                        struct vector_t *states_stack, struct vector_t *to_free) {
+                                        struct vector_t *fa_stack, struct vector_t *to_free) {
     struct inner_parser_t *a = malloc(sizeof(struct inner_parser_t));
     assert(a != NULL);
     inner_parser_init(a, start, automata, num_automata, eof_check,
                       input, line, column, last_cr, error_pos,
-                      error_line, error_col, cache, cache_contents, states_stack, to_free);
+                      error_line, error_col, cache, cache_contents, fa_stack, to_free);
     return a;
 }
 
@@ -134,8 +134,8 @@ void inner_parser_clear(struct inner_parser_t *a) {
     a->cache = NULL;
     vector_delete(a->cache_contents);
     a->cache_contents = NULL;
-    vector_delete(a->states_stack);
-    a->states_stack = NULL;
+    vector_delete(a->fa_stack);
+    a->fa_stack = NULL;
     vector_delete(a->to_free);
     a->to_free = NULL;
 }
@@ -272,8 +272,8 @@ struct vector_t* match_edges(struct inner_parser_t *ip, struct edge_t *edges,
 
 
 struct vector_t* match_state(struct inner_parser_t *ip, size_t index) {
-    struct fa_t *automaton = vector_peek(ip->states_stack);
-    struct state_t *state = &automaton->states[index];
+    struct fa_t *automaton = vector_peek(ip->fa_stack);
+    struct state_t *state = &(automaton->states[index]);
 
     struct vector_t *res = match_edges(ip, state->edges, state->num_edges, 0);
 
@@ -325,9 +325,9 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
     bool start_cr = ip->last_cr;
     struct fa_t *automaton = &ip->automata[index];
 
-    vector_push(ip->states_stack, automaton->states);
+    vector_push(ip->fa_stack, automaton);
     struct vector_t *res = match_state(ip, 0);
-    vector_pop(ip->states_stack);
+    vector_pop(ip->fa_stack);
 
     struct ast_t *value = NULL;
 
@@ -463,14 +463,14 @@ struct ast_t* parse(struct parser_t *parser, struct input_t *input) {
     struct cache_t *cache = cache_new(1024);
     struct vector_t *cache_contents = vector_new(512);
     struct vector_t *to_free = vector_new(256);
-    struct vector_t *states_stack = vector_new(64);
+    struct vector_t *fa_stack = vector_new(64);
     struct inner_parser_t *inner_parser =
         inner_parser_new(parser->start, parser->automata,
                          parser->num_automata, parser->eof_check,
                          input, 0, 0, 0, 0, 0, 0,
-                         cache, cache_contents, states_stack, to_free);
-    struct ast_t *res = inner_parser_parse(inner_parser);
+                         cache, cache_contents, fa_stack, to_free);
 
+    struct ast_t *res = inner_parser_parse(inner_parser);
     inner_parser_delete(inner_parser);
 
     return res;

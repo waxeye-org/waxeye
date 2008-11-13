@@ -238,7 +238,9 @@ struct parser_t* ~a_new() {
 
 
 (define (gen-char-trans t)
-  (format "/*CharTransition<>(new char[]{~a}, new char[]{}, new char[]{})*/" (gen-char t)))
+  (format "~atrans_d.c = ~a;
+~atrans_init(&trans, TRANS_CHAR, trans_d);\n"
+          (ind) (gen-char t) (ind)))
 
 
 (define (gen-char-class-trans t)

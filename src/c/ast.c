@@ -176,7 +176,8 @@ void display_tree(size_t indent, struct ast_t *a) {
         printf("->  ");
     }
 
-    printf("%s\n", tree->type);
+    //printf("%s\n", tree->type);
+    printf("tree\n");
 
     for (i = 0; i < len; i++) {
         display_ast_iter(indent + 1, vector_get(children, i));
