@@ -43,6 +43,7 @@ struct inner_parser_t {
     size_t error_pos;
     size_t error_line;
     size_t error_col;
+    size_t error_nt;
     struct cache_t *cache;
     struct vector_t *cache_contents;
     struct vector_t *fa_stack;
@@ -92,7 +93,7 @@ void inner_parser_init(struct inner_parser_t *a, size_t start,
                        struct fa_t *automata, size_t num_automata,
                        bool eof_check, struct input_t *input,
                        size_t line, size_t column, bool last_cr,
-                       size_t error_pos, size_t error_line, size_t error_col,
+                       size_t error_pos, size_t error_line, size_t error_col, size_t error_nt,
                        struct cache_t *cache, struct vector_t *cache_contents,
                        struct vector_t *fa_stack, struct vector_t *to_free) {
     a->start = start;
@@ -107,6 +108,7 @@ void inner_parser_init(struct inner_parser_t *a, size_t start,
     a->error_pos = error_pos;
     a->error_line = error_line;
     a->error_col = error_col;
+    a->error_nt = error_nt;
     a->cache = cache;
     a->cache_contents = cache_contents;
     a->fa_stack = fa_stack;
@@ -118,14 +120,14 @@ struct inner_parser_t* inner_parser_new(size_t start, struct fa_t *automata,
                                         size_t num_automata, bool eof_check,
                                         struct input_t *input, size_t line,
                                         size_t column, bool last_cr, size_t error_pos,
-                                        size_t error_line, size_t error_col,
+                                        size_t error_line, size_t error_col, size_t error_nt,
                                         struct cache_t *cache, struct vector_t *cache_contents,
                                         struct vector_t *fa_stack, struct vector_t *to_free) {
     struct inner_parser_t *a = malloc(sizeof(struct inner_parser_t));
     assert(a != NULL);
     inner_parser_init(a, start, automata, num_automata, eof_check,
-                      input, line, column, last_cr, error_pos,
-                      error_line, error_col, cache, cache_contents, fa_stack, to_free);
+                      input, line, column, last_cr, error_pos, error_line,
+                      error_col, error_nt, cache, cache_contents, fa_stack, to_free);
     return a;
 }
 
@@ -162,6 +164,7 @@ struct ast_t* update_error(struct inner_parser_t *ip) {
         ip->error_pos = ip->input->pos;
         ip->error_line = ip->line;
         ip->error_col = ip->column;
+        ip->error_nt = ((struct fa_t *) vector_peek(ip->fa_stack))->type;
     }
 
     return NULL;
@@ -430,6 +433,7 @@ struct ast_t* create_parse_error(struct inner_parser_t *ip) {
     e->pos = ip->error_pos;
     e->line = ip->error_line;
     e->col = ip->error_col;
+    e->nt = ip->error_nt;
     union ast_data d = { .error = e };
     return ast_new(AST_ERROR, d);
 }
@@ -471,7 +475,8 @@ struct ast_t* parse(struct parser_t *parser, struct input_t *input) {
     struct inner_parser_t *inner_parser =
         inner_parser_new(parser->start, parser->automata,
                          parser->num_automata, parser->eof_check,
-                         input, 0, 0, 0, 0, 0, 0,
+                         input, 1, 0, false, 0, 1, 0,
+                         parser->automata[parser->start].type,
                          cache, cache_contents, fa_stack, to_free);
 
     struct ast_t *res = inner_parser_parse(inner_parser);

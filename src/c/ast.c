@@ -139,7 +139,7 @@ void ast_recursive_delete(struct ast_t *a) {
 }
 
 
-void display_parse_error(struct ast_t *a) {
+void display_parse_error(struct ast_t *a, const char *type_strings[]) {
     if (a == NULL) {
         printf("NULL");
         return;
@@ -149,7 +149,8 @@ void display_parse_error(struct ast_t *a) {
         case AST_ERROR:
         {
             struct ast_error_t *error = a->data.error;
-            printf("parse error: failed to match '' at line=%d, col=%d, pos=%d\n", error->line, error->col, error->pos);
+            printf("parse error: failed to match '%s' at line=%d, col=%d, pos=%d\n",
+                   type_strings[error->nt], error->line, error->col, error->pos);
             break;
         }
         default:
@@ -217,7 +218,7 @@ void display_ast(struct ast_t *a, const char *type_strings[]) {
     switch (a->type) {
         case AST_ERROR:
         {
-            display_parse_error(a);
+            display_parse_error(a, type_strings);
             break;
         }
         case AST_CHAR:

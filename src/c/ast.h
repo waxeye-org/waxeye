@@ -40,6 +40,7 @@ struct ast_error_t {
     size_t pos;
     size_t line;
     size_t col;
+    size_t nt;
 };
 
 struct ast_tree_t {
