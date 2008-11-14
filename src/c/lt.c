@@ -25,56 +25,30 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define CACHE_C_
-#include "cache.h"
+#define LT_C_
+#include "lt.h"
 
 
-void cache_value_init(struct cache_value_t *v, struct ast_t *result, size_t pos, size_t line, size_t column, bool last_cr) {
-    v->result = result;
-    v->pos = pos;
-    v->line = line;
-    v->column = column;
-    v->last_cr = last_cr;
-}
-
-
-struct cache_value_t* cache_value_new(struct ast_t *result, size_t pos, size_t line, size_t column, bool last_cr) {
-    struct cache_value_t *v = malloc(sizeof(struct cache_value_t));
-    assert(v != NULL);
-    cache_value_init(v, result, pos, line, column, last_cr);
-    return v;
+size_t lt_hash_key(size_t key) {
+    return 17 + 37 * key;
 }
 
 
 /*
- * Frees the cache_value, deallocates the memory at the given pointer.
- * v - The cache_value to delete.
- */
-void cache_value_delete(struct cache_value_t *v) {
-    free(v);
-}
-
-
-size_t cache_hash_key(struct cache_key_t *key) {
-    return 17 + (37 * key->index) + (37 * key->pos);
-}
-
-
-/*
- * Gets the position in the cache that the key maps to.
+ * Gets the position in the hash table that the key maps to.
  * Doesn't consider hash collisions.
  */
-size_t cache_start_pos(struct ht_t *v, struct cache_key_t *key) {
-    return abs(cache_hash_key(key) % v->capacity);
+size_t lt_start_pos(struct ht_t *v, size_t key) {
+    return abs(lt_hash_key(key) % v->capacity);
 }
 
 
 /*
  * Gets the position that the key maps to after hash collisions are resolved.
  */
-size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
+size_t lt_final_pos(struct ht_t *v, size_t key) {
     size_t offset = 0;
-    size_t pos = cache_start_pos(v, key);
+    size_t pos = lt_start_pos(v, key);
     struct ht_pair_t *pair = v->pairs[pos];
 
     while (true) {
@@ -84,8 +58,7 @@ size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
         }
 
         // If we found our key
-        if (((struct cache_key_t*) pair->key.as_p)->index == key->index &&
-            ((struct cache_key_t*) pair->key.as_p)->pos == key->pos) {
+        if (pair->key.as_i == key) {
             return pos;
         }
 
@@ -100,8 +73,8 @@ size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
  * Gets the value that is mapped to the given key. If there is no mapping then
  * NULL is returned.
  */
-struct cache_value_t* cache_get(struct ht_t *v, struct cache_key_t *key) {
-    struct ht_pair_t *pair = v->pairs[cache_final_pos(v, key)];
+void* lt_get(struct ht_t *v, size_t key) {
+    struct ht_pair_t *pair = v->pairs[lt_final_pos(v, key)];
 
     if (pair == NULL) {
         return NULL;
@@ -114,12 +87,10 @@ struct cache_value_t* cache_get(struct ht_t *v, struct cache_key_t *key) {
 /*
  * Maps the given value against the given key. The value is allowed to be NULL.
  * If a value has previously been mapped against an equal key, the old mapping
- * will be overwritten. The given key location is not stored so it is same to
- * give a key allocated on the stack.
+ * will be overwritten.
  */
-void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *value) {
+void lt_put(struct ht_t *v, size_t key, void *value) {
     assert(v != NULL);
-    assert(key != NULL);
 
     const float LOAD_FACTOR = 0.75;
 
@@ -141,12 +112,12 @@ void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *va
             struct ht_pair_t *pair = old_pairs[i];
 
             if (pair != NULL) {
-                v->pairs[cache_final_pos(v, pair->key.as_p)] = pair;
+                v->pairs[lt_final_pos(v, pair->key.as_i)] = pair;
             }
         }
     }
 
-    size_t pos = cache_final_pos(v, key);
+    size_t pos = lt_final_pos(v, key);
     struct ht_pair_t *pair = v->pairs[pos];
 
     // if a value didn't already exist with that key
@@ -158,13 +129,7 @@ void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *va
         v->pairs[pos] = pair;
         v->size++;
 
-        // create a new key for the pair
-        struct cache_key_t *k = malloc(sizeof(struct cache_key_t));
-        assert(k != NULL);
-
-        k->index = key->index;
-        k->pos = key->pos;
-        pair->key.as_p = k;
+        pair->key.as_i = key;
     }
 
     // store the value

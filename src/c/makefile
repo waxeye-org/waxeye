@@ -31,6 +31,7 @@ LIB_OBJECTS= \
 	fa.o \
 	ht.o \
 	input.o \
+	lt.o \
 	set.o \
 	state.o \
 	trans.o \
