@@ -28,6 +28,7 @@
 #define WPARSER_C_
 #include "wparser.h"
 #include "cache.h"
+#include "lt.h"
 
 
 struct inner_parser_t {
@@ -384,8 +385,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                         break;
                     }
                     case 1: {
-                        // Get the last element since the vector is reversed
-                        value = vector_get(res, res->size - 1);
+                        // get the only child
+                        value = vector_get(res, 0);
                         vector_delete(res);
                         break;
                     }
@@ -456,12 +457,38 @@ struct ast_t* eof_check(struct inner_parser_t *ip, struct ast_t *res) {
 }
 
 
+void free_ast_once(struct ht_t *freed_table, struct ast_t *data) {
+}
+
+
 struct ast_t* inner_parser_parse(struct inner_parser_t *ip) {
     struct ast_t *res = eof_check(ip, match_automaton(ip, ip->start));
+    struct ht_t *freed_table = ht_new(2048);
 
-    // Clean up the contents of the cache
+    // put the results we want to keep into our freed table
+    // all ASTs visible from our results go in there
 
+    size_t i, len = ip->cache_contents->size;
+    for (i = 0; i < len; i++) {
+        struct cache_value_t *value = vector_get(ip->cache_contents, i);
 
+        if (value->result != NULL) {
+            // free the asts in the cache that aren't in our result
+            free_ast_once(freed_table, value->result);
+        }
+
+        // free the cache_value_t's
+        free(value);
+    }
+
+    // free the contents of the to_free list
+    len = ip->to_free->size;
+    for (i = 0; i < len; i++) {
+        free_ast_once(freed_table, vector_get(to_free, i));
+    }
+
+    // delete our freed table
+    ht_delete(freed_table, false);
 
     return res;
 }
