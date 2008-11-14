@@ -458,6 +458,27 @@ struct ast_t* eof_check(struct inner_parser_t *ip, struct ast_t *res) {
 
 
 void free_ast_once(struct ht_t *freed_table, struct ast_t *data) {
+    // if the data hasn't been freed
+    if (lt_get(freed_table, (size_t) data) == false) {
+        lt_put(freed_table, (size_t) data, (void*) true);
+        ast_delete(data);
+    }
+}
+
+
+void keep_ast(struct ht_t *freed_table, struct ast_t *a) {
+    // keep the children
+    if (a->type == AST_TREE) {
+        struct vector_t *children = a->data.tree->children;
+        size_t i, len = children->size;
+
+        for (i = 0; i < len; i++) {
+            keep_ast(freed_table, vector_get(children, i));
+        }
+    }
+
+    // keep the ast
+    lt_put(freed_table, (size_t) a, (void*) true);
 }
 
 
@@ -465,8 +486,8 @@ struct ast_t* inner_parser_parse(struct inner_parser_t *ip) {
     struct ast_t *res = eof_check(ip, match_automaton(ip, ip->start));
     struct ht_t *freed_table = ht_new(2048);
 
-    // put the results we want to keep into our freed table
-    // all ASTs visible from our results go in there
+    // keep the ASTs of our result
+    keep_ast(freed_table, res);
 
     size_t i, len = ip->cache_contents->size;
     for (i = 0; i < len; i++) {
@@ -484,7 +505,7 @@ struct ast_t* inner_parser_parse(struct inner_parser_t *ip) {
     // free the contents of the to_free list
     len = ip->to_free->size;
     for (i = 0; i < len; i++) {
-        free_ast_once(freed_table, vector_get(to_free, i));
+        free_ast_once(freed_table, vector_get(ip->to_free, i));
     }
 
     // delete our freed table
