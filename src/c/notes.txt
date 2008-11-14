@@ -1,18 +1,4 @@
 
-* Have an enum for each of the ast_tree_t's type values. Have a way to get the
-  string that corresponds to that enum by having a function that indexes into
-  an array of the string values or returns NULL for an invalid enum value. This
-  provides a similar API for handling ASTs as java's Type and scheme and ruby's
-  symbols.
-
-* Change cache to store void* pointers instead of cache_value_t*'s.
-
-* Maintain a vector of the cache contents so that we know what we need to
-  free after parsing.
-
-* Seperate the cache into a base hash_map and a cache that extends it with
-  funtion pointers for handling the custom keys.
-
 * After parsing, use another hash_map to help to free AST only once and only if
   they aren't in our final result AST.
 
