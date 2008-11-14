@@ -82,6 +82,6 @@ void ht_clear(struct ht_t *v, bool keys) {
  * keys - If the keys should be freed as pointers.
  */
 void ht_delete(struct ht_t *v, bool keys) {
-    ht_clear(v);
+    ht_clear(v, keys);
     free(v);
 }

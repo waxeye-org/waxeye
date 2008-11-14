@@ -84,19 +84,20 @@ struct input_t* input_from_file_new(FILE *fp) {
 
     // Create a contiguous piece of memory for our data
     char *data = malloc(size * sizeof(char));
+    char *tmp = data;
 
     size_t i, block_size = BLOCK_SIZE * sizeof(char);
     size_t num_filled = filled->size;
 
     for (i = 0; i < num_filled; i++) {
         char *fb = vector_get(filled, i);
-        memcpy(data, fb, block_size);
+        memcpy(tmp, fb, block_size);
         free(fb);
-        data += block_size;
+        tmp += block_size;
     }
 
     // Transfer the data from the partially filled block
-    memcpy(data, block, count);
+    memcpy(tmp, block, count);
 
     // Free the memory used in filling our input buffer
     free(block);
