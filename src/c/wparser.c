@@ -457,11 +457,22 @@ struct ast_t* eof_check(struct inner_parser_t *ip, struct ast_t *res) {
 }
 
 
-void free_ast_once(struct ht_t *freed_table, struct ast_t *data) {
-    // if the data hasn't been freed
-    if (lt_get(freed_table, (size_t) data) == false) {
-        lt_put(freed_table, (size_t) data, (void*) true);
-        ast_delete(data);
+void free_ast_once(struct ht_t *freed_table, struct ast_t *a) {
+    // if the ast hasn't been freed
+    if (lt_get(freed_table, (size_t) a) == false) {
+        // free the children
+        if (a->type == AST_TREE) {
+            struct vector_t *children = a->data.tree->children;
+            size_t i, len = children->size;
+
+            for (i = 0; i < len; i++) {
+                free_ast_once(freed_table, vector_get(children, i));
+            }
+        }
+
+        // free the ast
+        lt_put(freed_table, (size_t) a, (void*) true);
+        ast_delete(a);
     }
 }
 
