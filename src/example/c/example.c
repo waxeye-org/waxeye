@@ -23,9 +23,6 @@
  */
 
 #include <string.h>
-
-#include <ast.h>
-#include <input.h>
 #include "parser.h"
 
 int main() {
@@ -40,7 +37,7 @@ int main() {
     struct ast_t *ast = parse(parser, input);
 
     // Print our ast
-    display_ast(ast);
+    display_ast(ast, type_strings);
 
     ast_recursive_delete(ast);
     input_delete(input);
