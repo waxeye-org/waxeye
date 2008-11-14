@@ -22,39 +22,41 @@
  * SOFTWARE.
  */
 
-#ifndef CACHE_H_
-#define CACHE_H_
+#ifndef HT_H_
+#define HT_H_
 
-#include "ast.h"
-#include "ht.h"
+#include <stdbool.h>
 
-
-struct cache_key_t {
-    /* The index of the expression being cached. */
-    size_t index;
-
-    /* The position it was evaluated at. */
-    size_t pos;
+/* A hash table key can either be a pointer or a literal value. */
+union ht_key_t {
+    void *as_p;
+    size_t as_i;
 };
 
 
-struct cache_value_t {
-    struct ast_t *result;
-    size_t pos;
-    size_t line;
-    size_t column;
-    bool last_cr;
+struct ht_pair_t {
+    union ht_key_t key;
+    void *value;
 };
 
 
-#ifndef CACHE_C_
+struct ht_t {
+    struct ht_pair_t **pairs;
 
-extern void cache_value_init(struct cache_value_t *v, struct ast_t *result, size_t pos, size_t line, size_t column, bool last_cr);
-extern struct cache_value_t* cache_value_new(struct ast_t *result, size_t pos, size_t line, size_t column, bool last_cr);
-extern void cache_value_delete(struct cache_value_t *v);
+    /* The total available storage space. */
+    size_t capacity;
 
-extern struct cache_value_t* cache_get(struct ht_t *v, struct cache_key_t *key);
-extern void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *value);
+    /* The number of spaces occupied. */
+    size_t size;
+};
 
-#endif /* CACHE_C_ */
-#endif /* CACHE_H_ */
+
+#ifndef HT_C_
+
+extern void ht_init(struct ht_t *v, size_t capacity);
+extern struct ht_t* ht_new(size_t capacity);
+extern void ht_clear(struct ht_t *v, bool keys);
+extern void ht_delete(struct ht_t *v, bool keys);
+
+#endif /* HT_C_ */
+#endif /* HT_H_ */

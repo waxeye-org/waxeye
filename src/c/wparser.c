@@ -44,7 +44,7 @@ struct inner_parser_t {
     size_t error_line;
     size_t error_col;
     size_t error_nt;
-    struct cache_t *cache;
+    struct ht_t *cache;
     struct vector_t *cache_contents;
     struct vector_t *fa_stack;
     struct vector_t *to_free;
@@ -94,7 +94,7 @@ void inner_parser_init(struct inner_parser_t *a, size_t start,
                        bool eof_check, struct input_t *input,
                        size_t line, size_t column, bool last_cr,
                        size_t error_pos, size_t error_line, size_t error_col, size_t error_nt,
-                       struct cache_t *cache, struct vector_t *cache_contents,
+                       struct ht_t *cache, struct vector_t *cache_contents,
                        struct vector_t *fa_stack, struct vector_t *to_free) {
     a->start = start;
     a->automata = automata;
@@ -121,7 +121,7 @@ struct inner_parser_t* inner_parser_new(size_t start, struct fa_t *automata,
                                         struct input_t *input, size_t line,
                                         size_t column, bool last_cr, size_t error_pos,
                                         size_t error_line, size_t error_col, size_t error_nt,
-                                        struct cache_t *cache, struct vector_t *cache_contents,
+                                        struct ht_t *cache, struct vector_t *cache_contents,
                                         struct vector_t *fa_stack, struct vector_t *to_free) {
     struct inner_parser_t *a = malloc(sizeof(struct inner_parser_t));
     assert(a != NULL);
@@ -133,7 +133,7 @@ struct inner_parser_t* inner_parser_new(size_t start, struct fa_t *automata,
 
 
 void inner_parser_clear(struct inner_parser_t *a) {
-    cache_delete(a->cache);
+    ht_delete(a->cache, true);
     a->cache = NULL;
     vector_delete(a->cache_contents);
     a->cache_contents = NULL;
@@ -468,7 +468,7 @@ struct ast_t* inner_parser_parse(struct inner_parser_t *ip) {
 
 
 struct ast_t* parse(struct parser_t *parser, struct input_t *input) {
-    struct cache_t *cache = cache_new(1024);
+    struct ht_t *cache = ht_new(1024);
     struct vector_t *cache_contents = vector_new(512);
     struct vector_t *to_free = vector_new(256);
     struct vector_t *fa_stack = vector_new(64);

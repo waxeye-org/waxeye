@@ -29,6 +29,7 @@ LIB_OBJECTS= \
 	cache.o \
 	edge.o \
 	fa.o \
+	ht.o \
 	input.o \
 	set.o \
 	state.o \

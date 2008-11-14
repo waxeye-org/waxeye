@@ -28,58 +28,6 @@
 #define CACHE_C_
 #include "cache.h"
 
-/*
- * Initializes the given cache.
- * Each pair in the cache is initially NULL.
- * v - The cache to init.
- * capacity - The initial capacity.
- */
-void cache_init(struct cache_t *v, size_t capacity) {
-    v->pairs = calloc(capacity, sizeof(void*));
-    assert(v->pairs != NULL);
-    v->capacity = capacity;
-    v->size = 0;
-}
-
-/*
- * Creates a new cache with the given capacity.
- */
-struct cache_t* cache_new(size_t capacity) {
-    struct cache_t *v = malloc(sizeof(struct cache_t));
-    assert(v != NULL);
-    cache_init(v, capacity);
-    return v;
-}
-
-/*
- * Frees the storage of the cache but not the values stored.
- * v - The cache to free.
- */
-void cache_clear(struct cache_t *v) {
-    size_t i;
-
-    // Free the pairs of the cache
-    for (i = 0; i < v->capacity; i++) {
-        struct cache_pair_t *pair = v->pairs[i];
-
-        if (pair != NULL) {
-            free(pair);
-        }
-    }
-
-    free(v->pairs);
-    v->pairs = NULL;
-}
-
-/*
- * Frees the cache deallocates the memory at the given pointer.
- * v - The cache to delete.
- */
-void cache_delete(struct cache_t *v) {
-    cache_clear(v);
-    free(v);
-}
-
 
 void cache_value_init(struct cache_value_t *v, struct ast_t *result, size_t pos, size_t line, size_t column, bool last_cr) {
     v->result = result;
@@ -116,7 +64,7 @@ size_t cache_hash_key(struct cache_key_t *key) {
  * Gets the position in the cache that the key maps to.
  * Doesn't consider hash collisions.
  */
-size_t cache_start_pos(struct cache_t *v, struct cache_key_t *key) {
+size_t cache_start_pos(struct ht_t *v, struct cache_key_t *key) {
     return abs(cache_hash_key(key) % v->capacity);
 }
 
@@ -124,10 +72,10 @@ size_t cache_start_pos(struct cache_t *v, struct cache_key_t *key) {
 /*
  * Gets the position that the key maps to after hash collisions are resolved.
  */
-size_t cache_final_pos(struct cache_t *v, struct cache_key_t *key) {
+size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
     size_t offset = 0;
     size_t pos = cache_start_pos(v, key);
-    struct cache_pair_t *pair = v->pairs[pos];
+    struct ht_pair_t *pair = v->pairs[pos];
 
     while (true) {
         // If the position is empty
@@ -136,7 +84,8 @@ size_t cache_final_pos(struct cache_t *v, struct cache_key_t *key) {
         }
 
         // If we found our key
-        if (pair->key.index == key->index && pair->key.pos == key->pos) {
+        if (((struct cache_key_t*) pair->key.as_p)->index == key->index &&
+            ((struct cache_key_t*) pair->key.as_p)->pos == key->pos) {
             return pos;
         }
 
@@ -151,8 +100,8 @@ size_t cache_final_pos(struct cache_t *v, struct cache_key_t *key) {
  * Gets the value that is mapped to the given key. If there is no mapping then
  * NULL is returned.
  */
-struct cache_value_t* cache_get(struct cache_t *v, struct cache_key_t *key) {
-    struct cache_pair_t *pair = v->pairs[cache_final_pos(v, key)];
+struct cache_value_t* cache_get(struct ht_t *v, struct cache_key_t *key) {
+    struct ht_pair_t *pair = v->pairs[cache_final_pos(v, key)];
 
     if (pair == NULL) {
         return NULL;
@@ -168,7 +117,7 @@ struct cache_value_t* cache_get(struct cache_t *v, struct cache_key_t *key) {
  * will be overwritten. The given key location is not stored so it is same to
  * give a key allocated on the stack.
  */
-void cache_put(struct cache_t *v, struct cache_key_t *key, struct cache_value_t *value) {
+void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *value) {
     assert(v != NULL);
     assert(key != NULL);
 
@@ -178,7 +127,7 @@ void cache_put(struct cache_t *v, struct cache_key_t *key, struct cache_value_t 
     if (v->size >= v->capacity * LOAD_FACTOR) {
 
         size_t old_capacity = v->capacity;
-        struct cache_pair_t **old_pairs = v->pairs;
+        struct ht_pair_t **old_pairs = v->pairs;
 
         v->capacity = v->capacity * 2;
         assert(v->capacity > v->size);
@@ -189,29 +138,36 @@ void cache_put(struct cache_t *v, struct cache_key_t *key, struct cache_value_t 
         // rehash the pairs
         size_t i;
         for (i = 0; i < old_capacity; i++) {
-            struct cache_pair_t *pair = old_pairs[i];
+            struct ht_pair_t *pair = old_pairs[i];
 
             if (pair != NULL) {
-                v->pairs[cache_final_pos(v, &(pair->key))] = pair;
+                v->pairs[cache_final_pos(v, pair->key.as_p)] = pair;
             }
         }
     }
 
     // store the value
     size_t pos = cache_final_pos(v, key);
-    struct cache_pair_t *pair;
+    struct ht_pair_t *pair;
 
     pair = v->pairs[pos];
 
+    // If a value didn't already exist with that key
     if (pair == NULL) {
-        pair = malloc(sizeof(struct cache_pair_t));
+        // Create a new pair
+        pair = malloc(sizeof(struct ht_pair_t));
         assert(pair != NULL);
 
         v->pairs[pos] = pair;
         v->size++;
 
-        pair->key.index = key->index;
-        pair->key.pos = key->pos;
+        // Create a new key for the pair
+        struct cache_key_t *k = malloc(sizeof(struct cache_key_t));
+        assert(k != NULL);
+
+        k->index = key->index;
+        k->pos = key->pos;
+        pair->key.as_p = k;
     }
 
     pair->value = value;
