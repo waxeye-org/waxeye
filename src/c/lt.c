@@ -115,6 +115,9 @@ void lt_put(struct ht_t *v, size_t key, void *value) {
                 v->pairs[lt_final_pos(v, pair->key.as_i)] = pair;
             }
         }
+
+        // free old storage
+        free(old_pairs);
     }
 
     size_t pos = lt_final_pos(v, key);

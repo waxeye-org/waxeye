@@ -22,29 +22,61 @@
 
 CC=gcc
 FLAGS=-Wall -Wextra -Wshadow -O3
+DEBUG_FLAGS=-Wall -Wextra -Wshadow -O0 -g
 
 LIB=libwaxeye.a
-LIB_OBJECTS= \
-	ast.o \
-	cache.o \
-	edge.o \
-	fa.o \
-	ht.o \
-	input.o \
-	lt.o \
-	set.o \
-	state.o \
-	trans.o \
-	vector.o \
-	wparser.o
 
-$(LIB): clean $(LIB_OBJECTS)
+LIB_FILES= \
+	ast \
+	cache \
+	edge \
+	fa \
+	ht \
+	input \
+	lt \
+	set \
+	state \
+	trans \
+	vector \
+	wparser
+
+LIB_OBJECTS = $(foreach f, $(LIB_FILES), $(f).o)
+
+lib: clean
+	$(CC) $(FLAGS) -c -o ast.o ast.c
+	$(CC) $(FLAGS) -c -o cache.o cache.c
+	$(CC) $(FLAGS) -c -o edge.o edge.c
+	$(CC) $(FLAGS) -c -o fa.o fa.c
+	$(CC) $(FLAGS) -c -o ht.o ht.c
+	$(CC) $(FLAGS) -c -o input.o input.c
+	$(CC) $(FLAGS) -c -o lt.o lt.c
+	$(CC) $(FLAGS) -c -o set.o set.c
+	$(CC) $(FLAGS) -c -o state.o state.c
+	$(CC) $(FLAGS) -c -o trans.o trans.c
+	$(CC) $(FLAGS) -c -o vector.o vector.c
+	$(CC) $(FLAGS) -c -o wparser.o wparser.c
 	ar cr $(LIB) $(LIB_OBJECTS)
 
-lib: $(LIB)
+debug_lib: clean
+	$(CC) $(DEBUG_FLAGS) -c -o ast.o ast.c
+	$(CC) $(DEBUG_FLAGS) -c -o cache.o cache.c
+	$(CC) $(DEBUG_FLAGS) -c -o edge.o edge.c
+	$(CC) $(DEBUG_FLAGS) -c -o fa.o fa.c
+	$(CC) $(DEBUG_FLAGS) -c -o ht.o ht.c
+	$(CC) $(DEBUG_FLAGS) -c -o input.o input.c
+	$(CC) $(DEBUG_FLAGS) -c -o lt.o lt.c
+	$(CC) $(DEBUG_FLAGS) -c -o set.o set.c
+	$(CC) $(DEBUG_FLAGS) -c -o state.o state.c
+	$(CC) $(DEBUG_FLAGS) -c -o trans.o trans.c
+	$(CC) $(DEBUG_FLAGS) -c -o vector.o vector.c
+	$(CC) $(DEBUG_FLAGS) -c -o wparser.o wparser.c
+	ar cr $(LIB) $(LIB_OBJECTS)
 
-run: clean $(LIB)
+run: clean lib
 	$(CC) $(FLAGS) parser.c run.c $(LIB) -o run
+
+debug: clean debug_lib
+	$(CC) $(DEBUG_FLAGS) parser.c run.c $(LIB) -o run
 
 test: clean
 	$(CC) $(FLAGS) cache.c test.c -o run

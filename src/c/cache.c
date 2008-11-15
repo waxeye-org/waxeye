@@ -144,6 +144,9 @@ void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *va
                 v->pairs[cache_final_pos(v, pair->key.as_p)] = pair;
             }
         }
+
+        // free old storage
+        free(old_pairs);
     }
 
     size_t pos = cache_final_pos(v, key);
