@@ -1,82 +1,81 @@
-
 Waxeye News
 ===========
 
-2008/11/15 - 0.6.0
-----------
+0.6.0 - 2008/11/15
+------------------
 
-=> Added C language target
+* Added C language target
 
-=> Added calculator examples for Ruby, Scheme and Java
+* Added calculator examples for Ruby, Scheme and Java
 
-=> Changed multi-line comments to /* */ style
+* Changed multi-line comments to /* */ style
 
-=> Changed wildcard symbol in grammar tester from '*.' to '*'
+* Changed wildcard symbol in grammar tester from '*.' to '*'
 
-=> Improved error reporting
+* Improved error reporting
 
-=> Improved code generation backends
+* Improved code generation backends
 
-=> Upgraded Waxeye codebase to PLT version 4
-
-
-2008/08/24 - 0.5.0
-----------
-
-=> Added vertical pruning non-terminals
-
-=> Fixed nested closure generation
-
-=> Fixed bug in nested unwinds
+* Upgraded Waxeye codebase to PLT version 4
 
 
-2008/08/05 - 0.4.0
-----------
+0.5.0 - 2008/08/24
+------------------
 
-=> Added ruby target
+* Added vertical pruning non-terminals
 
-=> Added new java target
+* Fixed nested closure generation
 
-=> Added new scheme target
-
-=> Added case-insensitive strings
-
-=> Moved to new runtime design
-
-=> Moved to MIT/X11 license
+* Fixed bug in nested unwinds
 
 
-2008/03/20 - 0.3.1
-----------
+0.4.0 - 2008/08/05
+------------------
 
-=> Added Scheme-based build system
+* Added ruby target
 
-=> Fixed Error Reporting for Grammars
+* Added new java target
 
+* Added new scheme target
 
-2008/02/16 - 0.3.0
-----------
+* Added case-insensitive strings
 
-=> Added Modular, Composable Grammars
+* Moved to new runtime design
 
-=> Added char-class set compression
-
-=> Added Json Grammar and tests
-
-=> Improved command-line interface
-
-=> Improved (simplified) Java API
+* Moved to MIT/X11 license
 
 
-2008/01/17 - 0.2.0
-----------
+0.3.1 - 2008/03/20
+------------------
 
-=> Added Grammar Testing
+* Added Scheme-based build system
 
-=> Added Simple C Target
+* Fixed Error Reporting for Grammars
 
 
-2008/01/06 - 0.1.0
-----------
+0.3.0 - 2008/02/16
+------------------
 
-=> Initial Release
+* Added Modular, Composable Grammars
+
+* Added char-class set compression
+
+* Added Json Grammar and tests
+
+* Improved command-line interface
+
+* Improved (simplified) Java API
+
+
+0.2.0 - 2008/01/17
+------------------
+
+* Added Grammar Testing
+
+* Added Simple C Target
+
+
+0.1.0 - 2008/01/06
+------------------
+
+* Initial Release
