@@ -2,12 +2,22 @@
 Waxeye News
 ===========
 
-2008/10/? - 0.6.0
+2008/11/15 - 0.6.0
 ----------
 
-=> Improved error reporting.
+=> Added C language target
 
-=> Upgraded Waxeye codebase to PLT version 4.
+=> Added calculator examples for Ruby, Scheme and Java
+
+=> Changed multi-line comments to /* */ style
+
+=> Changed wildcard symbol in grammar tester from '*.' to '*'
+
+=> Improved error reporting
+
+=> Improved code generation backends
+
+=> Upgraded Waxeye codebase to PLT version 4
 
 
 2008/08/24 - 0.5.0
