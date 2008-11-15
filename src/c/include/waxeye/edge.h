@@ -26,7 +26,7 @@
 #define EDGE_H_
 
 #include <stdbool.h>
-#include "trans.h"
+#include <waxeye/trans.h>
 
 struct edge_t {
     struct trans_t t;

@@ -25,7 +25,7 @@
 #ifndef AST_H_
 #define AST_H_
 
-#include "vector.h"
+#include <waxeye/vector.h>
 
 #define INIT_CHILDREN 8
 

@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define STATE_C_
-#include "state.h"
+#include <waxeye/state.h>
 
 
 void state_init(struct state_t *a, struct edge_t *edges, size_t num_edges, char match) {

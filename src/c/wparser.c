@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define WPARSER_C_
-#include "wparser.h"
+#include <waxeye/wparser.h>
 #include "cache.h"
 #include "lt.h"
 

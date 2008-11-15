@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define EDGE_C_
-#include "edge.h"
+#include <waxeye/edge.h>
 
 
 void edge_init(struct edge_t *a, struct trans_t t, size_t s, bool v) {

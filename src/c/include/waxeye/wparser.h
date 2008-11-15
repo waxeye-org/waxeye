@@ -26,9 +26,9 @@
 #define WPARSER_H_
 
 #include <stdbool.h>
-#include "ast.h"
-#include "fa.h"
-#include "input.h"
+#include <waxeye/ast.h>
+#include <waxeye/fa.h>
+#include <waxeye/input.h>
 
 struct parser_t {
     size_t start;

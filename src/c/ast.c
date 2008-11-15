@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 #define AST_C_
-#include "ast.h"
+#include <waxeye/ast.h>
 
 void ast_recursive_delete(struct ast_t *a);
 void display_ast_iter(size_t indent, struct ast_t *a, const char *type_strings[]);

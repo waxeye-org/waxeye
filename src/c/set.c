@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define SET_C_
-#include "set.h"
+#include <waxeye/set.h>
 
 
 void set_init(struct set_t *s, char single[], size_t num_single, char min[], char max[], size_t num_range) {

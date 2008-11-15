@@ -25,10 +25,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vector.h"
+#include <waxeye/vector.h>
 
 #define INPUT_C_
-#include "input.h"
+#include <waxeye/input.h>
 
 #define FILLED_INIT 128
 #define BLOCK_SIZE 1024

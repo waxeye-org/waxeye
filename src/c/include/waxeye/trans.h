@@ -25,7 +25,7 @@
 #ifndef TRANS_H_
 #define TRANS_H_
 
-#include "set.h"
+#include <waxeye/set.h>
 
 /*
   Transition is either

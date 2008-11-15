@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define TRANS_C_
-#include "trans.h"
+#include <waxeye/trans.h>
 
 
 void trans_init(struct trans_t *a, enum trans_type type, union trans_data data) {

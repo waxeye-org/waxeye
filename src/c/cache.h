@@ -25,7 +25,7 @@
 #ifndef CACHE_H_
 #define CACHE_H_
 
-#include "ast.h"
+#include <waxeye/ast.h>
 #include "ht.h"
 
 

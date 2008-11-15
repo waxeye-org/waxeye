@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define VECTOR_C_
-#include "vector.h"
+#include <waxeye/vector.h>
 
 /*
  * Initializes the given vector.

@@ -21,8 +21,9 @@
 # SOFTWARE.
 
 CC=gcc
-FLAGS=-Wall -Wextra -Wshadow -O3
-DEBUG_FLAGS=-Wall -Wextra -Wshadow -O0 -g
+BASE_FLAGS=-Wall -Wextra -Wshadow -I include
+FLAGS=$(BASE_FLAGS) -O3
+DEBUG_FLAGS=$(BASE_FLAGS) -O0 -g
 
 LIB=libwaxeye.a
 

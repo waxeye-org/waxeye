@@ -26,8 +26,8 @@
 #define WAXEYE_H_
 
 #include <stdlib.h>
-#include "ast.h"
-#include "input.h"
-#include "wparser.h"
+#include <waxeye/ast.h>
+#include <waxeye/input.h>
+#include <waxeye/wparser.h>
 
 #endif /* WAXEYE_H_ */

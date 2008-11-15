@@ -25,7 +25,7 @@
 #ifndef FA_H_
 #define FA_H_
 
-#include "state.h"
+#include <waxeye/state.h>
 
 enum fa_mode {
     MODE_VOID,

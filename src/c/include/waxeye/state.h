@@ -26,7 +26,7 @@
 #define STATE_H_
 
 #include <stdbool.h>
-#include "edge.h"
+#include <waxeye/edge.h>
 
 struct state_t {
     struct edge_t *edges;

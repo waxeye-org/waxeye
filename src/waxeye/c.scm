@@ -77,7 +77,7 @@ mzscheme
 #ifndef ~a_H_
 #define ~a_H_
 
-#include \"waxeye.h\"
+#include <waxeye.h>
 
 enum ~a {
 ~a

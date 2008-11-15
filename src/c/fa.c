@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #define FA_C_
-#include "fa.h"
+#include <waxeye/fa.h>
 
 
 void fa_init(struct fa_t *a, enum fa_mode mode, size_t type, struct state_t *states, size_t num_states) {
