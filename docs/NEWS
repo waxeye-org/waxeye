@@ -8,9 +8,9 @@ Waxeye News
 
 * Added calculator examples for Ruby, Scheme and Java
 
-* Changed multi-line comments to /* */ style
+* Changed multi-line comments to `/\* \*/` style
 
-* Changed wildcard symbol in grammar tester from '*.' to '*'
+* Changed wildcard symbol in grammar tester from `\*.` to `\*`
 
 * Improved error reporting
 
