@@ -973,11 +973,10 @@ about what is wrong with it.
 
 Now that we know how to write grammars, generate parsers and manipulate AST, we
 can put these skills together to build a small language interpreter. In this
-chapter, we will create a command-line calculator.
+chapter, we create a command-line calculator.
 
-Our calculator will read a line of input, parse it as an arithmetic expression
-and compute the result. The arithmetic language we will create support the
-following constructs.
+Our calculator reads a line of input, parses it as an arithmetic expression and
+computes the result. The arithmetic language supports the following constructs.
 
 * floating point numbers
 * binary operators +,-,*,/
@@ -1001,6 +1000,250 @@ unary <= '-' ws unary
 num   <- +[0-9] ?('.' +[0-9]) ws
 
 ws    <: *[ \t\n\r]
+-------------------------------------------------------------------------------
+
+
+.src/example/java/Calculator.java
+[source,java]
+-------------------------------------------------------------------------------
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.List;
+
+import org.waxeye.ast.IAST;
+import org.waxeye.ast.IChar;
+import org.waxeye.input.InputBuffer;
+import org.waxeye.parser.ParseResult;
+
+/**
+ * A commandline arithmetic calculator.
+ */
+public final class Calculator {
+    private static final Parser p = new Parser();
+
+    private Calculator() {
+    }
+
+    private static Object calc(final String input) {
+        final ParseResult<Type> result =
+            p.parse(new InputBuffer(input.toCharArray()));
+        final IAST<Type> ast = result.getAST();
+
+        if (ast == null) {
+            return result.getError();
+        }
+        else {
+            return sum(ast.getChildren().get(0));
+        }
+    }
+
+    private static double sum(final IAST<Type> sum) {
+        final List<IAST<Type>> chil = sum.getChildren();
+        double val = prod(chil.get(0));
+
+        for (int i = 1; i < chil.size(); i += 2) {
+            final char operator = ((IChar)chil.get(i)).getValue();
+
+            if (operator == '+') {
+                val += prod(chil.get(i + 1));
+            }
+            else {
+                val -= prod(chil.get(i + 1));
+            }
+        }
+
+        return val;
+    }
+
+    private static double prod(final IAST<Type> prod) {
+        final List<IAST<Type>> chil = prod.getChildren();
+        double val = unary(chil.get(0));
+
+        for (int i = 1; i < chil.size(); i += 2) {
+            final char operator = ((IChar)chil.get(i)).getValue();
+
+            if (operator == '*') {
+                val *= unary(chil.get(i + 1));
+            }
+            else {
+                val /= unary(chil.get(i + 1));
+            }
+        }
+
+        return val;
+    }
+
+    private static double unary(final IAST<Type> unary) {
+        switch (unary.getType()) {
+            case Unary:
+                return - unary(unary.getChildren().get(1));
+            case Sum:
+                return sum(unary);
+            default:
+                return num(unary);
+        }
+    }
+
+    private static double num(final IAST<Type> num) {
+        final StringBuilder buf = new StringBuilder();
+
+        for (IAST<Type> c : num.getChildren()) {
+            buf.append(((IChar) c).getValue());
+        }
+
+        return Double.parseDouble(buf.toString());
+    }
+
+    public static void main(String[] args) {
+        try {
+            final BufferedReader in = new BufferedReader(
+                new InputStreamReader(System.in));
+            System.out.print("calc> ");
+            String line = in.readLine();
+
+            while (line != null) {
+                System.out.println(calc(line));
+                System.out.print("calc> ");
+                line = in.readLine();
+            }
+
+            System.out.println();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+-------------------------------------------------------------------------------
+
+
+.src/example/ruby/calculator.rb
+[source,ruby]
+-------------------------------------------------------------------------------
+require 'rubygems'
+require 'waxeye'
+require 'parser'
+
+# A commandline arithmetic calculator.
+class Calculator
+  @@p = Parser.new()
+
+  def self.calc(input)
+    ast = @@p.parse(input)
+  
+    if ast.is_a?(Waxeye::ParseError)
+      ast.display()
+    else
+      puts sum(ast.children[0])
+    end
+  end
+
+  def self.bin_op(ast, fn, ch, op1, op2)
+    chil = ast.children
+    val = self.send(fn, (chil[0]))
+    i = 1
+    until i == chil.size
+      # Increment val by the operator applied to val and the operand
+      val = val.send(chil[i] == ch ? op1 : op2,
+                     self.send(fn, chil[i + 1]))
+      i += 2
+    end
+    val
+  end
+
+  def self.sum(ast)
+    bin_op(ast, :prod, '+', :'+', :'-')
+  end
+
+  def self.prod(ast)
+    bin_op(ast, :unary, '*', :'*', :'/')
+  end
+
+  def self.unary(unary)
+    case unary.type
+      when :unary
+        - unary(unary.children[1])
+      when :sum
+        sum(unary)
+      else
+        num(unary)
+    end
+  end
+
+  def self.num(num)
+    num.children.to_s.to_f
+  end
+end
+
+print 'calc> '
+STDIN.each {|input| Calculator.calc(input); print 'calc> ' }
+puts
+-------------------------------------------------------------------------------
+
+
+.src/example/scheme/calculator.scm
+[source,scheme]
+-------------------------------------------------------------------------------
+(module
+calculator
+mzscheme
+
+(require "parser.scm")
+
+;; A commandline arithmetic calculator.
+
+(define (calc input)
+  (let ((ast (parser input)))
+    (if (ast? ast)
+        (begin (display (sum (car (ast-c ast))))
+               (newline))
+        (display-parse-error ast))))
+
+
+(define (bin-op ast fn ch op1 op2)
+  (let* ((chil (list->vector (ast-c ast)))
+         (val (fn (vector-ref chil 0))))
+    (let loop ((i 1))
+      (unless (= i (vector-length chil))
+              ;; Increment val by the operator applied to val and the operand
+              (set! val ((if (equal? (vector-ref chil i) ch) op1 op2)
+                         val (fn (vector-ref chil (+ i 1)))))
+              (loop (+ i 2))))
+    val))
+
+
+(define (sum ast)
+  (bin-op ast prod #\+ + -))
+
+
+(define (prod ast)
+  (bin-op ast unary #\* * /))
+
+
+(define (unary ast)
+  (case (ast-t ast)
+    ((unary) (- (unary (cadr (ast-c ast)))))
+    ((sum) (sum ast))
+    (else (num ast))))
+
+
+(define (num ast)
+  (string->number (list->string (ast-c ast))))
+
+
+(define (rl)
+  (display "calc> ")
+  (read-line (current-input-port)))
+
+
+(let loop ((input (rl)))
+  (if (eof-object? input)
+      (newline)
+      (begin (calc input)
+             (loop (rl)))))
+
+)
 -------------------------------------------------------------------------------
 
 
