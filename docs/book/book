@@ -43,8 +43,11 @@ Examples of when you would want to use Waxeye.
 
 === Downloading ===
 
-You can download the latest version of Waxeye from
-http://sourceforge.net/projects/waxeye[Sourceforge].
+You can download the current official release of Waxeye from
+http://sourceforge.net/projects/waxeye[Sourceforge]. If you want to get the
+very latest version of Waxeye's source, you can download it from
+http://github.com/orlandodarhill/waxeye/tree/master[GitHub] using the
+http://git.or.cz/[Git] version control system.
 
 
 === Requirements ===
@@ -111,7 +114,9 @@ extension.
 
 A non-terminal definition is of the following form:
 
+*******************************************************************************
 'Name' `\<-` '+expressions'
+*******************************************************************************
 
 Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
 
@@ -120,10 +125,13 @@ Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
 Example <- A | B
 -------------------------------------------------------------------------------
 
+
 To define a non-terminal whose result will never be included in the AST, use
 this form:
 
+*******************************************************************************
 'Name' `<:` '+expressions'
+*******************************************************************************
 
 [source,waxeye]
 -------------------------------------------------------------------------------
@@ -477,7 +485,9 @@ information than we need. To make it easier to process the AST, we can remove
 this vertical noise by using the 'pruning' non-terminal type. This non-terminal
 type has the following form:
 
+*******************************************************************************
 'Name' `\<=` '+expressions'
+*******************************************************************************
 
 When 'Name' has successfully parsed a string, one of three things will happen,
 depending on the number of results to be included from 'Name'\'s expressions.
@@ -672,6 +682,7 @@ The example grammar we'll be using can be found in `grammars/num.waxeye`. You
 may wish to copy it to the directory you're working in so you can experiment
 with extending and modifying the grammar.
 
+.grammars/num.waxeye
 [source,waxeye]
 -------------------------------------------------------------------------------
 Num <- '0' | [1-9] *[0-9]
@@ -725,6 +736,7 @@ waxeye -g c . num.waxeye
 
 ==== Use Parser ====
 
+.src/example/c/example.c
 [source,c]
 -------------------------------------------------------------------------------
 #include <string.h>
@@ -793,6 +805,7 @@ waxeye -g java . num.waxeye
 
 ==== Use Parser ====
 
+.src/example/java/Example.java
 [source,java]
 -------------------------------------------------------------------------------
 import org.waxeye.input.InputBuffer;
@@ -849,6 +862,7 @@ waxeye -g ruby . num.waxeye
 
 ==== Use Parser ====
 
+.src/example/ruby/example.rb
 [source,ruby]
 -------------------------------------------------------------------------------
 require 'rubygems'
@@ -897,9 +911,9 @@ waxeye -g scheme . num.waxeye
 
 ==== Use Parser ====
 
+.src/example/scheme/example.scm
 [source,scheme]
 -------------------------------------------------------------------------------
-;;; example.scm
 (module
 example
 mzscheme
@@ -953,6 +967,45 @@ A parse error contains information about where the input is invalid and hints
 about what is wrong with it.
 
 
+
+
+== Example: A Calculator ==
+
+Now that we know how to write grammars, generate parsers and manipulate AST, we
+can put these skills together to build a small language interpreter. In this
+chapter, we will create a command-line calculator.
+
+Our calculator will read a line of input, parse it as an arithmetic expression
+and compute the result. The arithmetic language we will create support the
+following constructs.
+
+* floating point numbers
+* binary operators +,-,*,/
+* unary negation
+* parentheses
+
+
+.grammars/calc.waxeye
+[source,waxeye]
+-------------------------------------------------------------------------------
+calc  <- ws sum
+
+sum   <- prod *([+-] ws prod)
+
+prod  <- unary *([*/] ws unary)
+
+unary <= '-' ws unary
+       | :'(' ws sum :')' ws
+       | num
+
+num   <- +[0-9] ?('.' +[0-9]) ws
+
+ws    <: *[ \t\n\r]
+-------------------------------------------------------------------------------
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 == A Short Example ==
 
@@ -960,10 +1013,7 @@ This chapter will introduce you to the basic work-flow used with Waxeye. In the
 process, we will iteratively develop the grammar of a simple real-world
 language.
 
-///////////////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////////////
 == Using the Interpreter ==
 todo
 
@@ -973,12 +1023,9 @@ todo
 
 
 
-
 == Grammar Testing ==
 
-This example is taken from `test/grammars/waxeye.scm` in the Waxeye
-distribution.
-
+.test/grammars/waxeye.scm
 [source,scheme]
 -------------------------------------------------------------------------------
 ;; These are tests for the 'Grammar' non-terminal
@@ -1072,6 +1119,18 @@ them. An expression is one of the following:
 * '(join modular-exp ...)' +
   Combines the results of multiple modular expressions into a single
   expression. Not needed at the top-level.
+
+
+.grammars/modular/mod.scm
+[source,scheme]
+-------------------------------------------------------------------------------
+;; A contrived example where we replace the definition of Number in Json with a
+;; much simpler one that only supports integers.
+
+(all-except "../json.waxeye" Number)
+
+(rename (only "../num.waxeye" Num) (Num . Number))
+-------------------------------------------------------------------------------
 
 
 
