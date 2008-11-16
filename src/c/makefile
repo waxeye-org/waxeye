@@ -25,7 +25,9 @@ BASE_FLAGS=-Wall -Wextra -Wshadow -I include
 FLAGS=$(BASE_FLAGS) -O3
 DEBUG_FLAGS=$(BASE_FLAGS) -O0 -g
 
-LIB=libwaxeye.a
+LIB_NAME=libwaxeye.a
+LIB_DIR=../../lib/
+LIB=$(LIB_DIR)$(LIB_NAME)
 
 LIB_FILES= \
 	ast \
@@ -43,7 +45,8 @@ LIB_FILES= \
 
 LIB_OBJECTS = $(foreach f, $(LIB_FILES), $(f).o)
 
-lib: clean
+
+lib: clean-all
 	$(CC) $(FLAGS) -c -o ast.o ast.c
 	$(CC) $(FLAGS) -c -o cache.o cache.c
 	$(CC) $(FLAGS) -c -o edge.o edge.c
@@ -56,9 +59,12 @@ lib: clean
 	$(CC) $(FLAGS) -c -o trans.o trans.c
 	$(CC) $(FLAGS) -c -o vector.o vector.c
 	$(CC) $(FLAGS) -c -o wparser.o wparser.c
-	ar cr $(LIB) $(LIB_OBJECTS)
+	ar cr $(LIB_NAME) $(LIB_OBJECTS)
+	mkdir -p $(LIB_DIR)
+	cp $(LIB_NAME) $(LIB_DIR)
 
-debug_lib: clean
+
+debug_lib: clean-all
 	$(CC) $(DEBUG_FLAGS) -c -o ast.o ast.c
 	$(CC) $(DEBUG_FLAGS) -c -o cache.o cache.c
 	$(CC) $(DEBUG_FLAGS) -c -o edge.o edge.c
@@ -71,16 +77,29 @@ debug_lib: clean
 	$(CC) $(DEBUG_FLAGS) -c -o trans.o trans.c
 	$(CC) $(DEBUG_FLAGS) -c -o vector.o vector.c
 	$(CC) $(DEBUG_FLAGS) -c -o wparser.o wparser.c
-	ar cr $(LIB) $(LIB_OBJECTS)
+	ar cr $(LIB_NAME) $(LIB_OBJECTS)
+	mkdir -p $(LIB_DIR)
+	cp $(LIB_NAME) $(LIB_DIR)
 
-run: clean lib
+
+run: clean-all lib
 	$(CC) $(FLAGS) parser.c run.c $(LIB) -o run
 
-debug: clean debug_lib
+
+debug: clean-all debug_lib
 	$(CC) $(DEBUG_FLAGS) parser.c run.c $(LIB) -o run
+
 
 test: clean
 	$(CC) $(FLAGS) cache.c test.c -o run
 
+
 clean:
 	rm -f run *.o *.a
+
+
+clean-lib:
+	rm -f $(LIB)
+
+
+clean-all: clean clean-lib

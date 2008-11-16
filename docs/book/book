@@ -268,16 +268,6 @@ Tree (AST). The layout of the AST is based on the structure of your language's
 grammar.
 
 
-///////////////////////////////////////////////////////////////////////////////
-== Short Example ==
-
-This chapter will introduce you to the basic work-flow used with Waxeye. In the
-process, we will iteratively develop the grammar of a simple real-world
-language.
-
-///////////////////////////////////////////////////////////////////////////////
-
-
 
 == Waxeye Grammars ==
 
@@ -670,13 +660,14 @@ B <- 'b'
 
 
 
+
 ///////////////////////////////////////////////////////////////////////////////
-== Extended Example ==
-todo
+== Short Example ==
 
+This chapter will introduce you to the basic work-flow used with Waxeye. In the
+process, we will iteratively develop the grammar of a simple real-world
+language.
 
-== Using the Interpreter ==
-todo
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -688,6 +679,9 @@ It covers language specific installation requirements and presents some basic
 boilerplate code to get you started. You can find copies of this boilerplate
 code in `src/example/`.
 
+I use `$WAXEYE_HOME` to refer to the location where you have installed the
+files of the Waxeye distribution.
+
 The example grammar we'll be using can be found in `grammars/num.waxeye`. You
 may wish to copy it to the directory you're working in so you can experiment
 with extending and modifying the grammar.
@@ -696,6 +690,92 @@ with extending and modifying the grammar.
 -------------------------------------------------------------------------------
 Num <- '0' | [1-9] *[0-9]
 -------------------------------------------------------------------------------
+
+
+
+=== Using Waxeye from C ===
+
+Waxeye's C runtime is currently supported on unix platforms and MacOSX.
+
+==== Install ====
+
+To install the C runtime, you need to compile it and, optionally, install the
+header files and library in your system search paths.
+
+To compile the runtime, perform the command `make lib` from within the `src/c`
+directory of your waxeye installation.
+
+-------------------------------------------------------------------------------
+cd $WAXEYE_HOME/src/c
+make lib
+make clean
+-------------------------------------------------------------------------------
+
+To install the header files and library in your search paths, you could copy
+the files directly but, creating symbolic links to them will make upgrading
+easier.
+
+-------------------------------------------------------------------------------
+sudo ln -s $WAXEYE_HOME/lib/libwaxeye.a /usr/local/lib/
+sudo ln -s $WAXEYE_HOME/src/c/include/waxeye.h /usr/local/include/
+sudo ln -s $WAXEYE_HOME/src/c/include/waxeye /usr/local/include/
+-------------------------------------------------------------------------------
+
+
+==== Generate Parser ====
+
+-------------------------------------------------------------------------------
+waxeye -g c . num.waxeye
+-------------------------------------------------------------------------------
+
+==== Use Parser ====
+
+[source,c]
+-------------------------------------------------------------------------------
+#include <string.h>
+#include "parser.h"
+
+int main() {
+    // Create our parser
+    struct parser_t *parser = parser_new();
+
+    // Setup our input
+    char data[] = "42";
+    struct input_t *input = input_new(data, strlen(data));
+
+    // Parse our input
+    struct ast_t *ast = parse(parser, input);
+
+    // Print our ast
+    display_ast(ast, type_strings);
+
+    ast_recursive_delete(ast);
+    input_delete(input);
+    parser_delete(parser);
+
+    return 0;
+}
+-------------------------------------------------------------------------------
+
+
+==== Run ====
+
+If you installed the headers and library in your system path:
+-------------------------------------------------------------------------------
+gcc example.c parser.c -lwaxeye -o example
+-------------------------------------------------------------------------------
+
+Otherwise:
+-------------------------------------------------------------------------------
+FLAGS="-I $WAXEYE_HOME/src/c/include/ -L $WAXEYE_HOME/lib/"
+gcc $FLAGS example.c parser.c -lwaxeye -o example
+-------------------------------------------------------------------------------
+
+Finally,
+-------------------------------------------------------------------------------
+./example
+-------------------------------------------------------------------------------
+
 
 
 === Using Waxeye from Java ===
@@ -866,6 +946,17 @@ mzscheme -mv -t example.scm
 -------------------------------------------------------------------------------
 mzscheme -t example.scm
 -------------------------------------------------------------------------------
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+== Using the Interpreter ==
+todo
+
+== Extended Example ==
+todo
+///////////////////////////////////////////////////////////////////////////////
+
 
 
 
