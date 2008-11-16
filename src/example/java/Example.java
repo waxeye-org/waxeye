@@ -21,15 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import org.waxeye.ast.IAST;
-import org.waxeye.ast.print.ArrowPrinter;
 import org.waxeye.input.InputBuffer;
 import org.waxeye.parser.ParseResult;
 
-public class Example
-{
-    public static void main(final String[] args)
-    {
+public class Example {
+    public static void main(final String[] args) {
         // Create our parser
         final Parser parser = new Parser();
 
@@ -38,16 +34,8 @@ public class Example
 
         // Parse our input
         final ParseResult<Type> result = parser.parse(input);
-        final IAST<Type> ast = result.getAST();
 
         // Print our ast
-        if (ast != null)
-        {
-            new ArrowPrinter<Type>().print(ast);
-        }
-        else
-        {
-            System.out.println(result.getError());
-        }
+        System.out.println(result);
     }
 }

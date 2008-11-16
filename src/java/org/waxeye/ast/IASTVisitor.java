@@ -30,14 +30,14 @@ package org.waxeye.ast;
  *
  * @author Orlando Hill
  */
-public interface IASTVisitor <E extends Enum<?>>
+public interface IASTVisitor
 {
     /**
      * Visits the tree as a AST.
      *
      * @param tree The tree to visit.
      */
-    void visitAST(IAST<E> tree);
+    void visitAST(IAST<?> tree);
 
     /**
      * Visits the tree as Empty.

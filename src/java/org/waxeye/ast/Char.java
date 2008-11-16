@@ -56,7 +56,7 @@ implements IChar
     }
 
     /** {@inheritDoc} */
-    public void acceptASTVisitor(final IASTVisitor<E> visitor)
+    public void acceptASTVisitor(final IASTVisitor visitor)
     {
         visitor.visitChar(this);
     }

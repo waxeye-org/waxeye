@@ -33,56 +33,37 @@ import org.waxeye.ast.IASTVisitor;
 /**
  * A class to print the AST as s-expressions.
  *
- * @param <E> The node types for the AST.
- *
  * @author Orlando Hill
  */
-public final class SexprPrinter <E extends Enum<?>> implements IASTVisitor<E>
+public final class SexprPrinter implements IASTVisitor
 {
-    /** The level of indentation. */
-    private int indentLevel;
+    /** The buffer to build the string. */
+    private StringBuilder buf;
 
     /**
-     * Creates a new ArrowPrinter.
-     */
-    public SexprPrinter()
-    {
-        this.indentLevel = 0;
-    }
-
-    /**
-     * Prints the given tree.
+     * Creates a new SexprPrinter.
      *
-     * @param tree The tree to print.
+     * @param tree The ast to print.
      */
-    public void print(final IAST<E> tree)
+    public SexprPrinter(final IAST<?> tree)
     {
+        this.buf = new StringBuilder();
         tree.acceptASTVisitor(this);
-        System.out.println();
     }
 
     /** {@inheritDoc} */
-    public void visitAST(final IAST<E> tree)
+    public void visitAST(final IAST<?> tree)
     {
-        System.out.print('(');
-        System.out.print(tree.getType());
+        buf.append('(');
+        buf.append(tree.getType());
 
-        indentLevel++;
-
-        final List<IAST<E>> children = tree.getChildren();
-
-        if (children.size() > 0)
+        for (IAST<?> child : tree.getChildren())
         {
-            for (IAST<E> child : children)
-            {
-                System.out.print(' ');
-                child.acceptASTVisitor(this);
-            }
+            buf.append(' ');
+            child.acceptASTVisitor(this);
         }
 
-        indentLevel--;
-
-        System.out.print(')');
+        buf.append(')');
     }
 
     /** {@inheritDoc} */
@@ -93,6 +74,12 @@ public final class SexprPrinter <E extends Enum<?>> implements IASTVisitor<E>
     /** {@inheritDoc} */
     public void visitChar(final IChar tree)
     {
-        System.out.print(tree.getValue());
+        buf.append(tree.getValue());
+    }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        return buf.toString();
     }
 }

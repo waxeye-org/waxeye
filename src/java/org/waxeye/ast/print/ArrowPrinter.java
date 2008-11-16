@@ -31,52 +31,48 @@ import org.waxeye.ast.IASTVisitor;
 /**
  * A class to print the AST with arrows.
  *
- * @param <E> The node types for the AST.
- *
  * @author Orlando Hill
  */
-public final class ArrowPrinter <E extends Enum<?>> implements IASTVisitor<E>
+public final class ArrowPrinter implements IASTVisitor
 {
+    /** The buffer to build the string. */
+    private StringBuilder buf;
+
     /** The level of indentation. */
     private int indentLevel;
 
     /**
      * Creates a new ArrowPrinter.
-     */
-    public ArrowPrinter()
-    {
-        this.indentLevel = 0;
-    }
-
-    /**
-     * Prints the given tree.
      *
-     * @param tree The tree to print.
+     * @param tree The ast to print.
      */
-    public void print(final IAST<E> tree)
+    public ArrowPrinter(final IAST<?> tree)
     {
+        this.buf = new StringBuilder();
+        this.indentLevel = 0;
         tree.acceptASTVisitor(this);
     }
 
     /** {@inheritDoc} */
-    public void visitAST(final IAST<E> tree)
+    public void visitAST(final IAST<?> tree)
     {
-        for (int i = 0; i < indentLevel - 1; i++)
+        for (int i = 1; i < indentLevel; i++)
         {
-            System.out.print("    ");
+            buf.append("    ");
         }
 
         if (indentLevel > 0)
         {
-            System.out.print("->  ");
+            buf.append("->  ");
         }
 
-        System.out.println(tree.getType());
+        buf.append(tree.getType());
 
         indentLevel++;
 
-        for (IAST<E> child : tree.getChildren())
+        for (IAST<?> child : tree.getChildren())
         {
+            buf.append("\n");
             child.acceptASTVisitor(this);
         }
 
@@ -91,16 +87,22 @@ public final class ArrowPrinter <E extends Enum<?>> implements IASTVisitor<E>
     /** {@inheritDoc} */
     public void visitChar(final IChar tree)
     {
-        for (int i = 0; i < indentLevel - 1; i++)
+        for (int i = 1; i < indentLevel; i++)
         {
-            System.out.print("    ");
+            buf.append("    ");
         }
 
         if (indentLevel > 0)
         {
-            System.out.print("|   ");
+            buf.append("|   ");
         }
 
-        System.out.println(tree.getValue());
+        buf.append(tree.getValue());
+    }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        return buf.toString();
     }
 }

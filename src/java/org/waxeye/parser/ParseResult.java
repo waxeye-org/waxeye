@@ -70,4 +70,20 @@ public final class ParseResult <E extends Enum<?>>
     {
         return error;
     }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        if (ast != null)
+        {
+            return ast.toString();
+        }
+
+        if (error != null)
+        {
+            return error.toString();
+        }
+
+        return "ParseResult(null, null)";
+    }
 }

@@ -25,6 +25,7 @@ package org.waxeye.ast;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.waxeye.ast.print.ArrowPrinter;
 
 /**
  * A class to represent an empty AST.
@@ -92,8 +93,14 @@ public class Empty <E extends Enum<?>> implements IAST<E>, IEmpty
     }
 
     /** {@inheritDoc} */
-    public void acceptASTVisitor(final IASTVisitor<E> visitor)
+    public void acceptASTVisitor(final IASTVisitor visitor)
     {
         visitor.visitEmpty(this);
+    }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        return new ArrowPrinter(this).toString();
     }
 }

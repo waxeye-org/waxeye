@@ -24,6 +24,7 @@
 package org.waxeye.ast;
 
 import java.util.List;
+import org.waxeye.ast.print.ArrowPrinter;
 
 /**
  * A class to represent an abstract syntax tree.
@@ -130,8 +131,14 @@ public final class AST <E extends Enum<?>> implements IAST<E>
     }
 
     /** {@inheritDoc} */
-    public void acceptASTVisitor(final IASTVisitor<E> visitor)
+    public void acceptASTVisitor(final IASTVisitor visitor)
     {
         visitor.visitAST(this);
+    }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        return new ArrowPrinter(this).toString();
     }
 }

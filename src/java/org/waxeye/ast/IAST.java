@@ -62,5 +62,5 @@ public interface IAST <E extends Enum<?>>
      *
      * @param visitor The visitor to accept.
      */
-    void acceptASTVisitor(IASTVisitor<E> visitor);
+    void acceptASTVisitor(IASTVisitor visitor);
 }
