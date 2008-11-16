@@ -31,6 +31,7 @@ Features
 * Automatic AST Generation
 
 * Choice of Programming Language
+  - C
   - Java
   - Ruby
   - Scheme

@@ -1018,6 +1018,7 @@ parser's files to the specified directory.
 
 Currently supported programming languages:
 
+* c
 * java
 * ruby
 * scheme
