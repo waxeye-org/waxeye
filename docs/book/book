@@ -661,26 +661,13 @@ B <- 'b'
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-== Short Example ==
-
-This chapter will introduce you to the basic work-flow used with Waxeye. In the
-process, we will iteratively develop the grammar of a simple real-world
-language.
-
-///////////////////////////////////////////////////////////////////////////////
-
-
-
 == Using Waxeye ==
 
 This chapter will show you how to setup Waxeye for your programming language.
 It covers language specific installation requirements and presents some basic
 boilerplate code to get you started. You can find copies of this boilerplate
-code in `src/example/`.
-
-I use `$WAXEYE_HOME` to refer to the location where you have installed the
-files of the Waxeye distribution.
+code in `src/example/`. I use `$WAXEYE_HOME` to refer to the location where you
+have installed the files of the Waxeye distribution.
 
 The example grammar we'll be using can be found in `grammars/num.waxeye`. You
 may wish to copy it to the directory you're working in so you can experiment
@@ -689,6 +676,15 @@ with extending and modifying the grammar.
 [source,waxeye]
 -------------------------------------------------------------------------------
 Num <- '0' | [1-9] *[0-9]
+-------------------------------------------------------------------------------
+
+Once setup and run, the boilerplate example will use the parser you generated
+to parse the string `42` and print the AST it creates.
+
+-------------------------------------------------------------------------------
+Num
+|   4
+|   2
 -------------------------------------------------------------------------------
 
 
@@ -947,6 +943,26 @@ mzscheme -mv -t example.scm
 mzscheme -t example.scm
 -------------------------------------------------------------------------------
 
+
+
+== Accessing the AST ==
+
+Since just printing an Abstract Syntax Tree isn't very interesting, let's have
+a look at how to access the information the ASTs contain.
+
+When you use a Waxeye parser, the result will be one of two things. If the
+parser successfully parsed the input, the result will be an AST. If the input
+doesn't match the syntax of the language, the result will be a 'parse error'.
+
+
+///////////////////////////////////////////////////////////////////////////////
+== A Short Example ==
+
+This chapter will introduce you to the basic work-flow used with Waxeye. In the
+process, we will iteratively develop the grammar of a simple real-world
+language.
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
