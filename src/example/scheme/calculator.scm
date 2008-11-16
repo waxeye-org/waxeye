@@ -68,12 +68,14 @@ mzscheme
 
 
 (define (rl)
+  (display "calc> ")
   (read-line (current-input-port)))
 
 
 (let loop ((input (rl)))
-  (unless (eof-object? input)
-          (calc input)
-          (loop (rl))))
+  (if (eof-object? input)
+      (newline)
+      (begin (calc input)
+             (loop (rl)))))
 
 )

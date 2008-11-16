@@ -114,12 +114,16 @@ public final class Calculator {
         try {
             final BufferedReader in = new BufferedReader(
                 new InputStreamReader(System.in));
+            System.out.print("calc> ");
             String line = in.readLine();
 
             while (line != null) {
                 System.out.println(calc(line));
+                System.out.print("calc> ");
                 line = in.readLine();
             }
+
+            System.out.println();
         }
         catch (IOException e) {
             e.printStackTrace();

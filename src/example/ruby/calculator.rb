@@ -75,4 +75,6 @@ class Calculator
   end
 end
 
-STDIN.each {|input| Calculator.calc(input)}
+print 'calc> '
+STDIN.each {|input| Calculator.calc(input); print 'calc> ' }
+puts
