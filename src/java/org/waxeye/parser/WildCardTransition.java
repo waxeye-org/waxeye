@@ -28,12 +28,14 @@ import org.waxeye.ast.IAST;
 /**
  * A transition cost of matching any character.
  *
+ * @param <E> The AST type.
+ *
  * @author Orlando Hill
  */
-public class WildCardTransition <E extends Enum<?>> implements ITransition<E>
+public final class WildCardTransition <E extends Enum<?>> implements ITransition<E>
 {
     /** {@inheritDoc} */
-    public IAST<E> acceptVisitor(ITransitionVisitor<E> visitor)
+    public IAST<E> acceptVisitor(final ITransitionVisitor<E> visitor)
     {
         return visitor.visitWildCardTransition(this);
     }

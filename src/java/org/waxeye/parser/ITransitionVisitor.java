@@ -28,6 +28,8 @@ import org.waxeye.ast.IAST;
 /**
  * Visits transitions.
  *
+ * @param <E> The AST type.
+ *
  * @author Orlando Hill
  */
 public interface ITransitionVisitor <E extends Enum<?>>

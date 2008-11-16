@@ -186,6 +186,17 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             return new ParseResult<E>(ast, error);
         }
 
+        /**
+         * Restores the input position to the given values.
+         *
+         * @param pos The position.
+         *
+         * @param line The line.
+         *
+         * @param col The column.
+         *
+         * @param cr Whether the last character was a CR.
+         */
         private void restorePos(final int pos, final int line, final int col,
             final boolean cr)
         {
@@ -195,6 +206,13 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             this.lastCR = cr;
         }
 
+        /**
+         * Matches the automaton at the given index.
+         *
+         * @param index The index.
+         *
+         * @return The result.
+         */
         private IAST<E> matchAutomaton(final int index)
         {
             final int startPos = input.getPosition();
@@ -248,7 +266,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
                     {
                         updateError();
                         value = null;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -304,6 +322,13 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             return value;
         }
 
+        /**
+         * Matches the state at the given index.
+         *
+         * @param index The index.
+         *
+         * @return The result.
+         */
         private List<IAST<E>> matchState(final int index)
         {
             final State<E> state = faStack.peek().getStates().get(index);
@@ -326,6 +351,15 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             }
         }
 
+        /**
+         * Matches the given edges starting from the given index.
+         *
+         * @param edges The edges.
+         *
+         * @param index The index.
+         *
+         * @return The result.
+         */
         private List<IAST<E>> matchEdges(final List<Edge<E>> edges, final int index)
         {
             if (index < edges.size())
@@ -347,6 +381,13 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             }
         }
 
+        /**
+         * Matches the given edge.
+         *
+         * @param edge The edge.
+         *
+         * @return The result.
+         */
         private List<IAST<E>> matchEdge(final Edge<E> edge)
         {
             final int startPos = input.getPosition();
@@ -417,6 +458,9 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
             }
         }
 
+        /**
+         * Updates the error info if needed.
+         */
         private void updateError()
         {
             if (errorPos < input.getPosition())
@@ -429,13 +473,13 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
         }
 
         /** {@inheritDoc} */
-        public IAST<E> visitAutomatonTransition(AutomatonTransition<E> t)
+        public IAST<E> visitAutomatonTransition(final AutomatonTransition<E> t)
         {
             return matchAutomaton(t.getIndex());
         }
 
         /** {@inheritDoc} */
-        public IAST<E> visitCharTransition(CharTransition<E> t)
+        public IAST<E> visitCharTransition(final CharTransition<E> t)
         {
             if (input.peek() != IParserInput.EOF)
             {
@@ -445,7 +489,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
                 {
                     input.consume();
                     updateLineCol(c);
-                    return new Char<E>(c, charType);                
+                    return new Char<E>(c, charType);
                 }
             }
 
@@ -454,7 +498,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
         }
 
         /** {@inheritDoc} */
-        public IAST<E> visitWildCardTransition(WildCardTransition<E> t)
+        public IAST<E> visitWildCardTransition(final WildCardTransition<E> t)
         {
             if (input.peek() == IParserInput.EOF)
             {

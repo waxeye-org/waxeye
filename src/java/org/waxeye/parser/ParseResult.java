@@ -28,6 +28,8 @@ import org.waxeye.ast.IAST;
 /**
  * The result of a parse.
  *
+ * @param <E> The AST type.
+ *
  * @author Orlando Hill
  */
 public final class ParseResult <E extends Enum<?>>

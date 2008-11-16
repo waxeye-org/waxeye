@@ -23,6 +23,8 @@
  */
 package org.waxeye.ast;
 
+import org.waxeye.ast.print.ArrowPrinter;
+
 /**
  * An AST node with a character.
  *
@@ -30,7 +32,7 @@ package org.waxeye.ast;
  *
  * @author Orlando Hill
  */
-public final class Char <E extends Enum<?>> extends Empty<E>
+public final class Char <E extends Enum<?>> extends NoChildren<E>
 implements IChar
 {
     /** The value of the char. */
@@ -59,5 +61,11 @@ implements IChar
     public void acceptASTVisitor(final IASTVisitor visitor)
     {
         visitor.visitChar(this);
+    }
+
+    /** {@inheritDoc} */
+    public String toString()
+    {
+        return new ArrowPrinter(this).toString();
     }
 }

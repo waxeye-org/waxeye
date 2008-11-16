@@ -23,8 +23,6 @@
  */
 package org.waxeye.ast.print;
 
-import java.util.List;
-
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.IChar;
 import org.waxeye.ast.IEmpty;

@@ -23,31 +23,71 @@
  */
 package org.waxeye.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A visitor for IAST nodes.
+ * A class to represent an AST with no children.
+ *
+ * @param <E> The node types for the AST.
  *
  * @author Orlando Hill
  */
-public interface IASTVisitor
+public abstract class NoChildren <E extends Enum<?>> implements IAST<E>
 {
-    /**
-     * Visits the tree as a AST.
-     *
-     * @param tree The tree to visit.
-     */
-    void visitAST(IAST<?> tree);
+    /** The type of AST node. */
+    private final E type;
 
     /**
-     * Visits the tree as Empty.
+     * Creates a new NoChildren AST.
      *
-     * @param tree The tree to visit.
+     * @param type The type of the AST.
      */
-    void visitEmpty(IEmpty tree);
+    public NoChildren(final E type)
+    {
+        this.type = type;
+
+        assert invariants();
+    }
+
+    /** {@inheritDoc} */
+    public final int hashCode()
+    {
+        final int start = 17;
+        return Math.abs(start * type.hashCode());
+    }
 
     /**
-     * Visits the tree as a Char.
+     * Checks the invariants of the object.
      *
-     * @param tree The tree to visit.
+     * @return <code>true</code>.
      */
-    void visitChar(IChar tree);
+    private boolean invariants()
+    {
+        assert type != null;
+
+        return true;
+    }
+
+    /**
+     * Returns a new empty list since this node doesn't allow children.
+     *
+     * @return Returns a new empty list.
+     */
+    public final List<IAST<E>> getChildren()
+    {
+        return new ArrayList<IAST<E>>();
+    }
+
+    /** {@inheritDoc} */
+    public final Position getPosition()
+    {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    public final E getType()
+    {
+        return type;
+    }
 }

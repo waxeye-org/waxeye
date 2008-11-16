@@ -23,8 +23,6 @@
  */
 package org.waxeye.ast;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.waxeye.ast.print.ArrowPrinter;
 
 /**
@@ -34,11 +32,9 @@ import org.waxeye.ast.print.ArrowPrinter;
  *
  * @author Orlando Hill
  */
-public class Empty <E extends Enum<?>> implements IAST<E>, IEmpty
+public final class Empty <E extends Enum<?>> extends NoChildren<E>
+implements IEmpty
 {
-    /** The type of AST node. */
-    private final E type;
-
     /**
      * Creates a new Empty AST.
      *
@@ -46,50 +42,7 @@ public class Empty <E extends Enum<?>> implements IAST<E>, IEmpty
      */
     public Empty(final E type)
     {
-        this.type = type;
-
-        assert invariants();
-    }
-
-    /** {@inheritDoc} */
-    public final int hashCode()
-    {
-        final int start = 17;
-        return Math.abs(start * type.hashCode());
-    }
-
-    /**
-     * Checks the invariants of the object.
-     *
-     * @return <code>true</code>.
-     */
-    private boolean invariants()
-    {
-        assert type != null;
-
-        return true;
-    }
-
-    /**
-     * Returns a new empty list since this node doesn't allow children.
-     *
-     * @return Returns a new empty list.
-     */
-    public final List<IAST<E>> getChildren()
-    {
-        return new ArrayList<IAST<E>>();
-    }
-
-    /** {@inheritDoc} */
-    public final Position getPosition()
-    {
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    public final E getType()
-    {
-        return type;
+        super(type);
     }
 
     /** {@inheritDoc} */

@@ -28,9 +28,11 @@ import org.waxeye.ast.IAST;
 /**
  * A transition cost of matching a char from a set.
  *
+ * @param <E> The AST type.
+ *
  * @author Orlando Hill
  */
-public class CharTransition <E extends Enum<?>> implements ITransition<E>
+public final class CharTransition <E extends Enum<?>> implements ITransition<E>
 {
     /** Individual chars in the set. */
     private final char[] single;
@@ -86,7 +88,7 @@ public class CharTransition <E extends Enum<?>> implements ITransition<E>
     }
 
     /** {@inheritDoc} */
-    public IAST<E> acceptVisitor(ITransitionVisitor<E> visitor)
+    public IAST<E> acceptVisitor(final ITransitionVisitor<E> visitor)
     {
         return visitor.visitCharTransition(this);
     }

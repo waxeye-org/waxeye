@@ -28,9 +28,11 @@ import org.waxeye.ast.IAST;
 /**
  * A transition cost of matching an automaton.
  *
+ * @param <E> The AST type.
+ *
  * @author Orlando Hill
  */
-public class AutomatonTransition <E extends Enum<?>> implements ITransition<E>
+public final class AutomatonTransition <E extends Enum<?>> implements ITransition<E>
 {
     /** The index of the automaton. */
     private final int index;
@@ -56,7 +58,7 @@ public class AutomatonTransition <E extends Enum<?>> implements ITransition<E>
     }
 
     /** {@inheritDoc} */
-    public IAST<E> acceptVisitor(ITransitionVisitor<E> visitor)
+    public IAST<E> acceptVisitor(final ITransitionVisitor<E> visitor)
     {
         return visitor.visitAutomatonTransition(this);
     }

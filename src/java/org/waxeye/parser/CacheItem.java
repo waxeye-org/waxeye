@@ -92,7 +92,7 @@ final class CacheItem <E extends Enum<?>>
      *
      * @return Returns the position.
      */
-    public final int getPosition()
+    public int getPosition()
     {
         return position;
     }
@@ -102,7 +102,7 @@ final class CacheItem <E extends Enum<?>>
      *
      * @return Returns the result.
      */
-    public final IAST<E> getResult()
+    public IAST<E> getResult()
     {
         return result;
     }
