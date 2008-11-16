@@ -944,7 +944,7 @@ mzscheme -t example.scm
 
 
 
-== Accessing the AST ==
+== Using ASTs and Parse Errors ==
 
 Since just printing an Abstract Syntax Tree isn't very interesting, let's have
 a look at how to access the information the ASTs contain.
@@ -952,6 +952,17 @@ a look at how to access the information the ASTs contain.
 When you use a Waxeye parser, the result will be one of two things. If the
 parser successfully parsed the input, the result will be an AST. If the input
 doesn't match the syntax of the language, the result will be a 'parse error'.
+
+
+=== ASTs ===
+
+ASTs come in three different forms; tree, char and empty.
+
+
+=== Parse Errors ===
+
+A parse error contains information about where the input is invalid and hints
+about what is wrong with it.
 
 
 ///////////////////////////////////////////////////////////////////////////////
