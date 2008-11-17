@@ -22,16 +22,13 @@
  * SOFTWARE.
  */
 
-#include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "parser.h"
+
+double sum(struct ast_t *ast);
 
 // GNU libc extension
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
-
-double sum(struct ast_t *ast);
 
 
 double num(struct ast_t *ast) {
