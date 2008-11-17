@@ -6,7 +6,7 @@ Waxeye News
 
 * Added C language target
 
-* Added calculator examples for Ruby, Scheme and Java
+* Added calculator examples for C, Java, Ruby and Scheme
 
 * Changed multi-line comments to `/\* \*/` style
 
