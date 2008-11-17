@@ -64,7 +64,7 @@ lib: clean-all
 	cp $(LIB_NAME) $(LIB_DIR)
 
 
-debug_lib: clean-all
+debug-lib: clean-all
 	$(CC) $(DEBUG_FLAGS) -c -o ast.o ast.c
 	$(CC) $(DEBUG_FLAGS) -c -o cache.o cache.c
 	$(CC) $(DEBUG_FLAGS) -c -o edge.o edge.c
