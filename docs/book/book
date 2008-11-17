@@ -1022,6 +1022,15 @@ case result.class
 
 ASTs come in three different forms; 'tree', 'char' and 'empty'.
 
+* A 'tree' AST contains a type, a list of children and, the start and end
+  position in the input.
+
+* A 'char' AST contains a single character and has no children.
+
+* An 'empty' AST simply signifies that parsing was successful. If your starting
+  non-terminal is voided or is pruning and had no children, you will get an
+  empty AST.
+
 
 ==== Using an AST node as string ====
 
