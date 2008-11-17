@@ -90,4 +90,10 @@ public abstract class NoChildren <E extends Enum<?>> implements IAST<E>
     {
         return type;
     }
+
+    /** {@inheritDoc} */
+    public final String childrenAsString()
+    {
+        return "";
+    }
 }

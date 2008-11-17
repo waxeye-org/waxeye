@@ -63,4 +63,12 @@ public interface IAST <E extends Enum<?>>
      * @param visitor The visitor to accept.
      */
     void acceptASTVisitor(IASTVisitor visitor);
+
+    /**
+     * Treats the children of the AST as IChar's and concatenates their values
+     * into a String.
+     *
+     * @return The AST's IChar children as a String.
+     */
+    String childrenAsString();
 }

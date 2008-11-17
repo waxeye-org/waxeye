@@ -35,7 +35,7 @@ double sum(struct ast_t *ast);
 
 
 double num(struct ast_t *ast) {
-    char *buf = ast_children_toa(ast);
+    char *buf = ast_children_as_string(ast);
     double val = atof(buf);
     free(buf);
     return val;

@@ -101,13 +101,7 @@ public final class Calculator {
     }
 
     private static double num(final IAST<Type> num) {
-        final StringBuilder buf = new StringBuilder();
-
-        for (IAST<Type> c : num.getChildren()) {
-            buf.append(((IChar) c).getValue());
-        }
-
-        return Double.parseDouble(buf.toString());
+        return Double.parseDouble(num.childrenAsString());
     }
 
     public static void main(String[] args) {

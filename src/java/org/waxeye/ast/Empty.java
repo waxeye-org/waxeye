@@ -23,8 +23,6 @@
  */
 package org.waxeye.ast;
 
-import org.waxeye.ast.print.ArrowPrinter;
-
 /**
  * A class to represent an empty AST.
  *
@@ -54,6 +52,6 @@ implements IEmpty
     /** {@inheritDoc} */
     public String toString()
     {
-        return new ArrowPrinter(this).toString();
+        return "";
     }
 }

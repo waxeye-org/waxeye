@@ -23,8 +23,6 @@
  */
 package org.waxeye.ast;
 
-import org.waxeye.ast.print.ArrowPrinter;
-
 /**
  * An AST node with a character.
  *
@@ -66,6 +64,6 @@ implements IChar
     /** {@inheritDoc} */
     public String toString()
     {
-        return new ArrowPrinter(this).toString();
+        return Character.toString(value);
     }
 }
