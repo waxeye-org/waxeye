@@ -33,16 +33,18 @@ void ast_recursive_delete(struct ast_t *a);
 void display_ast_iter(size_t indent, struct ast_t *a, const char *type_strings[]);
 
 
-void ast_tree_init(struct ast_tree_t *t, size_t type, struct vector_t *children) {
+void ast_tree_init(struct ast_tree_t *t, size_t type, struct vector_t *children, size_t start, size_t end) {
     t->type = type;
     t->children = children;
+    t->start = start;
+    t->end = end;
 }
 
 
-struct ast_tree_t* ast_tree_new(size_t type, struct vector_t *children) {
+struct ast_tree_t* ast_tree_new(size_t type, struct vector_t *children, size_t start, size_t end) {
     struct ast_tree_t *t = malloc(sizeof(struct ast_tree_t));
     assert(t != NULL);
-    ast_tree_init(t, type, children);
+    ast_tree_init(t, type, children, start, end);
     return t;
 }
 

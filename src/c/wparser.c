@@ -392,7 +392,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                     }
                     default: {
                         vector_reverse(res); // Correct the order of children
-                        struct ast_tree_t *t = ast_tree_new(automaton->type, res);
+                        struct ast_tree_t *t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
                         union ast_data d = { .tree = t };
                         value = ast_new(AST_TREE, d);
                         break;
@@ -407,7 +407,7 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             }
             else {
                 vector_reverse(res); // Correct the order of children
-                struct ast_tree_t *t = ast_tree_new(automaton->type, res);
+                struct ast_tree_t *t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
                 union ast_data d = { .tree = t };
                 value = ast_new(AST_TREE, d);
             }
