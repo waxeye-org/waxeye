@@ -35,16 +35,7 @@ double sum(struct ast_t *ast);
 
 
 double num(struct ast_t *ast) {
-    struct vector_t *chil = ast->data.tree->children;
-    size_t num_chil = chil->size;
-    char *buf = calloc(num_chil + 1, sizeof(char));
-    assert(buf != NULL);
-
-    size_t i;
-    for (i = 0; i < num_chil; i++) {
-        buf[i] = ((struct ast_t*) vector_get(chil, i))->data.c;
-    }
-
+    char *buf = ast_children_toa(ast);
     double val = atof(buf);
     free(buf);
     return val;
