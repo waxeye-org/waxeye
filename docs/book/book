@@ -956,9 +956,113 @@ parser successfully parsed the input, the result will be an AST. If the input
 doesn't match the syntax of the language, the result will be a 'parse error'.
 
 
+=== Determining the result type ===
+
+==== From C ====
+
+[source,c]
+-------------------------------------------------------------------------------
+switch (result->type) {
+  case AST_TREE:
+    return "tree ast";
+  case AST_EMPTY:
+    return "empty ast";
+  case AST_ERROR:
+    return "error";
+}
+-------------------------------------------------------------------------------
+
+
+==== From Java ====
+
+[source,java]
+-------------------------------------------------------------------------------
+ParseResult<Type> result = parser.parse(input);
+if (result.getAST() != null) {
+    if (result instanceof IEmpty) {
+        return "empty ast";
+    }
+    else {
+        return "tree ast";
+    }
+}
+else {
+    return "error";
+}
+-------------------------------------------------------------------------------
+
+
+==== From Ruby ====
+
+[source,ruby]
+-------------------------------------------------------------------------------
+case result.class
+  when Waxeye::AST
+    "tree ast"
+  when Waxeye::ParseError
+    "error"
+  else
+    "empty ast"
+-------------------------------------------------------------------------------
+
+
+==== From Scheme ====
+
+[source,scheme]
+-------------------------------------------------------------------------------
+(cond
+  ((ast? result) "tree ast")
+  ((parse-error? result) "error")
+  (else "empty ast"))
+-------------------------------------------------------------------------------
+
+
+
 === ASTs ===
 
-ASTs come in three different forms; tree, char and empty.
+ASTs come in three different forms; 'tree', 'char' and 'empty'.
+
+
+==== Using an AST node as string ====
+
+If a given AST node will only ever have 'char' children, you may wish to treat
+that node as a single string.
+
+
+===== From C =====
+
+[source,c]
+-------------------------------------------------------------------------------
+char *str = ast_children_as_string(ast);
+printf("%s\n", str);
+free(str);
+-------------------------------------------------------------------------------
+
+
+===== From Java =====
+
+[source,java]
+-------------------------------------------------------------------------------
+System.out.println(ast.childrenAsString());
+-------------------------------------------------------------------------------
+
+
+===== From Ruby =====
+
+[source,ruby]
+-------------------------------------------------------------------------------
+puts ast.children.to_s
+-------------------------------------------------------------------------------
+
+
+===== From Scheme =====
+
+[source,scheme]
+-------------------------------------------------------------------------------
+(display (list->string (ast-c ast)))
+(newline)
+-------------------------------------------------------------------------------
+
 
 
 === Parse Errors ===
