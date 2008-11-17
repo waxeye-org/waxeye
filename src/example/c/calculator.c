@@ -22,17 +22,102 @@
  * SOFTWARE.
  */
 
+#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 
 // GNU libc extension
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 
+double sum(struct ast_t *ast);
+
+
+double num(struct ast_t *ast) {
+    struct vector_t *chil = ast->data.tree->children;
+    size_t num_chil = chil->size;
+    char *buf = calloc(num_chil + 1, sizeof(char));
+    assert(buf != NULL);
+
+    size_t i;
+    for (i = 0; i < num_chil; i++) {
+        buf[i] = ((struct ast_t*) vector_get(chil, i))->data.c;
+    }
+
+    double val = atof(buf);
+    free(buf);
+    return val;
+}
+
+
+double unary(struct ast_t *ast) {
+    struct ast_tree_t *tree = ast->data.tree;
+    switch (tree->type) {
+        case TYPE_UNARY:
+            return - unary(vector_get(tree->children, 1));
+        case TYPE_SUM:
+            return sum(ast);
+        default:
+            return num(ast);
+    }
+}
+
+
+double prod(struct ast_t *ast) {
+    struct vector_t *chil = ast->data.tree->children;
+    size_t num_chil = chil->size;
+    double val = unary(vector_get(chil, 0));
+
+    size_t i;
+    for (i = 1; i < num_chil; i +=2) {
+        char operator = ((struct ast_t*) vector_get(chil, i))->data.c;
+        double operand = unary(vector_get(chil, i + 1));
+
+        if (operator == '*') {
+            val *= operand;
+        }
+        else {
+            val /= operand;
+        }
+    }
+
+    return val;
+}
+
+
+double sum(struct ast_t *ast) {
+    struct vector_t *chil = ast->data.tree->children;
+    size_t num_chil = chil->size;
+    double val = prod(vector_get(chil, 0));
+
+    size_t i;
+    for (i = 1; i < num_chil; i +=2) {
+        char operator = ((struct ast_t*) vector_get(chil, i))->data.c;
+        double operand = prod(vector_get(chil, i + 1));
+
+        if (operator == '+') {
+            val += operand;
+        }
+        else {
+            val -= operand;
+        }
+    }
+
+    return val;
+}
+
 
 void calc(struct parser_t *parser, struct input_t *input) {
     struct ast_t *ast = parse(parser, input);
 
-    display_ast(ast, type_strings);
+    if (ast->type == AST_ERROR) {
+        display_ast(ast, type_strings);
+    }
+    else {
+        printf("%f\n", sum(vector_get(ast->data.tree->children, 0)));
+    }
+
     ast_recursive_delete(ast);
 }
 
