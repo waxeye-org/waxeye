@@ -99,7 +99,7 @@ module Waxeye
       (indent[0] - 1).times {|| print '    ' }
       print '->  ' if indent[0] > 0
       print ast.type, "\n"
-      indent[0] = indent[0] + 1
+      indent[0] += 1
       ast.children.each do |a|
         if a.is_a?(Waxeye::AST)
           display_iter(a, indent)
@@ -109,7 +109,7 @@ module Waxeye
           print a, "\n"
         end
       end
-      indent[0] = indent[0] - 1
+      indent[0] -= 1
     end
   end
 
@@ -279,20 +279,20 @@ module Waxeye
 
       def mv()
         ch = @input[@input_pos].chr()
-        @input_pos = @input_pos + 1
+        @input_pos += 1
 
         if ch == '\r'
-          @line = @line + 1
+          @line += 1
           @column = 0
           @last_cr = true
         else
           if ch == '\n'
             if not @last_cr
-              @line = @line + 1
+              @line += 1
               @column = 0
             end
           else
-            @column = @column + 1
+            @column += 1
           end
           @last_cr = false
         end
