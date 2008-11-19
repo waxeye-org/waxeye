@@ -1,5 +1,24 @@
-
-import sys
+# Waxeye Parser Generator
+# www.waxeye.org
+# Copyright (C) 2008 Orlando D. A. R. Hill
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 class Edge:
     def __init__(self, trans, state, voided):
@@ -28,8 +47,8 @@ class ParseError:
         self.col = col
         self.nt = nt
 
-    def display(self):
-        print "parse error: failed to match '%s' at line=%s, col=%s, pos=%s" % (self.nt, self.line, self.col, self.pos)
+    def __str__(self):
+        return "parse error: failed to match '%s' at line=%s, col=%s, pos=%s" % (self.nt, self.line, self.col, self.pos)
 
 
 class AST:
@@ -38,26 +57,29 @@ class AST:
         self.children = children
         self.pos = pos
 
-    def display_iter(self, ast, indent):
+    def str_iter(self, ast, indent, acc):
         for i in range(0, indent[0] - 1):
-            sys.stdout.write('    ')
+            acc.append('    ')
         if indent[0] > 0:
-            sys.stdout.write('->  ')
-        print ast.type
+            acc.append('->  ')
+        acc.append(ast.type)
         indent[0] += 1
         for a in ast.children:
+            acc.append('\n')
             if isinstance(a, AST):
-                self.display_iter(a, indent)
+                self.str_iter(a, indent, acc)
             else:
                 for i in range(0, indent[0] - 1):
-                    sys.stdout.write('    ')
+                    acc.append('    ')
                 if indent[0] > 0:
-                    sys.stdout.write('|   ')
-                print a
+                    acc.append('|   ')
+                acc.append(a)
         indent[0] -= 1
 
-    def display(self):
-        self.display_iter(self, [0])
+    def __str__(self):
+        acc = []
+        self.str_iter(self, [0], acc)
+        return ''.join(acc)
 
 
 class WaxeyeParser:
@@ -67,7 +89,7 @@ class WaxeyeParser:
         self.automata = automata
 
     def parse(self, input):
-        WaxeyeParser.InnerParser(self.start, self.eof_check, self.automata, input).parse()
+        return WaxeyeParser.InnerParser(self.start, self.eof_check, self.automata, input).parse()
 
     class InnerParser:
         def __init__(self, start, eof_check, automata, input):
@@ -88,7 +110,30 @@ class WaxeyeParser:
             self.cache = {}
 
         def parse(self):
-            print self.input
+            return self.do_eof_check(self.match_automaton(self.start))
 
-p = WaxeyeParser(0, True, [FA(0, [], 0)])
-p.parse('1+2-3*4')
+
+        def do_eof_check(self, res):
+            if res:
+                if self.eof_check and self.input_pos < self.input_len:
+                    # Create a parse error - Not all input consumed
+                    return ParseError(self.error_pos, self.error_line, self.error_col, self.error_nt)
+                else:
+                    return res
+            else:
+                # Create a parse error
+                return ParseError(self.error_pos, self.error_line, self.error_col, self.error_nt)
+
+
+        def match_automaton(self, index):
+#            self.input_pos = self.input_len
+            return self.input
+
+
+
+p = WaxeyeParser(0, True, [FA('test', [], 0)])
+print p.parse('1+2-3*4')
+
+c = AST('num', ['1', '2', '3'], (0, 4))
+a = AST('calc', [c, '+', c], (0, 6))
+print a
