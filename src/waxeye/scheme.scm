@@ -123,7 +123,7 @@ parser-name
 (define automata
 ~a~a)
 
-(define ~a (make-parser ~a ~a ~s ~a automata))
+(define ~a (make-parser ~a ~a automata))
 EOF
 
 (ind)
@@ -131,8 +131,6 @@ EOF
 parser-name
 *start-index*
 *eof-check*
-*line-counting*
-*tab-width*
 ))
 
 )))

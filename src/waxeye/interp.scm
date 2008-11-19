@@ -35,7 +35,7 @@ mzscheme
 
 
 (define (dynamic-parser grammar)
-  (make-parser *start-index* *eof-check* 'line-counting 'tab-width (make-automata grammar)))
+  (make-parser *start-index* *eof-check* (make-automata grammar)))
 
 
 (define (interpreter grammar input)

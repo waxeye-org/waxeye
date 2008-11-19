@@ -31,7 +31,7 @@ mzscheme
 (define-struct cache-item (val pos line col cr))
 
 
-(define (make-parser start eof-check line-counting tab-width automata)
+(define (make-parser start eof-check automata)
   (lambda (input)
     (let* ((input-len (string-length input))
            (input-pos 0)

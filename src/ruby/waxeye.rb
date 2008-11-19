@@ -40,7 +40,7 @@ module Waxeye
     end
   end
 
-  class Automaton
+  class FA
     attr_reader :type, :states, :mode
     def initialize(type, states, mode)
       @type = type
@@ -114,27 +114,21 @@ module Waxeye
   end
 
   class WaxeyeParser
-    def initialize(start, eof_check, line_counting, tab_width, automata)
+    def initialize(start, eof_check, automata)
       @start = start
       @eof_check = eof_check
-      @line_counting = line_counting
-      @tab_width = tab_width
       @automata = automata
     end
 
     def parse(input)
-      InnerParser.new(@start, @eof_check, @line_counting, @tab_width, @automata, input).parse()
+      InnerParser.new(@start, @eof_check, @automata, input).parse()
     end
 
     class InnerParser
-      def initialize(start, eof_check, line_counting, tab_width, automata, input)
+      def initialize(start, eof_check, automata, input)
         @start = start
         @eof_check = eof_check
-        @line_counting = line_counting
-        @tab_width = tab_width
         @automata = automata
-        @fa_stack = []
-        @cache = {}
         @input = input
         @input_len = input.length
         @input_pos = 0
@@ -144,7 +138,9 @@ module Waxeye
         @error_pos = 0
         @error_line = 1
         @error_col = 0
-        @error_nt = @automata[start].type
+        @error_nt = automata[start].type
+        @fa_stack = []
+        @cache = {}
       end
 
       def parse()

@@ -369,5 +369,5 @@ mzscheme
      (make-edge #\/ 2 #f)) #f)
     (make-state (list) #t)) 'voidArrow)))
 
-(define grammar-parser (make-parser 0 #t "all" 8 automata))
+(define grammar-parser (make-parser 0 #t automata))
 )
