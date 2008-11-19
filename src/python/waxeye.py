@@ -14,7 +14,7 @@ class State:
         self.match = match
 
 
-class Automaton:
+class FA:
     def __init__(self, type, states, mode):
         self.type = type
         self.states = states
@@ -59,14 +59,6 @@ class AST:
     def display(self):
         self.display_iter(self, [0])
 
-#c = AST("num", ['1', '2'], [0, 2])
-#a = AST("Hello Mama!", ['a', c, 'c'], [0, 4])
-
-#a.display()
-
-#err = ParseError(21, 8, 5, 'num')
-#err.display()
-
 
 class WaxeyeParser:
     def __init__(self, start, eof_check, automata):
@@ -83,9 +75,20 @@ class WaxeyeParser:
             self.eof_check = eof_check
             self.automata = automata
             self.input = input
+            self.input_len = len(input)
+            self.input_pos = 0
+            self.line = 1
+            self.column = 0
+            self.last_cr = False
+            self.error_pos = 0
+            self.error_line = 1
+            self.error_col = 0
+            self.error_nt = automata[start].type
+            self.fa_stack = []
+            self.cache = {}
 
         def parse(self):
             print self.input
 
-p = WaxeyeParser(0, True, [])
+p = WaxeyeParser(0, True, [FA(0, [], 0)])
 p.parse('1+2-3*4')
