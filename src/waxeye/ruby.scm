@@ -93,7 +93,7 @@ mzscheme
 
 
 (define (gen-fa a)
-  (format "Waxeye::Automaton.new(:~a, ~a, :~a)"
+  (format "Waxeye::FA.new(:~a, ~a, :~a)"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
             (cond
              ((equal? type "!") "_not")
@@ -132,8 +132,6 @@ mzscheme
                (indent (format
 "~a@@start = ~a
 ~a@@eof_check = ~a
-~a@@line_counting = :~a
-~a@@tab_width = ~a
 ~a@@automata = ~a
 
 ~adef initialize()
@@ -145,13 +143,9 @@ mzscheme
 (ind)
 (bool->s *eof-check*)
 (ind)
-*line-counting*
-(ind)
-*tab-width*
-(ind)
 (gen-fas (make-automata grammar))
 (ind)
-(indent (format "~asuper(@@start, @@eof_check, @@line_counting, @@tab_width, @@automata)" (ind)))
+(indent (format "~asuper(@@start, @@eof_check, @@automata)" (ind)))
 (ind)))
                (ind)
                ))

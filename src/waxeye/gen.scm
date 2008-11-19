@@ -32,12 +32,10 @@ mzscheme
 (define *eof-check* #t)
 (define *expression-level* '())
 (define *file-header* #f)
-(define *line-counting* "all")
 (define *module-name* #f)
 (define *name-prefix* #f)
 (define *start-index* 0)
 (define *start-name* "")
-(define *tab-width* "8")
 
 
 (define (eof-check! val)
@@ -46,10 +44,6 @@ mzscheme
 
 (define (file-header! val)
   (set! *file-header* val))
-
-
-(define (line-counting! val)
-  (set! *line-counting* val))
 
 
 (define (module-name! val)
