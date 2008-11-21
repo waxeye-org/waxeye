@@ -34,6 +34,7 @@ mzscheme
          "interp.scm"
          "java.scm"
          "load.scm"
+         "python.scm"
          "ruby.scm"
          "scheme.scm"
          "tester.scm"
@@ -90,6 +91,7 @@ mzscheme
     (set! *target-lang* (case (string->symbol language)
                           ((c) gen-c)
                           ((java) gen-java)
+                          ((python) gen-python)
                           ((ruby) gen-ruby)
                           ((scheme) gen-scheme)
                           (else #f)))

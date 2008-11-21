@@ -22,21 +22,21 @@
 
 
 (module
-ruby
+python
 mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
          "code.scm" "dfa.scm" "gen.scm" "util.scm")
-(provide gen-ruby)
+(provide gen-python)
 
 
-(define (gen-ruby grammar path)
+(define (gen-python grammar path)
   (indent-unit! 2)
   (dump-string (gen-parser grammar)
                (string-append path (if *name-prefix*
-                                       (string-append (camel-case-lower *name-prefix*) "_parser.rb")
-                                       "parser.rb"))))
+                                       (string-append (camel-case-lower *name-prefix*) "_parser.py")
+                                       "parser.py"))))
 
 
 (define (gen-trans a)
@@ -68,7 +68,7 @@ mzscheme
 
 
 (define (gen-edge a)
-  (format "Waxeye::Edge.new(~a, ~a, ~a)"
+  (format "waxeye.Edge(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
           (bool->s (edge-v a))))
@@ -79,7 +79,7 @@ mzscheme
 
 
 (define (gen-state a)
-  (format "Waxeye::State.new(~a, ~a)"
+  (format "waxeye.State(~a, ~a)"
           (gen-edges (state-edges a))
           (bool->s (state-match a))))
 
@@ -89,7 +89,7 @@ mzscheme
 
 
 (define (gen-fa a)
-  (format "Waxeye::FA.new(:~a, ~a, :~a)"
+  (format "waxeye.FA(:~a, ~a, :~a)"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
             (cond
              ((equal? type "!") "_not")
@@ -122,7 +122,7 @@ mzscheme
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-       (format "~aclass ~a < Waxeye::WaxeyeParser\n~a~aend\n"
+       (format "~aclass ~a (waxeye.WaxeyeParser):\n~a\n"
                (ind)
                parser-name
                (indent (format
@@ -143,10 +143,9 @@ mzscheme
 (ind)
 (indent (format "~asuper(@@start, @@eof_check, @@automata)" (ind)))
 (ind)))
-               (ind)
                ))
 
-    (format "~a\nrequire 'waxeye'\n\n~a"
+    (format "~a\nimport waxeye\n\n~a"
             (if *file-header*
                 (script-comment *file-header*)
                 (script-comment *default-header*))
