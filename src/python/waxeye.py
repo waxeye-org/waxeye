@@ -134,6 +134,25 @@ class WaxeyeParser:
             return False
 
 
+        def mv(self):
+            ch = self.input[self.input_pos]
+            self.input_pos += 1
+
+            if ch == '\r':
+                self.line += 1
+                self.column = 0
+                self.last_cr = True
+            else:
+                if ch == '\n':
+                    if not self.last_cr:
+                        self.line += 1
+                        self.column = 0
+                else:
+                    self.column += 1
+                self.last_cr = False
+
+            return ch
+
         def do_eof_check(self, res):
             if res:
                 if self.eof_check and self.input_pos < self.input_len:
