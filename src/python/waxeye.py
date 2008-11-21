@@ -34,6 +34,11 @@ class State:
 
 
 class FA:
+    VOID = 0
+    PRUNE = 1
+    LEFT = 2
+    POS = 3
+    NEG = 4
     def __init__(self, type, states, mode):
         self.type = type
         self.states = states

@@ -68,7 +68,7 @@ mzscheme
 
 
 (define (gen-edge a)
-  (format "waxeye.Edge(~a, ~a, ~a)"
+  (format "Edge(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
           (camel-case-upper (bool->s (edge-v a)))))
@@ -79,7 +79,7 @@ mzscheme
 
 
 (define (gen-state a)
-  (format "waxeye.State(~a, ~a)"
+  (format "State(~a, ~a)"
           (gen-edges (state-edges a))
           (camel-case-upper (bool->s (state-match a)))))
 
@@ -88,18 +88,26 @@ mzscheme
   (gen-array gen-state d))
 
 
+(define (gen-mode a)
+  (let ((type (fa-type a)))
+    (cond
+     ((equal? type '&) "POS")
+     ((equal? type '!) "NEG")
+     (else
+      (case (fa-mode a)
+        ((voidArrow) "VOID")
+        ((pruneArrow) "PRUNE")
+        ((leftArrow) "LEFT"))))))
+
+
 (define (gen-fa a)
-  (format "waxeye.FA(\":~a\", ~a, \":~a\")"
+  (format "FA(\"~a\", ~a, FA.~a)"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-            (cond
-             ((equal? type "!") "_not")
-             ((equal? type "&") "_and")
-             (else type)))
+            (if (or (equal? type "!") (equal? type "&"))
+                ""
+                type))
           (gen-states (fa-states a))
-          (case (fa-mode a)
-            ((voidArrow) "void")
-            ((pruneArrow) "prune")
-            ((leftArrow) "left"))))
+          (gen-mode a)))
 
 
 (define (gen-fas d)
@@ -122,7 +130,7 @@ mzscheme
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-       (format "~aclass ~a (waxeye.WaxeyeParser):\n~a\n"
+       (format "~aclass ~a (WaxeyeParser):\n~a\n"
                (ind)
                parser-name
                (indent (format
@@ -140,10 +148,10 @@ mzscheme
 (ind)
 (gen-fas (make-automata grammar))
 (ind)
-(indent (format "~awaxeye.WaxeyeParser.__init__(self, ~a.start, ~a.eof_check, ~a.automata)"
+(indent (format "~aWaxeyeParser.__init__(self, ~a.start, ~a.eof_check, ~a.automata)"
                 (ind) parser-name parser-name parser-name))))))
 
-(format "~a\nimport waxeye\n\n~a"
+(format "~a\nfrom waxeye import Edge, State, FA, WaxeyeParser\n\n~a"
         (if *file-header*
             (script-comment *file-header*)
             (script-comment *default-header*))
