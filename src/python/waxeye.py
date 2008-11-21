@@ -113,6 +113,27 @@ class WaxeyeParser:
             return self.do_eof_check(self.match_automaton(self.start))
 
 
+        def match_automaton(self, index):
+#            self.input_pos = self.input_len
+            return self.input
+
+
+        def restore_pos(self, pos, line, col, cr):
+            self.input_pos = pos
+            self.line = line
+            self.column = col
+            self.last_cr = cr
+
+
+        def update_error(self):
+            if self.error_pos < self.input_pos:
+                self.error_pos = self.input_pos
+                self.error_line = self.line
+                self.error_col = self.column
+                self.error_nt = self.fa_stack[len(self.fa_stack) - 1].type
+            return False
+
+
         def do_eof_check(self, res):
             if res:
                 if self.eof_check and self.input_pos < self.input_len:
@@ -123,11 +144,6 @@ class WaxeyeParser:
             else:
                 # Create a parse error
                 return ParseError(self.error_pos, self.error_line, self.error_col, self.error_nt)
-
-
-        def match_automaton(self, index):
-#            self.input_pos = self.input_len
-            return self.input
 
 
 
