@@ -165,6 +165,31 @@ class WaxeyeParser:
                 return ParseError(self.error_pos, self.error_line, self.error_col, self.error_nt)
 
 
+        # Takes a set and an ordinal
+        def within_set(self, set, c):
+            if set == []:
+                return False
+            else:
+                aa = set[0]
+                if isinstance(aa, str):
+                    if ord(aa) == c:
+                        return True
+                    else:
+                        if ord(aa) < c:
+                            return self.within_set(set[1:], c)
+                        else:
+                            return False
+                else:
+                    # If not a String then must be a range (tuple)
+                    if c >= aa[0] and c <= aa[1]:
+                        return True
+                    else:
+                        if aa[1] < c:
+                            return self.within_set(set[1:], c)
+                        else:
+                            return False
+
+
 
 p = WaxeyeParser(0, True, [FA('test', [], 0)])
 print p.parse('1+2-3*4')
