@@ -114,7 +114,7 @@ class WaxeyeParser:
 
 
         def match_automaton(self, index):
-#            self.input_pos = self.input_len
+            self.input_pos = self.input_len # <-- Remove!!
             return self.input
 
 
@@ -188,12 +188,3 @@ class WaxeyeParser:
                             return self.within_set(set[1:], c)
                         else:
                             return False
-
-
-
-p = WaxeyeParser(0, True, [FA('test', [], 0)])
-print p.parse('1+2-3*4')
-
-c = AST('num', ['1', '2', '3'], (0, 4))
-a = AST('calc', [c, '+', c], (0, 6))
-print a

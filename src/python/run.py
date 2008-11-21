@@ -20,9 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'parser'
+from parser import *
 
-p = Parser.new()
-input = STDIN.read
-ast = p.parse(input)
-ast.display()
+p = Parser()
+input = '1+2-3*4'
+print p.parse(input)

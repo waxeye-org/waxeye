@@ -32,7 +32,7 @@ mzscheme
 
 
 (define (gen-python grammar path)
-  (indent-unit! 2)
+  (indent-unit! 4)
   (dump-string (gen-parser grammar)
                (string-append path (if *name-prefix*
                                        (string-append (camel-case-lower *name-prefix*) "_parser.py")
@@ -52,11 +52,11 @@ mzscheme
   (define (gen-char-class-item a)
     (if (char? a)
         (gen-char a)
-        (format "~a..~a"
+        (format "(~a, ~a)"
                 (char->integer (car a))
                 (char->integer (cdr a)))))
   (cond
-   ((symbol? a) (format ":_~a" a))
+   ((symbol? a) (format "\":_~a\"" a))
    ((list? a)
     (format "[~a~a]"
             (gen-char-class-item (car a))
@@ -71,7 +71,7 @@ mzscheme
   (format "waxeye.Edge(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
-          (bool->s (edge-v a))))
+          (camel-case-upper (bool->s (edge-v a)))))
 
 
 (define (gen-edges d)
@@ -81,7 +81,7 @@ mzscheme
 (define (gen-state a)
   (format "waxeye.State(~a, ~a)"
           (gen-edges (state-edges a))
-          (bool->s (state-match a))))
+          (camel-case-upper (bool->s (state-match a)))))
 
 
 (define (gen-states d)
@@ -89,7 +89,7 @@ mzscheme
 
 
 (define (gen-fa a)
-  (format "waxeye.FA(:~a, ~a, :~a)"
+  (format "waxeye.FA(\":~a\", ~a, \":~a\")"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
             (cond
              ((equal? type "!") "_not")
@@ -126,33 +126,27 @@ mzscheme
                (ind)
                parser-name
                (indent (format
-"~a@@start = ~a
-~a@@eof_check = ~a
-~a@@automata = ~a
+"~astart = ~a
+~aeof_check = ~a
+~aautomata = ~a
 
-~adef initialize()
+~adef __init__(self):
 ~a
-~aend
 "
 (ind)
 *start-index*
 (ind)
-(bool->s *eof-check*)
+(camel-case-upper (bool->s *eof-check*))
 (ind)
 (gen-fas (make-automata grammar))
 (ind)
-(indent (format "~asuper(@@start, @@eof_check, @@automata)" (ind)))
-(ind)))
-               ))
+(indent (format "~awaxeye.WaxeyeParser.__init__(self, ~a.start, ~a.eof_check, ~a.automata)"
+                (ind) parser-name parser-name parser-name))))))
 
-    (format "~a\nimport waxeye\n\n~a"
-            (if *file-header*
-                (script-comment *file-header*)
-                (script-comment *default-header*))
-            (if *module-name*
-                (format "module ~a\n~aend\n"
-                        *module-name*
-                        (indent (gen-parser-class)))
-                (gen-parser-class)))))
+(format "~a\nimport waxeye\n\n~a"
+        (if *file-header*
+            (script-comment *file-header*)
+            (script-comment *default-header*))
+        (gen-parser-class))))
 
 )
