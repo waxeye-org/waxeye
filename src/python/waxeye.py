@@ -119,14 +119,62 @@ class WaxeyeParser:
 
 
         def match_automaton(self, index):
-            self.input_pos = self.input_len # <-- Remove!!
-            return self.input
+            start_pos = self.input_pos
+            key = (index, start_pos)
+
+            if self.cache.has_key(key):
+                cachedItem = self.cache[key]
+                self.restore_pos(cachedItem[1], cachedItem[2], cachedItem[3], cachedItem[4])
+                return cachedItem[0]
+
+            start_line = self.line
+            start_col = self.column
+            start_cr = self.last_cr
+            automaton = self.automata[index]
+            type = automaton.type
+            mode = automaton.mode
+
+            self.fa_stack = [automaton] + self.fa_stack
+            res = self.match_state(0)
+            self.fa_stack = self.fa_stack[1:]
+
+            if mode == FA.POS:
+                self.restore_pos(start_pos, start_line, start_col, start_cr)
+                if res != False:
+                    value = True
+                else:
+                    value = False
+            elif mode == FA.NEG:
+                self.restore_pos(start_pos, start_line, start_col, start_cr)
+                if res != False:
+                    value = self.update_error()
+                else:
+                    value = True
+            elif res != False:
+                if mode == FA.VOID:
+                    value = True
+                elif mode == FA.PRUNE:
+                    l = len(res)
+                    if l == 0:
+                        value = True
+                    elif l == 1:
+                        value = res[0]
+                    else:
+                        value = AST(type, res, (start_pos, self.input_pos))
+                else:
+                    value = AST(type, res, (start_pos, self.input_pos))
+            else:
+                value = self.update_error()
+
+            self.cache[key] = (value, self.input_pos, self.line, self.column, self.last_cr)
+            return value
 
 
+        # Returns a list of results so, need to check != False
         def match_state(self, index):
             state = self.fa_stack[0].states[index]
             res = self.match_edges(state.edges)
-            if res:
+            if res != False:
                 return res
             else:
                 return state.match and []
@@ -137,10 +185,10 @@ class WaxeyeParser:
                 return False
             else:
                 res = self.match_edge(edges[0])
-                if res:
+                if res != False:
                     return res
                 else:
-                    return match_edges(edges[1:])
+                    return self.match_edges(edges[1:])
 
 
         def match_edge(self, edge):
@@ -172,7 +220,7 @@ class WaxeyeParser:
 
             if res:
                 tran_res = self.match_state(edge.state)
-                if tran_res:
+                if tran_res != False:
                     if edge.voided or res == True:
                         return tran_res
                     else:

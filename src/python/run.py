@@ -20,8 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import sys
 from parser import *
 
 p = Parser()
-input = '1+2-3*4'
+input = sys.stdin.read()
 print p.parse(input)
