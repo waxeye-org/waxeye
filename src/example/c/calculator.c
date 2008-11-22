@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+/*
+ * A commandline arithmetic calculator.
+ */
 #include <stdio.h>
 #include "parser.h"
 
