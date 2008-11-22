@@ -83,8 +83,8 @@ ln -s /usr/local/waxeye/bin/waxeye ~/bin/
 
 === Running ===
 
-Currently, Waxeye may be used from a command-line interface. You can use it as
-a command-line tool or as part of a script or build-system. There are plans to
+Currently, Waxeye is used from a command-line interface. You can use it as a
+command-line tool or, as part of a script or build-system. There are plans to
 develop a graphical tool at a later stage.
 
 ==== Unix and MacOSX ====
@@ -97,162 +97,53 @@ Use a command prompt to run `waxeye.exe`.
 
 
 
-== Quick Guide ==
-
-This chapter gives a brief overview of how to use Waxeye. All material
-presented here will be covered in greater detail throughout the following
-chapters. The main purpose of this chapter is to jump-start those already
-familiar with parser generators. If you are just beginning to learn about
-parsing, feel free to skip this chapter and return to it later on.
-
-
-=== Grammars ===
-
-To describe a language with Waxeye, write a series of non-terminal definitions
-in a grammar file. By convention, Waxeye grammars end with the `.waxeye` file
-extension.
-
-A non-terminal definition is of the following form:
-
-*******************************************************************************
-'Name' `\<-` '+expressions'
-*******************************************************************************
-
-Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
-
-[source,waxeye]
--------------------------------------------------------------------------------
-Example <- A | B
--------------------------------------------------------------------------------
-
-
-To define a non-terminal whose result will never be included in the AST, use
-this form:
-
-*******************************************************************************
-'Name' `<:` '+expressions'
-*******************************************************************************
-
-[source,waxeye]
--------------------------------------------------------------------------------
-Example <: *([ \t] | Comment)
--------------------------------------------------------------------------------
-
-By default, the first non-terminal in a Waxeye grammar file is treated as the
-starting symbol of the language.
-
-
-=== Expressions ===
-
-An expression can be any of the following types:
-
-`.`
-
-Matches any character from the input.
-
-`\'text\'`
-
-Matches `text` in the input.
-
-`"text"`
-
-Matches `text` in the input while ignores case. This equivalent to the
-expression `[tT][eE][xX][tT]` but, is much more readable.
-
-`[a-z_-]`
-
-Character-class that matches either a lower-case English character, `_` or `-`.
-
-`NT`
-
-References the non-terminal named `NT`.
-
-`(`'e'`)`
-
-Raises the precedence of the expression 'e'.
-
-///////////////////////////////////////////////////////////////////////////////
-`@action<a, b>`
-
-References the context-action `action` and gives the action the data held by
-the labels `a` and `b`. These are used for context-sensitive parsing. Not fully
-implemented yet.
-
-`a=`'e'
-
-Labels the expression 'e' with the label `a`. Not fully implemented yet.
-///////////////////////////////////////////////////////////////////////////////
-
-`:`'e'
-
-Doesn't include the result of e when building the AST.
-
-`*`'e'
-
-Puts 'e' within a closure.
-
-`\+`'e'
-
-Puts 'e' within a plus-closure.
-
-`?`'e'
-
-Puts 'e' within an optional.
-
-`!`'e'
-
-Checks that 'e' fails.
-
-`&`'e'
-
-Checks that 'e' succeeds.
-
-'e1 e2'
-
-Matches 'e1' and 'e2' in sequence.
-
-'e1'`|`'e2'
-
-Tries to match 'e1' and, if that fails, tries to match 'e2'.
-
-
-
 == Basic Concepts ==
 
 === What is a parser? ===
 
 When we want to understand data that has been written in a language of interest
-(L), we need to break our data into units of the language. A parser (P), for
-language L is a program specifically designed to perform that task. We give P
-data that is written in L and P will split our data based on how L is
-structured.
+('L'), we need to break our data into units of the language. This process of
+breaking our input into different parts, based on the structure of 'L', is
+called 'parsing'. A program used for parsing is called a 'parser'.
 
-When language L is simple, it is easy for us to, manually, write our parser in
-the programming language of our choice. However, as the structural complexity
-of L increases, so, too, does the size and complexity of the parser program.
 
-Manually writing and maintaining a large parser soon becomes a tedious and
-laborious job. Thankfully, automating boring tasks is exactly what computers
-were designed for. Enter parser generators.
+=== What is the result of a parser? ===
+
+Once your input has been parsed, you need the result to be presented in a from
+that is easy to understand and manipulate. Since the input was organized based
+on the hierarchical structure of the language, it makes sense that the output
+of the parser mimic this structure. The most effective form to do this with is
+a tree.
+
+Such a tree is known as an Abstract Syntax Tree (AST). A Waxeye parser will
+automatically give you an AST that represents your input. The structure of this
+AST is based on the structure of your language's grammar.
 
 
 === What is a parser generator? ===
 
-A parser generator is a tool to help software developers by automating the
+If 'L' is simple, it is easy for us to use our programming lanugage of choice
+to, manually, write a parser for 'L'. However, as the structural complexity of
+'L' increases, so too, does the size and complexity of the parser program.
+Writing and maintaining a large parser, by hand, can quickly become a tedious
+and laborious job. Thankfully, we can use a parser generator to automate the
+work of creating a parser so we can focus on other problems.
+
+A parser generator is a tool designed to help software developers automate the
 process of creating a parser. Just like compilers and assemblers, a parser
-generator takes a description of a program, automatically does the dirty work
-for you and gives you your program as output. Each accepts input in one
-language (L1), performs various transformations and creates output in another
-language (L2).
+generator takes a description of a program, automatically does the boring work
+for you and gives you a transformed program as output. Each tool accepts input
+in one language ('L1'), performs various transformations and creates output in
+another language ('L2').
 
  L1 --> Compiler         --> L2
  L1 --> Assembler        --> L2
  L1 --> Parser Generator --> L2
 
 The key difference between the three tools is the level of abstraction held by
-each of the input and output languages. The assembler works at the lowest level
-by taking assembly files and producing machine code. The compiler works above
-the assembler by taking a more abstract programming language and generating
+the input and output languages. The assembler works at the lowest level by
+taking assembly files and producing machine code. The compiler works above the
+assembler by taking a more abstract programming language and generating
 assembly files or machine code directly. Finally, the parser generator has the
 highest level of abstraction and transforms a 'grammar file' into programming
 language source code for a compiler to process.
@@ -260,39 +151,21 @@ language source code for a compiler to process.
 
 === What is a grammar file? ===
 
-A grammar file is a file that describes a language. To generate a parser for a
-language (L), you must supply the parser generator with a grammar file that
-describes L.
-
-
-=== What is the result of a parser? ===
-
-To make the most of your data, it must be presented in a form that is easy to
-understand and manipulate. The most effective form for this is a tree.
-
-A Waxeye parser will automatically represent your data as an Abstract Syntax
-Tree (AST). The layout of the AST is based on the structure of your language's
-grammar.
-
-
-
-== Waxeye Grammars ==
-
 We can define a language as the set of strings it contains. While it is
 sometimes possible to specify a language simply by enumerating all of its
-strings, such an approach has significant drawbacks. To try to write out each
-string in our language would, likely, be very time consuming and, potentially,
-take forever.
+strings, such an approach has significant drawbacks. Trying to write each
+string in our language could be very time consuming and, potentially, take
+forever.
 
-Suppose we need to read time information from within files as part of a larger
-program. In a trivial case, the time information may be presented as two digits
-for the hours, a colon `:`, and then two digits for the minutes.
+Suppose we need to read time information as part of a larger program. In a
+trivial case, the time information may be presented as two digits for the
+hours, a colon `:`, and then two digits for the minutes.
 
 -------------------------------------------------------------------------------
 00:00, 00:01, 00:02, ... 14:23, 14:24, 14:25, ... 23:57, 23:58, 23:59
 -------------------------------------------------------------------------------
 
-We could describe our time language this way, but writing all 1,440 possible
+We could describe our time language this way but, writing all 1,440 possible
 hour/minute combinations wouldn't be much fun. Not to mention how bad things
 would be if we extended our language to include date information.
 
@@ -306,16 +179,67 @@ a, b, c, ... z, aa, ab, ac, ... az, aaa, aab, aac, ...
 Even worse than our time example, this language is infinite. It would be
 impossible for us to explicitly list every string in the language.
 
-If we want to talk about such languages, we need a notation that is more
-abstract and compact than simply writing out each string. We call such a
-notation a grammar.
+If we want to describe such languages, we need a notation that is more abstract
+than simply writing out strings. We call this notation a 'grammar' and the file
+that contains it a 'grammar file'.
 
 
 
-=== Expression Types ===
+== Waxeye Grammars ==
 
-A grammar is made up of expressions. These expressions give us a succinct
-representation of a language and allow us to describe its syntactic structure.
+To generate a parser for a language, you must supply the parser generator with
+a grammar file that describes the language. Waxeye grammar files are written as
+text documents and are, by convention, given the `.waxeye` file extension.
+
+A Waxeye grammar consists of a set of rule definitions, called 'non-terminals'.
+Together, the non-terminals succinctly describe the syntax of the language. By
+default, the first non-terminal is considered the starting point of the
+language definition.
+
+
+=== Non-terminals ===
+
+Non-terminals are defined in three parts; a name, a rule type and one or more
+grammar expressions.
+
+The most common non-terminal type is the tree constructing non-terminal. A tree
+constructing non-terminal has the following form:
+
+*******************************************************************************
+'Name' `\<-` '+expressions'
+*******************************************************************************
+
+Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
+
+[source,waxeye]
+.A tree constructing non-terminal
+-------------------------------------------------------------------------------
+Example <- A | B
+-------------------------------------------------------------------------------
+
+
+The other common non-terminal type is the void non-terminal. The result of a
+void non-terminal is not included in the AST that is constructed by the parser.
+To define a void non-terminal, use this form:
+
+*******************************************************************************
+'Name' `<:` '+expressions'
+*******************************************************************************
+
+[source,waxeye]
+.A void non-terminal
+-------------------------------------------------------------------------------
+Example <: A | B
+-------------------------------------------------------------------------------
+
+
+
+=== Expressions ===
+
+The most important part of each non-terminal definition is the set of
+expressions it contains. Grammar expressions come in different forms and have
+their own meanings. Places where an expression can be contained within another
+expression are denoted with an 'e'.
 
 
 ==== Atomic Expressions ====
@@ -373,7 +297,7 @@ implemented yet.
 ===== Void =====
 `:`'e'
 
-Doesn't include the result of e when building the AST.
+Doesn't include the result of 'e' when building the AST.
 
 
 ===== Closure =====
@@ -480,10 +404,14 @@ the alternation expression are resolved.
 
 === Pruning Non-terminals ===
 
-Sometimes, creating a new AST node from a non-terminal will give us more
-information than we need. To make it easier to process the AST, we can remove
-this vertical noise by using the 'pruning' non-terminal type. This non-terminal
-type has the following form:
+Sometimes, creating a new AST node will give us more information than we need.
+We might want to create a new AST node, only if doing so will tell us something
+interesting about our input. If the additional node gives us nothing of
+interest, our tree could be said to contain 'vertical noise'.
+
+To make it easier to process the AST, we can remove this vertical noise by
+using the 'pruning' non-terminal type. This non-terminal type has the following
+form:
 
 *******************************************************************************
 'Name' `\<=` '+expressions'
@@ -498,8 +426,8 @@ depending on the number of results to be included from 'Name'\'s expressions.
 * If there is one expression result to be included, that result will take the
   place of the 'Name' AST node.
 
-* Otherwise, a new 'Name' AST node will be created, just like a normal
-  non-terminal.
+* Otherwise, a new 'Name' AST node will be created, just like a tree
+  constructing non-terminal.
 
 
 To help understand how this works, consider an example from a simple arithmetic
