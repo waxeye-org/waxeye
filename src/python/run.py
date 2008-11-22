@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 import sys
-from parser import *
+import parser
 
 p = Parser()
 input = sys.stdin.read()

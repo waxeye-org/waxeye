@@ -22,7 +22,7 @@
 
 import sys
 import waxeye
-from parser import *
+import parser
 
 p = Parser()
 
