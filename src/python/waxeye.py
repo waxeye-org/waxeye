@@ -123,6 +123,67 @@ class WaxeyeParser:
             return self.input
 
 
+        def match_state(self, index):
+            state = self.fa_stack[0].states[index]
+            res = self.match_edges(state.edges)
+            if res:
+                return res
+            else:
+                return state.match and []
+
+
+        def match_edges(self, edges):
+            if edges == []:
+                return False
+            else:
+                res = self.match_edge(edges[0])
+                if res:
+                    return res
+                else:
+                    return match_edges(edges[1:])
+
+
+        def match_edge(self, edge):
+            start_pos = self.input_pos
+            start_line = self.line
+            start_col = self.column
+            start_cr = self.last_cr
+            t = edge.trans
+
+            if t == -1: # use -1 for wild card
+                if self.input_pos < self.input_len:
+                    res = self.mv()
+                else:
+                    res = self.update_error()
+            elif isinstance(t, str):
+                if self.input_pos < self.input_len and t == self.input[self.input_pos]:
+                    res = self.mv()
+                else:
+                    res = self.update_error()
+            elif isinstance(t, list):
+                if self.input_pos < self.input_len and self.within_set(t, ord(self.input[self.input_pos])):
+                    res = self.mv()
+                else:
+                    res = self.update_error()
+            elif isinstance(t, int):
+                res = self.match_automaton(t)
+            else:
+                res = False
+
+            if res:
+                tran_res = self.match_state(edge.state)
+                if tran_res:
+                    if edge.voided or res == True:
+                        return tran_res
+                    else:
+                        return [res] + tran_res
+                else:
+                    self.restore_pos(start_pos, start_line, start_col, start_cr)
+                    return False
+            else:
+                return False
+
+
         def restore_pos(self, pos, line, col, cr):
             self.input_pos = pos
             self.line = line
@@ -135,7 +196,7 @@ class WaxeyeParser:
                 self.error_pos = self.input_pos
                 self.error_line = self.line
                 self.error_col = self.column
-                self.error_nt = self.fa_stack[len(self.fa_stack) - 1].type
+                self.error_nt = self.fa_stack[0].type
             return False
 
 

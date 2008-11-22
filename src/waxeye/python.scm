@@ -56,7 +56,7 @@ mzscheme
                 (char->integer (car a))
                 (char->integer (cdr a)))))
   (cond
-   ((symbol? a) (format "\":_~a\"" a))
+   ((symbol? a) "-1") ;; use -1 for wild card
    ((list? a)
     (format "[~a~a]"
             (gen-char-class-item (car a))
