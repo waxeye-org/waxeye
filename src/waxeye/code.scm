@@ -95,6 +95,10 @@ mzscheme
                       lines)))
 
 
+(define (script-comment lines)
+  (comment-base "#" lines))
+
+
 (define (camel-case-lower s)
   (let ((sl (string->list s)))
     (if (null? sl)

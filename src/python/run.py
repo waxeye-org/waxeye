@@ -20,9 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'parser'
+import sys
+import parser
 
-p = Parser.new()
-input = STDIN.read
-ast = p.parse(input)
-ast.display()
+p = Parser()
+input = sys.stdin.read()
+print p.parse(input)

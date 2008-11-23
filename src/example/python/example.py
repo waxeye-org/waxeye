@@ -20,9 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'parser'
+import parser
 
-p = Parser.new()
-input = STDIN.read
-ast = p.parse(input)
-ast.display()
+# Create our parser
+p = Parser()
+
+# Parse our input
+ast = p.parse("42")
+
+# Print our AST
+print ast
