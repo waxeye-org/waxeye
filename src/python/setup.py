@@ -27,6 +27,6 @@ setup(author='Orlando D. A. R. Hill',
       name='waxeye',
       version='0.6.0',
       url='http://waxeye.org',
-      description='The Python runtime for Waxeye parsers',
+      description='Python runtime for the Waxeye Parser Generator',
       py_modules=['waxeye']
       )
