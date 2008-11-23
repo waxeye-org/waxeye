@@ -1,11 +1,6 @@
 Waxeye Development Roadmap
 ==========================
 
-== 0.7.0 ==
-
-* Python language target
-
-
 == 0.8.0 ==
 
 * Left-recursive grammars with left-corner parsing
