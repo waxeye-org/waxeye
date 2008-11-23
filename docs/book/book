@@ -768,6 +768,46 @@ java -cp .:$WAXEYE_HOME/lib/waxeye.jar Example
 
 
 
+=== Using Waxeye from Python ===
+
+
+==== Install ====
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+==== Generate Parser ====
+
+-------------------------------------------------------------------------------
+waxeye -g python . num.waxeye
+-------------------------------------------------------------------------------
+
+==== Use Parser ====
+
+.src/example/python/example.py
+[source,python]
+-------------------------------------------------------------------------------
+import parser
+
+# Create our parser
+p = Parser()
+
+# Parse our input
+ast = p.parse("42")
+
+# Print our AST
+print ast
+-------------------------------------------------------------------------------
+
+==== Run ====
+
+-------------------------------------------------------------------------------
+python example.py
+-------------------------------------------------------------------------------
+
+
+
 === Using Waxeye from Ruby ===
 
 Waxeye's Ruby runtime is compatible with Ruby version 1.8.6.
@@ -884,68 +924,6 @@ parser successfully parsed the input, the result will be an AST. If the input
 doesn't match the syntax of the language, the result will be a 'parse error'.
 
 
-=== Determining the result type ===
-
-==== From C ====
-
-[source,c]
--------------------------------------------------------------------------------
-switch (result->type) {
-  case AST_TREE:
-    return "tree ast";
-  case AST_EMPTY:
-    return "empty ast";
-  case AST_ERROR:
-    return "error";
-}
--------------------------------------------------------------------------------
-
-
-==== From Java ====
-
-[source,java]
--------------------------------------------------------------------------------
-ParseResult<Type> result = parser.parse(input);
-if (result.getAST() != null) {
-    if (result instanceof IEmpty) {
-        return "empty ast";
-    }
-    else {
-        return "tree ast";
-    }
-}
-else {
-    return "error";
-}
--------------------------------------------------------------------------------
-
-
-==== From Ruby ====
-
-[source,ruby]
--------------------------------------------------------------------------------
-case result.class
-  when Waxeye::AST
-    "tree ast"
-  when Waxeye::ParseError
-    "error"
-  else
-    "empty ast"
--------------------------------------------------------------------------------
-
-
-==== From Scheme ====
-
-[source,scheme]
--------------------------------------------------------------------------------
-(cond
-  ((ast? result) "tree ast")
-  ((parse-error? result) "error")
-  (else "empty ast"))
--------------------------------------------------------------------------------
-
-
-
 === ASTs ===
 
 ASTs come in three different forms; 'tree', 'char' and 'empty'.
@@ -984,6 +962,14 @@ System.out.println(ast.childrenAsString());
 -------------------------------------------------------------------------------
 
 
+===== From Python =====
+
+[source,python]
+-------------------------------------------------------------------------------
+print ''.join(ast.children)
+-------------------------------------------------------------------------------
+
+
 ===== From Ruby =====
 
 [source,ruby]
@@ -1006,6 +992,82 @@ puts ast.children.to_s
 
 A parse error contains information about where the input is invalid and hints
 about what is wrong with it.
+
+
+
+=== Determining the result type ===
+
+==== From C ====
+
+[source,c]
+-------------------------------------------------------------------------------
+switch (result->type) {
+  case AST_TREE:
+    return "tree ast";
+  case AST_EMPTY:
+    return "empty ast";
+  case AST_ERROR:
+    return "error";
+}
+-------------------------------------------------------------------------------
+
+
+==== From Java ====
+
+[source,java]
+-------------------------------------------------------------------------------
+ParseResult<Type> result = parser.parse(input);
+if (result.getAST() != null) {
+    if (result instanceof IEmpty) {
+        return "empty ast";
+    }
+    else {
+        return "tree ast";
+    }
+}
+else {
+    return "error";
+}
+-------------------------------------------------------------------------------
+
+
+==== From Python ====
+
+[source,python]
+-------------------------------------------------------------------------------
+if isinstance(result, waxeye.AST):
+    return "tree ast"
+elif isinstance(result, waxeye.ParseError):
+    return "error"
+else:
+    return "empty ast"
+-------------------------------------------------------------------------------
+
+
+==== From Ruby ====
+
+[source,ruby]
+-------------------------------------------------------------------------------
+case result.class
+  when Waxeye::AST
+    "tree ast"
+  when Waxeye::ParseError
+    "error"
+  else
+    "empty ast"
+end
+-------------------------------------------------------------------------------
+
+
+==== From Scheme ====
+
+[source,scheme]
+-------------------------------------------------------------------------------
+(cond
+  ((ast? result) "tree ast")
+  ((parse-error? result) "error")
+  (else "empty ast"))
+-------------------------------------------------------------------------------
 
 
 
@@ -1279,6 +1341,71 @@ public final class Calculator {
         }
     }
 }
+-------------------------------------------------------------------------------
+
+
+=== Calculator in Python ===
+
+.src/example/python/calculator.py
+[source,python]
+-------------------------------------------------------------------------------
+import sys
+import waxeye
+import parser
+
+p = Parser()
+
+# A commandline arithmetic calculator.
+def calc(input):
+    ast = p.parse(input)
+    if isinstance(ast, waxeye.ParseError):
+        return ast
+    else:
+        return sum(ast.children[0])
+
+
+def bin_op(ast, fn, ch, op1, op2):
+    chil = ast.children
+    val = fn(*(chil[0],))
+    i = 1
+    while i != len(chil):
+        if chil[i] == ch:
+            operator = op1
+        else:
+            operator = op2
+        # Increment val by the operator applied to val and the operand
+        operand = fn(*(chil[i + 1],))
+        val = operator(*(val, operand))
+        i += 2
+    return val
+
+
+sum = lambda ast: bin_op(ast, prod, '+', lambda a, b: a + b, lambda a, b: a - b)
+
+
+prod = lambda ast: bin_op(ast, unary, '*', lambda a, b: a * b, lambda a, b: a / b)
+
+
+def unary(ast):
+    if ast.type == 'unary':
+        return - unary(ast.children[1])
+    elif ast.type == 'sum':
+        return sum(ast)
+    else:
+        return num(ast)
+
+
+def num(ast):
+    return float(''.join(ast.children))
+
+
+sys.stdout.write('calc> ')
+line = sys.stdin.readline()
+while line:
+    print calc(line)
+    sys.stdout.write('calc> ')
+    line = sys.stdin.readline()
+print
 -------------------------------------------------------------------------------
 
 
