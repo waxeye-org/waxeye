@@ -58,8 +58,8 @@ module Waxeye
       @nt = nt
     end
 
-    def display()
-      print "parse error: failed to match '#{nt}' at line=#{line}, col=#{col}, pos=#{pos}\n"
+    def to_s()
+      "parse error: failed to match '#{nt}' at line=#{line}, col=#{col}, pos=#{pos}\n"
     end
   end
 
@@ -71,42 +71,46 @@ module Waxeye
       @pos = pos
     end
 
-    def display_sexpr()
-      display_sexpr_iter(self)
-      print "\n"
+    def to_s_sexpr()
+      acc = []
+      display_sexpr_iter(self, acc)
+      acc.to_s
     end
 
-    def display()
-      display_iter(self, [0])
+    def to_s()
+      acc = []
+      to_s_iter(self, [0], acc)
+      acc.to_s
     end
 
     private
-    def display_sexpr_iter(ast)
-      print '('
-      print ast.type
+    def to_s_sexpr_iter(ast, acc)
+      acc.push('(')
+      acc.push(ast.type)
       ast.children.each do |a|
-        print " "
+        acc.push(" ")
         if a.is_a?(Waxeye::AST)
-          display_sexpr_iter(a)
+          display_sexpr_iter(a, acc)
         else
-          print a
+          acc.push(a)
         end
       end
-      print ')'
+      acc.push(')')
     end
 
-    def display_iter(ast, indent)
-      (indent[0] - 1).times {|| print '    ' }
-      print '->  ' if indent[0] > 0
-      print ast.type, "\n"
+    def to_s_iter(ast, indent, acc)
+      (indent[0] - 1).times {|| acc.push('    ') }
+      acc.push('->  ') if indent[0] > 0
+      acc.push(ast.type)
       indent[0] += 1
       ast.children.each do |a|
+        acc.push("\n")
         if a.is_a?(Waxeye::AST)
-          display_iter(a, indent)
+          to_s_iter(a, indent, acc)
         else
-          (indent[0] - 1).times {|| print '    ' }
-          print '|   ' if indent[0] > 0
-          print a, "\n"
+          (indent[0] - 1).times {|| acc.push('    ') }
+          acc.push('|   ') if indent[0] > 0
+          acc.push(a)
         end
       end
       indent[0] -= 1

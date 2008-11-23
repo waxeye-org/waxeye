@@ -31,4 +31,4 @@ p = Parser.new()
 ast = p.parse("42")
 
 # Print our AST
-ast.display
+puts ast

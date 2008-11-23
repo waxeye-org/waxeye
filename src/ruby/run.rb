@@ -25,4 +25,4 @@ require 'parser'
 p = Parser.new()
 input = STDIN.read
 ast = p.parse(input)
-ast.display()
+puts ast
