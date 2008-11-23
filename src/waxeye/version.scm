@@ -27,6 +27,6 @@ mzscheme
 
 (provide *version*)
 
-(define *version* "0.6.0")
+(define *version* "0.7.0")
 
 )

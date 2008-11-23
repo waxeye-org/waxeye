@@ -25,7 +25,7 @@ from distutils.core import setup
 setup(author='Orlando D. A. R. Hill',
       author_email='orlandodarhill Gmail.com',
       name='waxeye',
-      version='0.6.0',
+      version='0.7.0',
       url='http://waxeye.org',
       description='Python runtime for the Waxeye Parser Generator',
       py_modules=['waxeye']

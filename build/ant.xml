@@ -37,7 +37,7 @@ SOFTWARE.
         <!-- Project properties  -->
         <property name="project.name" value="waxeye" />
         <property name="project.title" value="Waxeye Parser Generator" />
-        <property name="project.version" value="0.6.0" />
+        <property name="project.version" value="0.7.0" />
 
         <!-- Import environment variables -->
         <property environment="env" />
