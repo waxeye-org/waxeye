@@ -30,9 +30,7 @@ mzscheme
   ;; Parse our input
   (let ((ast (parser "42")))
     ;; Print the ast
-    (if (ast? ast)
-        (display-ast ast)
-        (display-parse-error ast))))
+    (display-ast ast)))
 
 (run)
 )

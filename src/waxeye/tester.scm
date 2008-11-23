@@ -78,7 +78,7 @@ mzscheme
   (display-ln "expected  : " expect)
   (display "actual    : ")
   (if (ast? actual)
-      (display-ast-sexpr actual)
+      (display-ln (ast->string-sexpr actual))
       (display (if (parse-error? actual)
                    'fail
                    'pass)))
