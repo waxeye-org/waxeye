@@ -32,9 +32,9 @@ class Calculator
     ast = @@p.parse(input)
   
     if ast.is_a?(Waxeye::ParseError)
-      ast.display()
+      ast
     else
-      puts sum(ast.children[0])
+      sum(ast.children[0])
     end
   end
 
@@ -76,5 +76,5 @@ class Calculator
 end
 
 print 'calc> '
-STDIN.each {|input| Calculator.calc(input); print 'calc> ' }
+STDIN.each {|input| puts Calculator.calc(input); print 'calc> ' }
 puts

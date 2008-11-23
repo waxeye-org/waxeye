@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 require 'rubygems'
-require 'waxeye'
 require 'parser'
 
 # Create our parser

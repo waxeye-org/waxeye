@@ -834,7 +834,6 @@ waxeye -g ruby . num.waxeye
 [source,ruby]
 -------------------------------------------------------------------------------
 require 'rubygems'
-require 'waxeye'
 require 'parser'
 
 # Create our parser
@@ -844,7 +843,7 @@ p = Parser.new()
 ast = p.parse("42")
 
 # Print our AST
-ast.display
+puts ast
 -------------------------------------------------------------------------------
 
 ==== Run ====
@@ -892,9 +891,7 @@ mzscheme
   ;; Parse our input
   (let ((ast (parser "42")))
     ;; Print the ast
-    (if (ast? ast)
-        (display-ast ast)
-        (display-parse-error ast))))
+    (display-ast ast)))
 
 (run)
 )
@@ -1426,9 +1423,9 @@ class Calculator
     ast = @@p.parse(input)
   
     if ast.is_a?(Waxeye::ParseError)
-      ast.display()
+      ast
     else
-      puts sum(ast.children[0])
+      sum(ast.children[0])
     end
   end
 
@@ -1470,7 +1467,7 @@ class Calculator
 end
 
 print 'calc> '
-STDIN.each {|input| Calculator.calc(input); print 'calc> ' }
+STDIN.each {|input| puts Calculator.calc(input); print 'calc> ' }
 puts
 -------------------------------------------------------------------------------
 
