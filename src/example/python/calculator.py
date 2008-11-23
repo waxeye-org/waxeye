@@ -24,7 +24,7 @@ import sys
 import waxeye
 import parser
 
-p = Parser()
+p = parser.Parser()
 
 # A commandline arithmetic calculator.
 def calc(input):

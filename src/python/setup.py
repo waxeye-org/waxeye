@@ -20,9 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
-import parser
+from distutils.core import setup
 
-p = parser.Parser()
-input = sys.stdin.read()
-print p.parse(input)
+setup(author='Orlando D. A. R. Hill',
+      author_email='orlandodarhill Gmail.com',
+      name='waxeye',
+      version='0.6.0',
+      url='http://waxeye.org',
+      description='The Python runtime for Waxeye parsers',
+      py_modules=['waxeye']
+      )

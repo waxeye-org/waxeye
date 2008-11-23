@@ -23,7 +23,7 @@
 import parser
 
 # Create our parser
-p = Parser()
+p = parser.Parser()
 
 # Parse our input
 ast = p.parse("42")

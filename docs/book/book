@@ -770,11 +770,19 @@ java -cp .:$WAXEYE_HOME/lib/waxeye.jar Example
 
 === Using Waxeye from Python ===
 
+Waxeye's Python runtime has been tested with Python version 2.5.1 and is
+intended to work with 2.x.x versions of Python.
 
 ==== Install ====
 
--------------------------------------------------------------------------------
+To install Waxeye's Python runtime, you need to run the `setup.py` script from
+the `src/python` directory.
 
+-------------------------------------------------------------------------------
+cd $WAXEYE_HOME/src/python
+python setup.py build
+sudo python setup.py install
+rm -rf build/
 -------------------------------------------------------------------------------
 
 ==== Generate Parser ====
@@ -791,7 +799,7 @@ waxeye -g python . num.waxeye
 import parser
 
 # Create our parser
-p = Parser()
+p = parser.Parser()
 
 # Parse our input
 ast = p.parse("42")
@@ -1350,7 +1358,7 @@ import sys
 import waxeye
 import parser
 
-p = Parser()
+p = parser.Parser()
 
 # A commandline arithmetic calculator.
 def calc(input):
