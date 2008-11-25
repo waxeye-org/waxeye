@@ -86,7 +86,7 @@ run: clean-all lib
 	$(CC) $(FLAGS) parser.c run.c $(LIB) -o run
 
 
-debug: clean-all debug_lib
+debug: clean-all debug-lib
 	$(CC) $(DEBUG_FLAGS) parser.c run.c $(LIB) -o run
 
 
