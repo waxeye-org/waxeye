@@ -23,9 +23,9 @@
 
 (module
 tester
-mzscheme
+scheme
 
-(require (lib "ast.ss" "waxeye") "gen.scm" "interp.scm" "scheme.scm" (only "util.scm" display-ln))
+(require (lib "ast.ss" "waxeye") "gen.scm" "interp.scm" "scheme.scm" (only-in "util.scm" display-ln))
 (provide tester)
 
 
@@ -46,8 +46,12 @@ mzscheme
   (set! *num-fail* 0)
   (call-with-input-file tests read-tests)
   (display-ln "Waxeye Grammar Tester")
-  (display-ln "passed: " *num-pass*)
-  (display-ln "failed: " *num-fail*))
+  (display "------------------------------------------------------------------------------\n")
+  (let* ((t-count (+ *num-pass* *num-fail*))
+         (cl (string->list (number->string (exact->inexact (/ (* *num-pass* 100) t-count)))))
+         (cent (list->string (take cl (min (length cl) 5)))))
+    (display (format "passed ~a | failed ~a | success ~a%\n" *num-pass* *num-fail* cent)))
+  (display "------------------------------------------------------------------------------\n"))
 
 
 (define (run-test-iter parser pairs)
@@ -72,14 +76,13 @@ mzscheme
 
 
 (define (report-error input expect actual)
-  (display-ln "Test Error:")
-  (display-ln "non-term  : " *start-name*)
-  (display-ln "input     : " input)
-  (display-ln "expected  : " expect)
-  (display "actual    : ")
+  (display-ln "Error! @ " *start-name*)
+  (display-ln "input    = " input)
+  (display-ln "expected = " expect)
+  (display "actual   = ")
   (if (ast? actual)
       (display-ln (ast->string-sexpr actual))
-      (display (if (parse-error? actual)
+      (display-ln (if (parse-error? actual)
                    'fail
                    'pass)))
   (newline))
