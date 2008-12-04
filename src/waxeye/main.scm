@@ -64,6 +64,7 @@ mzscheme
             (begin
               (when *header-path*
                     (file-header! (file-as-string-lines *header-path*)))
+              (display-version)
               (*target-lang* grammar-tree *output-path*)))
            (else (display-help))))))
 
@@ -74,6 +75,7 @@ mzscheme
       (if (null? args)
           (begin
             (display-version)
+            (newline)
             (display-help))
           (parse-args args))))
 
