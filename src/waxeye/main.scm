@@ -37,6 +37,7 @@ mzscheme
          "python.scm"
          "ruby.scm"
          "scheme.scm"
+         "javascript.scm"
          "tester.scm"
          "transform.scm"
          "util.scm"
@@ -96,6 +97,7 @@ mzscheme
                           ((python) gen-python)
                           ((ruby) gen-ruby)
                           ((scheme) gen-scheme)
+                          ((javascript) gen-javascript)
                           (else #f)))
     (set! *output-path* (if (equal? (string-ref dir (- (string-length dir) 1)) #\/)
                             dir
