@@ -74,7 +74,7 @@ mzscheme
   (format "new waxeye.Edge(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
-          (camel-case-upper (bool->s (edge-v a)))))
+          (bool->s (edge-v a))))
 
 
 (define (gen-edges d)
@@ -84,7 +84,7 @@ mzscheme
 (define (gen-state a)
   (format "new waxeye.State(~a, ~a)"
           (gen-edges (state-edges a))
-          (camel-case-upper (bool->s (state-match a)))))
+          (bool->s (state-match a))))
 
 
 (define (gen-states d)
@@ -144,7 +144,7 @@ mzscheme
                               (ind)
                               (ind)
                               *start-index*
-                              (camel-case-upper (bool->s *eof-check*))
+                              (bool->s *eof-check*)
                               (gen-fas (make-automata grammar))
                               (ind)))
               (ind)))
