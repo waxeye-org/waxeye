@@ -24,6 +24,11 @@
 
 var waxeye = (function() {
 
+   /* ensure we have a false boolean and not empty array */
+   var isFalse = function(value) {
+     return typeof(value) == "boolean" && value == false;
+   };
+
    var ord = function(string) {
      return (string+'').charCodeAt(0);
    };
@@ -39,8 +44,8 @@ var waxeye = (function() {
        var ary = arguments[0], fun = arguments[1];
        for (var i = 0; i < ary.length; i++) { result = fun(ary[i]); }
      } else if (arguments.length == 3) { /* iter an exclusive range */
-       var from = arguments[0], to = arguments[2], fun = arguments[3];
-       for (var i = from; i < to; i++) {  result = fun(i); }
+       var from = arguments[0], to = arguments[1], fun = arguments[2];
+       for (var i = from; i < to; i++) { result = fun(i); }
      } else {
        throw "Invalid iterator arguments.";
      }
@@ -81,7 +86,8 @@ var waxeye = (function() {
    };
    extend(AST.prototype = {}, {
 
-     strIter: function(ast, indent, acc) {
+   strIter: function(ast, indent, acc) {
+       var self = this;
        iter(0, indent[0] -1, function() {  acc.push('    '); });
        if (indent[0] > 0) { acc.push("->  "); }
        acc.push(ast.type);
@@ -89,7 +95,7 @@ var waxeye = (function() {
        iter(ast.children, function(a) {
          acc.push("\n");
          if(a instanceof AST) {
-           this.strIter(a, indent, acc);
+           self.strIter(a, indent, acc);
          } else {
            iter(0, indent[0] - 1, function() { acc.push("    "); });
            if(indent[0] > 0) { acc.push("|   "); }
@@ -147,18 +153,26 @@ var waxeye = (function() {
        var type = automaton.type;
        var mode = automaton.mode;
 
-       this.fa_stack = [automaton] + this.fa_stack;
+       this.fa_stack = [automaton].concat(this.fa_stack);
        var res = this.match_state(0);
        this.fa_stack = this.fa_stack.slice(1);
 
        var value;
        if(mode == FA.POS) {
          this.restore_pos(start_pos, start_line, start_col, start_cr);
-         value = res != false;
+         if (!isFalse(res)) {
+           value = true;
+         } else {
+           value = false;
+         }
        } else if (mode == FA.NEG) {
          this.restore_pos(start_pos, start_line, start_col, start_cr);
-         value = res != false ? this.update_error() : true;
-       } else if (res != false) {
+         if (!isFalse(res)) {
+           value = this.update_error();
+         } else {
+           value = true;
+         }
+       } else if (!isFalse(res)) {
          if (mode == FA.VOID) {
            value = true;
          } else if (mode == FA.PRUNE) {
@@ -184,7 +198,7 @@ var waxeye = (function() {
      match_state: function(index) {
        var state = this.fa_stack[0].states[index];
        var res = this.match_edges(state.edges);
-       if (res != false) {
+       if (!isFalse(res)) {
          return res;
        } else {
          return(state.match && []);
@@ -196,7 +210,7 @@ var waxeye = (function() {
          return false;
        } else {
          var res = this.match_edge(edges[0]);
-         if (res != false) {
+         if (!isFalse(res)) {
            return res;
          } else {
            return this.match_edges(edges.slice(1));
@@ -204,7 +218,7 @@ var waxeye = (function() {
        }
      },
 
-     match_edge: function() {
+     match_edge: function(edge) {
        var start_pos = this.input_pos;
        var start_line = this.line;
        var start_col = this.column;
@@ -224,7 +238,7 @@ var waxeye = (function() {
          } else {
            res = this.update_error();
          }
-       } else if(t.constructor == Array) {
+       } else if(t instanceof Array) {
          if (this.input_pos < this.input_len && this.within_set(t, ord(this.input[this.input_pos]))) {
            res = this.mv();
          } else {
@@ -238,11 +252,11 @@ var waxeye = (function() {
 
        if (res) {
          var tran_res = this.match_state(edge.state);
-         if (tran_res != false) {
+         if (!isFalse(tran_res)) {
            if (edge.voided || res == true) {
              return tran_res;
            } else {
-             return [res] + tran_res;
+             return [res].concat(tran_res);
            }
          } else {
            this.restore_pos(start_pos, start_line, start_col, start_cr);
