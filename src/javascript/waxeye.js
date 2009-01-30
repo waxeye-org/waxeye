@@ -353,7 +353,6 @@ var waxeye = (function() {
    }); // InnerParser
 
    return {
-     extend: extend,
      WaxeyeParser: WaxeyeParser,
      Edge: Edge, State: State, FA: FA
    };
