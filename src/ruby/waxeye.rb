@@ -73,7 +73,7 @@ module Waxeye
 
     def to_s_sexpr()
       acc = []
-      display_sexpr_iter(self, acc)
+      to_s_sexpr_iter(self, acc)
       acc.to_s
     end
 
@@ -90,7 +90,7 @@ module Waxeye
       ast.children.each do |a|
         acc.push(" ")
         if a.is_a?(Waxeye::AST)
-          display_sexpr_iter(a, acc)
+          to_s_sexpr_iter(a, acc)
         else
           acc.push(a)
         end
