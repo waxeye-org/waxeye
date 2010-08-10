@@ -358,3 +358,13 @@ var waxeye = (function() {
    };
 
 })(); // waxeye
+
+// Add to Node.js module system
+if (typeof module !== 'undefined') {
+    module.exports.WaxeyeParser = waxeye.WaxeyeParser;
+    module.exports.FA = waxeye.FA;
+    module.exports.State = waxeye.State;
+    module.exports.Edge = waxeye.Edge;
+    module.exports.ParseError = waxeye.ParseError;
+    module.exports.AST = waxeye.AST;
+}

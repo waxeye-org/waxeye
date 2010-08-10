@@ -3,6 +3,11 @@
  * www.waxeye.org
  */
 
+var waxeye = waxeye;
+if (typeof module !== 'undefined') {
+    // require from Node.js module system
+    waxeye = require('waxeye');
+}
 
 var CalcParser = (function() {
 
@@ -40,3 +45,8 @@ var CalcParser = (function() {
     return parser;
  
 })();
+
+// Add to Node.js module system
+if (typeof module !== 'undefined') {
+    module.exports.CalcParser = CalcParser;
+}

@@ -22,26 +22,27 @@
 * SOFTWARE.
 **/
 
-/** 
- * This example has been tested with spidermonkey, you could also load the javascripts
- * and make a REPL web interface.
- * 
+/**
+ * Javascript example for NodeJS.
+ *
+ * Install waxeye.js with:
+ * mkdir -p ~/.node_libraries
+ * ln -s /usr/local/waxeye/src/javascript/waxeye.js ~/.node_libraries/
+ *
  * To compile the waxeye grammar, execute:
  *    ./bin/waxeye -g javascript src/example/javascript -p calc grammars/calc.waxeye
  *
- * Then copy waxeye.js to the src/example/javascript directory or modify the path to load.
  * Execute with:
- *    js example.js
+ *    node nodejs_example.js
  */
+var sys = require('sys');
+var calc_parser = require('./calc_parser');
 
-load("waxeye.js");
-load("calc_parser.js");
-
-// Create our parser 
-var parser = new CalcParser();
+// Create our parser
+var parser = new calc_parser.CalcParser();
 
 // Parse our input
-ast = parser.parse("42");
+var ast = parser.parse("42");
 
 // print our AST
-print(ast);
+sys.puts(ast);
