@@ -841,7 +841,6 @@ waxeye -g ruby . num.waxeye
 .src/example/ruby/example.rb
 [source,ruby]
 -------------------------------------------------------------------------------
-require 'rubygems'
 require 'parser'
 
 # Create our parser

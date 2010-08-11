@@ -116,6 +116,16 @@ mzscheme
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr ss)))))))))
 
+(define (gen-require)
+  (indent (format "
+begin
+  require 'waxeye'
+rescue LoadError
+  require 'rubygems'
+  require 'waxeye'
+end
+")))
+
 
 (define (gen-parser grammar)
   (let ((parser-name (if *name-prefix*
@@ -146,10 +156,11 @@ mzscheme
                (ind)
                ))
 
-    (format "~a\nrequire 'waxeye'\n\n~a"
+    (format "~a~a\n~a"
             (if *file-header*
                 (script-comment *file-header*)
                 (script-comment *default-header*))
+            (gen-require)
             (if *module-name*
                 (format "module ~a\n~aend\n"
                         *module-name*
