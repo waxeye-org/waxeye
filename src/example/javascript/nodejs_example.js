@@ -36,13 +36,13 @@
  *    node nodejs_example.js
  */
 var sys = require('sys');
-var calc_parser = require('./calc_parser');
+var parser = require('./parser');
 
 // Create our parser
-var parser = new calc_parser.CalcParser();
+var p = new parser.Parser();
 
 // Parse our input
-var ast = parser.parse("42");
+var ast = p.parse("42");
 
-// print our AST
+// Print our AST
 sys.puts(ast);

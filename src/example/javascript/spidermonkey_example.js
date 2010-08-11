@@ -34,13 +34,13 @@
  */
 
 load("waxeye.js");
-load("calc_parser.js");
+load("parser.js");
 
 // Create our parser
-var parser = new CalcParser();
+var p = new Parser();
 
 // Parse our input
-ast = parser.parse("42");
+var ast = p.parse("42");
 
-// print our AST
+// Print our AST
 print(ast);
