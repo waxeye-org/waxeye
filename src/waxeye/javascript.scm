@@ -22,21 +22,24 @@
 
 
 (module
-ruby
+javascript
 mzscheme
 
 (require (lib "ast.ss" "waxeye")
          (lib "fa.ss" "waxeye")
          "code.scm" "dfa.scm" "gen.scm" "util.scm")
-(provide gen-ruby)
+(provide gen-javascript)
 
 
-(define (gen-ruby grammar path)
-  (indent-unit! 2)
+(define (javascript-comment lines)
+  (comment-bookend "/*" " *" " */" lines))
+
+(define (gen-javascript grammar path)
+  (indent-unit! 4)
   (dump-string (gen-parser grammar)
                (string-append path (if *name-prefix*
-                                       (string-append (camel-case-lower *name-prefix*) "_parser.rb")
-                                       "parser.rb"))))
+                                       (string-append (camel-case-lower *name-prefix*) "_parser.js")
+                                       "parser.js"))))
 
 
 (define (gen-trans a)
@@ -52,11 +55,11 @@ mzscheme
   (define (gen-char-class-item a)
     (if (char? a)
         (gen-char a)
-        (format "~a..~a"
+        (format "[~a, ~a]"
                 (char->integer (car a))
                 (char->integer (cdr a)))))
   (cond
-   ((symbol? a) (format ":_~a" a))
+   ((symbol? a) "-1") ;; use -1 for wild card
    ((list? a)
     (format "[~a~a]"
             (gen-char-class-item (car a))
@@ -68,7 +71,7 @@ mzscheme
 
 
 (define (gen-edge a)
-  (format "Waxeye::Edge.new(~a, ~a, ~a)"
+  (format "new waxeye.Edge(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
           (bool->s (edge-v a))))
@@ -79,7 +82,7 @@ mzscheme
 
 
 (define (gen-state a)
-  (format "Waxeye::State.new(~a, ~a)"
+  (format "new waxeye.State(~a, ~a)"
           (gen-edges (state-edges a))
           (bool->s (state-match a))))
 
@@ -88,18 +91,26 @@ mzscheme
   (gen-array gen-state d))
 
 
+(define (gen-mode a)
+  (let ((type (fa-type a)))
+    (cond
+     ((equal? type '&) "POS")
+     ((equal? type '!) "NEG")
+     (else
+      (case (fa-mode a)
+        ((voidArrow) "VOID")
+        ((pruneArrow) "PRUNE")
+        ((leftArrow) "LEFT"))))))
+
+
 (define (gen-fa a)
-  (format "Waxeye::FA.new(:~a, ~a, :~a)"
+  (format "new waxeye.FA(\"~a\", ~a, waxeye.FA.~a)"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-            (cond
-             ((equal? type "!") "_not")
-             ((equal? type "&") "_and")
-             (else type)))
+            (if (or (equal? type "!") (equal? type "&"))
+                ""
+                type))
           (gen-states (fa-states a))
-          (case (fa-mode a)
-            ((voidArrow) "void")
-            ((pruneArrow) "prune")
-            ((leftArrow) "left"))))
+          (gen-mode a)))
 
 
 (define (gen-fas d)
@@ -116,55 +127,53 @@ mzscheme
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr ss)))))))))
 
-(define (gen-require)
-  (indent (format "
-begin
-  require 'waxeye'
-rescue LoadError
-  require 'rubygems'
-  require 'waxeye'
-end
-")))
-
 
 (define (gen-parser grammar)
   (let ((parser-name (if *name-prefix*
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-       (format "~aclass ~a < Waxeye::WaxeyeParser\n~a~aend\n"
-               (ind)
-               parser-name
-               (indent (format
-"~a@@start = ~a
-~a@@eof_check = ~a
-~a@@automata = ~a
-
-~adef initialize()
-~a
-~aend
+      (format "\n~avar ~a = (function() {\n~a \n~a})();\n"
+              (ind) 
+              parser-name
+              (indent (format "
+~avar parser = function() { return this; };
+~aparser.prototype = new waxeye.WaxeyeParser(~a, ~a, ~a);
+~areturn parser;
 "
-(ind)
-*start-index*
-(ind)
-(bool->s *eof-check*)
-(ind)
-(gen-fas (make-automata grammar))
-(ind)
-(indent (format "~asuper(@@start, @@eof_check, @@automata)" (ind)))
-(ind)))
-               (ind)
-               ))
+                              (ind)
+                              (ind)
+                              *start-index*
+                              (bool->s *eof-check*)
+                              (gen-fas (make-automata grammar))
+                              (ind)))
+              (ind)))
 
-    (format "~a~a\n~a"
-            (if *file-header*
-                (script-comment *file-header*)
-                (script-comment *default-header*))
-            (gen-require)
-            (if *module-name*
-                (format "module ~a\n~aend\n"
-                        *module-name*
-                        (indent (gen-parser-class)))
-                (gen-parser-class)))))
+    (define (gen-nodejs-imports)
+      (indent (format "
+var waxeye = waxeye;
+if (typeof module !== 'undefined') {
+~a// require from Node.js module system
+~awaxeye = require('waxeye');
+}
+" (ind) (ind))))
+
+
+    (define (gen-nodejs-exports)
+      (indent (format "
+// Add to Node.js module system
+if (typeof module !== 'undefined') {
+~amodule.exports.~a = ~a;
+}
+" (ind) parser-name parser-name)))
+
+(format "~a~a~a~a"
+        (if *file-header*
+            (javascript-comment *file-header*)
+            (javascript-comment *default-header*))
+        (gen-nodejs-imports)
+        (gen-parser-class)
+        (gen-nodejs-exports))))
 
 )
+
