@@ -20,36 +20,66 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-class Edge
-  constructor: (@trans, @state, @voided) ->
+waxeye = (->
+
+  class Edge
+    constructor: (@trans, @state, @voided) ->
 
 
-class State
-  constructor: (@edges, @match) ->
+  class State
+    constructor: (@edges, @match) ->
 
 
-class FA
-  constructor: (@type, @states, @mode) ->
-FA.VOID = 0
-FA.PRUNE = 1
-FA.LEFT = 2
-FA.POS = 3
-FA.NEG = 4
+  class FA
+    constructor: (@type, @states, @mode) ->
+  FA.VOID = 0
+  FA.PRUNE = 1
+  FA.LEFT = 2
+  FA.POS = 3
+  FA.NEG = 4
 
 
-class ParseError
-  constructor: (@pos, @line, @col, @nt) ->
+  class ParseError
+    constructor: (@pos, @line, @col, @nt) ->
 
-  toString: ->
-    'parse error: failed to match \'' + @nt + '\' at line=' + @line +
-    ', col=' + @col + ', pos=' + @pos + '\n'
+    toString: ->
+      'parse error: failed to match \'' + @nt + '\' at line=' + @line +
+      ', col=' + @col + ', pos=' + @pos
 
 
-class AST
-  constructor: (@type, @children, @pos) ->
+  class AST
+    constructor: (@type, @children, @pos) ->
 
-  toString: ->
-    acc = []
+    toString: ->
+      acc = ""
+      indent = 0
+      toStringIter =(ast) ->
+        for i in [0...indent]
+          acc += '    '
+        if indent > 0
+          acc += '->  '
+        acc += ast.type
+        indent++
+        for a in ast.children
+          acc += '\n'
+          # if the child ast is a char
+          if (typeof a) is 'string'
+            for i in [0...indent]
+              acc += '    '
+            if indent > 0
+              acc += '|   '
+            acc += a
+          else
+            toStringIter(a)
+        return acc
+      return toStringIter(this)
 
-  toStringIter: (ast, indent, acc) ->
+  namespace =
+    AST: AST
 
+  # Add to Node.js module system
+  if module?
+    module.exports.AST = AST
+
+  return namespace
+)()
