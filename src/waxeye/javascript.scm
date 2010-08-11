@@ -133,7 +133,7 @@ mzscheme
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-      (format "~avar ~a = (function() {\n~a \n~a})();\n"
+      (format "\n~avar ~a = (function() {\n~a \n~a})();\n"
               (ind) 
               parser-name
               (indent (format "
@@ -149,11 +149,31 @@ mzscheme
                               (ind)))
               (ind)))
 
-(format "~a\n\n~a"
+    (define (gen-nodejs-imports)
+      (indent (format "
+var waxeye = waxeye;
+if (typeof module !== 'undefined') {
+~a// require from Node.js module system
+~awaxeye = require('waxeye');
+}
+" (ind) (ind))))
+
+
+    (define (gen-nodejs-exports)
+      (indent (format "
+// Add to Node.js module system
+if (typeof module !== 'undefined') {
+~amodule.exports.~a = ~a;
+}
+" (ind) parser-name parser-name)))
+
+(format "~a~a~a~a"
         (if *file-header*
             (javascript-comment *file-header*)
             (javascript-comment *default-header*))
-        (gen-parser-class))))
+        (gen-nodejs-imports)
+        (gen-parser-class)
+        (gen-nodejs-exports))))
 
 )
 
