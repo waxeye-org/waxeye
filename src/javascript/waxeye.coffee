@@ -1,3 +1,4 @@
+###
 # Waxeye Parser Generator
 # www.waxeye.org
 # Copyright (C) 2008 Orlando D. A. R. Hill
@@ -19,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+###
 
 waxeye = (->
 
@@ -43,8 +45,7 @@ waxeye = (->
     constructor: (@pos, @line, @col, @nt) ->
 
     toString: ->
-      'parse error: failed to match \'' + @nt + '\' at line=' + @line +
-      ', col=' + @col + ', pos=' + @pos
+      "parse error: failed to match '#@nt' at line=#@line, col=#@col, pos=#@pos"
 
 
   class AST
@@ -70,12 +71,54 @@ waxeye = (->
               acc += '|   '
             acc += a
           else
-            toStringIter(a)
+            toStringIter a
         return acc
-      return toStringIter(this)
+      return toStringIter this
+
+
+  class WaxeyeParser
+    constructor: (@start, @eofCheck, @automata) ->
+
+    parse: (input) ->
+      new InnerParser(@start, @eofCheck, @automata, input).parse()
+
+
+  class InnerParser
+    constructor: (@start, @eofCheck, @automata, input) ->
+      @input = input
+      @inputLen = input.length
+      @inputPos = 0
+      @line = 1
+      @column = 0
+      @lastCR = false
+      @errorPos = 0
+      @errorLine = 1
+      @errorCol = 0
+      @errorNT = @automata[@start].type
+      @faStack = []
+      @cache = {}
+
+    parse: ->
+      @doEOFCheck(@matchAutomaton @start)
+
+    matchAutomaton: (index) ->
+      startPos = @inputPos
+      key = "#index,#startPos"
+
+      cached = @cache[key]
+      # if we have a cached result
+      if cached?
+        @restorePos cached[1], cached[2], cached[3], cached[4]
+        return cached[0]
+
 
   namespace =
+    Edge: Edge
+    State: State
+    FA: FA
+    ParseError: ParseError
     AST: AST
+    WaxeyeParser: WaxeyeParser
 
   # Add to Node.js module system
   if module?
