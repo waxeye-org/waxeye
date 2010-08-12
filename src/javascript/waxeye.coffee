@@ -111,6 +111,13 @@ waxeye = (->
         @restorePos cached[1], cached[2], cached[3], cached[4]
         return cached[0]
 
+      # save the parser's state
+      startLine = @line
+      startCol = @column
+      startCR = @lastCR
+      automaton = @automata[index]
+      type = automaton.type
+      mode = automaton.mode
 
   namespace =
     Edge: Edge
