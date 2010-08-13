@@ -25,34 +25,21 @@ environment string delim "\"" "\"" begin
   specialchar = '\\.'
 end
 
-
 comment start ";"
-
 
 type = '#t|#f|#\\[[:alnum:]]+' nonsensitive
 
-
-# Highlight the 'loop' in (let loop ()) as a function
-(cbracket,keyword,normal,function) = `(\()(let)([[:blank:]]+)(loop)`
-
+# Highlight the named let expressions
+(cbracket,keyword,normal,function) = `(\()(let)([[:blank:]]+)([[:alpha:]!$%&*+./:<=>?@^_~-][[:alnum:]!$%&*+./:<=>?@^_~-]*)`
 
 # Highlight the names of defined forms
 (cbracket,keyword,normal,function) = `(\()(define(?:-syntax)?)([[:blank:]]+)([[:alpha:]!$%&*+./:<=>?@^_~-][[:alnum:]!$%&*+./:<=>?@^_~-]*)`
 (cbracket,keyword,normal,cbracket,function) = `(\()(define)([[:blank:]]+)(\()([[:alpha:]!$%&*+./:<=>?@^_~-][[:alnum:]!$%&*+./:<=>?@^_~-]*)`
 
-
 cbracket = "(|)"
 
-
-vardef words = '(define(-syntax)?|syntax-(case|rules)|lambda|let(\*?)|if|else|cond|case|and|not|or|begin|for-each|map)'
-
-
-# Make any identifier that doen't start with a keyword be normal
-normal = '(?!' + $words +')' + '[[:alpha:]!$%&*+./:<=>?@^_~-][[:alnum:]!$%&*+./:<=>?@^_~-]*'
-
-
-# Match keywords as long as they aren't just a prefix of an identifier
-keyword = $words + '(?![[:alnum:]!$%&*+./:<=>?@^_~-])'
-
+keyword = "define|define-syntax|syntax-case|syntax-rules|lambda|let|let*|letrec|let-syntax|letrec-syntax"
+keyword = "if|else|cond|case|and|not|or|begin|for-each|map|delay|do|dynamic-wind"
+keyword = "call/cc|call-with-current-continuation|call-with-input-file|call-with-output-file"
 
 include "number.lang"
