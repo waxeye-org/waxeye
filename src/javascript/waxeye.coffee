@@ -265,19 +265,22 @@ waxeye = (->
       if res
         if @eofCheck and @inputPos < @inputLen
           # Create a parse error - Not all input consumed
-          new ParseError @error_pos, @error_line, @error_col, @error_nt
+          new ParseError @errorPos, @errorLine, @errorCol, @errorNT
         else
           res
       else
         # Create a parse error
-        new ParseError @error_pos, @error_line, @error_col, @error_nt
+        new ParseError @errorPos, @errorLine, @errorCol, @errorNT
 
     # Takes a set, an index into the set and an ordinal
+    # set - an array of single char strings and arrays of integer pairs
+    #       the integer pairs represent inclusive ranges of acceptable chars
+    #       the chars and ranges are in assending order
     withinSet: (set, index, c) ->
       if index == set.length
         false
       else
-        aa = set[0]
+        aa = set[index]
         if typeof aa == 'string'
           if (aa.charCodeAt 0) == c
             true
