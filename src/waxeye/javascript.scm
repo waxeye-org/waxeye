@@ -153,7 +153,7 @@ mzscheme
       (indent (format "
 var waxeye = waxeye;
 if (typeof module !== 'undefined') {
-~a// require from Node.js module system
+~a// require from module system
 ~awaxeye = require('waxeye');
 }
 " (ind) (ind))))
@@ -161,7 +161,7 @@ if (typeof module !== 'undefined') {
 
     (define (gen-nodejs-exports)
       (indent (format "
-// Add to Node.js module system
+// Add to module system
 if (typeof module !== 'undefined') {
 ~amodule.exports.~a = ~a;
 }
