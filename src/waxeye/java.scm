@@ -63,8 +63,11 @@ mzscheme
 
 (define (gen-java grammar path)
   (gen-java-names)
-  (dump-string (java-type grammar) (string-append path *java-node-name* ".java"))
-  (dump-string (java-parser grammar) (string-append path *java-parser-name* ".java")))
+  (let ((type-file (string-append path *java-node-name* ".java"))
+        (parser-file (string-append path *java-parser-name* ".java")))
+    (dump-string (java-type grammar) type-file)
+    (dump-string (java-parser grammar) parser-file)
+    (list type-file parser-file)))
 
 
 (define (java-type grammar)

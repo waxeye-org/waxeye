@@ -54,8 +54,11 @@ mzscheme
 (define (gen-c grammar path)
   (indent-unit! 4)
   (gen-c-names)
-  (dump-string (gen-header grammar) (string-append path *c-header-name*))
-  (dump-string (gen-parser grammar) (string-append path *c-source-name*)))
+  (let ((header-path (string-append path *c-header-name*))
+        (source-path (string-append path *c-source-name*)))
+    (dump-string (gen-header grammar) header-path)
+    (dump-string (gen-parser grammar) source-path)
+    (list header-path source-path)))
 
 
 (define (c-comment lines)

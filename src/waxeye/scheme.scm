@@ -33,10 +33,11 @@ mzscheme
 
 (define (gen-scheme grammar path)
   (indent-unit! 1)
-  (dump-string (gen-scheme-parser grammar)
-               (string-append path (if *name-prefix*
-                                       (string-append *name-prefix* "-parser.scm")
-                                       "parser.scm"))))
+  (let ((file-path (string-append path (if *name-prefix*
+                                           (string-append *name-prefix* "-parser.scm")
+                                           "parser.scm"))))
+    (dump-string (gen-scheme-parser grammar) file-path)
+    (list file-path)))
 
 
 (define (scheme-comment lines)

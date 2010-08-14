@@ -33,11 +33,11 @@ mzscheme
          "gen.scm"
          "interp.scm"
          "java.scm"
+         "javascript.scm"
          "load.scm"
          "python.scm"
          "ruby.scm"
          "scheme.scm"
-         "javascript.scm"
          "tester.scm"
          "transform.scm"
          "util.scm"
@@ -66,7 +66,9 @@ mzscheme
               (when *header-path*
                     (file-header! (file-as-string-lines *header-path*)))
               (display-version)
-              (*target-lang* grammar-tree *output-path*)))
+              (for-each (lambda (a)
+                          (display-ln "generated: " a))
+                        (*target-lang* grammar-tree *output-path*))))
            (else (display-help))))))
 
 
@@ -149,8 +151,7 @@ mzscheme
 
 
 (define (display-version)
-  (display-ln "Waxeye v" *version*)
-  (display-ln "Copyright (C) 2008 Orlando D. A. R. Hill"))
+  (display-ln "Waxeye v" *version*))
 
 
 (define (display-help)

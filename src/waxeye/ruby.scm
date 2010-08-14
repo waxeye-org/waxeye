@@ -33,10 +33,11 @@ mzscheme
 
 (define (gen-ruby grammar path)
   (indent-unit! 2)
-  (dump-string (gen-parser grammar)
-               (string-append path (if *name-prefix*
-                                       (string-append (camel-case-lower *name-prefix*) "_parser.rb")
-                                       "parser.rb"))))
+  (let ((file-path (string-append path (if *name-prefix*
+                                           (string-append (string-downcase *name-prefix*) "_parser.rb")
+                                           "parser.rb"))))
+    (dump-string (gen-parser grammar) file-path)
+    (list file-path)))
 
 
 (define (gen-trans a)

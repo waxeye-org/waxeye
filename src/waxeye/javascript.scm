@@ -36,10 +36,11 @@ mzscheme
 
 (define (gen-javascript grammar path)
   (indent-unit! 4)
-  (dump-string (gen-parser grammar)
-               (string-append path (if *name-prefix*
-                                       (string-append (camel-case-lower *name-prefix*) "_parser.js")
-                                       "parser.js"))))
+  (let ((file-path (string-append path (if *name-prefix*
+                                           (string-append (string-downcase *name-prefix*) "_parser.js")
+                                           "parser.js"))))
+    (dump-string (gen-parser grammar) file-path)
+    (list file-path)))
 
 
 (define (gen-trans a)
