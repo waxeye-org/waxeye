@@ -24,14 +24,24 @@
 
 waxeye = (->
 
+  # an edge in the FA graph
+  # trans - the condition that must be met to transition along this edge
+  # state - the state to transition to
+  # voided - if the result of the transition condition will be included in the AST
   class Edge
     constructor: (@trans, @state, @voided) ->
 
 
+  # a state in the FA graph
+  # edges - the edges leading out of this state
+  # match - if the state is an accepting state
   class State
     constructor: (@edges, @match) ->
 
 
+  # an FA in the FA graph
+  # type - the type of AST that will be created
+  # states - the states of the FA. State 0 is the starting state
   class FA
     constructor: (@type, @states, @mode) ->
   FA.VOID = 0
@@ -57,8 +67,10 @@ waxeye = (->
       acc = ""
       indent = 0
       toStringIter =(ast) ->
-        for i in [0...indent]
+        i = 0
+        while i < indent - 1
           acc += '    '
+          i++
         if indent > 0
           acc += '->  '
         acc += ast.type
@@ -67,13 +79,16 @@ waxeye = (->
           acc += '\n'
           # if the child ast is a char
           if (typeof a) is 'string'
-            for i in [0...indent]
+            i = 0
+            while i < indent - 1
               acc += '    '
+              i++
             if indent > 0
               acc += '|   '
             acc += a
           else
             toStringIter a
+        indent--
         return acc
       return toStringIter this
 
@@ -121,9 +136,11 @@ waxeye = (->
       type = automaton.type
       mode = automaton.mode
 
-      @faStack.push automaton
+      # push the current FA to top of the stack
+      @faStack = [automaton].concat @faStack
       res = @matchState 0
-      @faStack.pop()
+      # pop from the stack
+      @faStack = @faStack.slice 1
 
       value = switch mode
         when FA.POS
@@ -199,7 +216,7 @@ waxeye = (->
               false
 
       if res
-        tran_res = @matchState edge.state
+        tranRes = @matchState edge.state
         if tranRes
           # if the edge we moved along wasn't supposed to include it's result
           # or the result was empty, just return the stuff after it
@@ -257,15 +274,15 @@ waxeye = (->
 
     # Takes a set, an index into the set and an ordinal
     withinSet: (set, index, c) ->
-      if set.length == 0
+      if index == set.length
         false
       else
         aa = set[0]
         if typeof aa == 'string'
-          if aa.charCodeAt 0 == c
+          if (aa.charCodeAt 0) == c
             true
           else
-            if aa.charCodeAt 0 < c
+            if (aa.charCodeAt 0) < c
               @withinSet set, index + 1, c
             else
               false
@@ -274,7 +291,7 @@ waxeye = (->
           if c >= aa[0] and c <= aa[1]
             true
           else
-            if aa[1] < c
+            if c > aa[1]
               @withinSet set, index + 1, c
             else
               false
