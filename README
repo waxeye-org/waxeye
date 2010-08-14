@@ -1,41 +1,37 @@
 
 ============================================
 | Waxeye Parser Generator                  |
-| v 0.7.0                                  |
 | www.waxeye.org                           |
-| Copyright (C) 2008 Orlando D. A. R. Hill |
+| v 0.8.0                                  |
 ============================================
 
 
 What is Waxeye?
 ===============
 
-Waxeye makes language development easy and fun. With Waxeye, you can rapidly
-explore ideas for the syntax of your language.
-
-Whether you are creating a full programming language, a domain-specific
-language or just a simple data format, Waxeye will get you there faster.
+Waxeye is an easy to use parser generator based on parsing expression grammars.
 
 
 Features
 ========
 
+* Choice of Programming Language
+  - C
+  - Java
+  - Javascript
+  - Python
+  - Ruby
+  - Scheme
+
 * Scanner-less Parsing
+
+* Automatic AST Generation
 
 * Language Independent, Reusable Grammars
 
 * Modular, Composable Grammars
 
 * Grammar Testing
-
-* Automatic AST Generation
-
-* Choice of Programming Language
-  - C
-  - Java
-  - Python
-  - Ruby
-  - Scheme
 
 
 User Manual
