@@ -1,370 +1,288 @@
-/**
-  * Waxeye Parser Generator
-  * www.waxeye.org
-  * Copyright (C) 2008 Orlando D. A. R. Hill
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a copy of
-  * this software and associated documentation files (the "Software"), to deal in
-  * the Software without restriction, including without limitation the rights to
-  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-  * of the Software, and to permit persons to whom the Software is furnished to do
-  * so, subject to the following conditions:
-  *
-  * The above copyright notice and this permission notice shall be included in all
-  * copies or substantial portions of the Software.
-  *
-  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  **/
-
-var waxeye = (function() {
-
-   /* ensure we have a false boolean and not empty array */
-   var isFalse = function(value) {
-     return typeof(value) == "boolean" && value == false;
-   };
-
-   var ord = function(string) {
-     return (string+'').charCodeAt(0);
-   };
-
-   var extend = function(a, b) {
-     if (a && b)  for (var i in b) a[i] = b[i];
-     return a;
-   };
-
-   var iter = function() {
-     var result = null;
-     if (arguments.length == 2) { /* yield each array element */
-       var ary = arguments[0], fun = arguments[1];
-       for (var i = 0; i < ary.length; i++) { result = fun(ary[i]); }
-     } else if (arguments.length == 3) { /* iter an exclusive range */
-       var from = arguments[0], to = arguments[1], fun = arguments[2];
-       for (var i = from; i < to; i++) { result = fun(i); }
-     } else {
-       throw "Invalid iterator arguments.";
-     }
-     return result;
-   };
-
-
-   var Edge = function(trans, state, voided) {
-     return extend(this, {trans: trans, state: state, voided: voided});
-   };
-
-
-   var State = function(edges, match) {
-     return extend(this, {edges: edges, match: match});
-   };
-
-
-   var FA = function(type, states, mode) {
-     return extend(this, {type: type, states: states, mode: mode});
-   };
-   extend(FA, {VOID : 0, PRUNE: 1, LEFT: 2, POS: 3, NEG: 4});
-
-
-   var ParseError = function(pos, line, col, nt) {
-     return extend(this, { pos: pos, line: line, col: col, nt: nt });
-   };
-   extend(ParseError.prototype = {}, {
-     toString: function() {
-       var str = "parse error: failed to match '"+this.nt+"' ";
-       str += "at line="+this.line+", col="+this.col+", pos="+this.pos+"\n";
-       return str;
-     }
-   }); // ParseError
-
-
-   var AST = function(type, children, pos) {
-     return extend(this, {type: type, children: children, pos: pos});
-   };
-   extend(AST.prototype = {}, {
-
-   strIter: function(ast, indent, acc) {
-       var self = this;
-       iter(0, indent[0] -1, function() {  acc.push('    '); });
-       if (indent[0] > 0) { acc.push("->  "); }
-       acc.push(ast.type);
-       indent[0] += 1;
-       iter(ast.children, function(a) {
-         acc.push("\n");
-         if(a instanceof AST) {
-           self.strIter(a, indent, acc);
-         } else {
-           iter(0, indent[0] - 1, function() { acc.push("    "); });
-           if(indent[0] > 0) { acc.push("|   "); }
-           acc.push(a);
-         }
-       });
-       indent[0] += 1;
-     },
-
-     toString: function() {
-       var acc = [];
-       this.strIter(this, [0], acc);
-       return acc.join("");
-     }
-   }); // AST
-
-
-   var WaxeyeParser = function(start, eof_check, automata) {
-     return extend(this, {start: start, eof_check: eof_check, automata: automata});
-   };
-   extend(WaxeyeParser.prototype = {}, {
-     parse: function(input) {
-       return new InnerParser(this.start, this.eof_check, this.automata, input).parse();
-     }
-   }); // WaxeyeParser
-
-   var InnerParser = function(start, eof_check, automata, input) {
-     return extend(this, {
-       start: start, eof_check: eof_check, automata: automata,
-       input: input, input_len: input.length, input_pos: 0,
-       line: 1, column: 0, last_cr: false,
-       error_pos: 0, error_line: 1, error_col: 0,
-       error_nt: automata[start].type, fa_stack: [], cache: {}
-     });
-   };
-   extend(InnerParser.prototype = {}, {
-     parse: function() {
-       return this.do_eof_check(this.match_automaton(this.start));
-     },
-
-     match_automaton: function(index) {
-       var start_pos = this.input_pos;
-       var key = [index, start_pos];
-
-       if (this.cache[key]) {
-         var cachedItem = this.cache[key];
-         this.restore_pos(cachedItem[1], cachedItem[2], cachedItem[3], cachedItem[4]);
-         return cachedItem[0];
-       }
-
-       var start_line = this.line;
-       var start_col = this.column;
-       var start_cr = this.last_cr;
-       var automaton = this.automata[index];
-       var type = automaton.type;
-       var mode = automaton.mode;
-
-       this.fa_stack = [automaton].concat(this.fa_stack);
-       var res = this.match_state(0);
-       this.fa_stack = this.fa_stack.slice(1);
-
-       var value;
-       if(mode == FA.POS) {
-         this.restore_pos(start_pos, start_line, start_col, start_cr);
-         if (!isFalse(res)) {
-           value = true;
-         } else {
-           value = false;
-         }
-       } else if (mode == FA.NEG) {
-         this.restore_pos(start_pos, start_line, start_col, start_cr);
-         if (!isFalse(res)) {
-           value = this.update_error();
-         } else {
-           value = true;
-         }
-       } else if (!isFalse(res)) {
-         if (mode == FA.VOID) {
-           value = true;
-         } else if (mode == FA.PRUNE) {
-           var l = res.length;
-           if (l == 0) {
-             value = true;
-           } else if (l == 1) {
-             value = res[0];
-           } else {
-             value = new AST(type, res, [start_pos, this.input_pos]);
-           }
-         } else {
-           value = new AST(type, res, [start_pos, this.input_pos]);
-         }
-       } else {
-         value = this.update_error();
-       }
-       this.cache[key] = [value, this.input_pos, this.line, this.column, this.last_cr];
-       return value;
-     }, // match_automaton
-
-     /** Returns a list of results so, need to check != false **/
-     match_state: function(index) {
-       var state = this.fa_stack[0].states[index];
-       var res = this.match_edges(state.edges);
-       if (!isFalse(res)) {
-         return res;
-       } else {
-         return(state.match && []);
-       }
-     },
-
-     match_edges: function(edges) {
-       if (edges.length == 0) {
-         return false;
-       } else {
-         var res = this.match_edge(edges[0]);
-         if (!isFalse(res)) {
-           return res;
-         } else {
-           return this.match_edges(edges.slice(1));
-         }
-       }
-     },
-
-     match_edge: function(edge) {
-       var start_pos = this.input_pos;
-       var start_line = this.line;
-       var start_col = this.column;
-       var start_cr = this.last_cr;
-       var t = edge.trans;
-       var res;
-
-       if (t == -1) { // use -1 for wild card
-         if (this.input_pos < this.input_len) {
-           res = this.mv();
-         } else {
-           res = this.update_error();
-         }
-       } else if (typeof(t) == "string") {
-         if (this.input_pos < this.input_len && t == this.input[this.input_pos]) {
-           res = this.mv();
-         } else {
-           res = this.update_error();
-         }
-       } else if(t instanceof Array) {
-         if (this.input_pos < this.input_len && this.within_set(t, ord(this.input[this.input_pos]))) {
-           res = this.mv();
-         } else {
-           res = this.update_error();
-         }
-       } else if(typeof(t) == "number") {
-         res = this.match_automaton(t);
-       } else {
-         res = false;
-       }
-
-       if (res) {
-         var tran_res = this.match_state(edge.state);
-         if (!isFalse(tran_res)) {
-           if (edge.voided || res == true) {
-             return tran_res;
-           } else {
-             return [res].concat(tran_res);
-           }
-         } else {
-           this.restore_pos(start_pos, start_line, start_col, start_cr);
-           return false;
-         }
-       } else {
-         return false;
-       }
-     }, // match_edge
-
-     restore_pos: function(pos, line, col, cr) {
-       this.input_pos = pos;
-       this.line = line;
-       this.column = col;
-       this.last_cr = cr;
-     },
-
-     update_error: function() {
-       if (this.error_pos < this.input_pos) {
-         this.error_pos = this.input_pos;
-         this.error_line = this.line;
-         this.error_col = this.column;
-         this.error_nt = this.fa_stack[0].type;
-       }
-       return false;
-     },
-
-     mv: function() {
-       var ch = this.input[this.input_pos];
-       this.input_pos += 1;
-       if (ch == "\r") {
-         this.line += 1;
-         this.column = 0;
-         this.last_cr = true;
-       } else {
-         if (ch == "\n") {
-           if(!this.last_cr) {
-             this.line += 1;
-             this.column = 0;
-           }
-         } else {
-           this.column += 1;
-         }
-         this.last_cr = false;
-       }
-       return ch;
-     },
-
-     do_eof_check: function(res) {
-       if(res) {
-         if (this.eof_check && this.input_pos < this.input_len) {
-           // Create a parse error - Not all input consumed
-           return new ParseError(this.error_pos, this.error_line, this.error_col, this.error_nt);
-         } else {
-           return res;
-         }
-       } else {
-         // Create a parse error
-         return new ParseError(this.error_pos, this.error_line, this.error_col, this.error_nt);
-       }
-     },
-
-     /** Takes a set and an ordinal **/
-     within_set: function(set, c) {
-       if (set.length == 0) {
-         return false;
-       } else {
-         var aa = set[0];
-         if (typeof(aa) == "string") {
-           if (ord(aa) == c) {
-             return true;
-           } else {
-             if (ord(aa) < c) {
-               return this.within_set(set.slice(1), c);
-             } else {
-               return false;
-             }
-           }
-         } else {
-           // if not a string then must be a range (array)
-           if (c > aa[0] && c <= aa[1]) {
-             return true;
-           } else {
-             if (aa[1] < c) {
-               return this.within_set(set.slice(1), c);
-             } else {
-               return false;
-             }
-           }
-         }
-       }
-     } // within_set
-
-   }); // InnerParser
-
-   return {
-     WaxeyeParser: WaxeyeParser,
-     Edge: Edge, State: State, FA: FA
-   };
-
-})(); // waxeye
-
-// Add to Node.js module system
-if (typeof module !== 'undefined') {
-    module.exports.WaxeyeParser = waxeye.WaxeyeParser;
-    module.exports.FA = waxeye.FA;
-    module.exports.State = waxeye.State;
-    module.exports.Edge = waxeye.Edge;
-    module.exports.ParseError = waxeye.ParseError;
-    module.exports.AST = waxeye.AST;
+var waxeye;
+/*
+# Waxeye Parser Generator
+# www.waxeye.org
+# Copyright (C) 2008 Orlando D. A. R. Hill
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+*/
+waxeye = (function() {
+  var AST, Edge, FA, InnerParser, ParseError, State, WaxeyeParser, namespace;
+  Edge = function(_a, _b, _c) {
+    this.voided = _c;
+    this.state = _b;
+    this.trans = _a;
+    return this;
+  };
+  State = function(_a, _b) {
+    this.match = _b;
+    this.edges = _a;
+    return this;
+  };
+  FA = function(_a, _b, _c) {
+    this.mode = _c;
+    this.states = _b;
+    this.type = _a;
+    return this;
+  };
+  FA.VOID = 0;
+  FA.PRUNE = 1;
+  FA.LEFT = 2;
+  FA.POS = 3;
+  FA.NEG = 4;
+  ParseError = function(_a, _b, _c, _d) {
+    this.nt = _d;
+    this.col = _c;
+    this.line = _b;
+    this.pos = _a;
+    return this;
+  };
+  ParseError.prototype.toString = function() {
+    return "parse error: failed to match '" + this.nt + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos;
+  };
+  AST = function(_a, _b, _c) {
+    this.pos = _c;
+    this.children = _b;
+    this.type = _a;
+    return this;
+  };
+  AST.prototype.toString = function() {
+    var acc, indent, toStringIter;
+    acc = "";
+    indent = 0;
+    toStringIter = function(ast) {
+      var _a, _b, _c, a, i;
+      i = 0;
+      while (i < indent - 1) {
+        acc += '    ';
+        i++;
+      }
+      indent > 0 ? acc += '->  ' : null;
+      acc += ast.type;
+      indent++;
+      _b = ast.children;
+      for (_a = 0, _c = _b.length; _a < _c; _a++) {
+        a = _b[_a];
+        acc += '\n';
+        if ((typeof a) === 'string') {
+          i = 0;
+          while (i < indent - 1) {
+            acc += '    ';
+            i++;
+          }
+          indent > 0 ? acc += '|   ' : null;
+          acc += a;
+        } else {
+          toStringIter(a);
+        }
+      }
+      indent--;
+      return acc;
+    };
+    return toStringIter(this);
+  };
+  WaxeyeParser = function(_a, _b, _c) {
+    this.automata = _c;
+    this.eofCheck = _b;
+    this.start = _a;
+    return this;
+  };
+  WaxeyeParser.prototype.parse = function(input) {
+    return new InnerParser(this.start, this.eofCheck, this.automata, input).parse();
+  };
+  InnerParser = function(_a, _b, _c, input) {
+    this.automata = _c;
+    this.eofCheck = _b;
+    this.start = _a;
+    this.input = input;
+    this.inputLen = input.length;
+    this.inputPos = 0;
+    this.line = 1;
+    this.column = 0;
+    this.lastCR = false;
+    this.errorPos = 0;
+    this.errorLine = 1;
+    this.errorCol = 0;
+    this.errorNT = this.automata[this.start].type;
+    this.faStack = [];
+    this.cache = {};
+    return this;
+  };
+  InnerParser.prototype.parse = function() {
+    return this.doEOFCheck(this.matchAutomaton(this.start));
+  };
+  InnerParser.prototype.matchAutomaton = function(index) {
+    var _a, automaton, cached, key, mode, res, startCR, startCol, startLine, startPos, type, value;
+    startPos = this.inputPos;
+    key = ("" + index + "," + startPos);
+    cached = this.cache[key];
+    if (typeof cached !== "undefined" && cached !== null) {
+      this.restorePos(cached[1], cached[2], cached[3], cached[4]);
+      return cached[0];
+    }
+    startLine = this.line;
+    startCol = this.column;
+    startCR = this.lastCR;
+    automaton = this.automata[index];
+    type = automaton.type;
+    mode = automaton.mode;
+    this.faStack = [automaton].concat(this.faStack);
+    res = this.matchState(0);
+    this.faStack = this.faStack.slice(1);
+    value = (function() {
+      if (mode === FA.POS) {
+        this.restorePos(startPos, startLine, startCol, startCR);
+        if (res) {
+          return true;
+        } else {
+          this.updateError();
+          return false;
+        }
+      } else if (mode === FA.NEG) {
+        this.restorePos(startPos, startLine, startCol, startCR);
+        if (res) {
+          this.updateError();
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        if (res) {
+          if (mode === FA.VOID) {
+            return true;
+          } else if (mode === FA.PRUNE) {
+            if ((_a = res.length) === 0) {
+              return true;
+            } else if (_a === 1) {
+              return res[0];
+            } else {
+              return new AST(type, res, startPos, this.inputPos);
+            }
+          } else {
+            return new AST(type, res, startPos, this.inputPos);
+          }
+        } else {
+          return this.updateError();
+        }
+      }
+    }).call(this);
+    this.cache[key] = [value, this.inputPos, this.line, this.column, this.lastCR];
+    return value;
+  };
+  InnerParser.prototype.matchState = function(index) {
+    var res, state;
+    state = this.faStack[0].states[index];
+    res = this.matchEdges(state.edges, 0);
+    return res ? res : state.match && [];
+  };
+  InnerParser.prototype.matchEdges = function(edges, index) {
+    var res;
+    if (index === edges.length) {
+      return false;
+    } else {
+      res = this.matchEdge(edges[index]);
+      return res ? res : this.matchEdges(edges, (index + 1));
+    }
+  };
+  InnerParser.prototype.matchEdge = function(edge) {
+    var res, startCR, startCol, startLine, startPos, t, tranRes;
+    startPos = this.inputPos;
+    startLine = this.line;
+    startCol = this.column;
+    startCR = this.lastCR;
+    t = edge.trans;
+    res = t === -1 ? this.inputPos < this.inputLen ? this.mv() : this.updateError() : typeof t === 'string' ? this.inputPos < this.inputLen && t === this.input[this.inputPos] ? this.mv() : this.updateError() : t instanceof Array ? this.inputPos < this.inputLen && this.withinSet(t, 0, (this.input[this.inputPos].charCodeAt(0))) ? this.mv() : this.updateError() : typeof t === 'number' ? this.matchAutomaton(t) : false;
+    if (res) {
+      tranRes = this.matchState(edge.state);
+      if (tranRes) {
+        return edge.voided || res === true ? tranRes : [res].concat(tranRes);
+      } else {
+        this.restorePos(startPos, startLine, startCol, startCR);
+        return false;
+      }
+    } else {
+      return false;
+    }
+  };
+  InnerParser.prototype.restorePos = function(pos, line, col, cr) {
+    this.inputPos = pos;
+    this.line = line;
+    this.column = col;
+    return (this.lastCR = cr);
+  };
+  InnerParser.prototype.updateError = function() {
+    if (this.errorPos < this.inputPos) {
+      this.errorPos = this.inputPos;
+      this.errorLine = this.line;
+      this.errorCol = this.column;
+      this.errorNT = this.faStack[0].type;
+    }
+    return false;
+  };
+  InnerParser.prototype.mv = function() {
+    var ch;
+    ch = this.input[this.inputPos];
+    this.inputPos++;
+    if (ch === '\r') {
+      this.line++;
+      this.column = 0;
+      this.lastCR = true;
+    } else {
+      if (ch === '\n') {
+        if (!this.lastCR) {
+          this.line++;
+          this.column = 0;
+        }
+      } else {
+        this.column++;
+      }
+      this.lastCR = false;
+    }
+    return ch;
+  };
+  InnerParser.prototype.doEOFCheck = function(res) {
+    return res ? this.eofCheck && this.inputPos < this.inputLen ? new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT) : res : new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT);
+  };
+  InnerParser.prototype.withinSet = function(set, index, c) {
+    var aa;
+    if (index === set.length) {
+      return false;
+    } else {
+      aa = set[index];
+      return typeof aa === 'string' ? (aa.charCodeAt(0)) === c ? true : (aa.charCodeAt(0)) < c ? this.withinSet(set, index + 1, c) : false : c >= aa[0] && c <= aa[1] ? true : c > aa[1] ? this.withinSet(set, index + 1, c) : false;
+    }
+  };
+  namespace = {
+    Edge: Edge,
+    State: State,
+    FA: FA,
+    ParseError: ParseError,
+    AST: AST,
+    WaxeyeParser: WaxeyeParser
+  };
+  return namespace;
+})();
+if (typeof module !== "undefined" && module !== null) {
+  module.exports.AST = waxeye.AST;
+  module.exports.Edge = waxeye.Edge;
+  module.exports.FA = waxeye.FA;
+  module.exports.ParseError = waxeye.ParseError;
+  module.exports.State = waxeye.State;
+  module.exports.WaxeyeParser = waxeye.WaxeyeParser;
 }
