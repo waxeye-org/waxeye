@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+/*
+ * Hashtable with literal values for keys.
+ */
 #ifndef LT_H_
 #define LT_H_
 
