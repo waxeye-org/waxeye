@@ -22,15 +22,13 @@
  * SOFTWARE.
  */
 
-/*
- * A commandline arithmetic calculator.
- */
 var sys = require('sys');
 var waxeye = require('waxeye');
 var parser = require('./parser');
 
 var p = new parser.Parser();
 
+// a commandline arithmetic calculator.
 var calc = function(input) {
     var ast = p.parse(input);
     if (ast instanceof waxeye.ParseError) {
