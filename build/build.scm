@@ -59,7 +59,7 @@ mzscheme
         (^ mkdir -p lib)
         (^ mkdir -p tmp/gem/lib)
         (^ cp src/ruby/waxeye.rb tmp/gem/lib/)
-        (^ cp docs/LICENSE tmp/gem/)
+        (^ cp LICENSE tmp/gem/)
         (^ cp README tmp/gem/)
         (cd tmp/gem
             (^ gem build ../../src/ruby/gem.gemspec))
