@@ -151,7 +151,7 @@ mzscheme
 
 
 (define (display-version)
-  (display-ln "Waxeye v" *version*))
+  (display-ln "Waxeye Parser Generator v" *version*))
 
 
 (define (display-help)
