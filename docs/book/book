@@ -1,12 +1,12 @@
 Language Development with Waxeye
 ================================
-Orlando D._A._R. Hill
-v0.7.0, November 2008
+Orlando Hill
+v0.8.0, August 2010
 
 
 http://waxeye.org/[Waxeye Parser Generator]
 
-Copyright (C) 2008 Orlando D. A. R. Hill
+Copyright (C) 2010 Orlando Hill
 
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.2 or any later version
@@ -28,14 +28,6 @@ use.
 Manually creating parsers can be boring and time consuming. It is, therefore,
 common to use a use parser generator to do the grunt work of constructing the
 parser. This is where Waxeye comes in handy.
-
-
-//////////////////////////////////////////////
-Who is Waxeye for?
-Why do we want a parser generator?
-When do we want to parse?
-Examples of when you would want to use Waxeye.
-//////////////////////////////////////////////
 
 
 
@@ -1726,6 +1718,7 @@ Currently supported programming languages:
 
 * c
 * java
+* javascript
 * python
 * ruby
 * scheme
@@ -1897,33 +1890,6 @@ TODO
 === Embedded Languages ===
 
 TODO
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-== Having Trouble? ==
-
-This chapter will help you when you get stuck. It has solutions to common
-problems and tells you how to get help, online, if you are still having
-trouble.
-
-=== Common Pitfalls ===
-
-TODO
-
-
-=== Community Support ===
-
-TODO
-
-
-== Future Improvements ===
-
-This chapter talks about some of the upcoming features that will make using
-Waxeye even more fun.
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 

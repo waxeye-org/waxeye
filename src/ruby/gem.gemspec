@@ -24,10 +24,10 @@ require 'rubygems'
 require 'rake'
 
 spec = Gem::Specification.new do |s|
-  s.author = 'Orlando D. A. R. Hill'
+  s.author = 'Orlando Hill'
   s.email = 'orlandodarhill Gmail.com'
   s.name = 'waxeye'
-  s.version = '0.7.0'
+  s.version = '0.8.0'
   s.homepage = 'http://waxeye.org'
   s.summary = 'Ruby runtime for the Waxeye Parser Generator'
   s.rubyforge_project = 'waxeye'

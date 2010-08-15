@@ -22,10 +22,10 @@
 
 from distutils.core import setup
 
-setup(author='Orlando D. A. R. Hill',
+setup(author='Orlando Hill',
       author_email='orlandodarhill Gmail.com',
       name='waxeye',
-      version='0.7.0',
+      version='0.8.0',
       url='http://waxeye.org',
       description='Python runtime for the Waxeye Parser Generator',
       py_modules=['waxeye']
