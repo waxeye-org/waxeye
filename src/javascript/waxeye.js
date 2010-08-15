@@ -172,10 +172,10 @@ waxeye = (function() {
             } else if (_a === 1) {
               return res[0];
             } else {
-              return new AST(type, res, startPos, this.inputPos);
+              return new AST(type, res, [startPos, this.inputPos]);
             }
           } else {
-            return new AST(type, res, startPos, this.inputPos);
+            return new AST(type, res, [startPos, this.inputPos]);
           }
         } else {
           return this.updateError();

@@ -165,8 +165,8 @@ waxeye = (->
                 switch res.length
                   when 0 then true
                   when 1 then res[0]
-                  else new AST type, res, startPos, @inputPos
-              else new AST type, res, startPos, @inputPos
+                  else new AST type, res, [startPos, @inputPos]
+              else new AST type, res, [startPos, @inputPos]
           else
             @updateError()
 
