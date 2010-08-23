@@ -5,10 +5,11 @@
 
 (module
 ast
-mzscheme
+scheme
 
-(require (only (lib "9.ss" "srfi") define-record-type))
-(provide (all-defined))
+(require (only-in (lib "9.ss" "srfi") define-record-type))
+(require (only-in scheme/list remove-duplicates))
+(provide (all-defined-out))
 
 
 ;; ast
@@ -88,19 +89,20 @@ mzscheme
 
 
 (define (parse-error->string error)
-  (let ((pos (parse-error-pos error))
-        (line (parse-error-line error))
-        (col (parse-error-col error))
-        (nt (parse-error-nt error)))
-    (string-append
-     "parse error: failed to match '"
-     (symbol->string nt)
-     "' at line="
-     (number->string line)
-     ", col="
-     (number->string col)
-     ", pos="
-     (number->string pos))))
+  (define (ugh l)
+    (foldr (lambda (a b) (string-append ", " (symbol->string a) b)) "" l))
+  (define (expected nts)
+    (let ((len (length nts)))
+      (if (= len 0)
+          "end of input"
+          (string-append "[" (symbol->string (car nts)) (ugh (cdr nts)) "]"))))
+  (string-append
+   "error: "
+   (number->string (parse-error-line error))
+   ":"
+   (number->string (parse-error-col error))
+   " expected "
+   (expected (remove-duplicates (parse-error-nt error)))))
 
 
 (define (display-parse-error error)

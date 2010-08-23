@@ -24,7 +24,7 @@ mzscheme
            (error-pos 0)
            (error-line 1)
            (error-col 0)
-           (error-nt (fa-type (vector-ref automata start)))
+           (error-nt '())
            (fa-stack '())
            (cache (make-hash-table 'equal)))
       (define (match-automaton index)
@@ -62,15 +62,15 @@ mzscheme
                          ;; If we have a wild card expression
                          ((equal? 'wild t) (if (< input-pos input-len)
                                                (mv)
-                                               (update-error)))
+                                               (record-error)))
                          ;; If we have a character match
                          ((char? t) (if (and (< input-pos input-len) (equal? (string-ref input input-pos) t))
                                         (mv)
-                                        (update-error)))
+                                        (record-error)))
                          ;; If we have a character class
                          ((pair? t) (if (and (< input-pos input-len) (within-set? t (string-ref input input-pos)))
                                         (mv)
-                                        (update-error)))
+                                        (record-error)))
                          ;; If we have a reference to another automata
                          ((integer? t) (match-automaton t))
                          (else #f))))
@@ -108,14 +108,12 @@ mzscheme
                   (cache-item-val value))
                 (begin
                   ;; Push to the fa-stack
-                  (set! fa-stack (cons automaton fa-stack))
+                  (set! fa-stack (cons (cons automaton #f) fa-stack))
                   (let ((v (let ((start-pos input-pos)
                                  (start-line line)
                                  (start-col column)
                                  (start-cr last-cr)
                                  (res (match-state (vector-ref states 0))))
-                             ;; Pop from the fa-stack
-                             (set! fa-stack (cdr fa-stack))
                              (cond
                               ((equal? type '&) (restore-pos start-pos start-line start-col start-cr) (not (not res)))
                               ((equal? type '!)
@@ -141,6 +139,8 @@ mzscheme
                                      (else (error 'waxeye "Unknown automaton mode")))
                                    ;; Don't need to restore here since we already did
                                    (update-error)))))))
+                    ;; Pop from the fa-stack
+                    (set! fa-stack (cdr fa-stack))
                     (hash-table-put! cache key (make-cache-item v input-pos line column last-cr))
                     v))))))
 
@@ -150,12 +150,21 @@ mzscheme
         (set! column c)
         (set! last-cr cr))
 
-      (define (update-error)
+      (define (record-error)
+        ;; did we find a deeper error
         (when (< error-pos input-pos)
               (set! error-pos input-pos)
               (set! error-line line)
               (set! error-col column)
-              (set! error-nt (fa-type (car fa-stack))))
+              (set! error-nt '()))
+        ;; record the name of the non-terminal for errors of same or greater depth
+        (when (<= error-pos input-pos)
+              (set! fa-stack (cons (cons (caar fa-stack) #t) (cdr fa-stack))))
+        #f)
+
+      (define (update-error)
+        (when (cdar fa-stack) ;; when there was a reported error
+              (set! error-nt (cons (fa-type (caar fa-stack)) error-nt)))
         #f)
 
       (define (do-eof-check res)
