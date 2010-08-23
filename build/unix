@@ -1,5 +1,4 @@
 #!/bin/sh
-# Copyright (C) 2008 Orlando D. A. R. Hill
 
 mzc --exe waxeye src/waxeye/waxeye.scm
 mzc --exe-dir . waxeye

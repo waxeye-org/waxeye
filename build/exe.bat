@@ -1,4 +1,3 @@
-:: Copyright (C) 2008 Orlando D. A. R. Hill
 
 MKDIR tmp
 C:\"Program Files\PLT\mzc.exe" --exe waxeye src\waxeye\waxeye.scm

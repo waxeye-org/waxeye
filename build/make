@@ -1,4 +1,3 @@
 #!/bin/sh
-# Copyright (C) 2008 Orlando D. A. R. Hill
 
 mzscheme -qt- build/build.scm $*
