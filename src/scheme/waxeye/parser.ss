@@ -171,10 +171,15 @@ mzscheme
         (if res
             (if (and eof-check (< input-pos input-len))
                 ;; Create a parse error - Not all input consumed
-                (make-parse-error error-pos error-line error-col error-nt)
+                (make-parse-error error-pos error-line error-col error-nt (received))
                 res)
             ;; Create a parse error
-            (make-parse-error error-pos error-line error-col error-nt)))
+            (make-parse-error error-pos error-line error-col error-nt (received))))
+
+      (define (received)
+        (if (= error-pos input-len)
+            "<end of input>"
+            (substring input error-pos (+ error-pos 1))))
 
       (do-eof-check (match-automaton start)))))
 
