@@ -24,7 +24,7 @@ mzscheme
            (error-pos 0)
            (error-line 1)
            (error-col 0)
-           (error-nt '())
+           (error-expected '())
            (fa-stack '())
            (cache (make-hash-table 'equal)))
       (define (match-automaton index)
@@ -156,7 +156,7 @@ mzscheme
               (set! error-pos input-pos)
               (set! error-line line)
               (set! error-col column)
-              (set! error-nt '()))
+              (set! error-expected '()))
         ;; record the name of the non-terminal for errors of same or greater depth
         (when (<= error-pos input-pos)
               (set! fa-stack (cons (cons (caar fa-stack) #t) (cdr fa-stack))))
@@ -164,22 +164,40 @@ mzscheme
 
       (define (update-error)
         (when (cdar fa-stack) ;; when there was a reported error
-              (set! error-nt (cons (fa-type (caar fa-stack)) error-nt)))
+              (set! error-expected (cons (fa-type (caar fa-stack)) error-expected)))
         #f)
 
       (define (do-eof-check res)
         (if res
             (if (and eof-check (< input-pos input-len))
                 ;; Create a parse error - Not all input consumed
-                (make-parse-error error-pos error-line error-col error-nt (received))
+                (make-parse-error error-pos error-line error-col error-expected (received) (snippet))
                 res)
             ;; Create a parse error
-            (make-parse-error error-pos error-line error-col error-nt (received))))
+            (make-parse-error error-pos error-line error-col error-expected (received) (snippet))))
 
       (define (received)
         (if (= error-pos input-len)
             "<end of input>"
             (substring input error-pos (+ error-pos 1))))
+
+      (define (snippet)
+        (define (line-finder index-test index-move)
+          (let loop ((i error-pos))
+            (if (and (index-test i)
+                     (let ((ch (string-ref input (index-move i))))
+                       (not (or (char=? ch #\newline)
+                                (char=? ch #\return)))))
+                (loop (index-move i))
+                i)))
+        (define (find-line-start)
+          (line-finder (lambda (i) (> i 0)) sub1))
+        (define (find-line-end)
+          (line-finder (lambda (i) (< i (- input-len 1))) add1))
+        (let* ((line-start (find-line-start))
+               (line-end (find-line-end))
+               (offset (- error-pos line-start)))
+          (string-append (substring input line-start (min (+ line-end 1) input-len)) "\n" (make-string offset #\space) "^")))
 
       (do-eof-check (match-automaton start)))))
 

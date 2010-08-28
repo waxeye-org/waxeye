@@ -26,13 +26,14 @@ scheme
 
 
 (define-record-type :parse-error
-  (make-parse-error pos line col nt txt)
+  (make-parse-error pos line col expected received snippet)
   parse-error?
   (pos parse-error-pos parse-error-pos!)
   (line parse-error-line parse-error-line!)
   (col parse-error-col parse-error-col!)
-  (nt parse-error-nt parse-error-nt!)
-  (txt parse-error-txt parse-error-txt!))
+  (expected parse-error-expected parse-error-expected!)
+  (received parse-error-received parse-error-received!)
+  (snippet parse-error-snippet parse-error-snippet!))
 
 
 (define (ast->string ast)
@@ -91,21 +92,22 @@ scheme
 
 (define (parse-error->string error)
   (define (comma-seperate l)
-    (foldr (lambda (a b) (string-append ", " (symbol->string a) b)) "" l))
+    (string-join (map symbol->string l) ", "))
   (define (expected nts)
     (let ((len (length nts)))
       (if (= len 0)
           "<end of input>"
-          (string-append "[" (symbol->string (car nts)) (comma-seperate (cdr nts)) "]"))))
+          (string-append "[" (comma-seperate nts) "]"))))
   (string-append
-   "error: "
    (number->string (parse-error-line error))
    ":"
    (number->string (parse-error-col error))
    " expected: "
-   (expected (remove-duplicates (parse-error-nt error)))
+   (expected (remove-duplicates (parse-error-expected error)))
    " received: "
-   (parse-error-txt error)))
+   (parse-error-received error)
+   "\n"
+   (parse-error-snippet error)))
 
 
 (define (display-parse-error error)
