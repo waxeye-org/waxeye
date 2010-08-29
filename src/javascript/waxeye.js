@@ -125,9 +125,9 @@ waxeye = (function() {
     automaton = this.automata[index];
     type = automaton.type;
     mode = automaton.mode;
-    this.faStack = [automaton].concat(this.faStack);
+    this.faStack.push(automaton);
     res = this.matchState(0);
-    this.faStack = this.faStack.slice(1);
+    this.faStack.pop();
     value = (function() {
       if (mode === FA.POS) {
         this.restorePos(startPos, startLine, startCol, startCR);
@@ -170,7 +170,7 @@ waxeye = (function() {
   };
   InnerParser.prototype.matchState = function(index) {
     var res, state;
-    state = this.faStack[0].states[index];
+    state = this.faStack[this.faStack.length - 1].states[index];
     res = this.matchEdges(state.edges, 0);
     return res ? res : state.match && [];
   };
@@ -214,7 +214,7 @@ waxeye = (function() {
       this.errorPos = this.inputPos;
       this.errorLine = this.line;
       this.errorCol = this.column;
-      this.errorNT = this.faStack[0].type;
+      this.errorNT = this.faStack[this.faStack.length - 1].type;
     }
     return false;
   };

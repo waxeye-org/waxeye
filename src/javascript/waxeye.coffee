@@ -120,10 +120,10 @@ waxeye = (->
       mode = automaton.mode
 
       # push the current FA to top of the stack
-      @faStack = [automaton].concat @faStack
+      @faStack.push automaton
       res = @matchState 0
       # pop from the stack
-      @faStack = @faStack.slice 1
+      @faStack.pop()
 
       value = switch mode
         when FA.POS
@@ -157,7 +157,7 @@ waxeye = (->
       return value
 
     matchState: (index) ->
-      state = @faStack[0].states[index]
+      state = @faStack[@faStack.length - 1].states[index]
       res = @matchEdges state.edges, 0
       if res
         res
@@ -224,7 +224,7 @@ waxeye = (->
         @errorPos = @inputPos
         @errorLine = @line
         @errorCol = @column
-        @errorNT = @faStack[0].type
+        @errorNT = @faStack[@faStack.length - 1].type
       return false
 
     mv: ->
