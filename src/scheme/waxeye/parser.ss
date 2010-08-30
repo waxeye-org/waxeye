@@ -27,122 +27,120 @@ mzscheme
            (error-expected '())
            (fa-stack '())
            (cache (make-hash-table 'equal)))
+
       (define (match-automaton index)
-        (let* ((automaton (vector-ref automata index))
-               (type (fa-type automaton))
-               (states (fa-states automaton))
-               (automaton-mode (fa-mode automaton)))
+        (let* ((key (cons index input-pos)) (value (hash-table-get cache key #f)))
+          (if value
+              (begin
+                (restore-pos (cache-item-pos value) (cache-item-line value) (cache-item-col value) (cache-item-cr value))
+                (cache-item-val value))
+              (let* ((automaton (vector-ref automata index))
+                     (type (fa-type automaton))
+                     (states (fa-states automaton))
+                     (automaton-mode (fa-mode automaton)))
+                ;; Push to the fa-stack
+                (set! fa-stack (cons (cons automaton #f) fa-stack))
+                (let ((v (let ((start-pos input-pos)
+                               (start-line line)
+                               (start-col column)
+                               (start-cr last-cr)
+                               (res (match-state (vector-ref states 0))))
+                           (cond
+                            ((equal? type '&) (restore-pos start-pos start-line start-col start-cr) (not (not res)))
+                            ((equal? type '!)
+                             (restore-pos start-pos start-line start-col start-cr)
+                             (if res
+                                 (update-error)
+                                 #t))
+                            (else
+                             (if res
+                                 (case automaton-mode
+                                   ((voidArrow)
+                                    #t)
+                                   ((pruneArrow)
+                                    (cond
+                                     ((null? res)
+                                      #t)
+                                     ((null? (cdr res))
+                                      (car res))
+                                     (else
+                                      (make-ast type res (cons start-pos input-pos)))))
+                                   ((leftArrow)
+                                    (make-ast type res (cons start-pos input-pos)))
+                                   (else (error 'waxeye "Unknown automaton mode")))
+                                 ;; Don't need to restore here since we already did
+                                 (update-error)))))))
+                  ;; Pop from the fa-stack
+                  (set! fa-stack (cdr fa-stack))
+                  (hash-table-put! cache key (make-cache-item v input-pos line column last-cr))
+                  v)))))
 
-          ;; If the transition was made
-          (define (match-edge edge)
+      (define (match-state state)
+        (let ((res (match-edges (state-edges state))))
+          (if res
+              res
+              (and (state-match state) '()))))
 
-            (define (mv)
-              (let ((ch (string-ref input input-pos)))
-                (set! input-pos (+ input-pos 1))
-                (if (char=? ch #\return)
-                    (begin
-                      (set! line (+ line 1))
-                      (set! column 0)
-                      (set! last-cr #t))
-                    (begin
-                      (if (char=? ch #\linefeed)
-                          (unless last-cr
-                                  (set! line (+ line 1))
-                                  (set! column 0))
-                          (set! column (+ column 1)))
-                      (set! last-cr #f)))
-                ch))
-
-            (let* ((start-pos input-pos)
-                   (start-line line)
-                   (start-col column)
-                   (start-cr last-cr)
-                   (t (edge-t edge))
-                   (res (cond
-                         ;; If we have a wild card expression
-                         ((equal? 'wild t) (if (< input-pos input-len)
-                                               (mv)
-                                               (record-error)))
-                         ;; If we have a character match
-                         ((char? t) (if (and (< input-pos input-len) (equal? (string-ref input input-pos) t))
-                                        (mv)
-                                        (record-error)))
-                         ;; If we have a character class
-                         ((pair? t) (if (and (< input-pos input-len) (within-set? t (string-ref input input-pos)))
-                                        (mv)
-                                        (record-error)))
-                         ;; If we have a reference to another automata
-                         ((integer? t) (match-automaton t))
-                         (else #f))))
-              ;; If we are able to transition to the next state
-              (if res
-                  ;; Move to next state
-                  (let ((tran-res (match-state (vector-ref states (edge-s edge)))))
-                    (if tran-res
-                        (if (or (edge-v edge) (equal? res #t))
-                            tran-res
-                            (cons res tran-res))
-                        (begin
-                          (restore-pos start-pos start-line start-col start-cr)
-                          #f)))
-                  #f)))
-
-          (define (match-edges edges)
-            (if (null? edges)
-                #f
-                (let ((res (match-edge (car edges))))
-                  (if res
-                      res
-                      (match-edges (cdr edges))))))
-
-          (define (match-state state)
-            (let ((res (match-edges (state-edges state))))
+      (define (match-edges edges)
+        (if (null? edges)
+            #f
+            (let ((res (match-edge (car edges))))
               (if res
                   res
-                  (and (state-match state) '()))))
+                  (match-edges (cdr edges))))))
 
-          (let* ((key (cons index input-pos)) (value (hash-table-get cache key #f)))
-            (if value
-                (begin
-                  (restore-pos (cache-item-pos value) (cache-item-line value) (cache-item-col value) (cache-item-cr value))
-                  (cache-item-val value))
-                (begin
-                  ;; Push to the fa-stack
-                  (set! fa-stack (cons (cons automaton #f) fa-stack))
-                  (let ((v (let ((start-pos input-pos)
-                                 (start-line line)
-                                 (start-col column)
-                                 (start-cr last-cr)
-                                 (res (match-state (vector-ref states 0))))
-                             (cond
-                              ((equal? type '&) (restore-pos start-pos start-line start-col start-cr) (not (not res)))
-                              ((equal? type '!)
-                               (restore-pos start-pos start-line start-col start-cr)
-                               (if res
-                                   (update-error)
-                                   #t))
-                              (else
-                               (if res
-                                   (case automaton-mode
-                                     ((voidArrow)
-                                      #t)
-                                     ((pruneArrow)
-                                      (cond
-                                       ((null? res)
-                                        #t)
-                                       ((null? (cdr res))
-                                        (car res))
-                                       (else
-                                        (make-ast type res (cons start-pos input-pos)))))
-                                     ((leftArrow)
-                                      (make-ast type res (cons start-pos input-pos)))
-                                     (else (error 'waxeye "Unknown automaton mode")))
-                                   ;; Don't need to restore here since we already did
-                                   (update-error)))))))
-                    ;; Pop from the fa-stack
-                    (set! fa-stack (cdr fa-stack))
-                    (hash-table-put! cache key (make-cache-item v input-pos line column last-cr))
-                    v))))))
+      ;; If the transition was made
+      (define (match-edge edge)
+        (let* ((start-pos input-pos)
+               (start-line line)
+               (start-col column)
+               (start-cr last-cr)
+               (t (edge-t edge))
+               (res (cond
+                     ;; If we have a wild card expression
+                     ((equal? 'wild t) (if (< input-pos input-len)
+                                           (mv)
+                                           (record-error)))
+                     ;; If we have a character match
+                     ((char? t) (if (and (< input-pos input-len) (equal? (string-ref input input-pos) t))
+                                    (mv)
+                                    (record-error)))
+                     ;; If we have a character class
+                     ((pair? t) (if (and (< input-pos input-len) (within-set? t (string-ref input input-pos)))
+                                    (mv)
+                                    (record-error)))
+                     ;; If we have a reference to another automata
+                     ((integer? t) (match-automaton t))
+                     (else #f))))
+          ;; If we are able to transition to the next state
+          (if res
+              ;; Move to next state
+              (let ((tran-res (match-state (vector-ref (fa-states (caar fa-stack)) (edge-s edge)))))
+                (if tran-res
+                    (if (or (edge-v edge) (equal? res #t))
+                        tran-res
+                        (cons res tran-res))
+                    (begin
+                      (restore-pos start-pos start-line start-col start-cr)
+                      #f)))
+              #f)))
+
+      (define (mv)
+        (let ((ch (string-ref input input-pos)))
+          (set! input-pos (+ input-pos 1))
+          (if (char=? ch #\return)
+              (begin
+                (set! line (+ line 1))
+                (set! column 0)
+                (set! last-cr #t))
+              (begin
+                (if (char=? ch #\linefeed)
+                    (unless last-cr
+                            (set! line (+ line 1))
+                            (set! column 0))
+                    (set! column (+ column 1)))
+                (set! last-cr #f)))
+          ch))
 
       (define (restore-pos p l c cr)
         (set! input-pos p)
