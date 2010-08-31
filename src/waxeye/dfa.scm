@@ -77,24 +77,26 @@ mzscheme
 
 
 (define (nfa->dfa nfa)
-  (let ((state-table (make-hash-table 'equal)) (state-list '()) (state-count 0) (e-table (make-hash-table 'equal)))
+  (let ((state-table (make-hash-table 'equal))
+        (state-list '())
+        (state-count 0))
 
     ;; Returns a list of states reachable by 'e' moves
     ;; This includes the starting state
     (define (e-closure state-index)
-      (define (e-closure-relative state-index relative)
-        (let ((hv (hash-table-get e-table (cons relative state-index) #f)))
+      (define (e-closure-rec state-index e-table)
+        (let ((hv (hash-table-get e-table state-index #f)))
           (if hv
               hv
               (let ((l (list state-index)))
-                (hash-table-put! e-table (cons relative state-index) '())
+                (hash-table-put! e-table state-index '())
                 (for-each (lambda (a)
                             (when (and (equal? (edge-t a) 'e) (not (member (edge-s a) l)))
-                                  (set! l (append l (e-closure-relative (edge-s a) relative)))))
+                                  (set! l (append l (e-closure-rec (edge-s a) e-table)))))
                           (state-edges (vector-ref nfa state-index)))
-                (hash-table-put! e-table (cons relative state-index) l)
+                (hash-table-put! e-table state-index l)
                 l))))
-      (e-closure-relative state-index state-index))
+      (e-closure-rec state-index (make-hash-table 'equal)))
 
     (define (make-dfa-edges state-set)
       (map (lambda (a)
@@ -161,14 +163,22 @@ mzscheme
 
 
 ;; Get the edges of each state in the state set
-;; Doesn't get those with an 'e' transition since those states were got from e-closure
+;; If an edge's transition is 'e', get the edges from the state that edge points to
+;; Does that to maintain correct ordering
+;; Avoids getting edges from a state twice
 (define (get-edges state-vector state-set)
-  (if (null? state-set)
-      '()
-      (append (filter (lambda (a)
-                        (not (equal? (edge-t a) 'e)))
-                      (state-edges (vector-ref state-vector (car state-set))))
-              (get-edges state-vector (cdr state-set)))))
+  (let ((ht (make-hash-table)) (l '()))
+    (define (get-edges-rec state)
+      ;; if we haven't got the edges of this state
+      (unless (hash-table-get ht state #f)
+              (hash-table-put! ht state #t)
+              (for-each (lambda (edge)
+                          (if (equal? (edge-t edge) 'e)
+                              (get-edges-rec (edge-s edge))
+                              (set! l (cons edge l))))
+                        (state-edges (vector-ref state-vector state)))))
+    (for-each get-edges-rec state-set)
+    (reverse l)))
 
 
 (define (display-states state-vector)
