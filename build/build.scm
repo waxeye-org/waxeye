@@ -67,11 +67,10 @@ mzscheme
  (^ ant -f build/ant.xml jar javadoc)
 
  (cp-dist "build")
- (cp-dist ".classpath")
  (cp-dist "docs")
  (cp-dist "grammars")
  (cp-dist "lib")
- (cp-dist ".project")
+ (cp-dist "LICENSE")
  (cp-dist "README")
  (cp-dist "src")
  (cp-dist "test")
