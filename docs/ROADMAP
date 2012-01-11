@@ -8,22 +8,22 @@ Waxeye Development Roadmap
 
 == 0.10.0 ==
 
-* Left-recursive grammars
+* Detailed parser errors
 
 
 == 0.11.0 ==
 
-* Context-sensitive parsing
+* Left-recursive grammars
 
 
 == 0.12.0 ==
 
-* Minimise states
+* Error recovery
 
 
 == 0.13.0 ==
 
-* Error recovery
+* Context-sensitive parsing
 
 
 == 0.14.0 ==
