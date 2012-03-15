@@ -45,7 +45,7 @@ http://git-scm.com/[Git] version control system.
 === Requirements ===
 
 There are no external dependencies needed to run a pre-built version of Waxeye.
-If you build from source, you'll need http://download.plt-scheme.org[MzScheme].
+If you build from source, you'll need http://racket-lang.org[Racket].
 
 To use a generated parser, you need a supported programming language to run it
 from.
@@ -903,18 +903,15 @@ ruby example.rb
 
 === Using Waxeye from Scheme ===
 
-Waxeye's Scheme runtime is compatible with v372 and v4 of PLT-Scheme's
-http://download.plt-scheme.org/[MzScheme]. You will need to have MzScheme
-installed to use it; either by itself or with DrScheme.
+Waxeye's Scheme runtime is compatible with http://racket-lang.org/[Racket].
 
 ==== Install ====
 
-Install the waxeye collection in your preferred place where MzScheme can find
-it.
+Install the waxeye collection where Racket can find it.
 
 -------------------------------------------------------------------------------
 # Install the Waxeye collection; change to your install paths as needed
-sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/plt/lib/plt/collects/
+sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/racket/lib/racket/collects/
 -------------------------------------------------------------------------------
 
 ==== Generate Parser ====
@@ -944,16 +941,10 @@ mzscheme
 )
 -------------------------------------------------------------------------------
 
-==== Run from v372 ====
+==== Run from Racket ====
 
 -------------------------------------------------------------------------------
-mzscheme -mv -t example.scm
--------------------------------------------------------------------------------
-
-==== Run from v4 ====
-
--------------------------------------------------------------------------------
-mzscheme -t example.scm
+racket -t example.scm
 -------------------------------------------------------------------------------
 
 
