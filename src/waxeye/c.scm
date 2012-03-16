@@ -22,6 +22,11 @@ mzscheme
 (define *c-source-name* "")
 
 
+;; have we generated a character class
+;; used to avoid declaring variables we don't need
+(define *done-cc* #f)
+
+
 (define (gen-c-names)
   (set! *c-prefix* (if *name-prefix*
                        (string-append (camel-case-lower *name-prefix*) "_")
@@ -62,6 +67,10 @@ mzscheme
 #ifndef ~a_H_
 #define ~a_H_
 
+#ifdef __cplusplus
+extern \"C\" {
+#endif
+
 #include <waxeye.h>
 
 enum ~a {
@@ -74,6 +83,11 @@ extern const char *~a_strings[];
 extern struct parser_t* ~a_new();
 
 #endif /* ~a_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* ~a_H_ */
 "
             (c-header-comment)
@@ -126,9 +140,20 @@ struct parser_t* ~a_new() {
                     (cdr non-terms)))))
             *c-parser-name*
             (indent
-             (format "~aconst size_t start = ~a;
+             ;; force the automaton to be generated first so we know
+             ;; if the declarations for character classes are needed
+             (let ((fas (mapi->s gen-fa (vector->list automata)))
+                   (cc-decl (if (not *done-cc*)
+                                ""
+                                (format "~achar *single;
+~achar *min;
+~achar *max;
+~asize_t num_single;
+~asize_t num_range;\n"
+                                        (ind) (ind) (ind) (ind) (ind)))))
+               (format "~aconst size_t start = ~a;
 ~aconst bool eof_check = ~a;
-~asize_t num_edges;
+~a~asize_t num_edges;
 ~asize_t num_states;
 ~aconst size_t num_automata = ~a;
 ~astruct trans_t trans;
@@ -139,15 +164,16 @@ struct parser_t* ~a_new() {
 ~aassert(automata != NULL);
 
 ~a~areturn wparser_new(start, automata, num_automata, eof_check);"
-                     (ind)
-                     (number->string *start-index*)
-                     (ind)
-                     (bool->s *eof-check*)
-                     (ind) (ind) (ind)
-                     (number->string (vector-length automata))
-                     (ind) (ind) (ind) (ind) (ind) (ind)
-                     (mapi->s gen-fa (vector->list automata))
-                     (ind))))))
+                       (ind)
+                       (number->string *start-index*)
+                       (ind)
+                       (bool->s *eof-check*)
+                       cc-decl
+                       (ind) (ind) (ind)
+                       (number->string (vector-length automata))
+                       (ind) (ind) (ind) (ind) (ind) (ind)
+                       fas
+                       (ind)))))))
 
 
 (define (mapi fn l)
@@ -235,30 +261,19 @@ struct parser_t* ~a_new() {
           (ind) (gen-char t) (ind)))
 
 
-(define *done-cc* #f)
-
 (define (gen-char-class-trans t)
   (let* ((single (filter char? t))
          (ranges (filter pair? t))
          (min (map car ranges))
-         (max (map cdr ranges))
-         (cc-decl (if *done-cc*
-                      ""
-                      (format "~achar *single;
-~achar *min;
-~achar *max;
-~asize_t num_single;
-~asize_t num_range;\n"
-                              (ind) (ind) (ind) (ind) (ind)))))
+         (max (map cdr ranges)))
     (set! *done-cc* #t)
-    (format "~a~anum_single = ~a;
+    (format "~anum_single = ~a;
 ~anum_range = ~a;
 ~a
 ~a
 ~a
 ~atrans_d.set = set_new(single, num_single, min, max, num_range);
 ~atrans_init(&trans, TRANS_SET, trans_d);\n"
-            cc-decl
             (ind) (length single)
             (ind) (length ranges)
             (gen-char-list "single" "single" single)
