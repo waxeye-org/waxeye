@@ -35,12 +35,12 @@ size_t lt_final_pos(struct ht_t *v, size_t key) {
     struct ht_pair_t *pair = v->pairs[pos];
 
     while (true) {
-        // If the position is empty
+        /* If the position is empty */
         if (pair == NULL) {
             return pos;
         }
 
-        // If we found our key
+        /* If we found our key */
         if (pair->key.as_i == key) {
             return pos;
         }
@@ -73,13 +73,15 @@ void* lt_get(struct ht_t *v, size_t key) {
  * will be overwritten.
  */
 void lt_put(struct ht_t *v, size_t key, void *value) {
+    const float LOAD_FACTOR = 0.75;
+    size_t pos;
+    struct ht_pair_t *pair;
+
     assert(v != NULL);
 
-    const float LOAD_FACTOR = 0.75;
-
-    // resize and rehash if needed
+    /* resize and rehash if needed */
     if (v->size >= v->capacity * LOAD_FACTOR) {
-
+        size_t i;
         size_t old_capacity = v->capacity;
         struct ht_pair_t **old_pairs = v->pairs;
 
@@ -89,26 +91,25 @@ void lt_put(struct ht_t *v, size_t key, void *value) {
         v->pairs = calloc(v->capacity, sizeof(void*));
         assert(v->pairs != NULL);
 
-        // rehash the pairs
-        size_t i;
+        /* rehash the pairs */
         for (i = 0; i < old_capacity; i++) {
-            struct ht_pair_t *pair = old_pairs[i];
+            pair = old_pairs[i];
 
             if (pair != NULL) {
                 v->pairs[lt_final_pos(v, pair->key.as_i)] = pair;
             }
         }
 
-        // free old storage
+        /* free old storage */
         free(old_pairs);
     }
 
-    size_t pos = lt_final_pos(v, key);
-    struct ht_pair_t *pair = v->pairs[pos];
+    pos = lt_final_pos(v, key);
+    pair = v->pairs[pos];
 
-    // if a value didn't already exist with that key
+    /* if a value didn't already exist with that key */
     if (pair == NULL) {
-        // create a new pair
+        /* create a new pair */
         pair = malloc(sizeof(struct ht_pair_t));
         assert(pair != NULL);
 
@@ -118,6 +119,6 @@ void lt_put(struct ht_t *v, size_t key, void *value) {
         pair->key.as_i = key;
     }
 
-    // store the value
+    /* store the value */
     pair->value = value;
 }

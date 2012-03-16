@@ -222,9 +222,9 @@ extern char *ast_children_as_string(struct ast_t *ast) {
     struct vector_t *chil = ast->data.tree->children;
     size_t num_chil = chil->size;
     char *buf = calloc(num_chil + 1, sizeof(char));
+    size_t i;
     assert(buf != NULL);
 
-    size_t i;
     for (i = 0; i < num_chil; i++) {
         buf[i] = ((struct ast_t*) vector_get(chil, i))->data.c;
     }

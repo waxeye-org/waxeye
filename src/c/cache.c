@@ -61,12 +61,12 @@ size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
     struct ht_pair_t *pair = v->pairs[pos];
 
     while (true) {
-        // If the position is empty
+        /* If the position is empty */
         if (pair == NULL) {
             return pos;
         }
 
-        // If we found our key
+        /* If we found our key */
         if (((struct cache_key_t*) pair->key.as_p)->index == key->index &&
             ((struct cache_key_t*) pair->key.as_p)->pos == key->pos) {
             return pos;
@@ -101,14 +101,17 @@ struct cache_value_t* cache_get(struct ht_t *v, struct cache_key_t *key) {
  * give a key allocated on the stack.
  */
 void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *value) {
+    const float LOAD_FACTOR = 0.75;
+
+    size_t pos;
+    struct ht_pair_t *pair;
+
     assert(v != NULL);
     assert(key != NULL);
 
-    const float LOAD_FACTOR = 0.75;
-
-    // resize and rehash if needed
+    /* resize and rehash if needed */
     if (v->size >= v->capacity * LOAD_FACTOR) {
-
+        size_t i;
         size_t old_capacity = v->capacity;
         struct ht_pair_t **old_pairs = v->pairs;
 
@@ -118,34 +121,35 @@ void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *va
         v->pairs = calloc(v->capacity, sizeof(void*));
         assert(v->pairs != NULL);
 
-        // rehash the pairs
-        size_t i;
+        /* rehash the pairs */
         for (i = 0; i < old_capacity; i++) {
-            struct ht_pair_t *pair = old_pairs[i];
+            pair = old_pairs[i];
 
             if (pair != NULL) {
                 v->pairs[cache_final_pos(v, pair->key.as_p)] = pair;
             }
         }
 
-        // free old storage
+        /* free old storage */
         free(old_pairs);
     }
 
-    size_t pos = cache_final_pos(v, key);
-    struct ht_pair_t *pair = v->pairs[pos];
+    pos = cache_final_pos(v, key);
+    pair = v->pairs[pos];
 
-    // if a value didn't already exist with that key
+    /* if a value didn't already exist with that key */
     if (pair == NULL) {
-        // create a new pair
+        struct cache_key_t *k;
+
+        /* create a new pair */
         pair = malloc(sizeof(struct ht_pair_t));
         assert(pair != NULL);
 
         v->pairs[pos] = pair;
         v->size++;
 
-        // create a new key for the pair
-        struct cache_key_t *k = malloc(sizeof(struct cache_key_t));
+        /* create a new key for the pair */
+        k = malloc(sizeof(struct cache_key_t));
         assert(k != NULL);
 
         k->index = key->index;
@@ -153,6 +157,6 @@ void cache_put(struct ht_t *v, struct cache_key_t *key, struct cache_value_t *va
         pair->key.as_p = k;
     }
 
-    // store the value
+    /* store the value */
     pair->value = value;
 }

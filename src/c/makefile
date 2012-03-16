@@ -4,7 +4,7 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 
 CC=gcc
-BASE_FLAGS=-Wall -Wextra -Wshadow -I include
+BASE_FLAGS=-Wall -Wextra -Wshadow -pedantic -I include
 FLAGS=$(BASE_FLAGS) -O3
 DEBUG_FLAGS=$(BASE_FLAGS) -O0 -g
 

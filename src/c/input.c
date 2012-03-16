@@ -55,6 +55,9 @@ struct input_t* input_from_file_new(FILE *fp) {
     size_t size = 0;
     size_t count;
 
+    char *data, *tmp;
+    size_t i, block_size, num_filled;
+
     count = fread(block, sizeof(char), BLOCK_SIZE, fp);
     size += count;
 
@@ -65,12 +68,12 @@ struct input_t* input_from_file_new(FILE *fp) {
         size += count;
     }
 
-    // Create a contiguous piece of memory for our data
-    char *data = malloc(size * sizeof(char));
-    char *tmp = data;
+    /* Create a contiguous piece of memory for our data */
+    data = malloc(size * sizeof(char));
+    tmp = data;
 
-    size_t i, block_size = BLOCK_SIZE * sizeof(char);
-    size_t num_filled = filled->size;
+    block_size = BLOCK_SIZE * sizeof(char);
+    num_filled = filled->size;
 
     for (i = 0; i < num_filled; i++) {
         char *fb = vector_get(filled, i);
@@ -79,10 +82,10 @@ struct input_t* input_from_file_new(FILE *fp) {
         tmp += block_size;
     }
 
-    // Transfer the data from the partially filled block
+    /* Transfer the data from the partially filled block */
     memcpy(tmp, block, count);
 
-    // Free the memory used in filling our input buffer
+    /* Free the memory used in filling our input buffer */
     free(block);
     vector_delete(filled);
 

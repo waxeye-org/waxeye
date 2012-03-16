@@ -42,7 +42,7 @@ struct ht_t* ht_new(size_t capacity) {
 void ht_clear(struct ht_t *v, bool keys) {
     size_t i;
 
-    // Free the pairs of the hash table
+    /* Free the pairs of the hash table */
     for (i = 0; i < v->capacity; i++) {
         struct ht_pair_t *pair = v->pairs[i];
 

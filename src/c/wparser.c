@@ -157,6 +157,7 @@ struct ast_t* update_error(struct inner_parser_t *ip) {
 
 struct ast_t* mv(struct inner_parser_t *ip) {
     char ch = input_consume(ip->input);
+    union ast_data d;
 
     if (ch == '\r') {
         ip->line++;
@@ -176,7 +177,7 @@ struct ast_t* mv(struct inner_parser_t *ip) {
         ip->last_cr = false;
     }
 
-    union ast_data d = { .c = ch };
+    d.c = ch;
     return ast_new(AST_CHAR, d);
 }
 
@@ -242,7 +243,7 @@ struct vector_t* match_edge(struct inner_parser_t *ip, struct edge_t *edge) {
  */
 struct vector_t* match_edges(struct inner_parser_t *ip, struct edge_t *edges,
                              size_t num_edges, size_t index) {
-    // If we have no more edges to try to match
+    /* If we have no more edges to try to match */
     if (index == num_edges) {
         return NULL;
     }
@@ -297,10 +298,18 @@ void add_to_free_list(struct inner_parser_t *ip, struct vector_t *to_add) {
 struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
     size_t start_pos = ip->input->pos;
     struct cache_key_t key;
+    struct cache_value_t *cache_value;
+    size_t start_line;
+    size_t start_col;
+    bool start_cr;
+    struct fa_t *automaton;
+    struct vector_t *res;
+    struct ast_t *value;
+
     key.index = index;
     key.pos = start_pos;
 
-    struct cache_value_t *cache_value = cache_get(ip->cache, &key);
+    cache_value = cache_get(ip->cache, &key);
 
     if (cache_value != NULL) {
         restore_pos(ip, cache_value->pos, cache_value->line,
@@ -308,16 +317,16 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
         return cache_value->result;
     }
 
-    size_t start_line = ip->line;
-    size_t start_col = ip->column;
-    bool start_cr = ip->last_cr;
-    struct fa_t *automaton = &ip->automata[index];
+    start_line = ip->line;
+    start_col = ip->column;
+    start_cr = ip->last_cr;
+    automaton = &ip->automata[index];
 
     vector_push(ip->fa_stack, automaton);
-    struct vector_t *res = match_state(ip, 0);
+    res = match_state(ip, 0);
     vector_pop(ip->fa_stack);
 
-    struct ast_t *value = NULL;
+    value = NULL;
 
     switch (automaton->mode) {
         case MODE_POS: {
@@ -326,7 +335,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                 value = update_error(ip);
             }
             else {
-                union ast_data d = { .c = '\0' };
+                union ast_data d;
+                d.c = '\0';
                 value = ast_new(AST_EMPTY, d);
                 add_to_free_list(ip, res);
             }
@@ -335,7 +345,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
         case MODE_NEG: {
             restore_pos(ip, start_pos, start_line, start_col, start_cr);
             if (res == NULL) {
-                union ast_data d = { .c = '\0' };
+                union ast_data d;
+                d.c = '\0';
                 value = ast_new(AST_EMPTY, d);
             }
             else {
@@ -349,7 +360,8 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                 value = update_error(ip);
             }
             else {
-                union ast_data d = { .c = '\0' };
+                union ast_data d;
+                d.c = '\0';
                 value = ast_new(AST_EMPTY, d);
                 add_to_free_list(ip, res);
             }
@@ -362,21 +374,24 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
             else {
                 switch (res->size) {
                     case 0: {
-                        union ast_data d = { .c = '\0' };
+                        union ast_data d;
+                        d.c = '\0';
                         value = ast_new(AST_EMPTY, d);
                         add_to_free_list(ip, res);
                         break;
                     }
                     case 1: {
-                        // get the only child
+                        /* get the only child */
                         value = vector_get(res, 0);
                         vector_delete(res);
                         break;
                     }
                     default: {
-                        vector_reverse(res); // Correct the order of children
-                        struct ast_tree_t *t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
-                        union ast_data d = { .tree = t };
+                        struct ast_tree_t *t;
+                        union ast_data d;
+                        vector_reverse(res); /* Correct the order of children */
+                        t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
+                        d.tree = t;
                         value = ast_new(AST_TREE, d);
                         break;
                     }
@@ -389,9 +404,11 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
                 value = update_error(ip);
             }
             else {
-                vector_reverse(res); // Correct the order of children
-                struct ast_tree_t *t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
-                union ast_data d = { .tree = t };
+                struct ast_tree_t *t;
+                union ast_data d;
+                vector_reverse(res); /* Correct the order of children */
+                t = ast_tree_new(automaton->type, res, start_pos, ip->input->pos);
+                d.tree = t;
                 value = ast_new(AST_TREE, d);
             }
             break;
@@ -414,11 +431,14 @@ struct ast_t* match_automaton(struct inner_parser_t *ip, size_t index) {
 
 struct ast_t* create_parse_error(struct inner_parser_t *ip) {
     struct ast_error_t *e = malloc(sizeof(struct ast_error_t));
+    union ast_data d;
+
     e->pos = ip->error_pos;
     e->line = ip->error_line;
     e->col = ip->error_col;
     e->nt = ip->error_nt;
-    union ast_data d = { .error = e };
+
+    d.error = e;
     return ast_new(AST_ERROR, d);
 }
 
@@ -426,7 +446,7 @@ struct ast_t* create_parse_error(struct inner_parser_t *ip) {
 struct ast_t* eof_check(struct inner_parser_t *ip, struct ast_t *res) {
     if (res != NULL) {
         if (ip->eof_check && ip->input->pos < ip->input->size) {
-            // Create a parse error - not all input consumed
+            /* Create a parse error - not all input consumed */
             return create_parse_error(ip);
         }
         else {
@@ -434,16 +454,16 @@ struct ast_t* eof_check(struct inner_parser_t *ip, struct ast_t *res) {
         }
     }
     else {
-        // Create a parse error
+        /* Create a parse error */
         return create_parse_error(ip);
     }
 }
 
 
 void free_ast_once(struct ht_t *freed_table, struct ast_t *a) {
-    // if the ast hasn't been freed
+    /* if the ast hasn't been freed */
     if (lt_get(freed_table, (size_t) a) == false) {
-        // free the children
+        /* free the children */
         if (a->type == AST_TREE) {
             struct vector_t *children = a->data.tree->children;
             size_t i, len = children->size;
@@ -453,7 +473,7 @@ void free_ast_once(struct ht_t *freed_table, struct ast_t *a) {
             }
         }
 
-        // free the ast
+        /* free the ast */
         lt_put(freed_table, (size_t) a, (void*) true);
         ast_delete(a);
     }
@@ -461,7 +481,7 @@ void free_ast_once(struct ht_t *freed_table, struct ast_t *a) {
 
 
 void keep_ast(struct ht_t *freed_table, struct ast_t *a) {
-    // keep the children
+    /* keep the children */
     if (a->type == AST_TREE) {
         struct vector_t *children = a->data.tree->children;
         size_t i, len = children->size;
@@ -471,7 +491,7 @@ void keep_ast(struct ht_t *freed_table, struct ast_t *a) {
         }
     }
 
-    // keep the ast
+    /* keep the ast */
     lt_put(freed_table, (size_t) a, (void*) true);
 }
 
@@ -479,30 +499,31 @@ void keep_ast(struct ht_t *freed_table, struct ast_t *a) {
 struct ast_t* inner_parser_parse(struct inner_parser_t *ip) {
     struct ast_t *res = eof_check(ip, match_automaton(ip, ip->start));
     struct ht_t *freed_table = ht_new(2048);
+    size_t i, len;
 
-    // keep the ASTs of our result
+    /* keep the ASTs of our result */
     keep_ast(freed_table, res);
 
-    size_t i, len = ip->cache_contents->size;
+    len = ip->cache_contents->size;
     for (i = 0; i < len; i++) {
         struct cache_value_t *value = vector_get(ip->cache_contents, i);
 
         if (value->result != NULL) {
-            // free the asts in the cache that aren't in our result
+            /* free the asts in the cache that aren't in our result */
             free_ast_once(freed_table, value->result);
         }
 
-        // free the cache_value_t's
+        /* free the cache_value_t's */
         free(value);
     }
 
-    // free the contents of the to_free list
+    /* free the contents of the to_free list */
     len = ip->to_free->size;
     for (i = 0; i < len; i++) {
         free_ast_once(freed_table, vector_get(ip->to_free, i));
     }
 
-    // delete our freed table
+    /* delete our freed table */
     ht_delete(freed_table, false);
 
     return res;
