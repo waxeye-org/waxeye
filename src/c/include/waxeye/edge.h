@@ -8,6 +8,10 @@
 #ifndef EDGE_H_
 #define EDGE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <waxeye/trans.h>
 
@@ -25,4 +29,9 @@ extern void edge_clear(struct edge_t *e);
 extern void edge_delete(struct edge_t *e);
 
 #endif /* EDGE_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* EDGE_H_ */

@@ -8,6 +8,10 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -31,4 +35,9 @@ extern char input_consume(struct input_t *b);
 extern char input_peek(struct input_t *b);
 
 #endif /* INPUT_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* INPUT_H_ */

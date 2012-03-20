@@ -8,6 +8,10 @@
 #ifndef STATE_H_
 #define STATE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <waxeye/edge.h>
 
@@ -25,4 +29,9 @@ extern void state_clear(struct state_t *s);
 extern void state_delete(struct state_t *s);
 
 #endif /* STATE_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* STATE_H_ */

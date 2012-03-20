@@ -8,6 +8,10 @@
 #ifndef AST_H_
 #define AST_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <waxeye/vector.h>
 
 #define INIT_CHILDREN 8
@@ -64,4 +68,9 @@ extern void display_ast(struct ast_t *a, const char *type_strings[]);
 extern char *ast_children_as_string(struct ast_t *a);
 
 #endif /* AST_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* AST_H_ */

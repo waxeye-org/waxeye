@@ -8,6 +8,10 @@
 #ifndef TRANS_H_
 #define TRANS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <waxeye/set.h>
 
 /*
@@ -43,4 +47,9 @@ extern void trans_clear(struct trans_t *s);
 extern void trans_delete(struct trans_t *s);
 
 #endif /* TRANS_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* TRANS_H_ */

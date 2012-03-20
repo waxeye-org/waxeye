@@ -8,6 +8,10 @@
 #ifndef SET_H_
 #define SET_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 struct set_t {
@@ -27,4 +31,9 @@ extern void set_delete(struct set_t *s);
 extern bool set_within_set(struct set_t *s, char ch);
 
 #endif /* SET_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* SET_H_ */

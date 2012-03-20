@@ -8,6 +8,10 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct vector_t {
     void **elements;
     size_t capacity;
@@ -31,4 +35,9 @@ extern void* vector_peek(struct vector_t *v);
 extern void vector_reverse(struct vector_t *v);
 
 #endif /* VECTOR_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* VECTOR_H_ */

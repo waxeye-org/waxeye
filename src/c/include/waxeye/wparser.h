@@ -8,6 +8,10 @@
 #ifndef WPARSER_H_
 #define WPARSER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <waxeye/ast.h>
 #include <waxeye/fa.h>
@@ -29,4 +33,9 @@ extern void parser_delete(struct parser_t *s);
 extern struct ast_t* parse(struct parser_t *parser, struct input_t *input);
 
 #endif /* WPARSER_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* WPARSER_H_ */

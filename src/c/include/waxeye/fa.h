@@ -8,6 +8,10 @@
 #ifndef FA_H_
 #define FA_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <waxeye/state.h>
 
 enum fa_mode {
@@ -33,4 +37,9 @@ extern void fa_clear(struct fa_t *fa);
 extern void fa_delete(struct fa_t *fa);
 
 #endif /* FA_C_ */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* FA_H_ */
