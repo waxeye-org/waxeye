@@ -1,6 +1,3 @@
-
-MKDIR tmp
-C:\"Program Files\Racket\mzc.exe" --exe waxeye src\waxeye\waxeye.scm
-MOVE waxeye.exe tmp\waxeye.exe
-C:\"Program Files\Racket\mzc.exe" --exe-dir . tmp\waxeye.exe
-RMDIR /S tmp
+C:\"Program Files\Racket\raco.exe" exe src\waxeye\waxeye.scm
+C:\"Program Files\Racket\raco.exe" distribute . src\waxeye\waxeye.exe
+DEL src\waxeye\waxeye.exe

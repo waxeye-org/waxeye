@@ -86,9 +86,6 @@ Building
    - From your Waxeye installation directory, run the 'build\exe.bat' script in a
    command prompt.
 
-   - When the script has finished, press 'y' then 'Enter' to remove the
-   temporary files.
-
 
 Running
 =======
