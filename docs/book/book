@@ -796,7 +796,7 @@ var p = new parser.Parser();
 var ast = p.parse("42");
 
 // Print our AST
-console.log(ast);
+console.log(ast.toString());
 -------------------------------------------------------------------------------
 
 ==== Run ====
@@ -1409,7 +1409,7 @@ public final class Calculator {
 .src/example/javascript/nodejs_calculator.js
 [source,javascript]
 -------------------------------------------------------------------------------
-var sys = require('sys');
+var util = require('util');
 var waxeye = require('waxeye');
 var parser = require('./parser');
 
@@ -1483,16 +1483,16 @@ var stdin = process.openStdin();
 
 stdin.setEncoding('utf8');
 
-sys.print('calc> ');
+util.print('calc> ');
 
 // Read our input
 stdin.on('data', function (line) {
-    sys.puts(calc(line));
-    sys.print('calc> ');
+    util.puts(calc(line));
+    util.print('calc> ');
 });
 
 stdin.on('end', function () {
-    sys.print('\n');
+    util.print('\n');
 });
 -------------------------------------------------------------------------------
 

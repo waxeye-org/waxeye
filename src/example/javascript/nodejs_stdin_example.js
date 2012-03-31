@@ -4,7 +4,6 @@
  * Copyright (C) 2008-2010 Orlando Hill
  * Licensed under the MIT license. See 'LICENSE' for details.
  */
-var sys = require('sys');
 var parser = require('./parser');
 
 var input = "";
@@ -25,5 +24,5 @@ stdin.on('end', function () {
     var ast = p.parse(input);
 
     // Print our AST
-    sys.puts(ast);
+    console.log(ast.toString());
 });

@@ -5,7 +5,7 @@
  * Licensed under the MIT license. See 'LICENSE' for details.
  */
 
-var sys = require('sys');
+var util = require('util');
 var waxeye = require('waxeye');
 var parser = require('./parser');
 
@@ -79,14 +79,14 @@ var stdin = process.openStdin();
 
 stdin.setEncoding('utf8');
 
-sys.print('calc> ');
+util.print('calc> ');
 
 // Read our input
 stdin.on('data', function (line) {
-    sys.puts(calc(line));
-    sys.print('calc> ');
+    util.puts(calc(line));
+    util.print('calc> ');
 });
 
 stdin.on('end', function () {
-    sys.print('\n');
+    util.print('\n');
 });
