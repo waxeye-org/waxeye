@@ -58,7 +58,7 @@ from.
 
 2. Copy the 'waxeye' directory to where you wish to install it.
 
-3. Add the 'bin/waxeye' binary to your search path. e.g. If you have `\~/bin` in
+3. Add the 'bin/waxeye' binary to your search path. e.g. If you have `~/bin` in
    your PATH and installed waxeye to '/usr/local/waxeye' then you might do the
    following.
 
@@ -198,7 +198,7 @@ The most common non-terminal type is the tree constructing non-terminal. A tree
 constructing non-terminal has the following form:
 
 *******************************************************************************
-'Name' `\<-` '+expressions'
+'Name' `<-` '+expressions'
 *******************************************************************************
 
 Where 'Name' matches `[a-zA-Z] *[a-zA-Z0-9_-]`.
@@ -243,7 +243,7 @@ Matches any character from the input.
 
 
 ===== Literal =====
-`\'text\'`
+`'text'`
 
 Matches `text` in the input.
 
@@ -299,7 +299,7 @@ Puts 'e' within a closure.
 
 
 ===== Plus =====
-`\+`'e'
+`+`'e'
 
 Puts 'e' within a plus-closure.
 
@@ -406,11 +406,11 @@ using the 'pruning' non-terminal type. This non-terminal type has the following
 form:
 
 *******************************************************************************
-'Name' `\<=` '+expressions'
+'Name' `<=` '+expressions'
 *******************************************************************************
 
 When 'Name' has successfully parsed a string, one of three things will happen,
-depending on the number of results to be included from 'Name'\'s expressions.
+depending on the number of results to be included from 'Name''s expressions.
 
 * If there are no expression results to be included, nothing new will be added
   to the AST.
@@ -503,7 +503,7 @@ A
         |   b
 -------------------------------------------------------------------------------
 
-Input: `\(((b)))`
+Input: `(((b)))`
 
 -------------------------------------------------------------------------------
 A
@@ -525,7 +525,7 @@ A <= :'(' A :')' | B
 B <- 'b'
 -------------------------------------------------------------------------------
 
-This time, parsing the input `\(((b)))` gives us a much shorter tree.
+This time, parsing the input `(((b)))` gives us a much shorter tree.
 
 -------------------------------------------------------------------------------
 B
@@ -550,8 +550,8 @@ extend until the end of the line.
 
 ==== Multi-line ====
 
-Multi-line comments are opened at the first `/\*` outside of an atomic
-expression and closed with a `\*/`.
+Multi-line comments are opened at the first `/*` outside of an atomic
+expression and closed with a `*/`.
 
 
 [source,waxeye]
