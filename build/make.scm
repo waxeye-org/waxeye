@@ -7,7 +7,7 @@
 make
 mzscheme
 
-(require (only (lib "list.ss") foldr) (lib "process.ss"))
+(require (only (lib "list.ss") foldr sort) (lib "process.ss") (only "../src/waxeye/util.scm" display-ln))
 (provide ^ $ ++ cd cd$ run-cmd run-make target)
 
 (define *target-table* (make-hash-table))
@@ -18,7 +18,14 @@ mzscheme
 (define-syntax target
   (syntax-rules ()
     ((_ name (deps ...) code ...)
-     (hash-table-put! *target-table* 'name (lambda () (for-each run-target '(deps ...)) code ...)))))
+     ;; bind target name to code
+     (hash-table-put! *target-table*
+                      'name
+                      (lambda ()
+                        ;; run dependencies
+                        (for-each run-target '(deps ...))
+                        ;; run code
+                        code ...)))))
 
 
 (define (run-target t)
@@ -31,9 +38,15 @@ mzscheme
 
 
 (define (run-make)
-  (for-each (lambda (a)
-              (run-target (string->symbol a)))
-            (vector->list (current-command-line-arguments))))
+  (let ((args (map string->symbol (vector->list (current-command-line-arguments)))))
+    ;; if no make target was specified
+    (if (null? args)
+        ;; print all possible targets
+        (begin
+          (display-ln "possible targets:")
+          (for-each display-ln (sort (map symbol->string (hash-table-map *target-table* (lambda (k v) k))) string<?)))
+        ;; otherwise run targets
+        (for-each run-target args))))
 
 
 (define (run-cmd prog args)
@@ -48,8 +61,7 @@ mzscheme
                           (++ " " (as-string a) b))
                         ""
                         args))))
-    (display cmd)
-    (newline)
+    (display-ln cmd)
     (system cmd)))
 
 
