@@ -1,5 +1,5 @@
 #!/bin/sh
 
-mzc --exe waxeye src/waxeye/waxeye.scm
-mzc --exe-dir . waxeye
+raco exe -o waxeye src/waxeye/waxeye.scm
+raco distribute . waxeye
 rm waxeye
