@@ -9,6 +9,6 @@ mzscheme
 
 (provide *version*)
 
-(define *version* "0.8.0")
+(define *version* "0.8.1")
 
 )

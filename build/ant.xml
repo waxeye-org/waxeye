@@ -21,7 +21,7 @@ Licensed under the MIT license. See 'LICENSE' for details.
         <!-- Project properties  -->
         <property name="project.name" value="waxeye" />
         <property name="project.title" value="Waxeye Parser Generator" />
-        <property name="project.version" value="0.8.0" />
+        <property name="project.version" value="0.8.1" />
 
         <!-- Import environment variables -->
         <property environment="env" />
