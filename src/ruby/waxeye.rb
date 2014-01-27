@@ -56,13 +56,13 @@ module Waxeye
     def to_s_sexpr()
       acc = []
       to_s_sexpr_iter(self, acc)
-      acc.to_s
+      acc.join('')
     end
 
     def to_s()
       acc = []
       to_s_iter(self, [0], acc)
-      acc.to_s
+      acc.join('')
     end
 
     private
@@ -310,10 +310,10 @@ module Waxeye
             end
           else
             # If not a String then must be a range
-            if aa.include?(c)
+            if aa.include?(c.ord)
               true
             else
-              aa.max < c ? within_set?(set[1..-1], c) : false
+              aa.max < c.ord ? within_set?(set[1..-1], c) : false
             end
           end
         end

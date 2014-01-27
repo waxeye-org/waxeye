@@ -880,7 +880,7 @@ waxeye -g ruby . num.waxeye
 .src/example/ruby/example.rb
 [source,ruby]
 -------------------------------------------------------------------------------
-require 'parser'
+require './parser'
 
 # Create our parser
 p = Parser.new()
@@ -1016,7 +1016,7 @@ print ''.join(ast.children)
 
 [source,ruby]
 -------------------------------------------------------------------------------
-puts ast.children.to_s
+puts ast.children.join('')
 -------------------------------------------------------------------------------
 
 
@@ -1569,7 +1569,7 @@ print
 -------------------------------------------------------------------------------
 require 'rubygems'
 require 'waxeye'
-require 'parser'
+require './parser'
 
 # A commandline arithmetic calculator.
 class Calculator
@@ -1618,7 +1618,7 @@ class Calculator
   end
 
   def self.num(num)
-    num.children.to_s.to_f
+    num.children.join('').to_f
   end
 end
 

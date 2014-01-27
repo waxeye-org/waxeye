@@ -3,7 +3,7 @@
 # Copyright (C) 2008-2010 Orlando Hill
 # Licensed under the MIT license. See 'LICENSE' for details.
 
-require 'parser'
+require './parser'
 
 p = Parser.new()
 input = STDIN.read

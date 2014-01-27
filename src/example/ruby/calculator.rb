@@ -5,7 +5,7 @@
 
 require 'rubygems'
 require 'waxeye'
-require 'parser'
+require './parser'
 
 # A commandline arithmetic calculator.
 class Calculator
@@ -54,7 +54,7 @@ class Calculator
   end
 
   def self.num(num)
-    num.children.to_s.to_f
+    num.children.join('').to_f
   end
 end
 
