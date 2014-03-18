@@ -8,10 +8,12 @@ package org.waxeye.input;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 
 /**
- * A class to read and return the contents of an InputStream.
+ * A class to read the contents of an InputStream or Reader.
  *
  * @author Orlando Hill
  */
@@ -33,14 +35,29 @@ public final class BufferFiller
     /**
      * Reads the contents of the given stream from its current position.
      *
-     * Treats IOExceptions from the input stream as if the end of the stream
-     * had been reached.
+     * Treats IOExceptions from the input stream as if the end of input has
+     * been reached.
      *
      * @param input The stream to read from.
      *
      * @return The contents of the stream.
      */
     public static char[] asArray(final InputStream input)
+    {
+        return asArray(new InputStreamReader(input));
+    }
+
+    /**
+     * Reads the contents of the given reader from its current position.
+     *
+     * Treats IOExceptions from the reader as if the end of input has been
+     * reached.
+     *
+     * @param reader The reader to read from.
+     *
+     * @return The contents of the reader.
+     */
+    public static char[] asArray(final Reader reader)
     {
         final ArrayList<char[]> filled = new ArrayList<char[]>(FILLED_INIT);
         char[] current = new char[BLOCK_SIZE];
@@ -49,7 +66,7 @@ public final class BufferFiller
 
         try
         {
-            int in = input.read();
+            int in = reader.read();
 
             // While still able to read
             while (in != -1)
@@ -69,7 +86,7 @@ public final class BufferFiller
                 resultSize++;
 
                 // Read again from the input
-                in = input.read();
+                in = reader.read();
             }
         }
         catch (IOException e)
