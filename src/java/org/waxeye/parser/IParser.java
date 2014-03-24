@@ -24,5 +24,25 @@ public interface IParser <E extends Enum<?>>
      *
      * @return A ParseResult with either an AST or an error.
      */
-    ParseResult<E> parse(IParserInput input);
+    ParseResult<E> parse(char[] input);
+
+    /**
+     * Parses the input.
+     *
+     * @param input The input to parse.
+     *
+     * @return A ParseResult with either an AST or an error.
+     */
+    ParseResult<E> parse(String input);
+
+    /**
+     * Parses the input.
+     *
+     * @param input The input to parse.
+     *
+     * @return A ParseResult with either an AST or an error.
+     *
+     * @deprecated Will be removed in a later version. The user shouldn't need to construct an IParserInput.
+     */
+    @Deprecated ParseResult<E> parse(IParserInput input);
 }

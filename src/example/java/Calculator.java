@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.IChar;
-import org.waxeye.input.InputBuffer;
 import org.waxeye.parser.ParseResult;
 
 /**
@@ -24,8 +23,7 @@ public final class Calculator {
     }
 
     private static Object calc(final String input) {
-        final ParseResult<Type> result =
-            p.parse(new InputBuffer(input.toCharArray()));
+        final ParseResult<Type> result = p.parse(input);
         final IAST<Type> ast = result.getAST();
 
         if (ast == null) {

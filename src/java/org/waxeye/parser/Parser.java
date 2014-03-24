@@ -15,6 +15,7 @@ import org.waxeye.ast.Char;
 import org.waxeye.ast.Empty;
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.Position;
+import org.waxeye.input.InputBuffer;
 import org.waxeye.input.IParserInput;
 
 /**
@@ -78,7 +79,19 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
     }
 
     /** {@inheritDoc} */
-    public final ParseResult<E> parse(final IParserInput input)
+    public final ParseResult<E> parse(final char[] input)
+    {
+        return new InnerParser(input).parse();
+    }
+
+    /** {@inheritDoc} */
+    public final ParseResult<E> parse(final String input)
+    {
+        return new InnerParser(input.toCharArray()).parse();
+    }
+
+    /** {@inheritDoc} */
+    @Deprecated public final ParseResult<E> parse(final IParserInput input)
     {
         return new InnerParser(input).parse();
     }
@@ -120,6 +133,16 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
 
         /** The nt deepest error. */
         private String errorNT;
+
+        /**
+         * Creates a new Parser.
+         *
+         * @param input The input to parse.
+         */
+        InnerParser(final char[] input)
+        {
+            this(new InputBuffer(input));
+        }
 
         /**
          * Creates a new Parser.

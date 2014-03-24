@@ -728,7 +728,6 @@ waxeye -g java . num.waxeye
 .src/example/java/Example.java
 [source,java]
 -------------------------------------------------------------------------------
-import org.waxeye.input.InputBuffer;
 import org.waxeye.parser.ParseResult;
 
 public class Example {
@@ -736,11 +735,8 @@ public class Example {
         // Create our parser
         final Parser parser = new Parser();
 
-        // Setup our input
-        final InputBuffer input = new InputBuffer("42".toCharArray());
-
         // Parse our input
-        final ParseResult<Type> result = parser.parse(input);
+        final ParseResult<Type> result = parser.parse("42");
 
         // Print our AST
         System.out.println(result);
@@ -1303,7 +1299,6 @@ import java.util.List;
 
 import org.waxeye.ast.IAST;
 import org.waxeye.ast.IChar;
-import org.waxeye.input.InputBuffer;
 import org.waxeye.parser.ParseResult;
 
 /**
@@ -1316,8 +1311,7 @@ public final class Calculator {
     }
 
     private static Object calc(final String input) {
-        final ParseResult<Type> result =
-            p.parse(new InputBuffer(input.toCharArray()));
+        final ParseResult<Type> result = p.parse(input);
         final IAST<Type> ast = result.getAST();
 
         if (ast == null) {
