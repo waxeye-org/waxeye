@@ -673,7 +673,7 @@ int main() {
     // Parse our input
     struct ast_t *ast = parse(parser, input);
 
-    // Print our ast
+    // Print our AST
     display_ast(ast, type_strings);
 
     ast_recursive_delete(ast);
@@ -742,7 +742,7 @@ public class Example {
         // Parse our input
         final ParseResult<Type> result = parser.parse(input);
 
-        // Print our ast
+        // Print our AST
         System.out.println(result);
     }
 }
@@ -933,7 +933,7 @@ mzscheme
 (define (run)
   ;; Parse our input
   (let ((ast (parser "42")))
-    ;; Print the ast
+    ;; Print our AST
     (display-ast ast)))
 
 (run)

@@ -18,7 +18,7 @@ public class Example {
         // Parse our input
         final ParseResult<Type> result = parser.parse(input);
 
-        // Print our ast
+        // Print our AST
         System.out.println(result);
     }
 }

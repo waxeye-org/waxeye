@@ -19,7 +19,7 @@ int main() {
     // Parse our input
     struct ast_t *ast = parse(parser, input);
 
-    // Print our ast
+    // Print our AST
     display_ast(ast, type_strings);
 
     ast_recursive_delete(ast);

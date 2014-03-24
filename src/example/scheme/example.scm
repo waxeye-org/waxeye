@@ -12,7 +12,7 @@ mzscheme
 (define (run)
   ;; Parse our input
   (let ((ast (parser "42")))
-    ;; Print the ast
+    ;; Print our AST
     (display-ast ast)))
 
 (run)
