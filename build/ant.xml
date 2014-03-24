@@ -104,7 +104,7 @@ Licensed under the MIT license. See 'LICENSE' for details.
         <javac debug="${build.debug}" deprecation="${build.deprecation}"
             destdir="tmp/classes" target="${build.jdk-version.target}"
             source="${build.jdk-version.source}" optimize="${build.optimize}"
-            srcdir="src/java">
+            srcdir="src/java" includeantruntime="false">
             <classpath refid="build.classpath" />
         </javac>
     </target>
@@ -116,7 +116,7 @@ Licensed under the MIT license. See 'LICENSE' for details.
         <javac debug="${build.debug}" deprecation="${build.deprecation}"
                destdir="tmp/test" target="${build.jdk-version.target}"
                source="${build.jdk-version.source}" optimize="${build.optimize}"
-               srcdir="test/java">
+               srcdir="test/java" includeantruntime="false">
             <classpath refid="build.classpath.test"/>
         </javac>
     </target>
