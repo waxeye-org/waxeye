@@ -102,7 +102,7 @@ mzscheme
     (make-state (list) #t)) 'leftArrow)
    (make-fa 'identifier (vector
     (make-state (list
-     (make-edge (list (cons #\A #\Z) (cons #\a #\z)) 1 #f)) #f)
+     (make-edge (list (cons #\A #\Z) #\_ (cons #\a #\z)) 1 #f)) #f)
     (make-state (list
      (make-edge (list #\- (cons #\0 #\9) (cons #\A #\Z) #\_ (cons #\a #\z)) 1 #f)
      (make-edge 27 2 #f)) #f)
