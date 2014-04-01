@@ -49,14 +49,19 @@ structure Value
                  | AST_CHAR of char
                  | AST_TREE of string * ast list
 
+    datatype err_exp = ERR_ANY
+                     | ERR_CHAR of char
+                     | ERR_CC of char_class
+    withtype char_class = (char * char) list
+
     (*
      * Information for error reporting
      * - position of deepest match failiure
      * - list of non-terminals where match errors occured
-     * - list of failed character match ranges
+     * - list of failed character matching expressions
      * - name of current non-terminal
      *)
-    type error = int * string list * (char * char) list * string
+    type error = int * string list * err_exp list * string
 
     datatype value = FAIL of error
                    | VAL of int * ast list * error
@@ -67,9 +72,9 @@ structure Value
      * A parse error contains
      * - position of deepest match failiure
      * - list of non-terminals where match errors occured
-     * - list of failed character match ranges
+     * - list of failed character matching expressions
      *)
-    withtype parse_error = int * string list * (char * char) list
+    withtype parse_error = int * string list * err_exp list
   end
 
 
@@ -151,18 +156,22 @@ functor mkTest (structure E : SIG)
                   ]
 
       val tests =
-          [(match (env1, "V1", "b"), PARSE_ERROR (0, ["V1"], [])),
-           (match (env1, "V2", "a"), PARSE_ERROR (1, ["V2"], [])),
-           (match (env1, "V3", "ac"), PARSE_ERROR (1, ["V3"], [])),
-           (match (env1, "V3", "a"), PARSE_ERROR (1, ["V3"], [])),
-           (match (env1, "V3", "ab"), PARSE_ERROR (2, ["V3"], [])),
+          [(match (env1, "V1", "b"), PARSE_ERROR (0, ["V1"], [ERR_CHAR #"a"])),
+           (match (env1, "V2", "a"), PARSE_ERROR (1, ["V2"], [ERR_CHAR #"b"])),
+           (match (env1, "V3", "ac"), PARSE_ERROR (1, ["V3"], [ERR_CHAR #"b"])),
+           (match (env1, "V3", "a"), PARSE_ERROR (1, ["V3"], [ERR_CHAR #"b"])),
+           (match (env1, "V3", "ab"), PARSE_ERROR (2, ["V3"], [ERR_CHAR #"c"])),
+           (match (env1, "V3", "abd"), PARSE_ERROR (2, ["V3"], [ERR_CHAR #"c"])),
+           (match (env1, "V3", "abdc"), PARSE_ERROR (2, ["V3"], [ERR_CHAR #"c"])),
+           (match (env1, "V3", "dabc"), PARSE_ERROR (0, ["V3"], [ERR_CHAR #"a"])),
+           (match (env1, "V3", "abcd"), PARSE_ERROR (3, [], [])),
 
            (match (env1, "V1", "a"), AST (AST_TREE ("V1", []))),
            (match (env1, "V2", "ab"), AST (AST_TREE ("V2", []))),
            (match (env1, "V3", "abc"), AST (AST_TREE ("V3", [AST_CHAR #"a", AST_CHAR #"c"]))),
 
-           (match (env1, "WS", "a"), PARSE_ERROR (0, ["WS"], [])),
-           (match (env1, "WS", " a"), PARSE_ERROR (1, ["WS"], [])),
+           (match (env1, "WS", "a"), PARSE_ERROR (0, ["WS"], [ERR_CHAR #" ", ERR_CHAR #"\t", ERR_CHAR #"\n", ERR_CHAR #"\r"])),
+           (match (env1, "WS", " a"), PARSE_ERROR (1, ["WS"], [ERR_CHAR #" ", ERR_CHAR #"\t", ERR_CHAR #"\n", ERR_CHAR #"\r"])),
            (match (env1, "WS", ""), AST AST_EMPTY),
            (match (env1, "WS", " "), AST AST_EMPTY),
            (match (env1, "WS", " \r\n  \t"), AST AST_EMPTY),
@@ -177,43 +186,43 @@ functor mkTest (structure E : SIG)
            (match (env1, "Nums", "1, 2"), AST (AST_TREE ("Nums", [AST_TREE ("Int", [AST_CHAR #"1"]), AST_TREE ("Int", [AST_CHAR #"2"])]))),
            (match (env1, "Nums", "1, 2,3"), AST (AST_TREE ("Nums", [AST_TREE ("Int", [AST_CHAR #"1"]), AST_TREE ("Int", [AST_CHAR #"2"]), AST_TREE ("Int", [AST_CHAR #"3"])]))),
 
-           (match (env1, "A", ""), PARSE_ERROR (0, ["A"], [])),
-           (match (env1, "A", "b"), PARSE_ERROR (0, ["A"], [])),
+           (match (env1, "A", ""), PARSE_ERROR (0, ["A"], [ERR_CHAR #"a"])),
+           (match (env1, "A", "b"), PARSE_ERROR (0, ["A"], [ERR_CHAR #"a"])),
 
-           (test_eval (env1, SEQ [NT "A", NT "B"], "b"), PARSE_ERROR (0, ["A", "S"], [])),
-           (test_eval (env1, SEQ [OPT (NT "A"), NT "B"], "a"), PARSE_ERROR (1, ["B"], [])),
+           (test_eval (env1, SEQ [NT "A", NT "B"], "b"), PARSE_ERROR (0, ["A", "S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [OPT (NT "A"), NT "B"], "a"), PARSE_ERROR (1, ["B"], [ERR_CHAR #"b", ERR_CHAR #"B"])),
 
-           (match (env1, "C", "()"), PARSE_ERROR (1, ["A", "C"], [])),
-           (match (env1, "C", "(a"), PARSE_ERROR (2, ["C"], [])),
+           (match (env1, "C", "()"), PARSE_ERROR (1, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
+           (match (env1, "C", "(a"), PARSE_ERROR (2, ["C"], [ERR_CHAR #")"])),
            (match (env1, "C", "a)"), PARSE_ERROR (1, [], [])),
-           (match (env1, "C", ")("), PARSE_ERROR (0, ["A", "C"], [])),
-           (match (env1, "C", ")a("), PARSE_ERROR (0, ["A", "C"], [])),
+           (match (env1, "C", ")("), PARSE_ERROR (0, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
+           (match (env1, "C", ")a("), PARSE_ERROR (0, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
            (match (env1, "C", "(a))"), PARSE_ERROR (3, [], [])),
-           (match (env1, "C", "((a)"), PARSE_ERROR (4, ["C"], [])),
-           (match (env1, "C", "()a)"), PARSE_ERROR (1, ["A", "C"], [])),
-           (match (env1, "C", "(a()"), PARSE_ERROR (2, ["C"], [])),
-           (match (env1, "C", "(a())"), PARSE_ERROR (2, ["C"], [])),
-           (match (env1, "C", "(()a)"), PARSE_ERROR (2, ["A", "C"], [])),
-           (match (env1, "C", "(())"), PARSE_ERROR (2, ["A", "C"], [])),
+           (match (env1, "C", "((a)"), PARSE_ERROR (4, ["C"], [ERR_CHAR #")"])),
+           (match (env1, "C", "()a)"), PARSE_ERROR (1, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
+           (match (env1, "C", "(a()"), PARSE_ERROR (2, ["C"], [ERR_CHAR #")"])),
+           (match (env1, "C", "(a())"), PARSE_ERROR (2, ["C"], [ERR_CHAR #")"])),
+           (match (env1, "C", "(()a)"), PARSE_ERROR (2, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
+           (match (env1, "C", "(())"), PARSE_ERROR (2, ["A", "C"], [ERR_CHAR #"a", ERR_CHAR #"("])),
            (match (env1, "Int", "00"), PARSE_ERROR (1, [], [])),
            (match (env1, "Int", "01"), PARSE_ERROR (1, [], [])),
            (match (env1, "Int", "010"), PARSE_ERROR (1, [], [])),
            (match (env1, "Int", "099"), PARSE_ERROR (1, [], [])),
-           (match (env1, "Unary", "(1"), PARSE_ERROR (2, ["Int","Prod","Sum","Unary"], [])),
+           (match (env1, "Unary", "(1"), PARSE_ERROR (2, ["Int","Prod","Sum","Unary"], [ERR_CC [(#"0",#"9")], ERR_CC [(#"*",#"*"),(#"/",#"/")], ERR_CC [(#"+",#"+"),(#"-",#"-")], ERR_CHAR #")"])),
            (match (env1, "Unary", "(1123)("), PARSE_ERROR (6, [], [])),
-           (match (env1, "Unary", "(11+-23)"), PARSE_ERROR (4, ["Int","Unary"], [])),
-           (match (env1, "Unary", "(1123*)"), PARSE_ERROR (6, ["Int","Unary"], [])),
-           (match (env1, "Prod", "*"), PARSE_ERROR (0, ["Int","Prod","Unary"], [])),
+           (match (env1, "Unary", "(11+-23)"), PARSE_ERROR (4, ["Int","Unary"], [ERR_CHAR #"0", ERR_CC [(#"1",#"9")], ERR_CHAR #"("])),
+           (match (env1, "Unary", "(1123*)"), PARSE_ERROR (6, ["Int","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
+           (match (env1, "Prod", "*"), PARSE_ERROR (0, ["Int","Prod","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
            (match (env1, "Prod", "787*"), PARSE_ERROR (3, [], [])),
            (match (env1, "Prod", "312*98*"), PARSE_ERROR (6, [], [])),
-           (match (env1, "Prod", "()*98"), PARSE_ERROR (1, ["Int","Unary"], [])),
-           (match (env1, "Prod", "(*98)*234"), PARSE_ERROR (1, ["Int","Unary"], [])),
+           (match (env1, "Prod", "()*98"), PARSE_ERROR (1, ["Int","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
+           (match (env1, "Prod", "(*98)*234"), PARSE_ERROR (1, ["Int","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
            (match (env1, "Prod", "52//23"), PARSE_ERROR (2, [], [])),
-           (match (env1, "Sum", "-"), PARSE_ERROR (0, ["Int","Sum","Unary"], [])),
+           (match (env1, "Sum", "-"), PARSE_ERROR (0, ["Int","Sum","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
            (match (env1, "Sum", "787-"), PARSE_ERROR (3, [], [])),
            (match (env1, "Sum", "312+98-"), PARSE_ERROR (6, [], [])),
-           (match (env1, "Sum", "()-98"), PARSE_ERROR (1, ["Int","Unary"], [])),
-           (match (env1, "Sum", "(+98)-234"), PARSE_ERROR (1, ["Int","Unary"], [])),
+           (match (env1, "Sum", "()-98"), PARSE_ERROR (1, ["Int","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
+           (match (env1, "Sum", "(+98)-234"), PARSE_ERROR (1, ["Int","Unary"], [ERR_CHAR #"0",ERR_CC [(#"1",#"9")],ERR_CHAR #"("])),
            (match (env1, "Sum", "52++23"), PARSE_ERROR (2, [], [])),
 
            (test_eval (env1, SEQ [NT "A", NT "B"], "ab"), AST AST_EMPTY),
@@ -255,29 +264,29 @@ functor mkTest (structure E : SIG)
            (match (env1, "Sum", "52-523/23"), AST (AST_TREE ("Sum", [AST_TREE ("Prod", [AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"5", AST_CHAR #"2"])])]), AST_CHAR #"-", AST_TREE ("Prod", [AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"5", AST_CHAR #"2", AST_CHAR #"3"])]), AST_CHAR #"/", AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"2", AST_CHAR #"3"])])])]))),
            (match (env1, "Sum", "52*523/23"), AST (AST_TREE ("Sum", [AST_TREE ("Prod", [AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"5", AST_CHAR #"2"])]), AST_CHAR #"*", AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"5", AST_CHAR #"2", AST_CHAR #"3"])]), AST_CHAR #"/", AST_TREE ("Unary", [AST_TREE ("Int", [AST_CHAR #"2", AST_CHAR #"3"])])])]))),
 
-           (test_eval (env1, ANY, ""), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, ANY, ""), PARSE_ERROR (0, ["S"], [ERR_ANY])),
            (test_eval (env1, ANY, "aa"), PARSE_ERROR (1, [], [])),
            (test_eval (env1, ANY, "ba"), PARSE_ERROR (1, [], [])),
            (test_eval (env1, ANY, "a"), AST AST_EMPTY),
            (test_eval (env1, ANY, "b"), AST AST_EMPTY),
 
-           (test_eval (env1, CHAR #"a", ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR #"a", "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR #"a", "ba"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, CHAR #"a", ""), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, CHAR #"a", "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, CHAR #"a", "ba"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
            (test_eval (env1, CHAR #"a", "aa"), PARSE_ERROR (1, [], [])),
            (test_eval (env1, CHAR #"a", "ab"), PARSE_ERROR (1, [], [])),
-           (test_eval (env1, CHAR #"b", "a"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, CHAR #"b", "a"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
            (test_eval (env1, CHAR #"a", "a"), AST AST_EMPTY),
            (test_eval (env1, CHAR #"b", "b"), AST AST_EMPTY),
 
-           (test_eval (env1, CHAR_CLASS [], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR_CLASS [(#"a", #"a")], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR_CLASS [(#"a", #"z")], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR_CLASS [(#"a", #"z")], "A"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR_CLASS [(#"a", #"c")], "d"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, CHAR_CLASS [(#"a", #"c")], "_"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), "ab$c"), PARSE_ERROR (2, ["S"], [])),
+           (test_eval (env1, CHAR_CLASS [], ""), PARSE_ERROR (0, ["S"], [ERR_CC []])),
+           (test_eval (env1, CHAR_CLASS [(#"a", #"a")], ""), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"a")]])),
+           (test_eval (env1, CHAR_CLASS [(#"a", #"z")], ""), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"z")]])),
+           (test_eval (env1, CHAR_CLASS [(#"a", #"z")], "A"), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"z")]])),
+           (test_eval (env1, CHAR_CLASS [(#"a", #"c")], "d"), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"c")]])),
+           (test_eval (env1, CHAR_CLASS [(#"a", #"c")], "_"), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"c")]])),
+           (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), ""), PARSE_ERROR (0, ["S"], [ERR_CC [(#"a",#"c"),(#"_",#"_")]])),
+           (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), "ab$c"), PARSE_ERROR (2, ["S"], [ERR_CC [(#"a",#"c"),(#"_",#"_")]])),
            (test_eval (env1, CHAR_CLASS [(#"a", #"z")], "a"), AST AST_EMPTY),
            (test_eval (env1, CHAR_CLASS [(#"a", #"z")], "q"), AST AST_EMPTY),
            (test_eval (env1, CHAR_CLASS [(#"a", #"z")], "z"), AST AST_EMPTY),
@@ -286,19 +295,19 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), "ab___"), AST AST_EMPTY),
            (test_eval (env1, PLUS (CHAR_CLASS [(#"a", #"c"), (#"_", #"_")]), "_b__"), AST AST_EMPTY),
 
-           (test_eval (env1, SEQ [CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, SEQ [CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
            (test_eval (env1, SEQ [CHAR #"a"], "aa"), PARSE_ERROR (1, [], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], "a"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", CHAR #"a"], "b"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b"], "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], "ab"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c"], "ab"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c"], "aba"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", CHAR #"a"], "ab"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a", CHAR #"b", CHAR #"c"], "aabd"), PARSE_ERROR (3, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"a", CHAR #"c", CHAR #"b", CHAR #"c"], "aabd"), PARSE_ERROR (1, ["S"], [])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], "a"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"b", CHAR #"a"], "b"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b"], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], "ab"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c"], "ab"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c"], "aba"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", CHAR #"a"], "ab"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"a", CHAR #"b", CHAR #"c"], "aabd"), PARSE_ERROR (3, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"a", CHAR #"c", CHAR #"b", CHAR #"c"], "aabd"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"c"])),
            (test_eval (env1, SEQ [CHAR #"a", CHAR #"a", CHAR #"b", CHAR #"c"], "aabcd"), PARSE_ERROR (4, [], [])),
            (test_eval (env1, SEQ [CHAR #"a"], "a"), AST AST_EMPTY),
            (test_eval (env1, SEQ [CHAR #"a", CHAR #"a"], "aa"), AST AST_EMPTY),
@@ -308,14 +317,14 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c", CHAR #"d"], "abcd"), AST AST_EMPTY),
            (test_eval (env1, SEQ [CHAR #"a", CHAR #"b", CHAR #"c", CHAR #"d", CHAR #"a", CHAR #"b"], "abcdab"), AST AST_EMPTY),
 
-           (test_eval (env1, ALT [CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, ALT [CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, ALT [CHAR #"a"], ""), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, ALT [CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
            (test_eval (env1, ALT [CHAR #"a"], "aa"), PARSE_ERROR (1, [], [])),
            (test_eval (env1, ALT [CHAR #"a"], "ab"), PARSE_ERROR (1, [], [])),
-           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "a"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "ab"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "ba"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, ALT [CHAR #"a", SEQ [CHAR #"b", CHAR #"b"]], "b"), PARSE_ERROR (1, ["S"], [])),
+           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "a"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "ab"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "ba"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, ALT [CHAR #"a", SEQ [CHAR #"b", CHAR #"b"]], "b"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"b"])),
            (test_eval (env1, ALT [SEQ [CHAR #"a"]], "a"), AST AST_EMPTY),
            (test_eval (env1, ALT [CHAR #"a"], "a"), AST AST_EMPTY),
            (test_eval (env1, ALT [SEQ [CHAR #"a", CHAR #"a"], SEQ [CHAR #"b", CHAR #"b"]], "aa"), AST AST_EMPTY),
@@ -345,7 +354,7 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, SEQ [AND ANY, CHAR #"z"], "z"), AST AST_EMPTY),
            (test_eval (env1, SEQ [AND (AND (CHAR #"a")), CHAR #"a"], "a"), AST AST_EMPTY),
            (test_eval (env1, SEQ [AND (AND (CHAR #"a")), CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [AND (AND (CHAR #"b")), CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, SEQ [AND (AND (CHAR #"b")), CHAR #"a"], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
            (test_eval (env1, SEQ [AND (AND (CHAR #"a")), CHAR #"b"], "b"), PARSE_ERROR (0, ["S"], [])),
            (test_eval (env1, SEQ [AND (NOT (CHAR #"a")), CHAR #"a"], "a"), PARSE_ERROR (0, ["S"], [])),
            (test_eval (env1, SEQ [AND (NOT (CHAR #"b")), CHAR #"a"], "a"), AST AST_EMPTY),
@@ -374,18 +383,18 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, SEQ [NOT (SEQ [CHAR #"a", ALT [CHAR #"b", CHAR #"c"]]), CHAR #"a", CHAR #"d"], "ad"), AST AST_EMPTY),
            (test_eval (env1, NOT ANY, ""), AST AST_EMPTY),
 
-           (test_eval (env1, SEQ [OPT (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, SEQ [OPT (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
            (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "cc"), PARSE_ERROR (1, [], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baac"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baaac"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baaaac"), PARSE_ERROR (2, ["S"], [])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baac"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baaac"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "baaaac"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"c"])),
            (test_eval (env1, SEQ [OPT (CHAR #"a")], ""), AST AST_EMPTY),
            (test_eval (env1, SEQ [OPT (CHAR #"a")], "a"), AST AST_EMPTY),
            (test_eval (env1, SEQ [OPT (CHAR #"a"), CHAR #"c"], "c"), AST AST_EMPTY),
@@ -393,15 +402,15 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "bc"), AST AST_EMPTY),
            (test_eval (env1, SEQ [CHAR #"b", OPT (CHAR #"a"), CHAR #"c"], "bac"), AST AST_EMPTY),
 
-           (test_eval (env1, SEQ [STAR (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, SEQ [STAR (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
            (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "cc"), PARSE_ERROR (1, [], [])),
-           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [])),
+           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [STAR (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
            (test_eval (env1, SEQ [STAR (CHAR #"a")], ""), AST AST_EMPTY),
            (test_eval (env1, SEQ [STAR (CHAR #"a")], "a"), AST AST_EMPTY),
            (test_eval (env1, SEQ [STAR (CHAR #"a")], "aa"), AST AST_EMPTY),
@@ -416,18 +425,18 @@ functor mkTest (structure E : SIG)
            (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "baaac"), AST AST_EMPTY),
            (test_eval (env1, SEQ [CHAR #"b", STAR (CHAR #"a"), CHAR #"c"], "baaaac"), AST AST_EMPTY),
 
-           (test_eval (env1, SEQ [PLUS (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "cc"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a")], ""), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [])),
-           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (1, ["S"], [])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a")], "b"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "cc"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "b"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "ac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"b"])),
+           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "ba"), PARSE_ERROR (2, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "abc"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a", ERR_CHAR #"c"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "bac"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a")], ""), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [PLUS (CHAR #"a"), CHAR #"c"], "c"), PARSE_ERROR (0, ["S"], [ERR_CHAR #"a"])),
+           (test_eval (env1, SEQ [CHAR #"b", PLUS (CHAR #"a"), CHAR #"c"], "bc"), PARSE_ERROR (1, ["S"], [ERR_CHAR #"a"])),
            (test_eval (env1, SEQ [PLUS (CHAR #"a")], "a"), AST AST_EMPTY),
            (test_eval (env1, SEQ [PLUS (CHAR #"a")], "aa"), AST AST_EMPTY),
            (test_eval (env1, SEQ [PLUS (CHAR #"a")], "aaa"), AST AST_EMPTY),
@@ -449,13 +458,17 @@ functor mkTest (structure E : SIG)
 val uniq = ListMergeSort.uniqueSort String.compare
 
 
-(*  update_error : error * int -> error  *)
-fun update_error ((err_pos, nts, ccs, nt), pos)
+(*  update_error : error * int * err_exp -> error  *)
+fun update_error ((err_pos, nts, es, nt), pos, e)
     = if pos > err_pos
-      then (pos, [nt], ccs, nt)
+      then (pos, [nt], [e], nt)
       else if pos = err_pos
-           then (err_pos, nt :: nts, ccs, nt)
-           else (err_pos, nts, ccs, nt)
+           then (err_pos, nt :: nts, e :: es, nt)
+           else (err_pos, nts, es, nt)
+
+
+(*  mk_parse_error : int * string list * err_exp list -> result *)
+fun mk_parse_error (pos, nts, es) = Value.PARSE_ERROR (pos, uniq nts, rev es)
 
 
 (* matcher *)
@@ -482,21 +495,21 @@ structure Match0 : SIG
               (*  eval : exp * int * ast list * error -> value  *)
               fun eval (ANY, pos, asts, err)
                   = if eof pos
-                    then FAIL (update_error (err, pos))
+                    then FAIL (update_error (err, pos, ERR_ANY))
                     else VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)
                 | eval (CHAR c, pos, asts, err)
                   = if eof pos orelse c <> ch pos
-                    then FAIL (update_error (err, pos))
+                    then FAIL (update_error (err, pos, ERR_CHAR c))
                     else VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)
                 | eval (CHAR_CLASS cc, pos, asts, err)
                   = let fun visit ([])
-                            = FAIL (update_error (err, pos))
+                            = FAIL (update_error (err, pos, ERR_CC cc))
                           | visit ((c1, c2) :: cs)
                             = if c1 <= ch pos andalso c2 >= ch pos
                               then VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)
                               else visit cs
                     in if eof pos
-                       then FAIL (update_error (err, pos))
+                       then FAIL (update_error (err, pos, ERR_CC cc))
                        else visit cc
                     end
                 (* a sequence is made up of a list of expressions *)
@@ -611,10 +624,10 @@ structure Match0 : SIG
                                      | VOIDING
                                        => AST_EMPTY)
                         else if rest = err_pos
-                             then PARSE_ERROR (rest, uniq nts, ccs)
-                             else PARSE_ERROR (rest, [], [])
+                             then mk_parse_error (rest, nts, ccs)
+                             else mk_parse_error (rest, [], [])
                    | FAIL (err_pos, nts, ccs, _)
-                     => PARSE_ERROR (err_pos, uniq nts, ccs))
+                     => mk_parse_error (err_pos, nts, ccs))
             end
 
     (* ********** *)
@@ -646,21 +659,21 @@ structure Match1 : SIG
               (*  eval : exp * int * ast list * error * (value -> result) -> result  *)
               fun eval (ANY, pos, asts, err, k)
                   = if eof pos
-                    then k (FAIL (update_error (err, pos)))
+                    then k (FAIL (update_error (err, pos, ERR_ANY)))
                     else k (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))
                 | eval (CHAR c, pos, asts, err, k)
                   = if eof pos orelse c <> ch pos
-                    then k (FAIL (update_error (err, pos)))
+                    then k (FAIL (update_error (err, pos, ERR_CHAR c)))
                     else k (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))
                 | eval (CHAR_CLASS cc, pos, asts, err, k)
                   = let fun visit ([])
-                            = k (FAIL (update_error (err, pos)))
+                            = k (FAIL (update_error (err, pos, ERR_CC cc)))
                           | visit ((c1, c2) :: cs)
                             = if c1 <= ch pos andalso c2 >= ch pos
                               then k (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))
                               else visit cs
                     in if eof pos
-                       then k (FAIL (update_error (err, pos)))
+                       then k (FAIL (update_error (err, pos, ERR_CC cc)))
                        else visit cc
                     end
                 (* a sequence is made up of a list of expressions *)
@@ -766,10 +779,10 @@ structure Match1 : SIG
                                         | VOIDING
                                           => AST_EMPTY)
                            else if rest = err_pos
-                                then PARSE_ERROR (rest, uniq nts, ccs)
-                                else PARSE_ERROR (rest, [], [])
+                                then mk_parse_error (rest, nts, ccs)
+                                else mk_parse_error (rest, [], [])
                       | FAIL (err_pos, nts, ccs, _)
-                        => PARSE_ERROR (err_pos, uniq nts, ccs))
+                        => mk_parse_error (err_pos, nts, ccs))
             end
 
     (* ********** *)
@@ -882,29 +895,29 @@ structure Match2 : SIG
                                  | VOIDING
                                    => AST_EMPTY)
                     else if rest = err_pos
-                         then PARSE_ERROR (rest, uniq nts, ccs)
-                         else PARSE_ERROR (rest, [], [])
+                         then mk_parse_error (rest, nts, ccs)
+                         else mk_parse_error (rest, [], [])
                 | apply (CONT_INIT, FAIL (err_pos, nts, ccs, _))
-                  = PARSE_ERROR (err_pos, uniq nts, ccs)
+                  = mk_parse_error (err_pos, nts, ccs)
 
               (*  eval : exp * int * ast list * error * cont -> result  *)
               and eval (ANY, pos, asts, err, k)
                   = if eof pos
-                    then apply (k, FAIL (update_error (err, pos)))
+                    then apply (k, FAIL (update_error (err, pos, ERR_ANY)))
                     else apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                 | eval (CHAR c, pos, asts, err, k)
                   = if eof pos orelse c <> ch pos
-                    then apply (k, FAIL (update_error (err, pos)))
+                    then apply (k, FAIL (update_error (err, pos, ERR_CHAR c)))
                     else apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                 | eval (CHAR_CLASS cc, pos, asts, err, k)
                   = let fun visit ([])
-                            = apply (k, FAIL (update_error (err, pos)))
+                            = apply (k, FAIL (update_error (err, pos, ERR_CC cc)))
                           | visit ((c1, c2) :: cs)
                             = if c1 <= ch pos andalso c2 >= ch pos
                               then apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                               else visit cs
                     in if eof pos
-                       then apply (k, FAIL (update_error (err, pos)))
+                       then apply (k, FAIL (update_error (err, pos, ERR_CC cc)))
                        else visit cc
                     end
                 (* a sequence is made up of a list of expressions *)
@@ -1049,29 +1062,29 @@ structure Match3 : SIG
                                  | VOIDING
                                    => AST_EMPTY)
                     else if rest = err_pos
-                         then PARSE_ERROR (rest, uniq nts, ccs)
-                         else PARSE_ERROR (rest, [], [])
+                         then mk_parse_error (rest, nts, ccs)
+                         else mk_parse_error (rest, [], [])
                 | apply ([], FAIL (err_pos, nts, ccs, _))
-                  = PARSE_ERROR (err_pos, uniq nts, ccs)
+                  = mk_parse_error (err_pos, nts, ccs)
 
               (*  eval : exp * int * ast list * error * cont list -> result  *)
               and eval (ANY, pos, asts, err, k)
                   = if eof pos
-                    then apply (k, FAIL (update_error (err, pos)))
+                    then apply (k, FAIL (update_error (err, pos, ERR_ANY)))
                     else apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                 | eval (CHAR c, pos, asts, err, k)
                   = if eof pos orelse c <> ch pos
-                    then apply (k, FAIL (update_error (err, pos)))
+                    then apply (k, FAIL (update_error (err, pos, ERR_CHAR c)))
                     else apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                 | eval (CHAR_CLASS cc, pos, asts, err, k)
                   = let fun visit ([])
-                            = apply (k, FAIL (update_error (err, pos)))
+                            = apply (k, FAIL (update_error (err, pos, ERR_CC cc)))
                           | visit ((c1, c2) :: cs)
                             = if c1 <= ch pos andalso c2 >= ch pos
                               then apply (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err)))
                               else visit cs
                     in if eof pos
-                       then apply (k, FAIL (update_error (err, pos)))
+                       then apply (k, FAIL (update_error (err, pos, ERR_CC cc)))
                        else visit cc
                     end
                 (* a sequence is made up of a list of expressions *)
@@ -1154,21 +1167,21 @@ structure Match4 : SIG
               (* move : configuration -> state *)
               fun move (EVAL (ANY, pos, asts, err, k))
                   = if eof pos
-                    then INTER (APPLY (k, FAIL (update_error (err, pos))))
+                    then INTER (APPLY (k, FAIL (update_error (err, pos, ERR_ANY))))
                     else INTER (APPLY (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))))
                 | move (EVAL (CHAR c, pos, asts, err, k))
                   = if eof pos orelse c <> ch pos
-                    then INTER (APPLY (k, FAIL (update_error (err, pos))))
+                    then INTER (APPLY (k, FAIL (update_error (err, pos, ERR_CHAR c))))
                     else INTER (APPLY (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))))
                 | move (EVAL (CHAR_CLASS cc, pos, asts, err, k))
                   = let fun visit ([])
-                            = INTER (APPLY (k, FAIL (update_error (err, pos))))
+                            = INTER (APPLY (k, FAIL (update_error (err, pos, ERR_CC cc))))
                           | visit ((c1, c2) :: cs)
                             = if c1 <= ch pos andalso c2 >= ch pos
                               then INTER (APPLY (k, (VAL (pos + 1, AST_CHAR (ch pos) :: asts, err))))
                               else visit cs
                     in if eof pos
-                       then INTER (APPLY (k, FAIL (update_error (err, pos))))
+                       then INTER (APPLY (k, FAIL (update_error (err, pos, ERR_CC cc))))
                        else visit cc
                     end
                 (* a sequence is made up of a list of expressions *)
@@ -1272,10 +1285,10 @@ structure Match4 : SIG
                                         | VOIDING
                                           => AST_EMPTY))
                     else if rest = err_pos
-                         then FINAL (PARSE_ERROR (rest, uniq nts, ccs))
-                         else FINAL (PARSE_ERROR (rest, [], []))
+                         then FINAL (mk_parse_error (rest, nts, ccs))
+                         else FINAL (mk_parse_error (rest, [], []))
                 | move (APPLY ([], FAIL (err_pos, nts, ccs, _)))
-                  = FINAL (PARSE_ERROR (err_pos, uniq nts, ccs))
+                  = FINAL (mk_parse_error (err_pos, nts, ccs))
 
               (* drive : state -> halting_state *)
               fun drive (FINAL a) = a
