@@ -56,7 +56,7 @@ def num(ast):
 sys.stdout.write('calc> ')
 line = sys.stdin.readline()
 while line:
-    print calc(line)
+    print(calc(line))
     sys.stdout.write('calc> ')
     line = sys.stdin.readline()
-print
+print()
