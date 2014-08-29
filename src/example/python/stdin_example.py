@@ -8,4 +8,4 @@ import parser
 
 p = parser.Parser()
 input = sys.stdin.read()
-print p.parse(input)
+print(p.parse(input))
