@@ -140,16 +140,12 @@ import org.waxeye.parser.WildCardTransition;
             (ind)
             (indent
              (string-append
-              ;;(format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
-              ;;(format "~aList<State<~a>> states;\n" (ind) *java-node-name*)
               (format "~afinal List<FA<~a>> automata = new ArrayList<FA<~a>>();\n" (ind) *java-node-name* *java-node-name*)
               "\n"
               (string-concat (map gen-fa-call a-names))
               (string-append (ind) "return automata;\n")))
             (ind)
-            (indent
-             (string-concat (map gen-fa automata-list a-names))
-            )
+            (string-concat (map gen-fa automata-list a-names))
 )))
 
   
@@ -167,27 +163,29 @@ import org.waxeye.parser.WildCardTransition;
 
 
 (define (gen-fa a aname)
-  (format "\n~aprivate static void ~a(List<FA<~a>> automata) {\n~a~a~a~a~a}\n"
+  (format "\n~aprivate static void ~a(List<FA<~a>> automata) {\n~a~a}\n"
           (ind)
           aname
           *java-node-name*
-          (format "~aList<State<~a>> states = new ArrayList<State<~a>>();\n" (ind) *java-node-name* *java-node-name*)
-          (format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
-          (string-concat (map gen-state (vector->list (fa-states a))))
-          (format "~aautomata.add(new FA<~a>(~a.~a, ~a, states));\n"
-                  (ind)
-                  *java-node-name*
-                  *java-node-name*
-                  (let ((type (fa-type a)))
-                    (cond
-                     ((equal? type '&) "_Pos")
-                     ((equal? type '!) "_Neg")
-                     (else
-                      (camel-case-upper (symbol->string type)))))
-                  (case (fa-mode a)
-                    ((voidArrow) "FA.VOID")
-                    ((pruneArrow) "FA.PRUNE")
-                    ((leftArrow) "FA.LEFT")))
+          (indent (string-append
+            (format "~aList<State<~a>> states = new ArrayList<State<~a>>();\n" (ind) *java-node-name* *java-node-name*)
+            (format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
+            (string-concat (map gen-state (vector->list (fa-states a))))
+            (format "~aautomata.add(new FA<~a>(~a.~a, ~a, states));\n"
+                    (ind)
+                    *java-node-name*
+                    *java-node-name*
+                    (let ((type (fa-type a)))
+                      (cond
+                       ((equal? type '&) "_Pos")
+                       ((equal? type '!) "_Neg")
+                       (else
+                        (camel-case-upper (symbol->string type)))))
+                    (case (fa-mode a)
+                      ((voidArrow) "FA.VOID")
+                      ((pruneArrow) "FA.PRUNE")
+                      ((leftArrow) "FA.LEFT")))
+          ))
           (ind)))
 
 
