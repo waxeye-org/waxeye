@@ -120,25 +120,56 @@ import org.waxeye.parser.WildCardTransition;
           (ind)))
 
 
+;; I could not get for/list or in-range to work, so defined the following. There must be a better way.
+(define (range from to)
+  (cond
+    ((equal? from to) null)
+    (else (cons from (range (+ from 1) to)))
+  )
+)
+          
+          
 (define (gen-make-automata automata)
-  (format "~a~aprivate static List<FA<~a>> makeAutomata()\n~a{\n~a~a}\n"
-          (java-doc "Builds the automata for the parser." "" "@return The automata for the parser.")
+  (let ((a-names (map method-names (vector->list automata) (range 0 (length automata)))))
+    (format "~a~aprivate static List<FA<~a>> makeAutomata()\n~a{\n~a~a}\n~a\n"
+            (java-doc "Builds the automata for the parser." "" "@return The automata for the parser.")
+            (ind)
+            *java-node-name*
+            (ind)
+            (indent
+             (string-append
+              (format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
+              (format "~aList<State<~a>> states;\n" (ind) *java-node-name*)
+              (format "~afinal List<FA<~a>> automata = new ArrayList<FA<~a>>();\n" (ind) *java-node-name* *java-node-name*)
+              "\n"
+              (string-concat (map gen-fa-call a-names))
+              (string-append (ind) "return automata;\n")))
+            (ind)
+            (indent
+             (string-concat (map gen-fa automata a-names))
+            )
+)))
+
+  
+(define (method-names a i)
+  (let ((type (fa-type a)))
+    (cond
+     ((equal? type '&) (format "initPos_~a" i))
+     ((equal? type '!) (format "initNeg_~a" i))
+     (else (format "init~a" (camel-case-upper (symbol->string type)))))
+))
+  
+  
+(define (gen-fa-call aname)
+  (format "~a~a(automata);\n" (ind) (aname)))
+
+
+(define (gen-fa a aname)
+;; TODO: method declaration.
+  (format "~aprivate static void ~a(List<FA<~a>> automata)\n~astates = new ArrayList<State<~a>>();\n~a~a\n}\n"
           (ind)
+          aname
           *java-node-name*
-          (ind)
-          (indent
-           (string-append
-            (format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
-            (format "~aList<State<~a>> states;\n" (ind) *java-node-name*)
-            (format "~afinal List<FA<~a>> automata = new ArrayList<FA<~a>>();\n" (ind) *java-node-name* *java-node-name*)
-            "\n"
-            (string-concat (map gen-fa (vector->list automata)))
-            (string-append (ind) "return automata;\n")))
-          (ind)))
-
-
-(define (gen-fa a)
-  (format "~astates = new ArrayList<State<~a>>();\n~a~a"
           (ind)
           *java-node-name*
           (string-concat (map gen-state (vector->list (fa-states a))))
