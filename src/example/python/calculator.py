@@ -3,6 +3,7 @@
 # Copyright (C) 2008-2010 Orlando Hill
 # Licensed under the MIT license. See 'LICENSE' for details.
 
+from __future__ import print_function
 import sys
 import waxeye
 import parser
@@ -53,10 +54,9 @@ def num(ast):
     return float(''.join(ast.children))
 
 
-sys.stdout.write('calc> ')
+print('\ncalc> ', end='')
 line = sys.stdin.readline()
 while line:
-    print calc(line)
-    sys.stdout.write('calc> ')
+    print(str(calc(line)) + '\ncalc> ', end='')
     line = sys.stdin.readline()
-print
+print()

@@ -105,7 +105,7 @@ class WaxeyeParser:
             start_pos = self.input_pos
             key = (index, start_pos)
 
-            if self.cache.has_key(key):
+            if key in self.cache:
                 cachedItem = self.cache[key]
                 self.restore_pos(cachedItem[1], cachedItem[2], cachedItem[3], cachedItem[4])
                 return cachedItem[0]
