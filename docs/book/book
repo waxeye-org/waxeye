@@ -621,7 +621,7 @@ Num
 
 === Using Waxeye from C ===
 
-Waxeye's C runtime is currently supported on unix platforms and MacOSX.
+Waxeye's C runtime is currently supported on unix platforms, MacOSX, and iOS.
 
 ==== Install ====
 
