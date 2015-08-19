@@ -50,19 +50,20 @@ LIB_FILES= \
 
 LIB_OBJECTS = $(foreach f, $(LIB_FILES), $(f).o)
 
-lib: clean-all lib_default
+lib: clean-all lib-default
 	mkdir -p $(LIB_DIR)
 	cp $(LIB_NAME) $(LIB_DIR)
 
 # All architectures required for iOS dev except for ARMv6 which is too old to care about
-lib_iOS: clean-all libarm64 libarmv7 libarmv7s libi386 libx86_64
+# http://iossupportmatrix.com/
+lib-ios: clean-all libarm64 libarmv7 libarmv7s libi386 libx86_64
 	lipo -create $(LIB_NAME_ARM64) $(LIB_NAME_ARMV7) $(LIB_NAME_ARMV7S) $(LIB_NAME_I386) $(LIB_NAME_X86_64) -o $(LIB_NAME_IOS)
 	rm $(LIB_NAME_ARM64) $(LIB_NAME_ARMV7) $(LIB_NAME_ARMVS) $(LIB_NAME_I386) $(LIB_NAME_X86_64)
 	mkdir -p $(LIB_DIR)
 	cp $(LIB_NAME_IOS) $(LIB_DIR)
 
 # Build a lib just for the current arch
-lib_default:
+lib-default:
 	$(foreach f, $(LIB_FILES), $(GCC) $(FLAGS) -c -o $(f).o $(f).c;)
 	ar cr $(LIB_NAME) $(LIB_OBJECTS)
 	rm $(LIB_OBJECTS)
@@ -102,8 +103,6 @@ debug-lib: clean-all
 
 run: clean-all lib
 	$(GCC) $(FLAGS) parser.c run.c $(LIB) -o run
-
-ios: clean-all lib_iOS
 
 
 debug: clean-all debug-lib

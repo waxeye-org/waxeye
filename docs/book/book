@@ -647,6 +647,12 @@ sudo ln -s $WAXEYE_HOME/src/c/include/waxeye.h /usr/local/include/
 sudo ln -s $WAXEYE_HOME/src/c/include/waxeye /usr/local/include/
 -------------------------------------------------------------------------------
 
+==== Build for iOS ====
+Instead of building just for your current architecture, you can also build a
+library for iOS by running `make lib-ios` on a Mac with a recent version of
+Xcode installed. This will compile a runtime for ARMv7, ARMv7S, ARM64, X86_64
+and i386 as a fat binary to `$WAXEYE_HOME/lib/libwaxeye_ios.a`.
+
 
 ==== Generate Parser ====
 
