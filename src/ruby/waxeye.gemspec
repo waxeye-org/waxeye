@@ -15,6 +15,6 @@ spec = Gem::Specification.new do |s|
   s.summary = 'Ruby runtime for the Waxeye Parser Generator'
   s.description = 'Waxeye is a parser generator based on parsing expression grammars (PEGs).'
   s.rubyforge_project = 'waxeye'
-  s.files = FileList['README', 'LICENSE', 'lib/waxeye.rb'].to_a
+  s.files = FileList['README.md', 'LICENSE', 'lib/waxeye.rb'].to_a
   s.test_files = []
 end
