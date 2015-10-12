@@ -31,7 +31,7 @@ public interface IAST <E extends Enum<?>>
      *
      * @return Returns the position;
      */
-    Position getPosition();
+    int getPos();
 
     /**
      * Returns the type.

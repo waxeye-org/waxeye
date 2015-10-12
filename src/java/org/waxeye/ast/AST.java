@@ -25,7 +25,7 @@ public final class AST <E extends Enum<?>> implements IAST<E>
     private final List<IAST<E>> children;
 
     /** The position of the AST. */
-    private final Position position;
+    private final int pos;
 
     /**
      * Creates a new AST.
@@ -37,11 +37,11 @@ public final class AST <E extends Enum<?>> implements IAST<E>
      * @param position The position of the AST.
      */
     public AST(final E type, final List<IAST<E>> children,
-               final Position position)
+               final int pos)
     {
         this.type = type;
         this.children = children;
-        this.position = position;
+        this.pos = pos;
 
         assert invariants();
     }
@@ -102,9 +102,9 @@ public final class AST <E extends Enum<?>> implements IAST<E>
     }
 
     /** {@inheritDoc} */
-    public Position getPosition()
+    public int getPos()
     {
-        return position;
+        return pos;
     }
 
     /** {@inheritDoc} */

@@ -99,6 +99,15 @@ Building from Source
      - From your Waxeye installation directory, run the `build\exe.bat` script
        in a command prompt.
 
+Running tests
+-------------
+
+* To run JavaScript tests: `node test/javascript/test.js`
+
+* To run Java tests:
+   1. You should download and compile `jcommander` and `TestNG` and export them:
+   2. `export CLASSPATH=~/Downloads/jcommander-1.48.jar; export TESTNG_LIB=~/testng/target/testng-6.9.9-SNAPSHOT.jar`
+   2. `ant -f build/ant.xml clean init testng`
 
 Support
 -------

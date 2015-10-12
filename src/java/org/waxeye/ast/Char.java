@@ -49,4 +49,16 @@ implements IChar
     {
         return Character.toString(value);
     }
+
+    public boolean equals (Object other) {
+      if (this.getClass() != other.getClass()) {
+        return false;
+      }
+
+      if (this.getValue() != ((Char<E>)other).getValue()) {
+        return false;
+      }
+
+      return true;
+    }
 }

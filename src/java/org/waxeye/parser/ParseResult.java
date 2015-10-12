@@ -71,4 +71,28 @@ public final class ParseResult <E extends Enum<?>>
 
         return "ParseResult(null, null)";
     }
+
+    public boolean equals (ParseResult other) {
+      if (this == other) {
+        return true;
+      }
+
+      if (ast != null && !ast.equals(other.getAST())) {
+        return false;
+      }
+
+      if (error != null && !error.equals(other.getError())) {
+        return false;
+      }
+
+      if (ast == null && other.getAST() != null) {
+        return false;
+      }
+
+      if (error == null && other.getError() != null) {
+        return false;
+      }
+
+      return true;
+    }
 }

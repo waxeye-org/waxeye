@@ -6,6 +6,10 @@
  */
 package org.waxeye.parser;
 
+import org.waxeye.parser.err.ErrBase;
+
+import java.util.List;
+
 /**
  * An error that occurred during parsing.
  *
@@ -22,8 +26,11 @@ public final class ParseError
     /** The column of the error. */
     private final int column;
 
-    /** The non-terminal being matched when the error occured. */
-    private final String nt;
+    /** The non-terminals being matched when the error occured. */
+    private final List<String> nt;
+
+    /** The characters that failed to get matched when the error occurred. */
+    private final List<ErrBase> failedMatches;
 
     /**
      * Creates a new ParseError.
@@ -34,15 +41,18 @@ public final class ParseError
      *
      * @param column The column of the error.
      *
-     * @param nt The non-terminal being matched when the error occured.
+     * @param nt The non-terminals being matched when the error occured.
+
+     * @param failedChars The characters that failed to match.
      */
     public ParseError(final int position, final int line, final int column,
-                      final String nt)
+                      final List<String> nt, final List<ErrBase> failedMatches)
     {
         this.position = position;
         this.line = line;
         this.column = column;
         this.nt = nt;
+        this.failedMatches = failedMatches;
     }
 
     /** {@inheritDoc} */
@@ -58,6 +68,9 @@ public final class ParseError
         buf.append(column);
         buf.append(", pos=");
         buf.append(position);
+        buf.append(" (expected \"");
+        buf.append(failedMatches);
+        buf.append("\")");
 
         return buf.toString();
     }
@@ -93,11 +106,11 @@ public final class ParseError
     }
 
     /**
-     * Returns the nt.
+     * Returns the nts.
      *
-     * @return Returns the nt.
+     * @return Returns the nts.
      */
-    public String getNT()
+    public List<String> getNTs()
     {
         return nt;
     }
