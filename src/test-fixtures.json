@@ -1,0 +1,106 @@
+[
+  ["MatchError", ["match", "V1", "b"], ["ParseError", 0, 1, 0, ["V1"], [{ "type": "ErrChar", "arg": "a" }]]],
+  ["MatchError", ["match", "V2", "a"], ["ParseError", 1, 1, 1, ["V2"], [{ "type": "ErrChar", "arg": "b" }]]],
+  ["MatchError", ["match", "V3", "ac"], ["ParseError", 1, 1, 1, ["V3"], [{ "type": "ErrChar", "arg": "b" }]]],
+  ["MatchError", ["match", "V3", "a"], ["ParseError", 1, 1, 1, ["V3"], [{ "type": "ErrChar", "arg": "b" }]]],
+  ["MatchError", ["match", "V3", "ab"], ["ParseError", 2, 1, 2, ["V3"], [{ "type": "ErrChar", "arg": "c" }]]],
+  ["MatchError", ["match", "V3", "abd"], ["ParseError", 2, 1, 2, ["V3"], [{ "type": "ErrChar", "arg": "c" }]]],
+  ["MatchError", ["match", "V3", "abdc"], ["ParseError", 2, 1, 2, ["V3"], [{ "type": "ErrChar", "arg": "c" }]]],
+  ["MatchError", ["match", "V3", "dabc"], ["ParseError", 0, 1, 0, ["V3"], [{ "type": "ErrChar", "arg": "a" }]]],
+  ["MatchError", ["match", "V3", "abcd"], ["ParseError", 3, 1, 3, [], []]],
+
+  ["MatchAST", ["match", "V1", "a"], ["Tree", "V1", []]],
+  ["MatchAST", ["match", "V2", "ab"], ["Tree", "V2", []]],
+  ["MatchAST", ["match", "V3", "abc"], ["Tree", "V3", [["Char", "a"], ["Char", "c"]]]],
+
+  ["MatchError", ["match", "WS", "a"], ["ParseError", 0, 1, 0, ["WS"], [{ "type": "ErrChar", "arg": " " }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
+  ["MatchError", ["match", "WS", " a"], ["ParseError", 1, 1, 1, ["WS"], [{ "type": "ErrChar", "arg": " " }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
+
+  ["MatchAST", ["match", "WS", ""], ["Empty"]],
+  ["MatchAST", ["match", "WS", " "], ["Empty"]],
+  ["MatchAST", ["match", "WS", " \r\n  \t"], ["Empty"]],
+
+  ["MatchAST", ["match", "Int", "1"], ["Tree", "Int", [["Char", "1"]]]],
+  ["MatchAST", ["match", "Int", "12"], ["Tree", "Int", [["Char", "1"], ["Char", "2"]]]],
+  ["MatchError", ["match", "Nums", "1 2"], ["ParseError", 1, 1, 1, [], []]],
+  ["MatchError", ["match", "Nums", "1,"], ["ParseError", 1, 1, 1, [], []]],
+  ["MatchError", ["match", "Nums", "1,2,"], ["ParseError", 3, 1, 3, [], []]],
+  ["MatchError", ["match", "Nums", "1 , 2 ,"], ["ParseError", 5, 1, 5, [], []]],
+
+  ["MatchAST", ["match", "Nums", ""], ["Empty"]],
+  ["MatchAST", ["match", "Nums", "1"], ["Tree", "Int", [["Char", "1"]]]],
+  ["MatchAST", ["match", "Nums", "1, 2"], ["Tree", "Nums", [["Tree", "Int", [["Char", "1"]]], ["Tree", "Int", [["Char", "2"]]]]]],
+  ["MatchAST", ["match", "Nums", "1, 2,3"], ["Tree", "Nums", [["Tree", "Int", [["Char", "1"]]], ["Tree", "Int", [["Char", "2"]]], ["Tree", "Int", [["Char", "3"]]]]]],
+
+  ["MatchError", ["match", "A", ""], ["ParseError", 0, 1, 0, ["A"], [{ "type": "ErrChar", "arg": "a" }]]],
+  ["MatchError", ["match", "A", "b"], ["ParseError", 0, 1, 0, ["A"], [{ "type": "ErrChar", "arg": "a" }]]],
+
+  ["MatchError", ["eval", ["SEQ", ["NT", "A"], ["NT", "B"]], "b"], ["ParseError", 0, 1, 0, ["A", "S"], [{ "type": "ErrChar", "arg": "a" }]]],
+  ["MatchError", ["eval", ["SEQ", ["OPT", ["NT", "A"]], ["NT", "B"]], "a"], ["ParseError", 1, 1, 1, ["B"], [{ "type": "ErrChar", "arg": "b" }, { "type": "ErrChar", "arg": "B" }]]],
+
+  ["MatchError", ["match", "C", "()"], ["ParseError", 1, 1, 1, ["A", "C"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "C", "(a"], ["ParseError", 2, 1, 2, ["C"], [{ "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "a)"], ["ParseError", 1, 1, 1, [""], []]],
+  ["MatchError", ["match", "C", ")("], ["ParseError", 0, 1, 0, ["A", "C"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "C", ")a("], ["ParseError", 0, 1, 0, ["A", "C"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "C", "(a))"], ["ParseError", 3, 1, 3, [], []]],
+  ["MatchError", ["match", "C", "((a)"], ["ParseError", 4, 1, 4, ["C"], [{ "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "()a)"], ["ParseError", 1, 1, 1, ["A", "C"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "(a()"], ["ParseError", 2, 1, 2, ["C"], [{ "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "(a())"], ["ParseError", 2, 1, 2, ["C"], [{ "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "(()a)"], ["ParseError", 2, 1, 2, ["A", "C"], [{ "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "C", "(())"], ["ParseError", 2, 1, 2, ["A", "C"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "(" }]]],
+
+  ["MatchError", ["match", "Int", "00"], ["ParseError", 1, 1, 1, [], []]],
+  ["MatchError", ["match", "Int", "01"], ["ParseError", 1, 1, 1, [], []]],
+  ["MatchError", ["match", "Int", "010"], ["ParseError", 1, 1, 1, [], []]],
+  ["MatchError", ["match", "Int", "099"], ["ParseError", 1, 1, 1, [], []]],
+
+  ["MatchError", ["match", "Unary", "(1"], ["ParseError", 2, 1, 2, ["Int", "Prod", "Sum", "Unary"], [{ "type": "ErrCC", "arg": [["0", "9"]] }, { "type": "ErrCC", "arg": [["*", "*"], ["/", "/"]] }, { "type": "ErrCC", "arg": [["+", "+"], ["-", "-"]] }, { "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "Unary", "(1123)("], ["ParseError", 6, 1, 6, [], []]],
+  ["MatchError", ["match", "Unary", "(11+-23)("], ["ParseError", 4, 1, 4, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Unary", "(1123*)"], ["ParseError", 6, 1, 6, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+
+  ["MatchError", ["match", "Prod", "*"], ["ParseError", 0, 1, 0, ["Int", "Prod", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "Prod", "787*"], ["ParseError", 3, 1, 3, [], []]],
+  ["MatchError", ["match", "Prod", "312*98*"], ["ParseError", 6, 1, 6, [], []]],
+  ["MatchError", ["match", "Prod", "()*98"], ["ParseError", 1, 1, 1, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Prod", "(*98)*234"], ["ParseError", 1, 1, 1, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Prod", "52//23"], ["ParseError", 2, 1, 2, [], []]],
+
+  ["MatchError", ["match", "Sum", "-"], ["ParseError", 0, 1, 0, ["Int", "Sum", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Sum", "787-"], ["ParseError", 3, 1, 3, [], []]],
+  ["MatchError", ["match", "Sum", "312+98-"], ["ParseError", 6, 1, 6, [], []]],
+  ["MatchError", ["match", "Sum", "()-98"], ["ParseError", 1, 1, 1, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Sum", "(+98)-234"], ["ParseError", 1, 1, 1, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
+  ["MatchError", ["match", "Sum", "52++23"], ["ParseError", 2, 1, 2, [], []]],
+
+  ["MatchAST", ["eval", ["SEQ", ["NT", "A"], ["NT", "B"]], "ab"], ["Empty"]],
+  ["MatchAST", ["eval", ["SEQ", ["NT", "A"], ["NT", "B"]], "aB"], ["Empty"]],
+  ["MatchAST", ["eval", ["SEQ", ["OPT", ["NT", "A"]], ["NT", "B"]], "b"], ["Empty"]],
+  ["MatchAST", ["eval", ["SEQ", ["OPT", ["NT", "A"]], ["NT", "B"]], "ab"], ["Empty"]],
+  ["MatchAST", ["eval", ["SEQ", ["OPT", ["NT", "A"]], ["NT", "B"]], "B"], ["Empty"]],
+  ["MatchAST", ["eval", ["SEQ", ["OPT", ["NT", "A"]], ["NT", "B"]], "aB"], ["Empty"]],
+
+  ["MatchAST", ["match", "C", "a"], ["Tree", "C", [["Tree", "A", [["Char", "a"]]]]]],
+  ["MatchAST", ["match", "A", "a"], ["Tree", "A", [["Char", "a"]]]],
+  ["MatchAST", ["match", "C", "(a)"], ["Tree", "C", [["Char", "("], ["Tree", "C", [["Tree", "A", [["Char", "a"]]]]], ["Char", ")"]]]],
+  ["MatchAST", ["match", "C", "((a))"], ["Tree", "C", [["Char", "("], ["Tree", "C", [["Char", "("], ["Tree", "C", [["Tree", "A", [["Char", "a"]]]]], ["Char", ")"]]], ["Char", ")"]]]],
+
+  ["MatchAST", ["match", "Int", "0"], ["Tree", "Int", [["Char", "0"]]]],
+  ["MatchAST", ["match", "Int", "1"], ["Tree", "Int", [["Char", "1"]]]],
+  ["MatchAST", ["match", "Int", "10"], ["Tree", "Int", [["Char", "1"], ["Char", "0"]]]],
+  ["MatchAST", ["match", "Int", "7208"], ["Tree", "Int", [["Char", "7"], ["Char", "2"], ["Char", "0"], ["Char", "8"]]]],
+
+  ["MatchAST", ["match", "Unary", "98"], ["Tree", "Unary", [["Tree", "Int", [["Char", "9"], ["Char", "8"]]]]]],
+  ["MatchAST", ["match", "Unary", "(23)"], ["Tree", "Unary", [["Char", "("], ["Tree", "Sum", [["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "2"], ["Char", "3"]]]]]]]]], ["Char", ")"]]]],
+  ["MatchAST", ["match", "Unary", "(11+2-3)"], ["Tree", "Unary", [["Char", "("], ["Tree", "Sum", [["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "1"], ["Char", "1"]]]]]]], ["Char", "+"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "2"]]]]]]], ["Char", "-"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "3"]]]]]]]]], ["Char", ")"]]]],
+  ["MatchAST", ["match", "Unary", "(1*123)"], ["Tree", "Unary", [["Char", "("], ["Tree", "Sum", [["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "1"]]]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "1"], ["Char", "2"], ["Char", "3"]]]]]]]]], ["Char", ")"]]]],
+
+  ["MatchAST", ["match", "Prod", "234"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "2"], ["Char", "3"], ["Char", "4"]]]]]]]],
+  ["MatchAST", ["match", "Prod", "787*879"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "7"], ["Char", "8"], ["Char", "7"]]]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "8"], ["Char", "7"], ["Char", "9"]]]]]]]],
+  ["MatchAST", ["match", "Prod", "312*98/98"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "3"], ["Char", "1"], ["Char", "2"]]]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "9"], ["Char", "8"]]]]], ["Char", "/"], ["Tree", "Unary", [["Tree", "Int", [["Char", "9"], ["Char", "8"]]]]]]]],
+  ["MatchAST", ["match", "Prod", "(123-72)*98"], ["Tree", "Prod", [["Tree", "Unary", [["Char", "("], ["Tree", "Sum", [["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "1"], ["Char", "2"], ["Char", "3"]]]]]]], ["Char", "-"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "7"], ["Char", "2"]]]]]]]]], ["Char", ")"]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "9"], ["Char", "8"]]]]]]]],
+  ["MatchAST", ["match", "Prod", "(23*98)*234"], ["Tree", "Prod", [["Tree", "Unary", [["Char", "("], ["Tree", "Sum", [["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "2"], ["Char", "3"]]]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "9"], ["Char", "8"]]]]]]]]], ["Char", ")"]]], ["Char", "*"], ["Tree", "Unary", [["Tree", "Int", [["Char", "2"], ["Char", "3"], ["Char", "4"]]]]]]]],
+  ["MatchAST", ["match", "Prod", "52/523/23"], ["Tree", "Prod", [["Tree", "Unary", [["Tree", "Int", [["Char", "5"], ["Char", "2"]]]]], ["Char", "/"], ["Tree", "Unary", [["Tree", "Int", [["Char", "5"], ["Char", "2"], ["Char", "3"]]]]], ["Char", "/"], ["Tree", "Unary", [["Tree", "Int", [["Char", "2"], ["Char", "3"]]]]]]]]
+]
