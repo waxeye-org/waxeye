@@ -19,12 +19,17 @@ uniq = (a) ->
   a.sort().filter((i, p) -> a.indexOf(i) == p)
 
 getLineCol = (pos, input) ->
-  explodedInput = input.split(/[\r\n]/)
-  for i in [0..explodedInput.length-1]
-    if pos <= explodedInput[i].length
-      return [i+1, pos]
-    pos -= explodedInput[i].length
-  return [explodedInput.length, pos]
+  col = 0
+  line = 0
+  lastLineBreak = 0
+  for i in [0..pos]
+    if input[i] == '\r' and input[i+1] == '\n'
+      continue
+    if ['\r', '\n'].indexOf(input[i]) != -1
+      line++
+      lastLineBreak = i + 1
+    col = i - lastLineBreak
+  return [line+1, col]
 
 first = (a) ->
   assert.ok Array.isArray(a)
@@ -75,13 +80,15 @@ waxeye = (->
 
     toString: ->
       @chars = @chars.charClasses if @chars.charClasses
-      @chars = @chars?.map((ch) -> JSON.stringify(ch.char || ch.charClasses))
-      "parse error: failed to match '"+@nt.join(',')+"' at line="+@line+", col="+@col+", pos="+@pos+" (expected '"+@chars.slice(1,-1).join(',')+"')"
+      @chars = @chars?.map((ch) -> JSON.stringify(ch.char || ch.charClasses || ''))
+      "parse error: failed to match '"+@nt.join(',')+"' at line="+@line+", col="+@col+", pos="+@pos+" (expected '"+@chars.map((s) -> s.slice(1,-1)).join(',')+"')"
 
   class ErrChar
     constructor: (@char) ->
   class ErrCC
     constructor: (@charClasses) ->
+  class ErrAny
+    constructor: () ->
 
   class RawError
     constructor: (@pos, @nonterminals, @failedChars, @currentNT) ->
@@ -144,8 +151,8 @@ waxeye = (->
   updateError = (err, pos, e) ->
     if err && pos > err.pos
       new RawError(pos, [err?.currentNT], [e], err?.currentNT)
-    else if pos == err.pos
-      new RawError(err.pos, arrayPrepend(err.currentNT, err.nonterminals), arrayPrepend(e, err.failedChars), err.currentNT)
+    else if !err || pos == err?.pos
+      new RawError(err?.pos || 0, arrayPrepend(err?.currentNT || "", err?.nonterminals || []), arrayPrepend(e, err?.failedChars || []), err?.currentNT || "")
     else
       new RawError(err.pos, err.nonterminals, err.failedChars, err.currentNT)
 
@@ -176,12 +183,21 @@ waxeye = (->
         switch conf.type
           when "EVAL"
             switch exp.type
+              when "ANY"
+                if (eof pos)
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))))
+                else
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
               when "ALT"
                 es = exp.args
                 if es.length > 0
                   MachineState.INTER(MachineConfiguration.EVAL((first es), pos, asts, err, arrayPrepend(Continuations.CONT_ALT((rest es), pos, asts), k)))
                 else
                   MachineState.INTER(MachineConfiguration.APPLY(k, err))
+              when "AND"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_AND(pos, asts, err), k)))
+              when "NOT"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_NOT(pos, asts, err), k)))
               when "VOID"
                 MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_VOID(asts), k)))
               when "CHAR"
@@ -216,6 +232,8 @@ waxeye = (->
                   MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos, asts, err)))
                 else
                   MachineState.INTER(MachineConfiguration.EVAL((first exprs), pos, asts, err, arrayPrepend(Continuations.CONT_SEQ(rest exprs), k)))
+              when "PLUS"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_PLUS(exp.args[0]), k)))
               when "STAR"
                 MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_STAR(exp.args[0], pos, asts), k)))
               when "OPT"
@@ -230,9 +248,13 @@ waxeye = (->
                 console.log conf
                 throw new Error('unsupported 2')
           when "APPLY"
-            if conf.value?.type == "FAIL" and kFirst?.type != "CONT_ALT"
-              if ["CONT_SEQ", "CONT_VOID"].indexOf(kFirst?.type) != -1
+            if conf.value?.type == "FAIL" and ["CONT_ALT"].indexOf(kFirst?.type) == -1
+              if ["CONT_SEQ", "CONT_VOID", "CONT_PLUS"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+              else if ["CONT_AND"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
+              else if ["CONT_NOT"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)))
               else if ["CONT_STAR", "CONT_OPT"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
               else if ["CONT_NT"].indexOf(kFirst?.type) != -1
@@ -245,7 +267,9 @@ waxeye = (->
                 MachineState.INTER(MachineConfiguration.EVAL(firstExp, conf.value.pos, conf.value.asts, conf.value.err, arrayPrepend(Continuations.CONT_SEQ(restExp), kRest)))
               else
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
-            else if kFirst?.type == "CONT_STAR"
+            # The second continuation used to evaluate PLUS
+            # is the same continuation as for STAR
+            else if kFirst?.type == "CONT_STAR" or kFirst?.type == "CONT_PLUS"
               assert.ok typeof conf.value != 'undefined'
               MachineState.INTER(MachineConfiguration.EVAL(kFirst.expression, conf.value.pos, conf.value.asts, conf.value.err, arrayPrepend(Continuations.CONT_STAR(kFirst.expression, conf.value.pos, conf.value.asts), kRest)))
             else if kFirst?.type == "CONT_VOID"
@@ -257,6 +281,10 @@ waxeye = (->
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
             else if kFirst?.type == "CONT_OPT"
               MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+            else if kFirst?.type == "CONT_AND"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, kFirst.err)))
+            else if kFirst?.type == "CONT_NOT"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
             else if kFirst?.type == "CONT_NT"
               { mode, name, asts, nt } = kFirst
               value = conf.value
@@ -338,6 +366,7 @@ waxeye = (->
     ParseError: ParseError
     ErrChar: ErrChar
     ErrCC: ErrCC
+    ErrAny: ErrAny
     WaxeyeParser: WaxeyeParser
 )()
 

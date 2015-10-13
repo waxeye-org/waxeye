@@ -27,15 +27,21 @@
   };
 
   getLineCol = function(pos, input) {
-    var explodedInput, i, j, ref;
-    explodedInput = input.split(/[\r\n]/);
-    for (i = j = 0, ref = explodedInput.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      if (pos <= explodedInput[i].length) {
-        return [i + 1, pos];
+    var col, i, j, lastLineBreak, line, ref;
+    col = 0;
+    line = 0;
+    lastLineBreak = 0;
+    for (i = j = 0, ref = pos; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      if (input[i] === '\r' && input[i + 1] === '\n') {
+        continue;
       }
-      pos -= explodedInput[i].length;
+      if (['\r', '\n'].indexOf(input[i]) !== -1) {
+        line++;
+        lastLineBreak = i + 1;
+      }
+      col = i - lastLineBreak;
     }
-    return [explodedInput.length, pos];
+    return [line + 1, col];
   };
 
   first = function(a) {
@@ -58,7 +64,7 @@
      * - the non-terminal's name
      * - a list of child asts
      */
-    var AST, Continuations, ErrCC, ErrChar, Exp, MachineConfiguration, MachineState, Modes, NonTerminal, ParseError, RawError, Value, WaxeyeParser, namespace, nonterminal, updateError;
+    var AST, Continuations, ErrAny, ErrCC, ErrChar, Exp, MachineConfiguration, MachineState, Modes, NonTerminal, ParseError, RawError, Value, WaxeyeParser, namespace, nonterminal, updateError;
     AST = (function() {
       function AST(type, ch1, str1, asts1) {
         this.type = type;
@@ -130,9 +136,11 @@
           this.chars = this.chars.charClasses;
         }
         this.chars = (ref = this.chars) != null ? ref.map(function(ch) {
-          return JSON.stringify(ch.char || ch.charClasses);
+          return JSON.stringify(ch.char || ch.charClasses || '');
         }) : void 0;
-        return "parse error: failed to match '" + this.nt.join(',') + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos + " (expected '" + this.chars.slice(1, -1).join(',') + "')";
+        return "parse error: failed to match '" + this.nt.join(',') + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos + " (expected '" + this.chars.map(function(s) {
+          return s.slice(1, -1);
+        }).join(',') + "')";
       };
 
       return ParseError;
@@ -152,6 +160,12 @@
       }
 
       return ErrCC;
+
+    })();
+    ErrAny = (function() {
+      function ErrAny() {}
+
+      return ErrAny;
 
     })();
     RawError = (function() {
@@ -279,8 +293,8 @@
     updateError = function(err, pos, e) {
       if (err && pos > err.pos) {
         return new RawError(pos, [err != null ? err.currentNT : void 0], [e], err != null ? err.currentNT : void 0);
-      } else if (pos === err.pos) {
-        return new RawError(err.pos, arrayPrepend(err.currentNT, err.nonterminals), arrayPrepend(e, err.failedChars), err.currentNT);
+      } else if (!err || pos === (err != null ? err.pos : void 0)) {
+        return new RawError((err != null ? err.pos : void 0) || 0, arrayPrepend((err != null ? err.currentNT : void 0) || "", (err != null ? err.nonterminals : void 0) || []), arrayPrepend(e, (err != null ? err.failedChars : void 0) || []), (err != null ? err.currentNT : void 0) || "");
       } else {
         return new RawError(err.pos, err.nonterminals, err.failedChars, err.currentNT);
       }
@@ -320,6 +334,13 @@
           switch (conf.type) {
             case "EVAL":
               switch (exp.type) {
+                case "ANY":
+                  if (eof(pos)) {
+                    return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))));
+                  } else {
+                    return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(AST.CHAR(input[pos]), asts), err)));
+                  }
+                  break;
                 case "ALT":
                   es = exp.args;
                   if (es.length > 0) {
@@ -328,6 +349,10 @@
                     return MachineState.INTER(MachineConfiguration.APPLY(k, err));
                   }
                   break;
+                case "AND":
+                  return MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_AND(pos, asts, err), k)));
+                case "NOT":
+                  return MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_NOT(pos, asts, err), k)));
                 case "VOID":
                   return MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_VOID(asts), k)));
                 case "CHAR":
@@ -367,6 +392,8 @@
                     return MachineState.INTER(MachineConfiguration.EVAL(first(exprs), pos, asts, err, arrayPrepend(Continuations.CONT_SEQ(rest(exprs)), k)));
                   }
                   break;
+                case "PLUS":
+                  return MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_PLUS(exp.args[0]), k)));
                 case "STAR":
                   return MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_STAR(exp.args[0], pos, asts), k)));
                 case "OPT":
@@ -383,9 +410,13 @@
               }
               break;
             case "APPLY":
-              if (((ref = conf.value) != null ? ref.type : void 0) === "FAIL" && (kFirst != null ? kFirst.type : void 0) !== "CONT_ALT") {
-                if (["CONT_SEQ", "CONT_VOID"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
+              if (((ref = conf.value) != null ? ref.type : void 0) === "FAIL" && ["CONT_ALT"].indexOf(kFirst != null ? kFirst.type : void 0) === -1) {
+                if (["CONT_SEQ", "CONT_VOID", "CONT_PLUS"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value));
+                } else if (["CONT_AND"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
+                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)));
+                } else if (["CONT_NOT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
+                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)));
                 } else if (["CONT_STAR", "CONT_OPT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)));
                 } else if (["CONT_NT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
@@ -400,7 +431,7 @@
                 } else {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value));
                 }
-              } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_STAR") {
+              } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_STAR" || (kFirst != null ? kFirst.type : void 0) === "CONT_PLUS") {
                 assert.ok(typeof conf.value !== 'undefined');
                 return MachineState.INTER(MachineConfiguration.EVAL(kFirst.expression, conf.value.pos, conf.value.asts, conf.value.err, arrayPrepend(Continuations.CONT_STAR(kFirst.expression, conf.value.pos, conf.value.asts), kRest)));
               } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_VOID") {
@@ -413,6 +444,10 @@
                 }
               } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_OPT") {
                 return MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value));
+              } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_AND") {
+                return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, kFirst.err)));
+              } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_NOT") {
+                return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)));
               } else if ((kFirst != null ? kFirst.type : void 0) === "CONT_NT") {
                 mode = kFirst.mode, name = kFirst.name, asts = kFirst.asts, nt = kFirst.nt;
                 value = conf.value;
@@ -506,6 +541,7 @@
       ParseError: ParseError,
       ErrChar: ErrChar,
       ErrCC: ErrCC,
+      ErrAny: ErrAny,
       WaxeyeParser: WaxeyeParser
     };
   })();
