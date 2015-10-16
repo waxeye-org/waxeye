@@ -99,6 +99,10 @@ Building from Source
      - From your Waxeye installation directory, run the `build\exe.bat` script
        in a command prompt.
 
+Running tests
+-------------
+
+* To run JavaScript tests: `node test/javascript/test.js`
 
 Support
 -------

@@ -2,7 +2,7 @@
 # Waxeye Parser Generator
 # www.waxeye.org
 # Copyright (C) 2008-2010 Orlando Hill
-# Copyright (c) 2015 Joshua Gross, Orlando Hill
+# Copyright (c) 2015 Joshua Gross
 # Licensed under the MIT license. See 'LICENSE' for details.
 ###
 
@@ -245,7 +245,6 @@ waxeye = (->
                 err = new RawError(err.pos, err.nonterminals, err.failedChars, name)
                 MachineState.INTER(MachineConfiguration.EVAL(e, pos, [], err, arrayPrepend(Continuations.CONT_NT(mode, name, asts, conf.err.currentNT), k)))
               else
-                console.log conf
                 throw new Error('unsupported 2')
           when "APPLY"
             if conf.value?.type == "FAIL" and ["CONT_ALT"].indexOf(kFirst?.type) == -1
@@ -308,9 +307,6 @@ waxeye = (->
                 when "VOIDING"
                   MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, asts, newErr)))
             else if kFirst?
-              console.log(conf)
-              console.log(conf.value)
-              console.log(conf.value.err)
               throw new Error('unsupported 4')
             else if conf.value?.type == "VAL"
               ts = conf.value?.asts
@@ -343,9 +339,6 @@ waxeye = (->
                     = FINAL (mk_parse_error (input, err_pos, nts, ccs))
               ###
             else
-              console.log(conf)
-              console.log(conf.value)
-              console.log(conf.value.err)
               throw new Error('unsupported 3')
 
 
