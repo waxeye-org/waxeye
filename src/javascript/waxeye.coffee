@@ -2,303 +2,373 @@
 # Waxeye Parser Generator
 # www.waxeye.org
 # Copyright (C) 2008-2010 Orlando Hill
+# Copyright (c) 2015 Joshua Gross, Orlando Hill
 # Licensed under the MIT license. See 'LICENSE' for details.
 ###
 
+assert = require('assert')
+
+arrayPrepend = (item, a) ->
+  assert.ok Array.isArray(a) || !a
+  a = (a or []).slice(0)
+  a.unshift(item)
+  a
+
+uniq = (a) ->
+  # Why sort here? Seems useful to keep these in the original order.
+  a.sort().filter((i, p) -> a.indexOf(i) == p)
+
+getLineCol = (pos, input) ->
+  col = 0
+  line = 0
+  lastLineBreak = 0
+  for i in [0..pos]
+    if input[i] == '\r' and input[i+1] == '\n'
+      continue
+    if ['\r', '\n'].indexOf(input[i]) != -1
+      line++
+      lastLineBreak = i + 1
+    col = i - lastLineBreak
+  return [line+1, col]
+
+first = (a) ->
+  assert.ok Array.isArray(a)
+  a?[0]
+
+rest = (a) ->
+  assert.ok Array.isArray(a)
+  Array.prototype.slice.call(a, 1)
+
 waxeye = (->
+  ###
+  # An abstract syntax tree has one of three forms.
+  # AST_EMPTY represents a successful parse from a voided non-terminal.
+  # AST_CHAR just holds a character.
+  # AST_TREE represents a successful parse from a non-terminal. It holds:
+  # - the non-terminal's name
+  # - a list of child asts
+  ###
+  class AST
+    constructor: (@type, @ch, @str, @asts) ->
+      assert.ok Array.isArray(@asts) || !@asts
+  AST.EMPTY = () ->
+    new AST("EMPTY")
+  AST.CHAR = (ch) ->
+    new AST("CHAR", ch)
+  AST.TREE = (str, asts) ->
+    new AST("TREE", null, str, asts)
 
-  # an edge in the FA graph
-  # trans - the condition that must be met to transition along this edge
-  # state - the state to transition to
-  # voided - if the result of the transition condition will be included in the AST
-  class Edge
-    constructor: (@trans, @state, @voided) ->
+  class NonTerminal
+    constructor: (@mode, @exp) ->
+  nonterminal = (mode, exp) ->
+    new NonTerminal(mode, exp)
 
+  class Exp
+    constructor: (@type, @args) ->
+  ["ANY", "NT", "VOID", "CHAR", "CHAR_CLASS", "AND", "NOT", "OPT", "ALT", "SEQ", "STAR", "PLUS"].map (expType) ->
+    Exp[expType] = () ->
+      return new Exp(expType, Array.prototype.slice.call(arguments))
 
-  # a state in the FA graph
-  # edges - the edges leading out of this state
-  # match - if the state is an accepting state
-  class State
-    constructor: (@edges, @match) ->
-
-
-  # an FA in the FA graph
-  # type - the type of AST that will be created
-  # states - the states of the FA. State 0 is the starting state
-  class FA
-    constructor: (@type, @states, @mode) ->
-  FA.VOID = 0
-  FA.PRUNE = 1
-  FA.LEFT = 2
-  FA.POS = 3
-  FA.NEG = 4
-
+  class Modes
+    constructor: () ->
+  Modes.NORMAL = "NORMAL"
+  Modes.PRUNING = "PRUNING"
+  Modes.VOIDING = "VOIDING"
 
   class ParseError
-    constructor: (@pos, @line, @col, @nt) ->
+    constructor: (@pos, @line, @col, @nt, @chars) ->
 
     toString: ->
-      "parse error: failed to match '#@nt' at line=#@line, col=#@col, pos=#@pos"
+      @chars = @chars.charClasses if @chars.charClasses
+      @chars = @chars?.map((ch) -> JSON.stringify(ch.char || ch.charClasses || ''))
+      "parse error: failed to match '"+@nt.join(',')+"' at line="+@line+", col="+@col+", pos="+@pos+" (expected '"+@chars.map((s) -> s.slice(1,-1)).join(',')+"')"
+
+  class ErrChar
+    constructor: (@char) ->
+  class ErrCC
+    constructor: (@charClasses) ->
+  class ErrAny
+    constructor: () ->
+
+  class RawError
+    constructor: (@pos, @nonterminals, @failedChars, @currentNT) ->
+      assert.ok Array.isArray(@nonterminals)
+      assert.ok Array.isArray(@failedChars)
+    toParseError: (input) ->
+      [line, col] = getLineCol @pos, input
+      new ParseError(@pos, line, col, (uniq @nonterminals), @failedChars.reverse())
+
+  class Value
+    constructor: (@type, @err, @pos, @asts) ->
+      assert.ok Array.isArray(@asts) || !@asts
+      assert.ok typeof @pos == 'number' || !@pos
+      assert.ok typeof @err == 'object' || !@err
+  Value.FAIL = (err) ->
+    new Value("FAIL", err)
+  Value.VAL = (pos, asts, err) ->
+    new Value("VAL", err, pos, asts)
+
+  class MachineConfiguration
+    constructor: (@type, @exp, @pos, @asts, @err, @continuations, @value) ->
+      assert.ok Array.isArray(@asts) || !@asts
+      assert.ok Array.isArray(@continuations)
+      assert.ok typeof @pos == 'number' || !@pos
+  MachineConfiguration.EVAL = (exp, pos, asts, err, continuations) ->
+    new MachineConfiguration("EVAL", exp, pos, asts, err, continuations, null)
+  MachineConfiguration.APPLY = (continuations, value) ->
+    new MachineConfiguration("APPLY", null, null, null, null, continuations, value)
+
+  class MachineState
+    constructor: (@type, @result, @configuration) ->
+  MachineState.FINAL = (result) ->
+    new MachineState("FINAL", result, null)
+  MachineState.INTER = (configuration) ->
+    new MachineState("INTER", null, configuration)
 
 
-  # class for an AST node
-  # the empty AST is represented by the boolean 'true'
-  class AST
-    constructor: (@type, @children, @pos) ->
+  class Continuations
+    constructor: (@type, @pos, @expressions, @expression, @asts, @err, @mode, @name, @nt) ->
+      assert.ok Array.isArray(@asts) || !@asts
+  Continuations.CONT_SEQ = (expressions) ->
+    new Continuations("CONT_SEQ", null, expressions, null, null, null, null, null, null)
+  Continuations.CONT_ALT = (expressions, pos, asts) ->
+    new Continuations("CONT_ALT", pos, expressions, null, asts, null, null, null, null)
+  Continuations.CONT_AND = (pos, asts, err) ->
+    new Continuations("CONT_AND", pos, null, null, asts, err, null, null, null)
+  Continuations.CONT_NOT = (pos, asts, err) ->
+    new Continuations("CONT_NOT", pos, null, null, asts, err, null, null, null)
+  Continuations.CONT_OPT = (pos, asts) ->
+    new Continuations("CONT_OPT", pos, null, null, asts, null, null, null, null)
+  Continuations.CONT_STAR = (exp, pos, asts) ->
+    new Continuations("CONT_STAR", pos, null, exp, asts, null, null, null, null)
+  Continuations.CONT_PLUS = (exp) ->
+    new Continuations("CONT_PLUS", null, null, exp, null, null, null, null, null)
+  Continuations.CONT_VOID = (asts) ->
+    new Continuations("CONT_VOID", null, null, null, asts, null, null, null, null)
+  Continuations.CONT_NT = (mode, name, asts, nt) ->
+    new Continuations("CONT_NT", null, null, null, asts, null, mode, name, nt)
 
-    toString: ->
-      acc = ""
-      indent = 0
-      toStringIter =(ast) ->
-        i = 0
-        while i < indent - 1
-          acc += '    '
-          i++
-        if indent > 0
-          acc += '->  '
-        acc += ast.type
-        indent++
-        for a in ast.children
-          acc += '\n'
-          # if the child ast is a char
-          if (typeof a) is 'string'
-            i = 0
-            while i < indent - 1
-              acc += '    '
-              i++
-            if indent > 0
-              acc += '|   '
-            acc += a
-          else
-            toStringIter a
-        indent--
-        return acc
-      return toStringIter this
-
+  updateError = (err, pos, e) ->
+    if err && pos > err.pos
+      new RawError(pos, [err?.currentNT], [e], err?.currentNT)
+    else if !err || pos == err?.pos
+      new RawError(err?.pos || 0, arrayPrepend(err?.currentNT || "", err?.nonterminals || []), arrayPrepend(e, err?.failedChars || []), err?.currentNT || "")
+    else
+      new RawError(err.pos, err.nonterminals, err.failedChars, err.currentNT)
 
   class WaxeyeParser
-    constructor: (@start, @eofCheck, @automata) ->
+    constructor: (@env, @start) ->
+
+    match: (nt, input) ->
+      inputLen = input.length
+      eof = (pos) -> pos >= inputLen
+
+      # move: configuration -> state
+      move = (conf) ->
+        #console.log conf
+
+        asts = conf.asts
+        pos = conf.pos
+        exp = conf.exp
+        err = conf.err
+
+        k = conf.continuations
+        kFirst = first k if k
+        kRest = rest k if k
+
+        es = kFirst?.expressions
+        firstExp = first es if es
+        restExp = rest es if es
+
+        switch conf.type
+          when "EVAL"
+            switch exp.type
+              when "ANY"
+                if (eof pos)
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))))
+                else
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+              when "ALT"
+                es = exp.args
+                if es.length > 0
+                  MachineState.INTER(MachineConfiguration.EVAL((first es), pos, asts, err, arrayPrepend(Continuations.CONT_ALT((rest es), pos, asts), k)))
+                else
+                  MachineState.INTER(MachineConfiguration.APPLY(k, err))
+              when "AND"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_AND(pos, asts, err), k)))
+              when "NOT"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_NOT(pos, asts, err), k)))
+              when "VOID"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_VOID(asts), k)))
+              when "CHAR"
+                c = exp.args[0]
+                if (eof pos) or c != input[pos]
+                  newval = Value.FAIL(updateError(err, pos, new ErrChar(c)))
+                else
+                  newval = Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)
+                MachineState.INTER(MachineConfiguration.APPLY(k, newval))
+              when "CHAR_CLASS"
+                cc = exp.args
+                visit = (charClasses) ->
+                  if charClasses.length == 0
+                    MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
+                  else
+                    [c1, c2] = first charClasses
+                    if c1 <= input[pos] and c2 >= input[pos]
+                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+                    else
+                      visit (rest charClasses)
+                if eof pos
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
+                else
+                  visit cc
+              when "SEQ"
+                # a sequence is made up of a list of expressions
+                # we traverse the list, making sure each expression succeeds
+                # the rest of the string return by the expression is used
+                # as input to the next expression
+                exprs = exp.args
+                if exprs == null
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos, asts, err)))
+                else
+                  MachineState.INTER(MachineConfiguration.EVAL((first exprs), pos, asts, err, arrayPrepend(Continuations.CONT_SEQ(rest exprs), k)))
+              when "PLUS"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_PLUS(exp.args[0]), k)))
+              when "STAR"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_STAR(exp.args[0], pos, asts), k)))
+              when "OPT"
+                MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, asts, err, arrayPrepend(Continuations.CONT_OPT(pos, asts), k)))
+              when "NT"
+                name = exp.args[0]
+                mode = @env[name].mode
+                e = @env[name].exp
+                err = new RawError(err.pos, err.nonterminals, err.failedChars, name)
+                MachineState.INTER(MachineConfiguration.EVAL(e, pos, [], err, arrayPrepend(Continuations.CONT_NT(mode, name, asts, conf.err.currentNT), k)))
+              else
+                console.log conf
+                throw new Error('unsupported 2')
+          when "APPLY"
+            if conf.value?.type == "FAIL" and ["CONT_ALT"].indexOf(kFirst?.type) == -1
+              if ["CONT_SEQ", "CONT_VOID", "CONT_PLUS"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+              else if ["CONT_AND"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
+              else if ["CONT_NOT"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)))
+              else if ["CONT_STAR", "CONT_OPT"].indexOf(kFirst?.type) != -1
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
+              else if ["CONT_NT"].indexOf(kFirst?.type) != -1
+                err = conf.value.err
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(new RawError(err.pos, err.nonterminals, err.failedChars, kFirst.nt))))
+              else
+                MachineState.FINAL(conf.value.err.toParseError(input))
+            else if kFirst?.type == "CONT_SEQ"
+              if es.length > 0
+                MachineState.INTER(MachineConfiguration.EVAL(firstExp, conf.value.pos, conf.value.asts, conf.value.err, arrayPrepend(Continuations.CONT_SEQ(restExp), kRest)))
+              else
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+            # The second continuation used to evaluate PLUS
+            # is the same continuation as for STAR
+            else if kFirst?.type == "CONT_STAR" or kFirst?.type == "CONT_PLUS"
+              assert.ok typeof conf.value != 'undefined'
+              MachineState.INTER(MachineConfiguration.EVAL(kFirst.expression, conf.value.pos, conf.value.asts, conf.value.err, arrayPrepend(Continuations.CONT_STAR(kFirst.expression, conf.value.pos, conf.value.asts), kRest)))
+            else if kFirst?.type == "CONT_VOID"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(conf.value.pos, kFirst.asts, conf.value.err)))
+            else if kFirst?.type == "CONT_ALT"
+              if conf.value?.type == "FAIL" and es.length > 0
+                MachineState.INTER(MachineConfiguration.EVAL((first es), kFirst.pos, kFirst.asts, conf.value.err, arrayPrepend(Continuations.CONT_ALT((rest es), kFirst.pos, kFirst.asts), kRest)))
+              else
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+            else if kFirst?.type == "CONT_OPT"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, conf.value))
+            else if kFirst?.type == "CONT_AND"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, kFirst.err)))
+            else if kFirst?.type == "CONT_NOT"
+              MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
+            else if kFirst?.type == "CONT_NT"
+              { mode, name, asts, nt } = kFirst
+              value = conf.value
+              valAsts = value?.asts
+              errPos = value?.err?.pos
+              errNts = value?.err?.nonterminals
+              errCcs = value?.err?.failedChars
+
+              newErr = new RawError(errPos, errNts, errCcs, nt)
+
+              switch mode
+                when "NORMAL"
+                  MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, arrayPrepend(AST.TREE(name, valAsts.reverse()), asts), newErr)))
+                when "PRUNING"
+                  if valAsts.length == 0
+                    MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, asts, newErr)))
+                  else if valAsts.length == 1
+                    MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, arrayPrepend((first valAsts), asts), newErr)))
+                  else
+                    MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, arrayPrepend(AST.TREE(name, valAsts.reverse()), asts), newErr)))
+                when "VOIDING"
+                  MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, asts, newErr)))
+            else if kFirst?
+              console.log(conf)
+              console.log(conf.value)
+              console.log(conf.value.err)
+              throw new Error('unsupported 4')
+            else if conf.value?.type == "VAL"
+              ts = conf.value?.asts
+              if eof conf.value?.pos
+                if @env[@start].mode == Modes.NORMAL
+                  MachineState.FINAL(AST.TREE(@start, ts.reverse()))
+                else if @env[@start].mode == Modes.PRUNING
+                  if ts.length == 0
+                    MachineState.FINAL(AST.EMPTY())
+                  else if ts.length == 1
+                    MachineState.FINAL(first ts)
+                  else
+                    MachineState.FINAL(AST.TREE(@start, ts.reverse()))
+                else
+                    MachineState.FINAL(AST.EMPTY())
+              else if conf.value?.err? && conf.value?.pos == conf.value?.err?.pos
+                err = conf.value.err
+                MachineState.FINAL((new RawError(conf.value.pos, err.nonterminals, err.failedChars)).toParseError(input))
+              else
+                MachineState.FINAL((new RawError(conf.value?.pos, [], [])).toParseError(input))
+                ###
+                    else if rest = err_pos
+                         then FINAL (mk_parse_error (input, rest, nts, ccs))
+                         else FINAL (mk_parse_error (input, rest, [], []))
+                ###
+            else if conf.value?.type == "FAIL"
+              MachineState.FINAL(conf.value.err.toParseError(input))
+              ###
+                  | move (APPLY ([], FAIL (err_pos, nts, ccs, _)))
+                    = FINAL (mk_parse_error (input, err_pos, nts, ccs))
+              ###
+            else
+              console.log(conf)
+              console.log(conf.value)
+              console.log(conf.value.err)
+              throw new Error('unsupported 3')
+
+
+      # move from initial state to halting state
+      state = move MachineConfiguration.EVAL(@env[nt].exp, 0, [], new RawError(0, [nt], [], nt), [])
+      while state.type != "FINAL"
+        state = move.bind(this) state.configuration
+      state.result
 
     parse: (input) ->
-      new InnerParser(@start, @eofCheck, @automata, input).parse()
-
-
-  class InnerParser
-    constructor: (@start, @eofCheck, @automata, input) ->
-      @input = input
-      @inputLen = input.length
-      @inputPos = 0
-      @line = 1
-      @column = 0
-      @lastCR = false
-      @errorPos = 0
-      @errorLine = 1
-      @errorCol = 0
-      @errorNT = @automata[@start].type
-      @faStack = []
-      @cache = {}
-
-    parse: ->
-      @doEOFCheck(@matchAutomaton @start)
-
-    matchAutomaton: (index) ->
-      startPos = @inputPos
-      key = "#index,#startPos"
-
-      cached = @cache[key]
-      # if we have a cached result
-      if cached?
-        @restorePos cached[1], cached[2], cached[3], cached[4]
-        return cached[0]
-
-      # save the parser's state
-      startLine = @line
-      startCol = @column
-      startCR = @lastCR
-      automaton = @automata[index]
-      type = automaton.type
-      mode = automaton.mode
-
-      # push the current FA to top of the stack
-      @faStack.push automaton
-      res = @matchState 0
-      # pop from the stack
-      @faStack.pop()
-
-      value = switch mode
-        when FA.POS
-          @restorePos startPos, startLine, startCol, startCR
-          if res
-            true
-          else
-            @updateError()
-            false
-        when FA.NEG
-          @restorePos startPos, startLine, startCol, startCR
-          if res
-            @updateError()
-            false
-          else
-            true
-        else
-          if res
-            switch mode
-              when FA.VOID then true
-              when FA.PRUNE
-                switch res.length
-                  when 0 then true
-                  when 1 then res[0]
-                  else new AST type, res, [startPos, @inputPos]
-              else new AST type, res, [startPos, @inputPos]
-          else
-            @updateError()
-
-      @cache[key] = [value, @inputPos, @line, @column, @lastCR]
-      return value
-
-    matchState: (index) ->
-      state = @faStack[@faStack.length - 1].states[index]
-      res = @matchEdges state.edges, 0
-      if res
-        res
-      else
-        state.match and []
-
-    matchEdges: (edges, index) ->
-      if index == edges.length
-        false
-      else
-        res = @matchEdge edges[index]
-        if res then res else @matchEdges edges, (index + 1)
-
-    matchEdge: (edge) ->
-      startPos = @inputPos
-      startLine = @line
-      startCol = @column
-      startCR = @lastCR
-      t = edge.trans
-
-      res = if t == -1 # wildcard is -1
-        if @inputPos < @inputLen then @mv() else @updateError()
-      else
-        if typeof t == 'string' # a single character
-          if @inputPos < @inputLen and t == @input[@inputPos]
-            @mv()
-          else
-            @updateError()
-        else
-          if t instanceof Array # a set of chars
-            if @inputPos < @inputLen and @withinSet t, 0, (@input[@inputPos].charCodeAt 0)
-              @mv()
-            else
-              @updateError()
-          else
-            if typeof t == 'number' # an FA
-              @matchAutomaton t
-            else
-              false
-
-      if res
-        tranRes = @matchState edge.state
-        if tranRes
-          # if the edge we moved along wasn't supposed to include it's result
-          # or the result was empty, just return the stuff after it
-          if edge.voided or res == true
-            tranRes
-          else
-            [res].concat tranRes
-        else
-          @restorePos startPos, startLine, startCol, startCR
-          false
-      else
-        false
-
-    restorePos: (pos, line, col, cr) ->
-      @inputPos = pos
-      @line = line
-      @column = col
-      @lastCR = cr
-
-    updateError: ->
-      if @errorPos < @inputPos
-        @errorPos = @inputPos
-        @errorLine = @line
-        @errorCol = @column
-        @errorNT = @faStack[@faStack.length - 1].type
-      return false
-
-    mv: ->
-      ch = @input[@inputPos]
-      @inputPos++
-      if ch == '\r'
-        @line++
-        @column = 0
-        @lastCR = true
-      else
-        if ch == '\n'
-          if not @lastCR
-            @line++
-            @column = 0
-        else
-          @column++
-        @lastCR = false
-      return ch
-
-    doEOFCheck: (res) ->
-      if res
-        if @eofCheck and @inputPos < @inputLen
-          # Create a parse error - Not all input consumed
-          new ParseError @errorPos, @errorLine, @errorCol, @errorNT
-        else
-          res
-      else
-        # Create a parse error
-        new ParseError @errorPos, @errorLine, @errorCol, @errorNT
-
-    # Takes a set, an index into the set and an ordinal
-    # set - an array of single char strings and arrays of integer pairs
-    #       the integer pairs represent inclusive ranges of acceptable chars
-    #       the chars and ranges are in assending order
-    withinSet: (set, index, c) ->
-      if index == set.length
-        false
-      else
-        aa = set[index]
-        if typeof aa == 'string'
-          if (aa.charCodeAt 0) == c
-            true
-          else
-            if (aa.charCodeAt 0) < c
-              @withinSet set, index + 1, c
-            else
-              false
-        else
-          # If not a String then must be a range (tuple)
-          if c >= aa[0] and c <= aa[1]
-            true
-          else
-            if c > aa[1]
-              @withinSet set, index + 1, c
-            else
-              false
-
+      @match @start, input
 
   namespace =
-    Edge: Edge
-    State: State
-    FA: FA
-    ParseError: ParseError
     AST: AST
+    nonterminal: nonterminal
+    Exp: Exp
+    Modes: Modes
+    ParseError: ParseError
+    ErrChar: ErrChar
+    ErrCC: ErrCC
+    ErrAny: ErrAny
     WaxeyeParser: WaxeyeParser
-
-  return namespace
 )()
 
-# Add to module system
 if module?
-  module.exports.AST = waxeye.AST
-  module.exports.Edge = waxeye.Edge
-  module.exports.FA = waxeye.FA
-  module.exports.ParseError = waxeye.ParseError
-  module.exports.State = waxeye.State
-  module.exports.WaxeyeParser = waxeye.WaxeyeParser
+  module.exports = waxeye
