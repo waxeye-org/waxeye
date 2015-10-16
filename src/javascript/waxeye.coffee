@@ -327,17 +327,8 @@ waxeye = (->
                 MachineState.FINAL((new RawError(conf.value.pos, err.nonterminals, err.failedChars)).toParseError(input))
               else
                 MachineState.FINAL((new RawError(conf.value?.pos, [], [])).toParseError(input))
-                ###
-                    else if rest = err_pos
-                         then FINAL (mk_parse_error (input, rest, nts, ccs))
-                         else FINAL (mk_parse_error (input, rest, [], []))
-                ###
             else if conf.value?.type == "FAIL"
               MachineState.FINAL(conf.value.err.toParseError(input))
-              ###
-                  | move (APPLY ([], FAIL (err_pos, nts, ccs, _)))
-                    = FINAL (mk_parse_error (input, err_pos, nts, ccs))
-              ###
             else
               throw new Error('unsupported 3')
 
