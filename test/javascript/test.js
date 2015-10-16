@@ -28,7 +28,6 @@ var env1 = {
   // mutual recursion
   "Int": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.CHAR("0"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["1", "9"]), Waxeye.Exp.STAR(Waxeye.Exp.CHAR_CLASS(["0", "9"]))))),
   "Unary": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.NT("Int"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("("), Waxeye.Exp.NT("Sum"), Waxeye.Exp.CHAR(")")))),
-  //             ("Unary",                 (NORMAL,           ALT [(NT "Int"), SEQ [CHAR #"(", (NT "Sum"), CHAR #")"]])),
 
   "Prod": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Unary"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["*", "*"], ["/", "/"]), Waxeye.Exp.NT("Unary"))))),
   "Sum": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Prod"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["+", "+"], ["-", "-"]), Waxeye.Exp.NT("Prod"))))),
@@ -38,7 +37,6 @@ var env1 = {
   "V2": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.VOID(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("a"), Waxeye.Exp.CHAR("b")))),
   "V3": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("a"), Waxeye.Exp.VOID(Waxeye.Exp.CHAR("b")), Waxeye.Exp.CHAR("c"))),
 
-  "WS1": Waxeye.nonterminal(Waxeye.Modes.VOIDING, Waxeye.Exp.ALT(Waxeye.Exp.CHAR(" "), Waxeye.Exp.CHAR("\t"), Waxeye.Exp.CHAR("\n"), Waxeye.Exp.CHAR("\r"))),
   "WS": Waxeye.nonterminal(Waxeye.Modes.VOIDING, Waxeye.Exp.STAR(Waxeye.Exp.ALT(Waxeye.Exp.CHAR(" "), Waxeye.Exp.CHAR("\t"), Waxeye.Exp.CHAR("\n"), Waxeye.Exp.CHAR("\r")))),
 
   "Nums": Waxeye.nonterminal(Waxeye.Modes.PRUNING, Waxeye.Exp.OPT(Waxeye.Exp.SEQ(Waxeye.Exp.NT("Int"),
