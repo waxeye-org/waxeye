@@ -30,10 +30,6 @@ public class RawError <E extends Enum<?>>
     this.currentNT = currentNT;
   }
 
-  public RawError clone () {
-    return new RawError(pos, new ArrayList<E>(nonterminals), new ArrayList<ErrBase>(failedMatches), currentNT);
-  }
-
   private List<String> uniq () {
     ArrayList<String> newList = new ArrayList<String>();
 

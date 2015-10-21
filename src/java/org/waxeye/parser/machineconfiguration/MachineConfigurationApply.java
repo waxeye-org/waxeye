@@ -26,7 +26,7 @@ public class MachineConfigurationApply <E extends Enum<?>> extends MachineConfig
   }
 
   public Stack<Continuation> getContinuations () {
-    return (Stack<Continuation>)continuations.clone();
+    return continuations;
   }
 
   public MachineValue getValue () {

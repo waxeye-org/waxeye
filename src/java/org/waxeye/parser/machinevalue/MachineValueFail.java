@@ -19,6 +19,6 @@ public class MachineValueFail extends MachineValue
   }
 
   public RawError getError () {
-    return (RawError)e.clone();
+    return e;
   }
 }

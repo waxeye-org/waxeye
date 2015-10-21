@@ -116,9 +116,9 @@ public abstract class Parser <E extends Enum<?>>
           Expression expr = config.getExpression();
           int pos = config.getPos();
           boolean eof = (pos >= input.length);
-          List<IAST<E>> asts = new ArrayList<IAST<E>>(config.getAsts());
-          Stack<Continuation> k = (Stack<Continuation>)config.getContinuations().clone();
-          RawError err = config.getError().clone();
+          List<IAST<E>> asts = config.getAsts();
+          Stack<Continuation> k = config.getContinuations();
+          RawError err = config.getError();
 
           if (expr instanceof VoidExpr) {
             VoidExpr e = (VoidExpr)expr;
@@ -226,8 +226,7 @@ public abstract class Parser <E extends Enum<?>>
         }
 
         private MachineState<E> moveApply (MachineConfigurationApply<E> config) {
-          Stack<Continuation> k = config.getContinuations();
-          Stack<Continuation> kRest = (Stack<Continuation>)k.clone();
+          Stack<Continuation> kRest = config.getContinuations();
           Continuation kFirst = (!kRest.empty() ? kRest.pop() : null);
 
           MachineValue v = config.getValue();
@@ -253,7 +252,7 @@ public abstract class Parser <E extends Enum<?>>
           }
           if (failVal != null && (kFirst instanceof ContinuationAlt)) {
             ContinuationAlt cont = (ContinuationAlt)kFirst;
-            List<Expression> exprs = new ArrayList<Expression>(cont.getExpressions());
+            List<Expression> exprs = cont.getExpressions();
             if (!exprs.isEmpty()) {
               Expression firstExp = exprs.remove(0);
               kRest.push(Continuation.ALT(exprs, cont.getPos(), cont.getAsts()));
@@ -308,7 +307,7 @@ public abstract class Parser <E extends Enum<?>>
           }
           if (kFirst instanceof ContinuationSeq) {
             ContinuationSeq cont = (ContinuationSeq)kFirst;
-            List<Expression> exprs = new ArrayList<Expression>(cont.getExpressions());
+            List<Expression> exprs = cont.getExpressions();
             if (exprs.isEmpty()) {
               return MachineState.INTER(MachineConfiguration.APPLY(kRest, v));
             }
@@ -375,7 +374,7 @@ public abstract class Parser <E extends Enum<?>>
             List<ErrBase> failures;
             E currentNT = start;
             if (err != null) {
-              nonterminals = new ArrayList<E>(err.getNonterminals());
+              nonterminals = err.getNonterminals();
               failures = new ArrayList<ErrBase>(err.getFailedMatches());
               pos = err.getPos();
               currentNT = (E)err.getCurrentNT();

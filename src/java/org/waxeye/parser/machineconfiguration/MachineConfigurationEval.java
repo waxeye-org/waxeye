@@ -37,7 +37,7 @@ public class MachineConfigurationEval <E extends Enum<?>> extends MachineConfigu
   }
 
   public Stack getContinuations () {
-    return (Stack)continuations.clone();
+    return continuations;
   }
 
   public int getPos () {
@@ -49,6 +49,6 @@ public class MachineConfigurationEval <E extends Enum<?>> extends MachineConfigu
   }
 
   public RawError getError () {
-    return err.clone();
+    return err;
   }
 }

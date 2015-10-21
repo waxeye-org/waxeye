@@ -24,7 +24,7 @@ public class MachineValueVal <E extends Enum<?>> extends MachineValue
   }
 
   public RawError getError () {
-    return (RawError)e.clone();
+    return e;
   }
 
   public List<IAST<E>> getAsts () {
