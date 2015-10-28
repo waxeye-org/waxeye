@@ -126,8 +126,15 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- ====================================================================== -->
     <target name="testng" depends="compile-test">
         <java classname="org.testng.TestNG" fork="true">
-            <classpath location="tmp/test" />
+            <classpath>
+              <pathelement path="${env.CLASSPATH}" />
+            </classpath>
+            <classpath>
+              <pathelement location="tmp/test" />
+            </classpath>
             <classpath refid="build.classpath.test" />
+            <arg value="-log" />
+            <arg value="3" />
             <arg value="-d" />
             <arg value="tmp/test-output" />
             <arg value="test/java/testng.xml" />

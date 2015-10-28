@@ -37,4 +37,20 @@ implements IEmpty
     {
         return "";
     }
+
+    public boolean equals (Object other) {
+      if (other == this) {
+        return true;
+      }
+
+      if (this.getClass() != other.getClass()) {
+        return false;
+      }
+
+      if (this.getType() != ((Empty<E>)other).getType()) {
+        return false;
+      }
+
+      return true;
+    }
 }

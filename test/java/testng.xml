@@ -6,10 +6,15 @@ www.waxeye.org
 Copyright (C) 2008-2010 Orlando Hill
 Licensed under the MIT license. See 'LICENSE' for details.
 -->
-<suite name="Test Suite" >
-  <test name="All Tests" >
-    <packages>
-      <package name="org.waxeye.*" />
-    </packages>
+<suite name="TestSuite" >
+  <test name="AllTests" >
+    <groups>
+      <define name="all">
+        <include name=".*" />
+      </define>
+    </groups>
+    <classes>
+      <class name="org.waxeye.parser.TestFixtureRunner" />
+    </classes>
   </test>
 </suite>

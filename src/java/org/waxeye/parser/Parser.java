@@ -7,9 +7,11 @@
 package org.waxeye.parser;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.Collections;
 import org.waxeye.ast.AST;
 import org.waxeye.ast.Char;
 import org.waxeye.ast.Empty;
@@ -17,6 +19,10 @@ import org.waxeye.ast.IAST;
 import org.waxeye.ast.Position;
 import org.waxeye.input.InputBuffer;
 import org.waxeye.input.IParserInput;
+import org.waxeye.parser.expression.*;
+import org.waxeye.parser.machinevalue.*;
+import org.waxeye.parser.err.*;
+import org.waxeye.parser.continuations.*;
 
 /**
  * Implements the logic of the parser.
@@ -25,114 +31,57 @@ import org.waxeye.input.IParserInput;
  *
  * @author Orlando Hill
  */
-public abstract class Parser <E extends Enum<?>> implements IParser<E>
+public abstract class Parser <E extends Enum<?>>
 {
-    /** The empty node. */
-    private final IAST<E> empty;
+    /** The rules of the parser. */
+    private final Map<E, Nonterminal> rules;
 
-    /** The char type. */
+    /** The starting nonterminal. */
+    private final E start;
+
+    /** The character type. */
     private final E charType;
 
-    /** The pos type. */
-    private final E posType;
-
-    /** The neg type. */
-    private final E negType;
-
-    /** The automata of the parser. */
-    private final List<FA<E>> automata;
-
-    /** Whether to check that all input gets parsed. */
-    private final boolean eofCheck;
-
-    /** The starting automaton. */
-    private final int start;
+    /** The "none" type. */
+    private final E noneType;
 
     /**
      * Creates a new Parser.
      *
-     * @param automata The automata of the parser.
+     * @param rules The rules of the parser.
      *
-     * @param eofCheck Whether to check that all input gets parsed.
-     *
-     * @param start The starting automaton.
-     *
-     * @param emptyType The empty type.
-     *
-     * @param charType The char type.
-     *
-     * @param posType The positive check type.
-     *
-     * @param negType The negative check type.
+     * @param start The starting rule.
      */
-    public Parser(final List<FA<E>> automata,  final boolean eofCheck,
-        final int start,
-        final E emptyType, final E charType, final E posType, final E negType)
+    public Parser(final Map<E, Nonterminal> rules, final E charType, final E noneType, final E start)
     {
-        this.automata = automata;
-        this.eofCheck = eofCheck;
+        this.rules = rules;
         this.start = start;
-        this.empty = new Empty<E>(emptyType);
         this.charType = charType;
-        this.posType = posType;
-        this.negType = negType;
+        this.noneType = noneType;
     }
 
     /** {@inheritDoc} */
-    public final ParseResult<E> parse(final char[] input)
+    public ParseResult<E> parse(final char[] input)
     {
         return new InnerParser(input).parse();
     }
 
     /** {@inheritDoc} */
-    public final ParseResult<E> parse(final String input)
+    public ParseResult<E> parse(final String input)
     {
         return new InnerParser(input.toCharArray()).parse();
     }
 
-    /** {@inheritDoc} */
-    @Deprecated public final ParseResult<E> parse(final IParserInput input)
-    {
-        return new InnerParser(input).parse();
-    }
-
     /**
-     * A hidden inner class so that we can visit the transition costs without
-     * exposing things to the API user.
+     * A hidden inner class so that we can parse without exposing things to the API user.
      *
      * @author Orlando Hill
+     * @author Joshua Gross, Yahoo
      */
-    private final class InnerParser implements ITransitionVisitor<E>
+    private class InnerParser
     {
         /** The input to parse. */
-        private final IParserInput input;
-
-        /** The automata stack. */
-        private final Stack<FA<E>> faStack;
-
-        /** The result cache. */
-        private final HashMap<CacheKey, CacheItem<E>> cache;
-
-        /** The line number. */
-        private int line;
-
-        /** The column number. */
-        private int column;
-
-        /** Whether the last character was a carriage return. */
-        private boolean lastCR;
-
-        /** The position of the deepest error. */
-        private int errorPos;
-
-        /** The line of the deepest error. */
-        private int errorLine;
-
-        /** The column of the deepest error. */
-        private int errorCol;
-
-        /** The nt deepest error. */
-        private String errorNT;
+        private final char[] input;
 
         /**
          * Creates a new Parser.
@@ -141,380 +90,306 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
          */
         InnerParser(final char[] input)
         {
-            this(new InputBuffer(input));
-        }
-
-        /**
-         * Creates a new Parser.
-         *
-         * @param input The input to parse.
-         */
-        InnerParser(final IParserInput input)
-        {
             this.input = input;
-            this.faStack = new Stack<FA<E>>();
-            this.cache = new HashMap<CacheKey, CacheItem<E>>();
-            this.line = 1;
-            this.column = 0;
-            this.lastCR = false;
-            this.errorPos = 0;
-            this.errorLine = 1;
-            this.errorCol = 0;
-            this.errorNT = automata.get(start).getType().name();
         }
 
-        /**
-         * Parses the input.
-         *
-         * @return The result of the parse.
-         */
-        ParseResult<E> parse()
-        {
-            IAST<E> ast = matchAutomaton(start);
-            ParseError error = null;
-
-            if (ast == null)
-            {
-                // Create a parse error
-                error = new ParseError(errorPos, errorLine, errorCol, errorNT);
-            }
-            else
-            {
-                // Check that all input was consumed
-                if (eofCheck && input.peek() != IParserInput.EOF)
-                {
-                    // Create a parse error - Not all input consumed
-                    error = new ParseError(errorPos, errorLine, errorCol, errorNT);
-                    ast = null;
-                }
-            }
-
-            return new ParseResult<E>(ast, error);
+        public ParseResult<E> parse () {
+          // Move from initial state to halting state
+          ArrayList<E> ntList = new ArrayList<E>();
+          ntList.add(start);
+          MachineState state = move(MachineConfiguration.EVAL(rules.get(start).getExpression(), 0, new ArrayList(), new RawError(0, ntList, new ArrayList(), start), new Stack<Continuation>()));
+          while (!state.isFinal()) {
+            state = move(((MachineStateInter)state).getConfiguration());
+          }
+          return ((MachineStateFinal)state).getResult();
         }
 
-        /**
-         * Restores the input position to the given values.
-         *
-         * @param pos The position.
-         *
-         * @param line The line.
-         *
-         * @param col The column.
-         *
-         * @param cr Whether the last character was a CR.
-         */
-        private void restorePos(final int pos, final int line, final int col,
-            final boolean cr)
-        {
-            this.input.setPosition(pos);
-            this.line = line;
-            this.column = col;
-            this.lastCR = cr;
+        private MachineState<E> move (MachineConfiguration<E> config) {
+          if (config.isEval()) {
+            return moveEval((MachineConfigurationEval<E>)config);
+          }
+
+          return moveApply((MachineConfigurationApply<E>)config);
         }
 
-        /**
-         * Matches the automaton at the given index.
-         *
-         * @param index The index.
-         *
-         * @return The result.
-         */
-        private IAST<E> matchAutomaton(final int index)
-        {
-            final int startPos = input.getPosition();
-            final CacheKey key = new CacheKey(index, startPos);
-            final CacheItem<E> cachedItem = cache.get(key);
+        private MachineState<E> moveEval (MachineConfigurationEval<E> config) {
+          Expression expr = config.getExpression();
+          int pos = config.getPos();
+          boolean eof = (pos >= input.length);
+          List<IAST<E>> asts = config.getAsts();
+          Stack<Continuation> k = config.getContinuations();
+          RawError err = config.getError();
 
-            if (cachedItem != null)
-            {
-                restorePos(cachedItem.getPosition(), cachedItem.getLine(),
-                    cachedItem.getColumn(), cachedItem.getLastCR());
-                return cachedItem.getResult();
+          if (expr instanceof VoidExpr) {
+            VoidExpr e = (VoidExpr)expr;
+            k.push(Continuation.VOID(asts));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, new ArrayList(), err, k));
+          }
+          if (expr instanceof Any) {
+            if (eof) {
+              return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.FAIL(updateError(err, pos, new ErrAny()))));
+            } else {
+              asts.add(0, new Char(input[pos], charType));
+              return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.VAL(pos+1, asts, err)));
+            }
+          }
+          if (expr instanceof CharExpr) {
+            CharExpr e = (CharExpr)expr;
+            char c = e.getChar();
+            MachineValue newval;
+            if (eof || c != input[pos]) {
+              newval = MachineValue.FAIL(updateError(err, pos, new ErrChar(c)));
+            } else {
+              asts.add(0, new Char(input[pos], charType));
+              newval = MachineValue.VAL(pos+1, asts, err);
+            }
+            return MachineState.INTER(MachineConfiguration.APPLY(k, newval));
+          }
+          if (expr instanceof CharClass) {
+            CharClass e = (CharClass)expr;
+            List<List<String>> charClasses = e.getCharClass();
+
+            if (!eof) {
+              for (List<String> chars : charClasses) {
+                char c1 = chars.get(0).charAt(0);
+                char c2 = chars.get(1).charAt(0);
+
+                if (c1 <= input[pos] && c2 >= input[pos]) {
+                  asts.add(0, new Char<E>(input[pos], charType));
+                  return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.VAL(pos+1, asts, err)));
+                }
+              }
             }
 
-            final int startLine = line;
-            final int startCol = column;
-            final boolean startCR = lastCR;
-            final FA<E> automaton = automata.get(index);
-            final E type = automaton.getType();
-            final int mode = automaton.getMode();
-
-            faStack.push(automaton);
-            final List<IAST<E>> res = matchState(0);
-            faStack.pop();
-
-            IAST<E> value;
-
-            if (type.equals(posType))
-            {
-                restorePos(startPos, startLine, startCol, startCR);
-
-                if (res == null)
-                {
-                    value = null;
-                }
-                else
-                {
-                    value = empty;
-                }
-            }
-            else
-            {
-                if (type.equals(negType))
-                {
-                    restorePos(startPos, startLine, startCol, startCR);
-
-                    if (res == null)
-                    {
-                        value = empty;
-                    }
-                    else
-                    {
-                        updateError();
-                        value = null;
-                    }
-                }
-                else
-                {
-                    if (res == null)
-                    {
-                        updateError();
-                        value = null;
-                    }
-                    else
-                    {
-                        switch (mode)
-                        {
-                            case FA.VOID:
-                            {
-                                value = empty;
-                                break;
-                            }
-                            case FA.PRUNE:
-                            {
-                                switch (res.size())
-                                {
-                                    case 0:
-                                    {
-                                        value = empty;
-                                        break;
-                                    }
-                                    case 1:
-                                    {
-                                        value = res.get(0);
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        value = new AST<E>(type, res, new Position(startPos, input.getPosition()));
-                                        break;
-                                    }
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                value = new AST<E>(type, res, new Position(startPos, input.getPosition()));
-                                break;
-                            }
-                        }
-                    }
-                }
+            return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.FAIL(updateError(err, pos, new ErrCC(charClasses)))));
+          }
+          if (expr instanceof Seq) {
+            // a sequence is made up of a list of expressions
+            // we traverse the list, making sure each expression succeeds
+            // the rest of the string return by the expression is used
+            // as input to the next expression
+            Seq e = (Seq)expr;
+            List<Expression> exprs = new ArrayList<Expression>(e.getExpressions());
+            if (exprs.isEmpty()) {
+              return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.VAL(pos, asts, err)));
             }
 
-            cache.put(key, new CacheItem<E>(value, input.getPosition(), line,
-                column, lastCR));
+            Expression firstExpr = exprs.remove(0);
+            k.push(Continuation.SEQ(exprs));
+            return MachineState.INTER(MachineConfiguration.EVAL(firstExpr, pos, asts, err, k));
+          }
+          if (expr instanceof Plus) {
+            Plus e = (Plus)expr;
+            k.push(Continuation.PLUS(e.getExpression()));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, asts, err, k));
+          }
+          if (expr instanceof Star) {
+            Star e = (Star)expr;
+            k.push(Continuation.STAR(e.getExpression(), pos, asts));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, asts, err, k));
+          }
+          if (expr instanceof Opt) {
+            Opt e = (Opt)expr;
+            k.push(Continuation.OPT(pos, asts));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, asts, err, k));
+          }
+          if (expr instanceof And) {
+            And e = (And)expr;
+            k.push(Continuation.AND(pos, asts, err));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, new ArrayList(), err, k));
+          }
+          if (expr instanceof Not) {
+            Not e = (Not)expr;
+            k.push(Continuation.NOT(pos, asts, err));
+            return MachineState.INTER(MachineConfiguration.EVAL(e.getExpression(), pos, new ArrayList(), err, k));
+          }
+          if (expr instanceof NT) {
+            NT e = (NT)expr;
+            Nonterminal ntRef = rules.get(e.getNT());
+            k.push(Continuation.NT(ntRef.getMode(), (E)e.getNT(), asts, (E)err.getCurrentNT()));
+            err = new RawError(err.getPos(), err.getNonterminals(), err.getFailedMatches(), e.getNT());
+            return MachineState.INTER(MachineConfiguration.EVAL(ntRef.getExpression(), pos, new ArrayList(), err, k));
+          }
+          if (expr instanceof Alt) {
+            Alt e = (Alt)expr;
+            List<Expression> exprs = new ArrayList<Expression>(e.getExpressions());
+            if (exprs.isEmpty()) {
+              return MachineState.INTER(MachineConfiguration.APPLY(k, MachineValue.VAL(pos, asts, err)));
+            } else {
+              Expression firstExpr = exprs.remove(0);
+              k.push(Continuation.ALT(exprs, pos, asts));
+              return MachineState.INTER(MachineConfiguration.EVAL(firstExpr, pos, asts, err, k));
+            }
+          }
 
-            return value;
+          throw new RuntimeException("Unsupported machine configuration: eval");
         }
 
-        /**
-         * Matches the state at the given index.
-         *
-         * @param index The index.
-         *
-         * @return The result.
-         */
-        private List<IAST<E>> matchState(final int index)
-        {
-            final State<E> state = faStack.peek().getStates().get(index);
-            final List<IAST<E>> res = matchEdges(state.getEdges(), 0);
+        private MachineState<E> moveApply (MachineConfigurationApply<E> config) {
+          Stack<Continuation> kRest = config.getContinuations();
+          Continuation kFirst = (!kRest.empty() ? kRest.pop() : null);
 
-            if (res == null)
-            {
-                if (state.isMatch())
-                {
-                    return new ArrayList<IAST<E>>();
-                }
-                else
-                {
-                    return null;
-                }
+          MachineValue v = config.getValue();
+          MachineValueVal val = (v instanceof MachineValueVal) ? (MachineValueVal)v : null;
+          MachineValueFail failVal = (v instanceof MachineValueFail) ? (MachineValueFail)v : null;
+
+          if (failVal != null && (kFirst instanceof ContinuationVoid || kFirst instanceof ContinuationSeq || kFirst instanceof ContinuationPlus)) {
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, v));
+          }
+          if (failVal != null && (kFirst instanceof ContinuationAnd)) {
+            ContinuationAnd cont = (ContinuationAnd)kFirst;
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.FAIL(cont.getError())));
+          }
+          if (failVal != null && (kFirst instanceof ContinuationNot || kFirst instanceof ContinuationStar || kFirst instanceof ContinuationOpt)) {
+            int pos = ((ContinuationWithPos)kFirst).getPos();
+            List<IAST<E>> asts = ((ContinuationWithAsts)kFirst).getAsts();
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(pos, asts, failVal.getError())));
+          }
+          if (failVal != null && kFirst instanceof ContinuationNT) {
+            ContinuationNT cont = (ContinuationNT)kFirst;
+            RawError err = failVal.getError();
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.FAIL(new RawError(err.getPos(), err.getNonterminals(), err.getFailedMatches(), cont.getCurrentNT()))));
+          }
+          if (failVal != null && (kFirst instanceof ContinuationAlt)) {
+            ContinuationAlt cont = (ContinuationAlt)kFirst;
+            List<Expression> exprs = cont.getExpressions();
+            if (!exprs.isEmpty()) {
+              Expression firstExp = exprs.remove(0);
+              kRest.push(Continuation.ALT(exprs, cont.getPos(), cont.getAsts()));
+              RawError err = failVal.getError();
+              return MachineState.INTER(MachineConfiguration.EVAL(firstExp, cont.getPos(), cont.getAsts(), err, kRest));
+            } else {
+              return MachineState.INTER(MachineConfiguration.APPLY(kRest, v));
             }
-            else
-            {
-                return res;
+          }
+          if (failVal != null && kFirst != null) {
+            throw new RuntimeException("Unsupported machine configuration: apply kFirst fail");
+          }
+          if (failVal != null) {
+            return MachineState.FINAL(new ParseResult<E>(null, failVal.getError().toParseError(input)));
+          }
+
+          if (val != null && kFirst == null) {
+            List<IAST<E>> asts = val.getAsts();
+            Collections.reverse(asts);
+
+            if (val.getPos() >= input.length) {
+              if (rules.get(start).mode == NonterminalMode.NORMAL) {
+                return MachineState.FINAL(new ParseResult(new AST<E>(start, asts, val.getPos()), null));
+              } else if (rules.get(start).mode == NonterminalMode.PRUNING) {
+                if (asts.isEmpty()) {
+                  return MachineState.FINAL(new ParseResult(new Empty<E>(start), null));
+                } else if (asts.size() == 1) {
+                  return MachineState.FINAL(new ParseResult(asts.get(0), null));
+                } else {
+                  return MachineState.FINAL(new ParseResult(new AST<E>(start, asts, val.getPos()), null));
+                }
+              } else {
+                return MachineState.FINAL(new ParseResult(new Empty<E>(start), null));
+              }
+            } else if (val.getError() != null && val.getPos() == val.getError().getPos()) {
+              return MachineState.FINAL(new ParseResult(null, (new RawError(val.getPos(), val.getError().getNonterminals(), val.getError().getFailedMatches(), start)).toParseError(input)));
+            } else {
+              return MachineState.FINAL(new ParseResult(null, (new RawError(val.getPos(), new ArrayList(), new ArrayList(), start)).toParseError(input)));
             }
+          }
+          if (kFirst instanceof ContinuationVoid) {
+            ContinuationVoid cont = (ContinuationVoid)kFirst;
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(val.getPos(), cont.getAsts(), val.getError())));
+          }
+          if (kFirst instanceof ContinuationAnd) {
+            ContinuationAnd cont = (ContinuationAnd)kFirst;
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(cont.getPos(), cont.getAsts(), cont.getError())));
+          }
+          if (kFirst instanceof ContinuationNot) {
+            ContinuationNot cont = (ContinuationNot)kFirst;
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.FAIL(cont.getError())));
+          }
+          if (kFirst instanceof ContinuationSeq) {
+            ContinuationSeq cont = (ContinuationSeq)kFirst;
+            List<Expression> exprs = cont.getExpressions();
+            if (exprs.isEmpty()) {
+              return MachineState.INTER(MachineConfiguration.APPLY(kRest, v));
+            }
+            Expression firstExp = exprs.remove(0);
+            kRest.push(Continuation.SEQ(exprs));
+            return MachineState.INTER(MachineConfiguration.EVAL(firstExp, val.getPos(), val.getAsts(), val.getError(), kRest));
+          }
+          if (kFirst instanceof ContinuationAlt || kFirst instanceof ContinuationOpt) {
+            return MachineState.INTER(MachineConfiguration.APPLY(kRest, v));
+          }
+          // The second continuation used to evaluate PLUS
+          // is the same continuation as for STAR
+          if (kFirst instanceof ContinuationStar || kFirst instanceof ContinuationPlus) {
+            Expression expr = ((ContinuationWithExpression)kFirst).getExpression();
+            kRest.push(Continuation.STAR(expr, val.getPos(), val.getAsts()));
+            return MachineState.INTER(MachineConfiguration.EVAL(expr, val.getPos(), val.getAsts(), val.getError(), kRest));
+          }
+          if (kFirst instanceof ContinuationNT) {
+            ContinuationNT cont = (ContinuationNT)kFirst;
+            List<IAST<E>> asts = cont.getAsts();
+            NonterminalMode mode = cont.getMode();
+            E nt = (E)cont.getNT();
+            E prevNT = (E)cont.getCurrentNT();
+            RawError err = val.getError();
+            int errPos = (err != null ? err.getPos() : -1);
+            List<Nonterminal> errNTs = (err != null ? err.getNonterminals() : new ArrayList());
+            List<ErrBase> errFailedMatches = (err != null ? err.getFailedMatches() : new ArrayList());
+
+            RawError newErr = new RawError(errPos, errNTs, errFailedMatches, prevNT);
+
+            List<IAST<E>> valAsts = new ArrayList<IAST<E>>(val.getAsts());
+            Collections.reverse(valAsts);
+
+            if (mode == NonterminalMode.NORMAL) {
+              asts.add(0, new AST<E>(nt, valAsts, val.getPos()));
+              return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(val.getPos(), asts, newErr)));
+            } else if (mode == NonterminalMode.PRUNING) {
+              if (valAsts.size() == 1) {
+                asts.add(0, valAsts.get(0));
+              } else if (!valAsts.isEmpty()) {
+                asts.add(0, new AST<E>(nt, valAsts, val.getPos()));
+              }
+              return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(val.getPos(), asts, newErr)));
+            } else {
+              // VOIDING
+              return MachineState.INTER(MachineConfiguration.APPLY(kRest, MachineValue.VAL(val.getPos(), asts, newErr)));
+            }
+          }
+
+          throw new RuntimeException("Unsupported machine configuration: apply");
         }
 
-        /**
-         * Matches the given edges starting from the given index.
-         *
-         * @param edges The edges.
-         *
-         * @param index The index.
-         *
-         * @return The result.
-         */
-        private List<IAST<E>> matchEdges(final List<Edge<E>> edges, final int index)
-        {
-            if (index < edges.size())
-            {
-                final List<IAST<E>> res = matchEdge(edges.get(index));
+        private RawError updateError (RawError err, int pos, ErrBase newErr) {
+          if (err != null && pos > err.getPos()) {
+            List<ErrBase> newFailureList = new ArrayList<ErrBase>();
+            newFailureList.add(newErr);
 
-                if (res == null)
-                {
-                    return matchEdges(edges, index + 1);
-                }
-                else
-                {
-                    return res;
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
+            List<E> nonterminals = new ArrayList<E>();
+            nonterminals.add((E)err.getCurrentNT());
 
-        /**
-         * Matches the given edge.
-         *
-         * @param edge The edge.
-         *
-         * @return The result.
-         */
-        private List<IAST<E>> matchEdge(final Edge<E> edge)
-        {
-            final int startPos = input.getPosition();
-            final int startLine = line;
-            final int startCol = column;
-            final boolean startCR = lastCR;
-            final IAST<E> res = edge.getTrans().acceptVisitor(this);
-
-            if (res == null)
-            {
-                return null;
-            }
-            else
-            {
-                final List<IAST<E>> transRes = matchState(edge.getState());
-
-                if (transRes == null)
-                {
-                    restorePos(startPos, startLine, startCol, startCR);
-                    return null;
-                }
-                else
-                {
-                    if (edge.isVoided() || res.equals(empty))
-                    {
-                        return transRes;
-                    }
-                    else
-                    {
-                        // Note: If we were to memoize state results,
-                        //       this would need to be changed.
-                        transRes.add(0, res);
-                        return transRes;
-                    }
-                }
-            }
-        }
-
-        /**
-         * Updates the line and column numbers.
-         *
-         * @param ch The character being consumed.
-         */
-        private void updateLineCol(final char ch)
-        {
-            if (ch == '\r')
-            {
-                line++;
-                column = 0;
-                lastCR = true;
-            }
-            else
-            {
-                if (ch == '\n')
-                {
-                    if (!lastCR)
-                    {
-                        line++;
-                        column = 0;
-                    }
-                }
-                else
-                {
-                    column++;
-                }
-
-                lastCR = false;
-            }
-        }
-
-        /**
-         * Updates the error info if needed.
-         */
-        private void updateError()
-        {
-            if (errorPos < input.getPosition())
-            {
-                errorPos = input.getPosition();
-                errorLine = line;
-                errorCol = column;
-                errorNT = faStack.peek().getType().name();
-            }
-        }
-
-        /** {@inheritDoc} */
-        public IAST<E> visitAutomatonTransition(final AutomatonTransition<E> t)
-        {
-            return matchAutomaton(t.getIndex());
-        }
-
-        /** {@inheritDoc} */
-        public IAST<E> visitCharTransition(final CharTransition<E> t)
-        {
-            if (input.peek() != IParserInput.EOF)
-            {
-                final char c = (char) input.peek();
-
-                if (t.withinSet(c))
-                {
-                    input.consume();
-                    updateLineCol(c);
-                    return new Char<E>(c, charType);
-                }
+            return new RawError(pos, nonterminals, newFailureList, err.getCurrentNT());
+          } else if (err == null || pos == err.getPos()) {
+            List<E> nonterminals;
+            List<ErrBase> failures;
+            E currentNT = start;
+            if (err != null) {
+              nonterminals = err.getNonterminals();
+              failures = new ArrayList<ErrBase>(err.getFailedMatches());
+              pos = err.getPos();
+              currentNT = (E)err.getCurrentNT();
+            } else {
+              nonterminals = new ArrayList<E>();
+              failures = new ArrayList<ErrBase>();
             }
 
-            updateError();
-            return null;
-        }
+            nonterminals.add(0, currentNT);
+            failures.add(0, newErr);
 
-        /** {@inheritDoc} */
-        public IAST<E> visitWildCardTransition(final WildCardTransition<E> t)
-        {
-            if (input.peek() == IParserInput.EOF)
-            {
-                updateError();
-                return null;
-            }
+            return new RawError(pos, nonterminals, failures, currentNT);
+          }
 
-            final char c = (char) input.consume();
-            updateLineCol(c);
-            return new Char<E>(c, charType);
+          return err;
         }
     }
 }

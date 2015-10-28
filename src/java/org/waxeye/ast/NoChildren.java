@@ -63,9 +63,9 @@ public abstract class NoChildren <E extends Enum<?>> implements IAST<E>
     }
 
     /** {@inheritDoc} */
-    public final Position getPosition()
+    public final int getPos()
     {
-        return null;
+        return -1;
     }
 
     /** {@inheritDoc} */
