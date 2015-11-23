@@ -43,7 +43,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
     private final List<FA<E>> automata;
 
     /** Whether to check that all input gets parsed. */
-    private final boolean eofCheck;
+    private boolean eofCheck;
 
     /** The starting automaton. */
     private final int start;
@@ -76,6 +76,10 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
         this.charType = charType;
         this.posType = posType;
         this.negType = negType;
+    }
+    
+    public void setEofCheck(boolean eofCheck) {
+      this.eofCheck = eofCheck;
     }
 
     /** {@inheritDoc} */
