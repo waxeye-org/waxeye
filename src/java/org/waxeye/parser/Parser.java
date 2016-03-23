@@ -499,7 +499,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
                 {
                     input.consume();
                     updateLineCol(c);
-                    return new Char<E>(c, charType);
+                    return new Char<E>(c, charType, input.getPosition());
                 }
             }
 
@@ -518,7 +518,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
 
             final char c = (char) input.consume();
             updateLineCol(c);
-            return new Char<E>(c, charType);
+            return new Char<E>(c, charType, input.getPosition());
         }
     }
 }
