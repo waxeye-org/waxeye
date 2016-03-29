@@ -211,7 +211,11 @@ waxeye = (->
                   if charClasses.length == 0
                     MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
                   else
-                    [c1, c2] = first charClasses
+                    if (first charClasses) instanceof Array
+                      [c1, c2] = first charClasses
+                    else
+                      c1 = c2 = first charClasses
+
                     if c1 <= input[pos] and c2 >= input[pos]
                       MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
                     else

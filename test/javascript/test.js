@@ -29,8 +29,8 @@ var env1 = {
   "Int": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.CHAR("0"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["1", "9"]), Waxeye.Exp.STAR(Waxeye.Exp.CHAR_CLASS(["0", "9"]))))),
   "Unary": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.NT("Int"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("("), Waxeye.Exp.NT("Sum"), Waxeye.Exp.CHAR(")")))),
 
-  "Prod": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Unary"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["*", "*"], ["/", "/"]), Waxeye.Exp.NT("Unary"))))),
-  "Sum": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Prod"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["+", "+"], ["-", "-"]), Waxeye.Exp.NT("Prod"))))),
+  "Prod": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Unary"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS("*", "/"), Waxeye.Exp.NT("Unary"))))),
+  "Sum": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Prod"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS("+", "-"), Waxeye.Exp.NT("Prod"))))),
 
   // voided expressions
   "V1": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.VOID(Waxeye.Exp.CHAR("a"))),

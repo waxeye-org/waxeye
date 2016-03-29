@@ -366,7 +366,11 @@
                     if (charClasses.length === 0) {
                       return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))));
                     } else {
-                      ref = first(charClasses), c1 = ref[0], c2 = ref[1];
+                      if ((first(charClasses)) instanceof Array) {
+                        ref = first(charClasses), c1 = ref[0], c2 = ref[1];
+                      } else {
+                        c1 = c2 = first(charClasses);
+                      }
                       if (c1 <= input[pos] && c2 >= input[pos]) {
                         return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)));
                       } else {
