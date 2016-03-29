@@ -24,10 +24,9 @@ mzscheme
     (dump-string (gen-parser grammar) file-path)
     (list file-path)))
 
-
 (define (gen-trans a)
   (define (gen-char t)
-    (format "\"~a~a\""
+    (format "'~a~a'"
             (if (escape-for-java-char? t) "\\" "")
             (cond
              ((equal? t #\") "\\\"")
@@ -39,76 +38,85 @@ mzscheme
     (if (char? a)
         (gen-char a)
         (format "[~a, ~a]"
-                (char->integer (car a))
-                (char->integer (cdr a)))))
+                (gen-char (car a))
+                (gen-char (cdr a)))))
   (cond
    ((symbol? a) "-1") ;; use -1 for wild card
-   ((list? a)
-    (format "[~a~a]"
-            (gen-char-class-item (car a))
-            (string-concat (map (lambda (b)
-                                  (string-append ", " (gen-char-class-item b)))
-                                (cdr a)))))
+   ((list? a) (gen-array gen-char-class-item a))
    ((char? a) (gen-char a))
    (else a)))
 
+(define (gen-exp a)
+  (format "{type:'~a', args:~a}"
+    (case (ast-t a)
+      [(wildCard) "ANY"]
+      [(identifier) "NT"]
+      [(void) "VOID"]
+      [(literal) (if (<= (length (ast-c a)) 1)
+        "CHAR"
+        "SEQ")]
+      [(charClass) "CHAR_CLASS"]
+      [(and) "AND"]
+      [(not) "NOT"]
+      [(optional) "OPT"]
+      [(alternation) "ALT"]
+      [(sequence) "SEQ"]
+      [(closure) "STAR"]
+      [(plus) "PLUS"]
+      [else (format "unknown:~a" (ast-t a))]
+    )
+    (case (ast-t a)
+      [(wildCard) "[]"]
+      [(identifier) (format "['~a']" (list->string (ast-c a)))]
+      [(void) (gen-array gen-exp (ast-c a))]
+      [(literal) (if (<= (length (ast-c a)) 1)
+        (gen-trans (ast-c a))
+        (gen-array gen-exp (map (lambda (b)
+          (make-ast 'literal (cons b '()) '()))
+          (ast-c a)) ))]
+      [(charClass) (gen-trans (ast-c a))]
+      [(and) (gen-array gen-exp (ast-c a))]
+      [(not) (gen-array gen-exp (ast-c a))]
+      [(optional) (gen-array gen-exp (ast-c a))]
+      [(alternation) (gen-array gen-exp (ast-c a))]
+      [(sequence) (gen-array gen-exp (ast-c a))]
+      [(closure) (gen-array gen-exp (ast-c a))]
+      [(plus) (gen-array gen-exp (ast-c a))]
+      [else (format "unknown:~a" (ast-t a))]
+    )))
 
-(define (gen-edge a)
-  (format "new waxeye.Edge(~a, ~a, ~a)"
-          (gen-trans (edge-t a))
-          (edge-s a)
-          (bool->s (edge-v a))))
+(define (gen-def a)
+  (format "'~a' : { mode : waxeye.Modes.~a, exp : ~a }"
+      ; non-term name
+      (list->string (ast-c (list-ref (ast-c a) 0)))
+      ; mode
+      (case (ast-t (list-ref (ast-c a) 1))
+        ((voidArrow) "VOIDING")
+        ((pruneArrow) "PRUNING")
+        ((leftArrow) "NORMAL"))
+      ; right-hand side expression
+      (gen-exp (list-ref (ast-c a) 2))
+  ))
 
+(define (gen-defs a)
+  (gen-map gen-def (ast-c a)))
 
-(define (gen-edges d)
-  (gen-array gen-edge (list->vector d)))
-
-
-(define (gen-state a)
-  (format "new waxeye.State(~a, ~a)"
-          (gen-edges (state-edges a))
-          (bool->s (state-match a))))
-
-
-(define (gen-states d)
-  (gen-array gen-state d))
-
-
-(define (gen-mode a)
-  (let ((type (fa-type a)))
-    (cond
-     ((equal? type '&) "POS")
-     ((equal? type '!) "NEG")
-     (else
-      (case (fa-mode a)
-        ((voidArrow) "VOID")
-        ((pruneArrow) "PRUNE")
-        ((leftArrow) "LEFT"))))))
-
-
-(define (gen-fa a)
-  (format "new waxeye.FA(\"~a\", ~a, waxeye.FA.~a)"
-          (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-            (if (or (equal? type "!") (equal? type "&"))
-                ""
-                type))
-          (gen-states (fa-states a))
-          (gen-mode a)))
-
-
-(define (gen-fas d)
-  (gen-array gen-fa d))
-
-
-(define (gen-array fn data)
-  (let ((ss (vector->list data)))
-    (format "[~a]"
-            (indent (if (null? ss)
+(define (gen-map fn data)
+    (format "{~a}"
+            (indent (if (null? data)
                         ""
-                        (string-append (fn (car ss))
+                        (string-append (fn (car data))
                                        (string-concat (map (lambda (a)
                                                              (string-append ",\n" (ind) (fn a)))
-                                                           (cdr ss)))))))))
+                                                           (cdr data))))))))
+(define (gen-array fn data)
+    (format "[~a]"
+            (indent (if (null? data)
+                        ""
+                        (string-append (fn (car data))
+                                       (string-concat (map (lambda (a)
+                                                             (string-append ",\n" (ind) (fn a)))
+                                                           (cdr data))))))))
 
 
 (define (gen-parser grammar)
@@ -117,20 +125,22 @@ mzscheme
                          "Parser")))
     (define (gen-parser-class)
       (format "\n~avar ~a = (function() {\n~a \n~a})();\n"
-              (ind) 
+              (ind)
               parser-name
               (indent (format "
 ~avar parser = function() { return this; };
-~aparser.prototype = new waxeye.WaxeyeParser(~a, ~a, ~a);
+~aparser.prototype = new waxeye.WaxeyeParser(
+~a~a~a
+~a~a, '~a');
 ~areturn parser;
 "
                               (ind)
                               (ind)
-                              *start-index*
-                              (bool->s *eof-check*)
-                              (gen-fas (make-automata grammar))
+                              (ind) (ind) (gen-defs grammar)
+                              (ind) (ind) *start-name*
                               (ind)))
               (ind)))
+
 
     (define (gen-nodejs-imports)
       (indent (format "
@@ -159,4 +169,3 @@ if (typeof module !== 'undefined') {
         (gen-nodejs-exports))))
 
 )
-
