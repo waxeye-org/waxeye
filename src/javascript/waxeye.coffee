@@ -255,7 +255,7 @@ waxeye = (->
               else if ["CONT_AND"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
               else if ["CONT_NOT"].indexOf(kFirst?.type) != -1
-                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)))
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
               else if ["CONT_STAR", "CONT_OPT"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
               else if ["CONT_NT"].indexOf(kFirst?.type) != -1

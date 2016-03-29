@@ -415,7 +415,7 @@
                 } else if (["CONT_AND"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)));
                 } else if (["CONT_NOT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
-                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)));
+                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)));
                 } else if (["CONT_STAR", "CONT_OPT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)));
                 } else if (["CONT_NT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
