@@ -11,7 +11,17 @@
 (function() {
   var arrayPrepend, assert, first, getLineCol, rest, uniq, waxeye;
 
-  assert = require('assert');
+  if (typeof module !== "undefined" && module !== null) {
+    assert = require('assert');
+  } else {
+    assert = {
+      ok: function(val) {
+        if (!val) {
+          throw 'assertion error';
+        }
+      }
+    };
+  }
 
   arrayPrepend = function(item, a) {
     assert.ok(Array.isArray(a) || !a);
@@ -530,6 +540,8 @@
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = waxeye;
+  } else {
+    this.waxeye = waxeye;
   }
 
 }).call(this);

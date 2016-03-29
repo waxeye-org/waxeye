@@ -6,7 +6,13 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 ###
 
-assert = require('assert')
+if module?
+  assert = require('assert')
+else
+  assert =
+    ok: (val) ->
+      throw 'assertion error' if not val
+
 
 arrayPrepend = (item, a) ->
   assert.ok Array.isArray(a) || !a
@@ -358,3 +364,5 @@ waxeye = (->
 
 if module?
   module.exports = waxeye
+else
+  this.waxeye = waxeye
