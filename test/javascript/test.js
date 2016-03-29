@@ -5,7 +5,7 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 */
 
-var Waxeye = require('./waxeye2.js');
+var Waxeye = require('../../src/javascript/waxeye.js');
 var WaxeyeParser = Waxeye.WaxeyeParser;
 var assert = require('assert');
 
