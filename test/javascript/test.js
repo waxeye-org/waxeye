@@ -83,7 +83,7 @@ function buildTestExpectation (expectation) {
     return AST.TREE(expectation[0], expectation[1].map(buildTestExpectation));
   }
   if (expType === "Char") {
-    return AST.CHAR(expectation[0]);
+    return expectation[0];
   }
   if (expType === "Empty") {
     return AST.EMPTY();

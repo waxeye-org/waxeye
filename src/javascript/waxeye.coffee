@@ -43,20 +43,18 @@ waxeye = (->
   ###
   # An abstract syntax tree has one of three forms.
   # AST_EMPTY represents a successful parse from a voided non-terminal.
-  # AST_CHAR just holds a character.
+  # 'x' just holds a character.
   # AST_TREE represents a successful parse from a non-terminal. It holds:
   # - the non-terminal's name
   # - a list of child asts
   ###
   class AST
-    constructor: (@type, @ch, @str, @asts) ->
-      assert.ok Array.isArray(@asts) || !@asts
+    constructor: (@form, @type, @children) ->
+      assert.ok Array.isArray(@children) || !@children
   AST.EMPTY = () ->
     new AST("EMPTY")
-  AST.CHAR = (ch) ->
-    new AST("CHAR", ch)
   AST.TREE = (str, asts) ->
-    new AST("TREE", null, str, asts)
+    new AST("TREE", str, asts)
 
   class NonTerminal
     constructor: (@mode, @exp) ->
@@ -187,7 +185,7 @@ waxeye = (->
                 if (eof pos)
                   MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))))
                 else
-                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
               when "ALT"
                 es = exp.args
                 if es.length > 0
@@ -205,7 +203,7 @@ waxeye = (->
                 if (eof pos) or c != input[pos]
                   newval = Value.FAIL(updateError(err, pos, new ErrChar(c)))
                 else
-                  newval = Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)
+                  newval = Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)
                 MachineState.INTER(MachineConfiguration.APPLY(k, newval))
               when "CHAR_CLASS"
                 cc = exp.args
@@ -215,7 +213,7 @@ waxeye = (->
                   else
                     [c1, c2] = first charClasses
                     if c1 <= input[pos] and c2 >= input[pos]
-                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
                     else
                       visit (rest charClasses)
                 if eof pos
