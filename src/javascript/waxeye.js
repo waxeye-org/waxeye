@@ -4,14 +4,24 @@
  * Waxeye Parser Generator
  * www.waxeye.org
  * Copyright (C) 2008-2010 Orlando Hill
- * Copyright (c) 2015 Joshua Gross, Orlando Hill
+ * Copyright (c) 2015 Joshua Gross
  * Licensed under the MIT license. See 'LICENSE' for details.
  */
 
 (function() {
   var arrayPrepend, assert, first, getLineCol, rest, uniq, waxeye;
 
-  assert = require('assert');
+  if (typeof module !== "undefined" && module !== null) {
+    assert = require('assert');
+  } else {
+    assert = {
+      ok: function(val) {
+        if (!val) {
+          throw 'assertion error';
+        }
+      }
+    };
+  }
 
   arrayPrepend = function(item, a) {
     assert.ok(Array.isArray(a) || !a);
@@ -59,19 +69,18 @@
     /*
      * An abstract syntax tree has one of three forms.
      * AST_EMPTY represents a successful parse from a voided non-terminal.
-     * AST_CHAR just holds a character.
+     * 'x' just holds a character.
      * AST_TREE represents a successful parse from a non-terminal. It holds:
      * - the non-terminal's name
      * - a list of child asts
      */
     var AST, Continuations, ErrAny, ErrCC, ErrChar, Exp, MachineConfiguration, MachineState, Modes, NonTerminal, ParseError, RawError, Value, WaxeyeParser, namespace, nonterminal, updateError;
     AST = (function() {
-      function AST(type, ch1, str1, asts1) {
+      function AST(form, type, children) {
+        this.form = form;
         this.type = type;
-        this.ch = ch1;
-        this.str = str1;
-        this.asts = asts1;
-        assert.ok(Array.isArray(this.asts) || !this.asts);
+        this.children = children;
+        assert.ok(Array.isArray(this.children) || !this.children);
       }
 
       return AST;
@@ -80,11 +89,8 @@
     AST.EMPTY = function() {
       return new AST("EMPTY");
     };
-    AST.CHAR = function(ch) {
-      return new AST("CHAR", ch);
-    };
     AST.TREE = function(str, asts) {
-      return new AST("TREE", null, str, asts);
+      return new AST("TREE", str, asts);
     };
     NonTerminal = (function() {
       function NonTerminal(mode1, exp1) {
@@ -338,7 +344,7 @@
                   if (eof(pos)) {
                     return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))));
                   } else {
-                    return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(AST.CHAR(input[pos]), asts), err)));
+                    return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)));
                   }
                   break;
                 case "ALT":
@@ -360,7 +366,7 @@
                   if ((eof(pos)) || c !== input[pos]) {
                     newval = Value.FAIL(updateError(err, pos, new ErrChar(c)));
                   } else {
-                    newval = Value.VAL(pos + 1, arrayPrepend(AST.CHAR(input[pos]), asts), err);
+                    newval = Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err);
                   }
                   return MachineState.INTER(MachineConfiguration.APPLY(k, newval));
                 case "CHAR_CLASS":
@@ -370,9 +376,13 @@
                     if (charClasses.length === 0) {
                       return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))));
                     } else {
-                      ref = first(charClasses), c1 = ref[0], c2 = ref[1];
+                      if ((first(charClasses)) instanceof Array) {
+                        ref = first(charClasses), c1 = ref[0], c2 = ref[1];
+                      } else {
+                        c1 = c2 = first(charClasses);
+                      }
                       if (c1 <= input[pos] && c2 >= input[pos]) {
-                        return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(AST.CHAR(input[pos]), asts), err)));
+                        return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)));
                       } else {
                         return visit(rest(charClasses));
                       }
@@ -405,7 +415,6 @@
                   err = new RawError(err.pos, err.nonterminals, err.failedChars, name);
                   return MachineState.INTER(MachineConfiguration.EVAL(e, pos, [], err, arrayPrepend(Continuations.CONT_NT(mode, name, asts, conf.err.currentNT), k)));
                 default:
-                  console.log(conf);
                   throw new Error('unsupported 2');
               }
               break;
@@ -416,7 +425,7 @@
                 } else if (["CONT_AND"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)));
                 } else if (["CONT_NOT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
-                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)));
+                  return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)));
                 } else if (["CONT_STAR", "CONT_OPT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
                   return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)));
                 } else if (["CONT_NT"].indexOf(kFirst != null ? kFirst.type : void 0) !== -1) {
@@ -472,9 +481,6 @@
                     return MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(value.pos, asts, newErr)));
                 }
               } else if (kFirst != null) {
-                console.log(conf);
-                console.log(conf.value);
-                console.log(conf.value.err);
                 throw new Error('unsupported 4');
               } else if (((ref5 = conf.value) != null ? ref5.type : void 0) === "VAL") {
                 ts = (ref6 = conf.value) != null ? ref6.asts : void 0;
@@ -497,24 +503,10 @@
                   return MachineState.FINAL((new RawError(conf.value.pos, err.nonterminals, err.failedChars)).toParseError(input));
                 } else {
                   return MachineState.FINAL((new RawError((ref12 = conf.value) != null ? ref12.pos : void 0, [], [])).toParseError(input));
-
-                  /*
-                      else if rest = err_pos
-                           then FINAL (mk_parse_error (input, rest, nts, ccs))
-                           else FINAL (mk_parse_error (input, rest, [], []))
-                   */
                 }
               } else if (((ref13 = conf.value) != null ? ref13.type : void 0) === "FAIL") {
                 return MachineState.FINAL(conf.value.err.toParseError(input));
-
-                /*
-                    | move (APPLY ([], FAIL (err_pos, nts, ccs, _)))
-                      = FINAL (mk_parse_error (input, err_pos, nts, ccs))
-                 */
               } else {
-                console.log(conf);
-                console.log(conf.value);
-                console.log(conf.value.err);
                 throw new Error('unsupported 3');
               }
           }
@@ -548,6 +540,8 @@
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = waxeye;
+  } else {
+    this.waxeye = waxeye;
   }
 
 }).call(this);

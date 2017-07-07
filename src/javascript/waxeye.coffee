@@ -6,7 +6,13 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 ###
 
-assert = require('assert')
+if module?
+  assert = require('assert')
+else
+  assert =
+    ok: (val) ->
+      throw 'assertion error' if not val
+
 
 arrayPrepend = (item, a) ->
   assert.ok Array.isArray(a) || !a
@@ -43,20 +49,18 @@ waxeye = (->
   ###
   # An abstract syntax tree has one of three forms.
   # AST_EMPTY represents a successful parse from a voided non-terminal.
-  # AST_CHAR just holds a character.
+  # 'x' just holds a character.
   # AST_TREE represents a successful parse from a non-terminal. It holds:
   # - the non-terminal's name
   # - a list of child asts
   ###
   class AST
-    constructor: (@type, @ch, @str, @asts) ->
-      assert.ok Array.isArray(@asts) || !@asts
+    constructor: (@form, @type, @children) ->
+      assert.ok Array.isArray(@children) || !@children
   AST.EMPTY = () ->
     new AST("EMPTY")
-  AST.CHAR = (ch) ->
-    new AST("CHAR", ch)
   AST.TREE = (str, asts) ->
-    new AST("TREE", null, str, asts)
+    new AST("TREE", str, asts)
 
   class NonTerminal
     constructor: (@mode, @exp) ->
@@ -187,7 +191,7 @@ waxeye = (->
                 if (eof pos)
                   MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))))
                 else
-                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
               when "ALT"
                 es = exp.args
                 if es.length > 0
@@ -205,7 +209,7 @@ waxeye = (->
                 if (eof pos) or c != input[pos]
                   newval = Value.FAIL(updateError(err, pos, new ErrChar(c)))
                 else
-                  newval = Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)
+                  newval = Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)
                 MachineState.INTER(MachineConfiguration.APPLY(k, newval))
               when "CHAR_CLASS"
                 cc = exp.args
@@ -213,9 +217,13 @@ waxeye = (->
                   if charClasses.length == 0
                     MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
                   else
-                    [c1, c2] = first charClasses
+                    if (first charClasses) instanceof Array
+                      [c1, c2] = first charClasses
+                    else
+                      c1 = c2 = first charClasses
+
                     if c1 <= input[pos] and c2 >= input[pos]
-                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(AST.CHAR(input[pos]), asts), err)))
+                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
                     else
                       visit (rest charClasses)
                 if eof pos
@@ -253,7 +261,7 @@ waxeye = (->
               else if ["CONT_AND"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.FAIL(kFirst.err)))
               else if ["CONT_NOT"].indexOf(kFirst?.type) != -1
-                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.err)))
+                MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
               else if ["CONT_STAR", "CONT_OPT"].indexOf(kFirst?.type) != -1
                 MachineState.INTER(MachineConfiguration.APPLY(kRest, Value.VAL(kFirst.pos, kFirst.asts, conf.value.err)))
               else if ["CONT_NT"].indexOf(kFirst?.type) != -1
@@ -356,3 +364,5 @@ waxeye = (->
 
 if module?
   module.exports = waxeye
+else
+  this.waxeye = waxeye

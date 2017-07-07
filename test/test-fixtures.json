@@ -56,7 +56,7 @@
   ["MatchError", ["match", "Int", "010"], ["ParseError", 1, 1, 1, [], []]],
   ["MatchError", ["match", "Int", "099"], ["ParseError", 1, 1, 1, [], []]],
 
-  ["MatchError", ["match", "Unary", "(1"], ["ParseError", 2, 1, 2, ["Int", "Prod", "Sum", "Unary"], [{ "type": "ErrCC", "arg": [["0", "9"]] }, { "type": "ErrCC", "arg": [["*", "*"], ["/", "/"]] }, { "type": "ErrCC", "arg": [["+", "+"], ["-", "-"]] }, { "type": "ErrChar", "arg": ")" }]]],
+  ["MatchError", ["match", "Unary", "(1"], ["ParseError", 2, 1, 2, ["Int", "Prod", "Sum", "Unary"], [{ "type": "ErrCC", "arg": [["0", "9"]] }, { "type": "ErrCC", "arg": ["*", "/"] }, { "type": "ErrCC", "arg": ["+", "-"] }, { "type": "ErrChar", "arg": ")" }]]],
   ["MatchError", ["match", "Unary", "(1123)("], ["ParseError", 6, 1, 6, [], []]],
   ["MatchError", ["match", "Unary", "(11+-23)("], ["ParseError", 4, 1, 4, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
   ["MatchError", ["match", "Unary", "(1123*)"], ["ParseError", 6, 1, 6, ["Int", "Unary"], [{ "type": "ErrChar", "arg": "0" }, { "type": "ErrCC", "arg": [["1", "9"]] }, { "type": "ErrChar", "arg": "(" }]]],
@@ -299,7 +299,6 @@
   ["MatchAST", ["eval", ["SEQ", ["CHAR", "b"], ["PLUS", ["CHAR", "a"]], ["CHAR", "c"]], "baac"], ["Empty"]],
   ["MatchAST", ["eval", ["SEQ", ["CHAR", "b"], ["PLUS", ["CHAR", "a"]], ["CHAR", "c"]], "baaac"], ["Empty"]],
   ["MatchAST", ["eval", ["SEQ", ["CHAR", "b"], ["PLUS", ["CHAR", "a"]], ["CHAR", "c"]], "baaaac"], ["Empty"]],
-
 
   ["Comment", "Tests for line/column numbers in errors"],
   ["MatchAST", ["match", "lc", ""], ["Empty"]],

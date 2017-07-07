@@ -5,9 +5,11 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 */
 
-var Waxeye = require('./waxeye2.js');
+var Waxeye = require('../../src/javascript/waxeye.js');
 var WaxeyeParser = Waxeye.WaxeyeParser;
 var assert = require('assert');
+var exec = require('child_process').execSync;
+var fs = require('fs');
 
 var AST = Waxeye.AST;
 
@@ -17,34 +19,16 @@ function rest (a) {
   return Array.prototype.slice.call(a, 1);
 }
 
-var env1 = {
-  // simple
-  "A": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.CHAR("a")),
-  "B": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.CHAR("b"), Waxeye.Exp.CHAR("B"))),
+function getEnv () {
+  exec('racket ./src/waxeye/waxeye.scm -g javascript . -p test ./test/grammars/env1.waxeye');
+  var TestParser = require('../../test_parser').TestParser;
+  var parser = new TestParser;
+  fs.unlink('./test_parser.js');
 
-  // direct recursion
-  "C": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.NT("A"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("("), Waxeye.Exp.NT("C"), Waxeye.Exp.CHAR(")")))),
+  return parser.env;
+}
 
-  // mutual recursion
-  "Int": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.CHAR("0"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["1", "9"]), Waxeye.Exp.STAR(Waxeye.Exp.CHAR_CLASS(["0", "9"]))))),
-  "Unary": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.ALT(Waxeye.Exp.NT("Int"), Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("("), Waxeye.Exp.NT("Sum"), Waxeye.Exp.CHAR(")")))),
-
-  "Prod": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Unary"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["*", "*"], ["/", "/"]), Waxeye.Exp.NT("Unary"))))),
-  "Sum": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.NT("Prod"), Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR_CLASS(["+", "+"], ["-", "-"]), Waxeye.Exp.NT("Prod"))))),
-
-  // voided expressions
-  "V1": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.VOID(Waxeye.Exp.CHAR("a"))),
-  "V2": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.VOID(Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("a"), Waxeye.Exp.CHAR("b")))),
-  "V3": Waxeye.nonterminal(Waxeye.Modes.NORMAL, Waxeye.Exp.SEQ(Waxeye.Exp.CHAR("a"), Waxeye.Exp.VOID(Waxeye.Exp.CHAR("b")), Waxeye.Exp.CHAR("c"))),
-
-  "WS": Waxeye.nonterminal(Waxeye.Modes.VOIDING, Waxeye.Exp.STAR(Waxeye.Exp.ALT(Waxeye.Exp.CHAR(" "), Waxeye.Exp.CHAR("\t"), Waxeye.Exp.CHAR("\n"), Waxeye.Exp.CHAR("\r")))),
-
-  "Nums": Waxeye.nonterminal(Waxeye.Modes.PRUNING, Waxeye.Exp.OPT(Waxeye.Exp.SEQ(Waxeye.Exp.NT("Int"),
-    Waxeye.Exp.STAR(Waxeye.Exp.SEQ(Waxeye.Exp.NT("WS"), Waxeye.Exp.VOID(Waxeye.Exp.CHAR(",")), Waxeye.Exp.NT("WS"), Waxeye.Exp.NT("Int")))
-  ))),
-
-  "lc": Waxeye.nonterminal(Waxeye.Modes.VOIDING, Waxeye.Exp.STAR(Waxeye.Exp.ALT(Waxeye.Exp.CHAR("a"), Waxeye.Exp.CHAR("\t"), Waxeye.Exp.CHAR("\n"), Waxeye.Exp.CHAR("\r"))))
-};
+var env1 = getEnv();
 
 function testEval (env, rule, input) {
   env = JSON.parse(JSON.stringify(env));
@@ -83,7 +67,7 @@ function buildTestExpectation (expectation) {
     return AST.TREE(expectation[0], expectation[1].map(buildTestExpectation));
   }
   if (expType === "Char") {
-    return AST.CHAR(expectation[0]);
+    return expectation[0];
   }
   if (expType === "Empty") {
     return AST.EMPTY();

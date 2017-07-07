@@ -1,0 +1,24 @@
+# simple
+A <- 'a'
+B <- 'b' | 'B'
+
+# direct recursion
+C <- A | ( '(' C ')' )
+
+# mutual recursion
+Int <- '0' | ( [1-9] *[0-9] )
+Unary <- Int | ( '(' Sum ')' )
+
+Prod <- ( Unary * ( [*/] Unary ) )
+Sum <- ( Prod * ( [+-] Prod ) )
+
+# voided expressions
+V1 <- :'a'
+V2 <- : ( 'a' 'b' )
+V3 <- ( 'a' : 'b' ) 'c'
+
+WS <: * ( ' ' | '\t' | '\n' | '\r' )
+
+Nums <= ? ( Int * ( WS : ',' WS Int ) )
+
+lc <: * ( 'a' | '\t' | '\n' | '\r' )
