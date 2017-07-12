@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stddef.h>
 
 struct set_t {
     char *single;
