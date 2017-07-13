@@ -294,6 +294,21 @@ struct parser_t* ~a_new() {
               (mapi->s ass-char l))))
 
 
+; Convert a number less than 16 into a string with hexadecimal digit
+(define (format-hexadecimal-digit n)
+  (cond ((and (>= n 0) (< n 10)) (format "~a" n))
+        ((< n 16) (string (string-ref "ABCDEF" (- n 10))))
+        (else (error "format-hexadecimal: invalid argument"))))
+
+
+; Convert a number less than 256 into a string with hexadecimal digits.
+; Racket has a function "~r" that can do this, but it's not possible to
+; use it from a module written in mzscheme as it requires passing named parameters.
+(define (format-hexadecimal n)
+  (string-append (format-hexadecimal-digit (quotient n 16))
+                 (format-hexadecimal-digit (remainder n 16))))
+
+
 (define (gen-char t)
   (format "'~a~a'"
           (if (escape-for-java-char? t) "\\" "")
@@ -301,6 +316,12 @@ struct parser_t* ~a_new() {
            ((equal? t #\linefeed) "\\n")
            ((equal? t #\tab) "\\t")
            ((equal? t #\return) "\\r")
+           ; Printable ASCII characters are in range from 32 to 126.
+           ; Non-printable characters would be shown as \xNN.
+           ((or (< (char->integer t) 32) (>= (char->integer t) 127))
+            (string-append
+               "\\x"
+               (format-hexadecimal (char->integer t))))
            (else t))))
 
 
