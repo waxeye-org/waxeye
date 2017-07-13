@@ -22,7 +22,7 @@ size_t lt_hash_key(size_t key) {
  * Doesn't consider hash collisions.
  */
 size_t lt_start_pos(struct ht_t *v, size_t key) {
-    return abs(lt_hash_key(key) % v->capacity);
+    return lt_hash_key(key) % v->capacity;
 }
 
 
@@ -46,7 +46,7 @@ size_t lt_final_pos(struct ht_t *v, size_t key) {
         }
 
         offset++;
-        pos = abs((pos + offset * offset) % v->capacity);
+        pos = (pos + offset * offset) % v->capacity;
         pair = v->pairs[pos];
     }
 }

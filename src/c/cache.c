@@ -48,7 +48,7 @@ size_t cache_hash_key(struct cache_key_t *key) {
  * Doesn't consider hash collisions.
  */
 size_t cache_start_pos(struct ht_t *v, struct cache_key_t *key) {
-    return abs(cache_hash_key(key) % v->capacity);
+    return cache_hash_key(key) % v->capacity;
 }
 
 
@@ -73,7 +73,7 @@ size_t cache_final_pos(struct ht_t *v, struct cache_key_t *key) {
         }
 
         offset++;
-        pos = abs((pos + offset * offset) % v->capacity);
+        pos = (pos + offset * offset) % v->capacity;
         pair = v->pairs[pos];
     }
 }
