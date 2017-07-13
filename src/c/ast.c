@@ -134,7 +134,7 @@ void display_parse_error(struct ast_t *a, const char *type_strings[]) {
         case AST_ERROR:
         {
             struct ast_error_t *error = a->data.error;
-            printf("parse error: failed to match '%s' at line=%d, col=%d, pos=%d\n",
+            printf("parse error: failed to match '%s' at line=%zu, col=%zu, pos=%zu\n",
                    type_strings[error->nt], error->line, error->col, error->pos);
             break;
         }
