@@ -8,6 +8,8 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

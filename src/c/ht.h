@@ -9,6 +9,7 @@
 #define HT_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /* A hash table key can either be a pointer or a literal value. */
 union ht_key_t {
