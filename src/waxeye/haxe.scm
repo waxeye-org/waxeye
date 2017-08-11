@@ -13,6 +13,7 @@ mzscheme
          "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-haxe)
 
+
 (define *haxe-parser-name* "")
 (define *haxe-node-name* "")
 (define *haxe-tree-type* "")
@@ -72,7 +73,7 @@ mzscheme
 
 
 (define (haxe-parser grammar)
-  (format "~a~a\n~a~apublic class ~a extends org.waxeye.parser.Parser<~a>\n{\n~a}\n"
+  (format "~a~a\n~a~aclass ~a extends org.waxeye.parser.Parser<~a>\n{\n~a}\n"
           (haxe-header-comment)
           (gen-haxe-package)
           (gen-haxe-imports)
@@ -85,7 +86,7 @@ mzscheme
 (define (gen-haxe-package)
   (if *module-name*
       (format "package ~a;\n" *module-name*)
-      ""))
+      "package;"))    
 
 
 (define (gen-haxe-imports)
@@ -103,7 +104,6 @@ import org.waxeye.parser.WildCardTransition;
   (format "~a~apublic function new()\n~a{\n~a~a}\n"
           (haxe-doc (format "Creates a new ~a." *haxe-parser-name*))
           (ind)
-          *haxe-parser-name*
           (ind)
           (indent
            (format "~asuper(makeAutomata(), true, ~a, ~a._Empty, ~a._Char, ~a._Pos, ~a._Neg);\n"
