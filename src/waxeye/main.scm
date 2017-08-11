@@ -15,6 +15,7 @@ mzscheme
          "gen.scm"
          "interp.scm"
          "java.scm"
+         "haxe.scm"
          "javascript.scm"
          "load.scm"
          "python.scm"
@@ -78,6 +79,7 @@ mzscheme
     (set! *target-lang* (case (string->symbol language)
                           ((c) gen-c)
                           ((java) gen-java)
+                          ((haxe) gen-haxe)
                           ((python) gen-python)
                           ((ruby) gen-ruby)
                           ((scheme) gen-scheme)

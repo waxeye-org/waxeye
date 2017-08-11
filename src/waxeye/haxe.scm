@@ -1,6 +1,6 @@
 ;; Waxeye Parser Generator
 ;; www.waxeye.org
-;; Copyright (C) 2008-2017 Orlando Hill
+;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 (module
@@ -12,6 +12,10 @@ mzscheme
          (only (lib "list.ss" "mzlib") filter)
          "code.scm" "dfa.scm" "gen.scm" "util.scm")
 (provide gen-haxe)
+
+(define *haxe-parser-name* "")
+(define *haxe-node-name* "")
+(define *haxe-tree-type* "")
 
 
 (define (haxe-comment lines)
@@ -78,7 +82,7 @@ mzscheme
           (indent (string-append (gen-constructor) "\n" (gen-make-automata (make-automata grammar))))))
 
 
-(define (gen-java-package)
+(define (gen-haxe-package)
   (if *module-name*
       (format "package ~a;\n" *module-name*)
       ""))
@@ -241,7 +245,7 @@ import org.waxeye.parser.WildCardTransition;
 
 (define (gen-char t)
   (format "'~a~a'"
-          (if (escape-for-haxe-char? t) "\\" "")
+          (if (escape-for-java-char? t) "\\" "")
           (cond
            ((equal? t #\linefeed) "\\n")
            ((equal? t #\tab) "\\t")
