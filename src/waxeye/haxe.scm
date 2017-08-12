@@ -15,8 +15,6 @@ mzscheme
 
 
 (define *haxe-parser-name* "")
-(define *haxe-node-name* "")
-(define *haxe-tree-type* "")
 
 
 (define (haxe-comment lines)
@@ -34,53 +32,121 @@ mzscheme
 
 
 (define (gen-haxe-names)
-  (set! *haxe-node-name* (if *name-prefix*
-                             (string-append *name-prefix* "Type")
-                             "Type"))
   (set! *haxe-parser-name* (if *name-prefix*
                                (string-append *name-prefix* "Parser")
-                               "Parser"))
-  (set! *haxe-tree-type* (string-append "IAST<" *haxe-node-name* ">")))
+                               "Parser")))
 
 
 (define (gen-haxe grammar path)
   (gen-haxe-names)
-  (let ((type-file (string-append path *haxe-node-name* ".hx"))
-        (parser-file (string-append path *haxe-parser-name* ".hx")))
-    (dump-string (haxe-type grammar) type-file)
+  (let ((parser-file (string-append path *haxe-parser-name* ".hx")))
     (dump-string (haxe-parser grammar) parser-file)
-    (list type-file parser-file)))
+    (list parser-file)))
 
 
-(define (haxe-type grammar)
-  (let ((non-terms (get-non-terms grammar)))
-    (format "~a~a\n~aenum ~a\n{\n~a}\n"
-            (haxe-header-comment)
-            (gen-haxe-package)
-            (haxe-doc "The types of AST nodes." "" "@author Waxeye Parser Generator")
-            *haxe-node-name*
-            (indent (string-append
-                     (ind) "_Empty;\n"
-                     (ind) "_Char;\n"
-                     (ind) "_Pos;\n"
-                     (ind) "_Neg;"
-                     (string-concat (map (lambda (a)
-                                           (format "\n~a~a;"
-                                                   (ind)
-                                                   (camel-case-upper a)))
-                                         non-terms))
-                     "\n")))))
+(define (gen-trans a)
+  (define (gen-char t)
+    (format "'~a~a'"
+              (if (escape-for-java-char? t) "\\" "")
+              (cond
+               ((equal? t #\") "\\\"")
+               ((equal? t #\linefeed) "\\n")
+               ((equal? t #\tab) "\\t")
+               ((equal? t #\return) "\\r")
+               (else t))))
+  (define (gen-char-class-item a)
+    (if (char? a)
+          (gen-char a)
+          (format "[~a, ~a]"
+                  (gen-char (car a))
+                  (gen-char (cdr a)))))
+  (cond
+    ((symbol? a) "-1") ;; use -1 for wild card
+    ((list? a) (gen-array gen-char-class-item a))
+    ((char? a) (gen-char a))
+    (else a)))
+  
+(define (gen-exp a)
+  (format "['type' => ~a, 'args' => ~a]"
+    (case (ast-t a)
+      [(wildCard) "ExpType.ANY"]
+      [(identifier) "ExpType.NT"]
+      [(void) "ExpType.VOID"]
+      [(literal) (if (<= (length (ast-c a)) 1)
+          "ExpType.CHAR"
+          "ExpType.SEQ")]
+      [(charClass) "ExpType.CHAR_CLASS"]
+      [(and) "ExpType.AND"]
+      [(not) "ExpType.NOT"]
+      [(optional) "ExpType.OPT"]
+      [(alternation) "ExpType.ALT"]
+      [(sequence) "ExpType.SEQ"]
+      [(closure) "ExpType.STAR"]
+      [(plus) "ExpType.PLUS"]
+      [else (format "unknown:~a" (ast-t a))]
+    )
+    (case (ast-t a)
+      [(wildCard) "[]"]
+      [(identifier) (format "['~a']" (list->string (ast-c a)))]
+      [(void) (gen-array gen-exp (ast-c a))]
+      [(literal) (if (<= (length (ast-c a)) 1)
+        (gen-trans (ast-c a))
+        (gen-array gen-exp (map (lambda (b)
+          (make-ast 'literal (cons b '()) '()))
+          (ast-c a)) ))]
+      [(charClass) (gen-trans (ast-c a))]
+      [(and) (gen-array gen-exp (ast-c a))]
+      [(not) (gen-array gen-exp (ast-c a))]
+      [(optional) (gen-array gen-exp (ast-c a))]
+      [(alternation) (gen-array gen-exp (ast-c a))]
+      [(sequence) (gen-array gen-exp (ast-c a))]
+      [(closure) (gen-array gen-exp (ast-c a))]
+      [(plus) (gen-array gen-exp (ast-c a))]
+      [else (format "unknown:~a" (ast-t a))]
+    )))
+  
+(define (gen-def a)
+  (format "'~a' => ['mode' => Modes.~a, 'exp' => ~a ]"
+        ; non-term name
+      (list->string (ast-c (list-ref (ast-c a) 0)))
+        ; mode
+      (case (ast-t (list-ref (ast-c a) 1))
+        ((voidArrow) "VOIDING")
+        ((pruneArrow) "PRUNING")
+        ((leftArrow) "NORMAL"))
+        ; right-hand side expression
+      (gen-exp (list-ref (ast-c a) 2))
+  ))
+  
+(define (gen-defs a)
+  (gen-map gen-def (ast-c a)))
+  
+(define (gen-map fn data)
+      (format "[~a]"
+              (indent (if (null? data)
+                          ""
+                          (string-append (fn (car data))
+                                         (string-concat (map (lambda (a)
+                                                               (string-append ",\n" (ind) (fn a)))
+                                                             (cdr data))))))))
+(define (gen-array fn data)
+      (format "[~a]"
+              (indent (if (null? data)
+                          ""
+                          (string-append (fn (car data))
+                                         (string-concat (map (lambda (a)
+                                                               (string-append ",\n" (ind) (fn a)))
+                                                             (cdr data))))))))
 
 
 (define (haxe-parser grammar)
-  (format "~a~a\n~a~aclass ~a extends org.waxeye.parser.Parser<~a>\n{\n~a}\n"
+  (format "~a~a\n~a~aclass ~a extends org.waxeye.Parser\n{\n~a}\n"
           (haxe-header-comment)
           (gen-haxe-package)
           (gen-haxe-imports)
           (haxe-doc "A parser generated by the Waxeye Parser Generator." "" "@author Waxeye Parser Generator")
           *haxe-parser-name*
-          *haxe-node-name*
-          (indent (string-append (gen-constructor) "\n" (gen-make-automata (make-automata grammar))))))
+          (indent (string-append (gen-constructor) "\n" (gen-make-def  grammar)))))
 
 
 (define (gen-haxe-package)
@@ -91,12 +157,10 @@ mzscheme
 
 (define (gen-haxe-imports)
 "
-import org.waxeye.parser.AutomatonTransition;
-import org.waxeye.parser.CharTransition;
-import org.waxeye.parser.Edge;
-import org.waxeye.parser.FA;
-import org.waxeye.parser.State;
-import org.waxeye.parser.WildCardTransition;
+import org.waxeye.parser.*;
+import org.waxeye.parser.Exp.ExpType;
+import org.waxeye.parser.Modes;
+import haxe.DynamicAccess;
 ")
 
 
@@ -106,154 +170,30 @@ import org.waxeye.parser.WildCardTransition;
           (ind)
           (ind)
           (indent
-           (format "~asuper(makeAutomata(), true, ~a, ~a._Empty, ~a._Char, ~a._Pos, ~a._Neg);\n"
+           (format "~asuper(makeDefinition(), '~a');\n"
                    (ind)
-                   *start-index*
-                   *haxe-node-name*
-                   *haxe-node-name*
-                   *haxe-node-name*
-                   *haxe-node-name*))
+                   *start-name*))
           (ind)))
 
-
-;; I could not get for/list or in-range to work, so defined the following. There must be a better way.
-(define (range from to)
-  (cond
-    ((equal? from to) null)
-    (else (cons from (range (+ from 1) to)))
-  )
-)
           
           
-(define (gen-make-automata automata)
-  (let* ((automata-list (vector->list automata))
-         (a-names (map method-name automata-list (range 0 (length automata-list))))
-        )
-    (format "~a~aprivate static function makeAutomata():List<FA<~a>>\n~a{\n~a~a}\n~a\n"
-            (haxe-doc "Builds the automata for the parser." "" "@return The automata for the parser.")
-            (ind)
-            *haxe-node-name*
-            (ind)
-            (indent
-             (string-append
-              (format "~avar automata:List<FA<~a>> = new List<FA<~a>>();\n" (ind) *haxe-node-name* *haxe-node-name*)
-              "\n"
-              (string-concat (map gen-fa-call a-names))
-              (string-append (ind) "return automata;\n")))
-            (ind)
-            (string-concat (map gen-fa automata-list a-names))
-)))
-
-  
-(define (method-name a i)
-  (let ((type (fa-type a)))
-    (cond
-     ((equal? type '&) (format "initPos_~a" i))
-     ((equal? type '!) (format "initNeg_~a" i))
-     (else (format "init~a" (camel-case-upper (symbol->string type)))))
+(define (gen-make-def grammar)
+  (format "~a~aprivate function makeDefinition()::DynamicAccess<Dynamic>\n~a{\n~a~a}\n~a\n"
+      (haxe-doc "Builds the definitions for the parser." "" "@return The definitions for the parser.")
+        (ind)
+        (ind)
+        (indent
+          (string-append
+          (format "~avar def:DynamicAccess<Dynamic> = ~a\n" (ind) (gen-defs grammar))
+          "\n"
+          (string-append (ind) "return def;\n")))
+          (ind)
+        (ind)
 ))
-  
-  
-(define (gen-fa-call aname)
-  (format "~a~a(automata);\n" (ind) aname))
-
-
-(define (gen-fa a aname)
-  (format "\n~aprivate static function ~a(List<FA<~a>> automata):Void {\n~a~a}\n"
-          (ind)
-          aname
-          *haxe-node-name*
-          (indent (string-append
-            (format "~avar states:List<State<~a>> = new List<State<~a>>();\n" (ind) *haxe-node-name* *haxe-node-name*)
-            (format "~avar edges:List<Edge<~a>> = new List<Edge<~a>>();\n" (ind) *haxe-node-name* *haxe-node-name*)
-            (string-concat (map gen-state (vector->list (fa-states a))))
-            (format "~aautomata.add(new FA<~a>(~a.~a, ~a, states));\n"
-                    (ind)
-                    *haxe-node-name*
-                    *haxe-node-name*
-                    (let ((type (fa-type a)))
-                      (cond
-                       ((equal? type '&) "_Pos")
-                       ((equal? type '!) "_Neg")
-                       (else
-                        (camel-case-upper (symbol->string type)))))
-                    (case (fa-mode a)
-                      ((voidArrow) "FA.VOID")
-                      ((pruneArrow) "FA.PRUNE")
-                      ((leftArrow) "FA.LEFT")))
-          ))
-          (ind)))
-
-
-(define (gen-state s)
-  (format "~aedges = new List<Edge<~a>>();\n~a~astates.add(new State<~a>(edges, ~a));\n"
-          (ind)
-          *haxe-node-name*
-          (string-concat (map gen-edge (state-edges s)))
-          (ind)
-          *haxe-node-name*
-          (bool->s (state-match s))))
-
-
-(define (gen-edge e)
-  (format "~aedges.add(new Edge<~a>(new ~a, ~a, ~a));\n"
-          (ind)
-          *haxe-node-name*
-          (gen-trans (edge-t e))
-          (edge-s e)
-          (bool->s (edge-v e))))
-
-
-(define (gen-trans t)
-  (cond
-   ((equal? t 'wild) (gen-wild-card-trans))
-   ((integer? t) (gen-automaton-trans t))
-   ((char? t) (gen-char-trans t))
-   ((pair? t) (gen-char-class-trans t))))
-
-
-(define (gen-automaton-trans t)
-  (format "AutomatonTransition<~a>(~a)" *haxe-node-name* t))
-
-
-(define (gen-char-trans t)
-  (format "CharTransition<~a>(new char[]{~a}, new char[]{}, new char[]{})" *haxe-node-name* (gen-char t)))
-
-
-(define (gen-char-class-trans t)
-  (let* ((single (filter char? t))
-         (ranges (filter pair? t))
-         (min (map car ranges))
-         (max (map cdr ranges)))
-    (format "CharTransition<~a>(~a, ~a, ~a)"
-            *haxe-node-name*
-            (gen-char-list single)
-            (gen-char-list min)
-            (gen-char-list max))))
-
-
-(define (gen-char-list l)
-  (format "new char[]{~a}"
-          (if (null? l)
-              ""
-              (string-append
-               (gen-char (car l))
-               (string-concat (map (lambda (a)
-                                     (string-append ", " (gen-char a)))
-                                   (cdr l)))))))
-
-
-(define (gen-char t)
-  (format "'~a~a'"
-          (if (escape-for-java-char? t) "\\" "")
-          (cond
-           ((equal? t #\linefeed) "\\n")
-           ((equal? t #\tab) "\\t")
-           ((equal? t #\return) "\\r")
-           (else t))))
-
-
-(define (gen-wild-card-trans)
-  (format "WildCardTransition<~a>()" *haxe-node-name*))
-
 )
+
+
+
+
+
+
