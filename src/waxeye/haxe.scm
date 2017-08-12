@@ -140,7 +140,7 @@ mzscheme
 
 
 (define (haxe-parser grammar)
-  (format "~a~a\n~a~aclass ~a extends org.waxeye.Parser\n{\n~a}\n"
+  (format "~a~a\n~a~aclass ~a extends org.waxeye.parser.Parser\n{\n~a}\n"
           (haxe-header-comment)
           (gen-haxe-package)
           (gen-haxe-imports)
@@ -160,7 +160,7 @@ mzscheme
 import org.waxeye.parser.*;
 import org.waxeye.parser.Exp.ExpType;
 import org.waxeye.parser.Modes;
-import haxe.DynamicAccess;
+import haxe.ds.StringMap;
 ")
 
 
@@ -178,13 +178,13 @@ import haxe.DynamicAccess;
           
           
 (define (gen-make-def grammar)
-  (format "~a~aprivate function makeDefinition()::DynamicAccess<Dynamic>\n~a{\n~a~a}\n~a\n"
-      (haxe-doc "Builds the definitions for the parser." "" "@return The definitions for the parser.")
+  (format "~a~aprivate function makeDefinition():StringMap<Dynamic>\n~a{\n~a~a}\n~a\n"
+      (haxe-doc "Builds the grammar definitions for the parser." "" "@return The definitions grammar for the parser.")
         (ind)
         (ind)
         (indent
           (string-append
-          (format "~avar def:DynamicAccess<Dynamic> = ~a\n" (ind) (gen-defs grammar))
+          (format "~avar def:StringMap<Dynamic> = ~a\n" (ind) (gen-defs grammar))
           "\n"
           (string-append (ind) "return def;\n")))
           (ind)
