@@ -67,7 +67,7 @@ mzscheme
     (else a)))
   
 (define (gen-exp a)
-  (format "['type' => ~a, 'args' => ~a]"
+  (format "new Exp(~a, ~a)"
     (case (ast-t a)
       [(wildCard) "ExpType.ANY"]
       [(identifier) "ExpType.NT"]
@@ -106,7 +106,7 @@ mzscheme
     )))
   
 (define (gen-def a)
-  (format "'~a' => ['mode' => Modes.~a, 'exp' => ~a ]"
+  (format "~a : {'mode' : Modes.~a, 'exp' : ~a }"
         ; non-term name
       (list->string (ast-c (list-ref (ast-c a) 0)))
         ; mode
@@ -122,7 +122,7 @@ mzscheme
   (gen-map gen-def (ast-c a)))
   
 (define (gen-map fn data)
-      (format "[~a]"
+      (format "{~a}"
               (indent (if (null? data)
                           ""
                           (string-append (fn (car data))
@@ -160,7 +160,7 @@ mzscheme
 import org.waxeye.parser.*;
 import org.waxeye.parser.Exp.ExpType;
 import org.waxeye.parser.Modes;
-import haxe.ds.StringMap;
+//import haxe.ds.StringMap;
 ")
 
 
@@ -178,13 +178,13 @@ import haxe.ds.StringMap;
           
           
 (define (gen-make-def grammar)
-  (format "~a~aprivate function makeDefinition():StringMap<Dynamic>\n~a{\n~a~a}\n~a\n"
+  (format "~a~aprivate function makeDefinition():Dynamic\n~a{\n~a~a}\n~a\n"
       (haxe-doc "Builds the grammar definitions for the parser." "" "@return The definitions grammar for the parser.")
         (ind)
         (ind)
         (indent
           (string-append
-          (format "~avar def:StringMap<Dynamic> = ~a\n" (ind) (gen-defs grammar))
+          (format "~avar def:Dynamic = ~a\n" (ind) (gen-defs grammar))
           "\n"
           (string-append (ind) "return def;\n")))
           (ind)

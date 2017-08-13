@@ -1,4 +1,5 @@
-package org.waxeye;
+package org.waxeye.parser;
+import haxe.DynamicAccess;
 
 /**
  * ...
@@ -10,8 +11,9 @@ class MachineState
 	public var result:Dynamic;
 	public var configuration:MachineConfiguration;
 
-	public function new(type:String, result:Dynamic, configuration:MachineConfiguration) 
+	public function new(type:String = "", result:Dynamic, configuration:MachineConfiguration) 
 	{
+		
 		this.type = type;
 		this.result = result;
 		this.configuration = configuration;

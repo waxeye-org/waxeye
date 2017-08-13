@@ -1,5 +1,5 @@
-package org.waxeye;
-import org.waxeye.Util.Assert;
+package org.waxeye.parser;
+import org.waxeye.parser.Util.Assert;
 /**
  * ...
  * @author Damilare Akinlaja
@@ -14,9 +14,10 @@ class Value
 
 	public function new(type:String, ?err:Any, ?pos:Int, ?asts:Array<AST>)
 	{
-		Assert.ok(Std.is(asts, Array));
-		Assert.ok(Std.is(pos, Int));
-		Assert.ok(Std.is(err, Class));
+		this.type = type;
+		this.err = err;
+		this.pos = pos;
+		this.asts = asts;
 
 	}
 	

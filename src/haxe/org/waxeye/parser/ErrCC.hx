@@ -1,4 +1,4 @@
-package org.waxeye;
+package org.waxeye.parser;
 
 /**
  * ...

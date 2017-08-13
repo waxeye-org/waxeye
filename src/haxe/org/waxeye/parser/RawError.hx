@@ -1,5 +1,5 @@
-package org.waxeye;
-import org.waxeye.Util.Assert;
+package org.waxeye.parser;
+import org.waxeye.parser.Util.Assert;
 /**
  * ...
  * @author Damilare Akinlaja

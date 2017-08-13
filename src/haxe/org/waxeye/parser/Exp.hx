@@ -1,4 +1,4 @@
-package org.waxeye;
+package org.waxeye.parser;
 
 /**
  * ...
@@ -25,9 +25,9 @@ abstract ExpType(String){
 class Exp
 {
 	public var type:ExpType;
-	public var args:Array<Any>;
+	public var args:Array<Dynamic>;
 	
-	public function new(type:ExpType, args:Array<Any>) 
+	public function new(type:ExpType, args:Array<Dynamic>) 
 	{
 		this.args = args;
 		this.type = type;

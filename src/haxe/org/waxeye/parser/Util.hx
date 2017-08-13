@@ -1,6 +1,6 @@
-package org.waxeye;
+package org.waxeye.parser;
 //import org.hamcrest.Matchers.*;
-import org.waxeye.RawError;
+import org.waxeye.parser.RawError;
 //using Lambda;
 
 /**
@@ -76,7 +76,7 @@ class Util
 		return null;
 	}
 	
-	public static function rest(a:Array<Dynamic>):Any{
+	public static function rest(a:Array<Dynamic>):Dynamic{
 		if (a != null){
 			return a.slice(1);
 		}

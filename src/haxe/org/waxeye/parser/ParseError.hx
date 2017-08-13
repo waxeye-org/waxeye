@@ -1,4 +1,4 @@
-package org.waxeye;
+package org.waxeye.parser;
 import haxe.Json;
 
 /**
@@ -21,6 +21,7 @@ class ParseError
 		this.col = col;
 		this.nt = nt;
 		this.chars = chars;
+		
 	}
 
 	public function toString():String
@@ -33,22 +34,27 @@ class ParseError
 
 		if (this.chars != null)
 		{
-			this.chars.map(function(ch:Dynamic)
+			this.chars = this.chars.map(function(ch:Dynamic)
 			{
+				//trace(ch);
 				var str:String = '';
 				if(ch.char != null){
 					str = ch.char;
 				}else if(ch.charClasses != null){
 					str = ch.charClasses;
 				}
+				
 				return Json.stringify(str);
 			});
 		}
-
-		return "Parse Error: failed to match '"+this.nt.join(',')+"' at line="+this.line+", col="+this.col+", pos="+this.pos+" (expected '"+cast (this.chars, Array<Dynamic>).map(function(s:Dynamic)
-		{
-			return cast (s, Array<Dynamic>).slice(1, -1);
-		}).join(',') + "')";
+		
+		return "Parse Error: failed to match '" + this.nt.join(',') + "' at line=" + this.line+", col=" + this.col + ", pos=" + this.pos + " (expected '" + cast this.chars.map(
+			function(s:String)
+			{
+				trace(s);
+				return s.split("").slice(1, -1).join("");
+			}
+		).join(',') + "')";
 	}
 
 }

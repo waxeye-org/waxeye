@@ -1,4 +1,4 @@
-package org.waxeye;
+package org.waxeye.parser;
 
 /**
  * An abstract syntax tree has one of three forms.

@@ -1,6 +1,6 @@
-package org.waxeye;
-import org.waxeye.Modes.Modes;
-import org.waxeye.Util.Assert;
+package org.waxeye.parser;
+import org.waxeye.parser.Modes.Modes;
+import org.waxeye.parser.Util.Assert;
 /**
  * ...
  * @author Damilare Akinlaja
@@ -28,7 +28,7 @@ class Continuations
 		this.mode = mode;
 		this.name = name;
 		this.nt = nt;
-		Assert.ok(Std.is(asts, Array) || asts != null);
+		//Assert.ok(Std.is(asts, Array) || asts != null);
 	}
 	
 	public static function CONT_SEQ(expressions:Array<Exp>):Continuations
