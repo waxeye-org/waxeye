@@ -1,16 +1,19 @@
 package org.waxeye.parser;
 
 /**
- * An abstract syntax tree has one of three forms.
+ * Waxeye Parser Generator
+ * www.waxeye.org
+ * Copyright (C) 2008-2010 Orlando Hill
+ * Copyright (c) 2015 Joshua Gross
+ * @author Damilare Akinlaja, 2017
+ * Licensed under the MIT license. See 'LICENSE' for details.
+ *
+  * An abstract syntax tree has one of three forms.
  * AST_EMPTY represents a successful parse from a voided non-terminal.
  * 'x' just holds a character.
  * AST_TREE represents a successful parse from a non-terminal. It holds:
  * - the non-terminal's name
  * - a list of child asts
- * 
- * @author Damilare Akinlaja
- * 
- * Based on https://github.com/orlandohill/waxeye/blob/master/src/javascript/waxeye.coffee
  * 
  */
 class AST 

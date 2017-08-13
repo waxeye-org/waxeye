@@ -1,9 +1,13 @@
 package org.waxeye.parser;
 import org.waxeye.parser.Modes.Modes;
 import org.waxeye.parser.Util.Assert;
-/**
- * ...
- * @author Damilare Akinlaja
+/*
+ * Waxeye Parser Generator
+ * www.waxeye.org
+ * Copyright (C) 2008-2010 Orlando Hill
+ * Copyright (c) 2015 Joshua Gross
+ * @author Damilare Akinlaja, 2017
+ * Licensed under the MIT license. See 'LICENSE' for details.
  */
 class Continuations 
 {

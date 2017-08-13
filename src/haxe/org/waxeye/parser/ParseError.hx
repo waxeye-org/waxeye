@@ -1,10 +1,13 @@
 package org.waxeye.parser;
 import haxe.Json;
 
-/**
- * ...
- * @author Damilare Akinlaja
- * Based on https://github.com/orlandohill/waxeye/blob/master/src/javascript/waxeye.coffee
+/*
+ * Waxeye Parser Generator
+ * www.waxeye.org
+ * Copyright (C) 2008-2010 Orlando Hill
+ * Copyright (c) 2015 Joshua Gross
+ * @author Damilare Akinlaja, 2017
+ * Licensed under the MIT license. See 'LICENSE' for details.
  */
 class ParseError
 {
