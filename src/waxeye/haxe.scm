@@ -160,7 +160,6 @@ mzscheme
 import org.waxeye.parser.*;
 import org.waxeye.parser.Exp.ExpType;
 import org.waxeye.parser.Modes;
-//import haxe.ds.StringMap;
 ")
 
 
