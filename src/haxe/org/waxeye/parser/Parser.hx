@@ -53,8 +53,6 @@ class Parser
 		}
 		return state.result;
 
-		//return {};
-
 	}
 
 	private function eof(pos:Int):Bool
@@ -77,8 +75,6 @@ class Parser
 		var pos:Int = conf.pos;
 		var exp:Exp = conf.exp;
 		var err:Dynamic = conf.err;
-
-		//trace(asts);
 
 		var k:Array<Continuations> = conf.continuations;
 		var firstExp:Exp = new Exp(null, []);
