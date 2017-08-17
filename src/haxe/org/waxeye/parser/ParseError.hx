@@ -39,7 +39,7 @@ class ParseError
 		{
 			this.chars = this.chars.map(function(ch:Dynamic)
 			{
-				//trace(ch);
+				
 				var str:String = '';
 				if(ch.char != null){
 					str = ch.char;
@@ -54,7 +54,6 @@ class ParseError
 		return "Parse Error: failed to match '" + this.nt.join(',') + "' at line=" + this.line+", col=" + this.col + ", pos=" + this.pos + " (expected '" + cast this.chars.map(
 			function(s:String)
 			{
-				trace(s);
 				return s.split("").slice(1, -1).join("");
 			}
 		).join(',') + "')";

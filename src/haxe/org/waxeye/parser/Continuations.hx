@@ -32,7 +32,6 @@ class Continuations
 		this.mode = mode;
 		this.name = name;
 		this.nt = nt;
-		//Assert.ok(Std.is(asts, Array) || asts != null);
 	}
 	
 	public static function CONT_SEQ(expressions:Array<Exp>):Continuations

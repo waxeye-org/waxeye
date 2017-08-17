@@ -106,7 +106,7 @@ mzscheme
     )))
   
 (define (gen-def a)
-  (format "~a : {'mode' : Modes.~a, 'exp' : ~a }"
+  (format "'~a' : {'mode' : Modes.~a, 'exp' : ~a }"
         ; non-term name
       (list->string (ast-c (list-ref (ast-c a) 0)))
         ; mode

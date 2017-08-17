@@ -1,7 +1,5 @@
 package org.waxeye.parser;
-//import org.hamcrest.Matchers.*;
 import org.waxeye.parser.RawError;
-//using Lambda;
 
 /*
  * Waxeye Parser Generator
