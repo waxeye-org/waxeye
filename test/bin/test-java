@@ -1,0 +1,40 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+
+: ${ANT_BIN:="$(which ant || log_error Please install ant && false)"}
+
+: ${JAVA_LIB:=}
+find_java_lib() {
+  local -r -a java_lib_locations=(
+    /usr/share/java
+  )
+  for dir in "${java_lib_locations[@]}"; do
+    if [ -d "$dir" ]; then
+      JAVA_LIB="$dir"
+    fi
+  done
+  if [ ! -d "$JAVA_LIB" ]; then
+    log_error "JAVA_LIB does not exist at any of: ${java_lib_locations[@]}. Pass JAVA_LIB"
+    exit 1
+  fi
+}
+if [ -z ${JAVA_LIB} ]; then
+  find_java_lib
+fi
+
+: ${TESTNG_LIB:="${JAVA_LIB}/testng.jar"}
+if [ ! -f "$TESTNG_LIB" ]; then
+  log_error "TESTNG_LIB at ${TESTNG_LIB} does not exist. Install testng or pass TESTNG_LIB"
+  exit 1
+fi
+
+: ${CHECKSTYLE_LIB:="${JAVA_LIB}/checkstyle.jar"}
+if [ ! -f "$CHECKSTYLE_LIB" ]; then
+  log_error "CHECKSTYLE_LIB at ${CHECKSTYLE_LIB} does not exist. Install checkstyle or pass CHECKSTYLE_LIB"
+  exit 1
+fi
+
+( export JAVA_LIB;
+  export TESTNG_LIB;
+  export CHECKSTYLE_LIB;
+  "$ANT_BIN" -silent -quiet -lib "$JAVA_LIB" -f build/ant.xml testng checkstyle checkstyle-tests jar)

@@ -120,11 +120,12 @@ public final class AST <E extends Enum<?>> implements IAST<E>
     }
 
     /** {@inheritDoc} */
-    public final String childrenAsString()
+    public String childrenAsString()
     {
         final StringBuilder buf = new StringBuilder();
 
-        for (IAST<E> c : children) {
+        for (IAST<E> c : children)
+        {
             buf.append(((IChar) c).getValue());
         }
 

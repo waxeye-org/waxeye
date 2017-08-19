@@ -2,9 +2,12 @@
 # Compilation settings
 build.debug = true
 build.deprecation = true
-build.jdk-version.source = 1.5
-build.jdk-version.target = 1.5
+build.jdk-version.source = 1.7
+build.jdk-version.target = 1.7
 build.optimize = true
+
+# Classpath
+JAVA_LIB = ${env.JAVA_LIB}
 
 # Testing libraries
 CHECKSTYLE_LIB = ${env.CHECKSTYLE_LIB}

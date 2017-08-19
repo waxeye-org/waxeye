@@ -1,0 +1,6 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+
+cd src/c
+make -s lib
+make -s test

@@ -1,0 +1,6 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+
+run_waxeye -t test/grammars/json.scm grammars/json.waxeye > /dev/null
+run_waxeye -t test/grammars/templ.scm grammars/templ.waxeye > /dev/null
+run_waxeye -t test/grammars/waxeye.scm grammars/waxeye.waxeye > /dev/null
