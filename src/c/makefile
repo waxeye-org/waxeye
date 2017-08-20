@@ -5,7 +5,9 @@
 # Licensed under the MIT license. See 'LICENSE' for details.
 
 CLANG=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
-GCC=gcc
+
+# The "-std=c99" argument is only needed to support gcc < v5.
+GCC=gcc -std=c99
 
 BASE_FLAGS=-Wall -Wextra -Wshadow -pedantic -I include
 FLAGS=$(BASE_FLAGS) -O3
