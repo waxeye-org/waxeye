@@ -8,27 +8,16 @@
 var Waxeye = require('../../src/javascript/waxeye.js');
 var WaxeyeParser = Waxeye.WaxeyeParser;
 var assert = require('assert');
-var exec = require('child_process').execSync;
-var fs = require('fs');
 
 var AST = Waxeye.AST;
 
-var testFixtures = require('../test-fixtures.json');
+var testFixtures = require('./test-fixtures.json');
 
 function rest (a) {
   return Array.prototype.slice.call(a, 1);
 }
 
-function getEnv () {
-  exec('racket ./src/waxeye/waxeye.scm -g javascript . -p test ./test/grammars/env1.waxeye');
-  var TestParser = require('../../test_parser').TestParser;
-  var parser = new TestParser;
-  fs.unlink('./test_parser.js');
-
-  return parser.env;
-}
-
-var env1 = getEnv();
+var env1 = (new (require('../../tmp/js/test_parser').TestParser)).env;
 
 function testEval (env, rule, input) {
   env = JSON.parse(JSON.stringify(env));

@@ -1,0 +1,5 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+
+echo test/bin/test-* | xargs -n 1 basename | grep -v test-all | \
+  xargs -P "$(getconf _NPROCESSORS_ONLN)" -n 1 test/bin/run-test

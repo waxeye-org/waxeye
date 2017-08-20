@@ -40,8 +40,10 @@ Licensed under the MIT license. See 'LICENSE' for details.
         <!-- Test Compilation classpath -->
         <path id="build.classpath.test">
             <path refid="build.classpath" />
+            <fileset dir="${JAVA_LIB}" includes="*.jar" />
             <pathelement location="${TESTNG_LIB}" />
-            <pathelement path="tmp/classes" />
+            <pathelement path="tmp/java/classes" />
+            <pathelement path="tmp/java/test/classes" />
         </path>
     </target>
 
@@ -49,14 +51,14 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- DIRECTORIES FOR BUILD                                                  -->
     <!-- ====================================================================== -->
     <target name="dirs-build" depends="init">
-        <mkdir dir="tmp/classes" />
+        <mkdir dir="tmp/java/classes" />
     </target>
 
     <!-- ====================================================================== -->
     <!-- DIRECTORIES FOR BUILD-TEST                                             -->
     <!-- ====================================================================== -->
     <target name="dirs-build-test" depends="init">
-        <mkdir dir="tmp/test" />
+        <mkdir dir="tmp/java/test/classes" />
     </target>
 
     <!-- ====================================================================== -->
@@ -85,9 +87,8 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- ====================================================================== -->
     <target name="clean" depends="init">
         <delete dir="build/eclipse" />
-        <delete dir="tmp/classes" />
-        <delete dir="tmp/test" />
-        <delete dir="tmp/test-output" />
+        <delete dir="tmp/java" />
+        <delete dir="tmp/java/test" />
     </target>
 
     <!-- ====================================================================== -->
@@ -102,9 +103,9 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- ====================================================================== -->
     <target name="compile" depends="prepare, dirs-build">
         <javac debug="${build.debug}" deprecation="${build.deprecation}"
-            destdir="tmp/classes" target="${build.jdk-version.target}"
+            destdir="tmp/java/classes" target="${build.jdk-version.target}"
             source="${build.jdk-version.source}" optimize="${build.optimize}"
-            srcdir="src/java" includeantruntime="false">
+            srcdir="src/java" includeantruntime="false" failonerror="yes">
             <classpath refid="build.classpath" />
         </javac>
     </target>
@@ -114,9 +115,9 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- ====================================================================== -->
     <target name="compile-test" depends="compile, dirs-build-test">
         <javac debug="${build.debug}" deprecation="${build.deprecation}"
-               destdir="tmp/test" target="${build.jdk-version.target}"
+               destdir="tmp/java/test/classes" target="${build.jdk-version.target}"
                source="${build.jdk-version.source}" optimize="${build.optimize}"
-               srcdir="test/java" includeantruntime="false">
+               srcdir="test/java" includeantruntime="false" failonerror="yes">
             <classpath refid="build.classpath.test"/>
         </javac>
     </target>
@@ -125,26 +126,26 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- TESTNG TESTS                                                           -->
     <!-- ====================================================================== -->
     <target name="testng" depends="compile-test">
-        <java classname="org.testng.TestNG" fork="true">
-            <classpath location="tmp/test" />
-            <classpath refid="build.classpath.test" />
-            <arg value="-d" />
-            <arg value="tmp/test-output" />
-            <arg value="test/java/testng.xml" />
+        <taskdef name="testng" classpathref="build.classpath.test"
+                 classname="org.testng.TestNGAntTask" />
+        <testng outputdir="tmp/java/test/output" classpathref="build.classpath.test">
             <jvmarg value="-enableassertions" />
-        </java>
+            <xmlfileset dir="test/java" includes="testng.xml" />
+        </testng>
     </target>
 
     <!-- ====================================================================== -->
     <!-- CHECKSTYLE                                                             -->
     <!-- ====================================================================== -->
     <target name="checkstyle" depends="prepare">
-        <taskdef resource="checkstyletask.properties" classpath="${CHECKSTYLE_LIB}" />
-        <checkstyle config="build/checkstyle.xml">
+        <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+                 classpath="${CHECKSTYLE_LIB}" />
+        <checkstyle config="build/checkstyle.xml" failOnViolation="yes">
             <fileset dir="src/java" includes="**/*.java" />
             <property key="checkstyle.cache.file"
-                file="tmp/checkstyle.cache" />
+                file="tmp/java/checkstyle.cache" />
             <classpath refid="build.classpath" />
+            <classpath location="${CHECKSTYLE_LIB}" />
         </checkstyle>
     </target>
 
@@ -152,12 +153,14 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- CHECKSTYLE-TESTS                                                       -->
     <!-- ====================================================================== -->
     <target name="checkstyle-tests" depends="prepare">
-        <taskdef resource="checkstyletask.properties" classpath="${CHECKSTYLE_LIB}" />
-        <checkstyle config="build/checkstyle.xml">
+        <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+                 classpath="${CHECKSTYLE_LIB}" />
+        <checkstyle config="build/checkstyle.xml" failOnViolation="yes">
             <fileset dir="test/java" includes="**/*.java" />
             <property key="checkstyle.cache.file"
-                file="build/checkstyle.cache" />
+                file="tmp/java/checkstyle-tests.cache" />
             <classpath refid="build.classpath"/>
+            <classpath location="${CHECKSTYLE_LIB}" />
         </checkstyle>
     </target>
 
@@ -166,7 +169,7 @@ Licensed under the MIT license. See 'LICENSE' for details.
     <!-- ====================================================================== -->
     <target name="jar" depends="compile, dirs-jar">
         <delete file="lib/${project.name}.jar" />
-        <jar basedir="tmp/classes"
+        <jar basedir="tmp/java/classes"
              jarfile="lib/${project.name}.jar">
             <include name="**/*.class" />
         </jar>

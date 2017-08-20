@@ -1,0 +1,15 @@
+sudo: false
+dist: trusty
+
+addons:
+  apt:
+    packages:
+    - racket
+    # JavaScript
+    - nodejs
+    # Java
+    - ant
+    - checkstyle
+    - testng
+
+script: test/bin/test-all

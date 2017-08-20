@@ -48,6 +48,11 @@ LIB_FILES= \
 	vector \
 	wparser
 
+TEST_FILES= \
+	cache_test
+
+TEST_BUILD_DIR=tests-build
+
 LIB_OBJECTS = $(foreach f, $(LIB_FILES), $(f).o)
 
 lib: clean-all lib-default
@@ -109,8 +114,17 @@ debug: clean-all debug-lib
 	$(GCC) $(DEBUG_FLAGS) parser.c run.c $(LIB) -o run
 
 
-test: clean
-	$(GCC) $(FLAGS) cache.c test.c -o run
+clean-tests:
+	rm -rf $(TESTS_BUILD_DIR)
+
+
+build-tests: clean clean-tests
+	mkdir -p $(TEST_BUILD_DIR)
+	$(foreach f, $(TEST_FILES), $(GCC) $(FLAGS) tests/$(f).c $(LIB) -o $(TEST_BUILD_DIR)/$(f))
+
+
+test: build-tests
+	$(foreach f, $(TEST_FILES), $(TEST_BUILD_DIR)/$(f))
 
 
 clean:

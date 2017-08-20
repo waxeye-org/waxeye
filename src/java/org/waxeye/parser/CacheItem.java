@@ -45,7 +45,7 @@ final class CacheItem <E extends Enum<?>>
      *
      * @param lastCR Whether the last character was a carriage return.
      */
-    public CacheItem(final IAST<E> result, final int position,
+    CacheItem(final IAST<E> result, final int position,
         final int line, final int column, final boolean lastCR)
     {
         this.result = result;
