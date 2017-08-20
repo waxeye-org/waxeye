@@ -9,7 +9,13 @@ addons:
     - nodejs
     # Java
     - ant
-    - checkstyle
     - testng
+
+# Ubuntu 14.04 (trusty) comes with checkstyle v5 but we need v8+,
+# so we fetch checkstyle from maven instead of installing the package.
+# TODO: Use checkstyle from apt once Travis has upgraded to Ubuntu 16+.
+before_script: wget -U "" -q https://downloads.sourceforge.net/project/checkstyle/checkstyle/8.1/checkstyle-8.1-all.jar
+env:
+- CHECKSTYLE_LIB=$PWD/checkstyle-8.1-all.jar
 
 script: test/bin/test-all
