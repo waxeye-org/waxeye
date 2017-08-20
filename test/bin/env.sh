@@ -1,11 +1,7 @@
 set -euo pipefail
 cd "$( dirname "${BASH_SOURCE[0]}" )"/../..
 
-# Waxeye
-
-run_waxeye() {
-  racket -S src/scheme ./src/waxeye/waxeye.scm "$@"
-}
+source "${BASH_SOURCE%/*}/lib-waxeye.sh"
 
 # Logging
 

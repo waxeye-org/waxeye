@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+source test/bin/lib-javascript.sh
+
+gen_javascript_parser
+$NODE_CMD test/javascript/bin/update_test_fixtures.js

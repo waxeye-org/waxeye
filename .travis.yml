@@ -1,6 +1,10 @@
 sudo: false
 dist: trusty
 
+# node v4+ is required for String#codePointAt support.
+language: node_js
+node_js: '4'
+
 addons:
   apt:
     packages:
@@ -12,7 +16,7 @@ addons:
     - testng
 
 # Ubuntu 14.04 (trusty) comes with checkstyle v5 but we need v8+,
-# so we fetch checkstyle from maven instead of installing the package.
+# so we fetch checkstyle from sourceforge instead of installing the package.
 # TODO: Use checkstyle from apt once Travis has upgraded to Ubuntu 16+.
 before_script: wget -U "" -q https://downloads.sourceforge.net/project/checkstyle/checkstyle/8.1/checkstyle-8.1-all.jar
 env:

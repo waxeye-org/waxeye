@@ -1,11 +1,7 @@
 #!/bin/bash
 source "${BASH_SOURCE%/*}/env.sh"
+source "${BASH_SOURCE%/*}/lib-javascript.sh"
 
-: ${NODE_BIN:="$(which nodejs || which node || log_error Please install nodejs && false)"}
+gen_javascript_parser
 
-rm -rf tmp/js/test_parser.js
-mkdir -p tmp/js
-
-run_waxeye -g javascript tmp/js/ -p test ./test/fixtures/env1.waxeye > /dev/null
-
-NODE_PATH=src/javascript/ "$NODE_BIN" test/javascript/test.js
+$NODE_CMD test/javascript/test.js
