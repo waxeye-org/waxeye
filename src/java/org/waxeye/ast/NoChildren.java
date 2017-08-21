@@ -34,6 +34,24 @@ public abstract class NoChildren <E extends Enum<?>> implements IAST<E>
     }
 
     /** {@inheritDoc} */
+    public final boolean equals(final Object object)
+    {
+        if (this == object)
+        {
+            return true;
+        }
+
+        if (object != null && object.getClass() == this.getClass())
+        {
+            final NoChildren<E> p = (NoChildren<E>) object;
+            return type.equals(p.type);
+        }
+
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public final int hashCode()
     {
         final int start = 17;

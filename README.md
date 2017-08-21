@@ -1,5 +1,5 @@
-Waxeye Parser Generator
-=======================
+Waxeye Parser Generator [![Build Status][badge-travis]][travis]
+===============================================================
 
 Waxeye is a parser generator based on parsing expression grammars (PEGs). It
 supports C, Java, Javascript, Python, Ruby and Scheme.
@@ -76,17 +76,7 @@ Building from Source
 
 1. Install [Racket](http://racket-lang.org)
 
-2. Install Waxeye's backend for Scheme.
-   * Unix and OSX
-
-     `sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/racket/lib/racket/collects/`
-
-   * Windows
-
-     Copy the directory `src/scheme/waxeye` into your Racket `collects`
-     directory. For example, `C:\Program Files\Racket\collects`.
-
-3. Build Waxeye
+2. Build Waxeye
    * Unix and OSX
 
      `./build/unix`
@@ -96,13 +86,30 @@ Building from Source
      - If your Racket installation isn't `C:\Program Files\Racket`, then you
        will need to modify `build\exe.bat` to use the correct path.
 
-     - From your Waxeye installation directory, run the `build\exe.bat` script
-       in a command prompt.
+     - Run the `build\exe.bat` script. The `waxeye.exe` executable
+       will be saved to the directory you run the script from.
 
 Running tests
 -------------
 
-* To run JavaScript tests: `node test/javascript/test.js`
+First, install all packages necessary for running the tests.
+On Ubuntu, run:
+
+```bash
+sudo apt-get install racket nodejs ant checkstyle testng
+```
+
+To then run all the tests, run:
+
+```bash
+test/bin/test-all
+```
+
+To run individual language tests, run the respective script, e.g. for JavaScript:
+
+```bash
+test/bin/test-javascript
+```
 
 Support
 -------
@@ -119,3 +126,6 @@ MIT -- All files (except the user manual) are under the permissive MIT license.
 
 GNU FDL -- Waxeye's user manual is under the GNU Free Documentation License.
 This includes the files `doc/book/book` and `doc/manual.html`.
+
+[badge-travis]: https://img.shields.io/travis/orlandohill/waxeye.svg
+[travis]: https://travis-ci.org/orlandohill/waxeye

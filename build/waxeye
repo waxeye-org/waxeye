@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/bin/bash
+source "${BASH_SOURCE[0]%/*}/env.sh"
 
-mzscheme -t src/waxeye/waxeye.scm -- $*
+racket -S src/scheme ./src/waxeye/waxeye.scm "$@"

@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/bin/bash
+source "${BASH_SOURCE[0]%/*}/env.sh"
 
-mzscheme -qt- build/build.scm $*
+racket -S src/scheme build/build.scm "$@"

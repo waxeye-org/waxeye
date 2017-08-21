@@ -83,16 +83,29 @@ waxeye = (->
     constructor: (@pos, @line, @col, @nt, @chars) ->
 
     toString: ->
-      @chars = @chars.charClasses if @chars.charClasses
-      @chars = @chars?.map((ch) -> JSON.stringify(ch.char || ch.charClasses || ''))
-      "parse error: failed to match '"+@nt.join(',')+"' at line="+@line+", col="+@col+", pos="+@pos+" (expected '"+@chars.map((s) -> s.slice(1,-1)).join(',')+"')"
+      chars = @chars.map((err) -> err.toGrammarString()).join(' | ')
+      chars = "''" if chars == ''
+      "Parse error: Failed to match '#{@nt.join(',')}' at line=#{@line}, col=#{@col}, pos=#{@pos}. Expected: #{chars}"
 
   class ErrChar
     constructor: (@char) ->
+    toGrammarString: ->
+      "'#{JSON.stringify(@char).slice(1, -1)}'"
+
   class ErrCC
     constructor: (@charClasses) ->
+    toGrammarString: ->
+      "[" + @charClasses.map((charClass) ->
+          JSON.stringify(
+            if typeof charClass == 'number'
+              String.fromCodePoint(charClass)
+            else
+              "#{String.fromCodePoint(charClass[0])}-#{String.fromCodePoint(charClass[1])}"
+          ).slice(1, -1)).join('') + "]"
+
   class ErrAny
     constructor: () ->
+    toGrammarString: -> '*'
 
   class RawError
     constructor: (@pos, @nonterminals, @failedChars, @currentNT) ->
@@ -206,30 +219,43 @@ waxeye = (->
                 MachineState.INTER(MachineConfiguration.EVAL(exp.args[0], pos, [], err, arrayPrepend(Continuations.CONT_VOID(asts), k)))
               when "CHAR"
                 c = exp.args[0]
-                if (eof pos) or c != input[pos]
-                  newval = Value.FAIL(updateError(err, pos, new ErrChar(c)))
-                else
-                  newval = Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)
-                MachineState.INTER(MachineConfiguration.APPLY(k, newval))
+                MachineState.INTER MachineConfiguration.APPLY k,
+                  if c.length == 1
+                    if (eof pos) or (c != input[pos])
+                      Value.FAIL(updateError(err, pos, new ErrChar(c)))
+                    else
+                      Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)
+                  else  # c.length == 2
+                    if eof(pos + 1) or c[0] != input[pos] or c[1] != input[pos + 1]
+                      Value.FAIL(updateError(err, pos, new ErrChar(c)))
+                    else
+                      Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)
               when "CHAR_CLASS"
                 cc = exp.args
-                visit = (charClasses) ->
-                  if charClasses.length == 0
-                    MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
-                  else
-                    if (first charClasses) instanceof Array
-                      [c1, c2] = first charClasses
-                    else
-                      c1 = c2 = first charClasses
-
-                    if c1 <= input[pos] and c2 >= input[pos]
-                      MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
-                    else
-                      visit (rest charClasses)
                 if eof pos
-                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))))
-                else
-                  visit cc
+                  return MachineState.INTER MachineConfiguration.APPLY k,
+                    Value.FAIL(updateError(err, pos, new ErrCC(cc)))
+                # JavaScript string comparison does not compare Unicode characters correctly, so we must compare
+                # codepoints. Example:
+                #   "ﬆ" > '𝌆' //=> true
+                #   "ﬆ".codePointAt(0) > '𝌆'.codePointAt(0) //=> false
+                inputCodePoint = input.codePointAt(pos)
+                # Loop over cc instead of recursing to avoid stack overflow on large character classes.
+                for charClass in cc
+                  isMatch = if typeof charClass == 'number'
+                              # Single character
+                              charClass == inputCodePoint
+                            else
+                              # Range
+                              charClass[0] <= inputCodePoint and charClass[1] >= inputCodePoint
+                  if isMatch
+                    return MachineState.INTER MachineConfiguration.APPLY k,
+                      if inputCodePoint <= 0xFFFF
+                        Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)
+                      else
+                        Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)
+                MachineState.INTER MachineConfiguration.APPLY k,
+                  Value.FAIL(updateError(err, pos, new ErrCC(cc)))
               when "SEQ"
                 # a sequence is made up of a list of expressions
                 # we traverse the list, making sure each expression succeeds
@@ -253,7 +279,7 @@ waxeye = (->
                 err = new RawError(err.pos, err.nonterminals, err.failedChars, name)
                 MachineState.INTER(MachineConfiguration.EVAL(e, pos, [], err, arrayPrepend(Continuations.CONT_NT(mode, name, asts, conf.err.currentNT), k)))
               else
-                throw new Error('unsupported 2')
+                throw new Error("Unsupported exp.type=#{exp.type} conf.type=#{conf.type}")
           when "APPLY"
             if conf.value?.type == "FAIL" and ["CONT_ALT"].indexOf(kFirst?.type) == -1
               if ["CONT_SEQ", "CONT_VOID", "CONT_PLUS"].indexOf(kFirst?.type) != -1
@@ -350,7 +376,7 @@ waxeye = (->
     parse: (input) ->
       @match @start, input
 
-  namespace =
+  {
     AST: AST
     nonterminal: nonterminal
     Exp: Exp
@@ -360,6 +386,7 @@ waxeye = (->
     ErrCC: ErrCC
     ErrAny: ErrAny
     WaxeyeParser: WaxeyeParser
+  }
 )()
 
 if module?

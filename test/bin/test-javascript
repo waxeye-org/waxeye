@@ -1,0 +1,7 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+source "${BASH_SOURCE%/*}/lib-javascript.sh"
+
+gen_javascript_parser
+
+$NODE_CMD test/javascript/test.js

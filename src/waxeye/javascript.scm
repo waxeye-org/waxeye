@@ -24,7 +24,7 @@ mzscheme
     (dump-string (gen-parser grammar) file-path)
     (list file-path)))
 
-(define (gen-trans a)
+(define (gen-literal a)
   (define (gen-char t)
     (format "'~a~a'"
             (if (escape-for-java-char? t) "\\" "")
@@ -34,16 +34,21 @@ mzscheme
              ((equal? t #\tab) "\\t")
              ((equal? t #\return) "\\r")
              (else t))))
+  (gen-array gen-char a)
+)
+
+(define (gen-char-class a)
   (define (gen-char-class-item a)
     (if (char? a)
-        (gen-char a)
-        (format "[~a, ~a]"
-                (gen-char (car a))
-                (gen-char (cdr a)))))
+        (format "0x~x"
+                (char->integer a))
+        (format "[0x~x, 0x~x]"
+                (char->integer (car a))
+                (char->integer (cdr a)))))
   (cond
    ((symbol? a) "-1") ;; use -1 for wild card
    ((list? a) (gen-array gen-char-class-item a))
-   ((char? a) (gen-char a))
+   ((char? a) (gen-char-class-item a))
    (else a)))
 
 (define (gen-exp a)
@@ -70,11 +75,11 @@ mzscheme
       [(identifier) (format "['~a']" (list->string (ast-c a)))]
       [(void) (gen-array gen-exp (ast-c a))]
       [(literal) (if (<= (length (ast-c a)) 1)
-        (gen-trans (ast-c a))
+        (gen-literal (ast-c a))
         (gen-array gen-exp (map (lambda (b)
           (make-ast 'literal (cons b '()) '()))
           (ast-c a)) ))]
-      [(charClass) (gen-trans (ast-c a))]
+      [(charClass) (gen-char-class (ast-c a))]
       [(and) (gen-array gen-exp (ast-c a))]
       [(not) (gen-array gen-exp (ast-c a))]
       [(optional) (gen-array gen-exp (ast-c a))]

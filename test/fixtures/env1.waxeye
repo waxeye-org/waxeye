@@ -22,3 +22,6 @@ WS <: * ( ' ' | '\t' | '\n' | '\r' )
 Nums <= ? ( Int * ( WS : ',' WS Int ) )
 
 lc <: * ( 'a' | '\t' | '\n' | '\r' )
+
+# Unicode character classes
+Unicode <- [ﬆ-𝌆αβγ😃]

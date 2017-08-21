@@ -1,2 +1,8 @@
 .vscode
 lib
+docs/javadoc/
+lib/
+src/c/tests-build/
+tmp/
+bin/waxeye
+dist/

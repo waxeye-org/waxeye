@@ -18,7 +18,10 @@ import org.testng.annotations.Test;
  */
 public final class BufferFillerTest
 {
+    /** The fixture. */
     private final String data = "ù%*é=^``~&°.:!§,?/#çà][-|";
+
+    /** Expected array. */
     private final char[] expected = data.toCharArray();
 
     /** Test for asArray(InputStream). */

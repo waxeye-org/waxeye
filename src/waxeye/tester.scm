@@ -7,7 +7,7 @@
 tester
 scheme
 
-(require (lib "ast.ss" "waxeye") "gen.scm" "interp.scm" "scheme.scm" (only-in "util.scm" display-ln))
+(require (lib "ast.ss" "waxeye") "gen.scm" "interp.scm" "scheme.scm")
 (provide tester)
 
 
@@ -27,13 +27,14 @@ scheme
   (set! *num-pass* 0)
   (set! *num-fail* 0)
   (call-with-input-file tests read-tests)
-  (display-ln "Waxeye Grammar Tester")
-  (display "------------------------------------------------------------------------------\n")
+  (displayln "Waxeye Grammar Tester")
+  (displayln "------------------------------------------------------------------------------")
   (let* ((t-count (+ *num-pass* *num-fail*))
          (cl (string->list (number->string (exact->inexact (/ (* *num-pass* 100) t-count)))))
          (cent (list->string (take cl (min (length cl) 5)))))
     (display (format "passed ~a | failed ~a | success ~a%\n" *num-pass* *num-fail* cent)))
-  (display "------------------------------------------------------------------------------\n"))
+  (displayln "------------------------------------------------------------------------------")
+  (when (positive? *num-fail*) (exit 1)))
 
 
 (define (run-test-iter parser pairs)
@@ -58,16 +59,16 @@ scheme
 
 
 (define (report-error input expect actual)
-  (display-ln "Error! @ " *start-name*)
-  (display-ln "input    = " input)
-  (display-ln "expected = " expect)
-  (display "actual   = ")
+  (displayln (format "Error! @ ~s" *start-name*) (current-error-port))
+  (displayln (format "input    = ~s" input) (current-error-port))
+  (displayln (format "expected = ~s" expect) (current-error-port))
+  (display "actual   = " (current-error-port))
   (if (ast? actual)
-      (display-ln (ast->string-sexpr actual))
-      (display-ln (if (parse-error? actual)
+      (displayln (ast->string-sexpr actual) (current-error-port))
+      (displayln (if (parse-error? actual)
                    'fail
-                   'pass)))
-  (newline))
+                   'pass)
+                   (current-error-port))))
 
 
 (define (is-expected? result expect)

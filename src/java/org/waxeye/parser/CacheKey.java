@@ -32,7 +32,7 @@ final class CacheKey
      *
      * @param inputIndex The position of evaluation on the input string.
      */
-    public CacheKey(final int expressionIndex, final int inputIndex)
+    CacheKey(final int expressionIndex, final int inputIndex)
     {
         this(expressionIndex, inputIndex, null);
     }
@@ -46,7 +46,7 @@ final class CacheKey
      *
      * @param context The context of the parser.
      */
-    public CacheKey(final int expressionIndex, final int inputIndex,
+    CacheKey(final int expressionIndex, final int inputIndex,
         final Object context)
     {
         this.expressionIndex = expressionIndex;
