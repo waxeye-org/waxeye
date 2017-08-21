@@ -343,5 +343,7 @@
   ["MatchAST",["match","Unicode","😃"],["Tree","Unicode",[["Char","😃"]]]],
   ["MatchAST",["match","Unicode","α"],["Tree","Unicode",[["Char","α"]]]],
   ["MatchAST",["match","Unicode","β"],["Tree","Unicode",[["Char","β"]]]],
-  ["MatchAST",["match","Unicode","γ"],["Tree","Unicode",[["Char","γ"]]]]
+  ["MatchAST",["match","Unicode","γ"],["Tree","Unicode",[["Char","γ"]]]],
+  ["MatchAST",["match","Wildcard","😃"],["Tree","Wildcard",[["Char","😃"]]]],
+  ["MatchAST",["match","UnicodeString","αβ😃γ"],["Tree","UnicodeString",[["Char","α"],["Char","β"],["Char","😃"],["Char","γ"]]]]
 ]

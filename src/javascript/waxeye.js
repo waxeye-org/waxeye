@@ -9,7 +9,7 @@
  */
 
 (function() {
-  var arrayPrepend, assert, first, getLineCol, rest, uniq, waxeye;
+  var arrayPrepend, assert, first, getLineCol, isSingleCharCodepoint, rest, uniq, waxeye;
 
   if (typeof module !== "undefined" && module !== null) {
     assert = require('assert');
@@ -62,6 +62,10 @@
   rest = function(a) {
     assert.ok(Array.isArray(a));
     return Array.prototype.slice.call(a, 1);
+  };
+
+  isSingleCharCodepoint = function(codePoint) {
+    return codePoint <= 0xFFFF;
   };
 
   waxeye = (function() {
@@ -180,7 +184,7 @@
       function ErrAny() {}
 
       ErrAny.prototype.toGrammarString = function() {
-        return '*';
+        return '.';
       };
 
       return ErrAny;
@@ -356,7 +360,7 @@
                   if (eof(pos)) {
                     return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))));
                   } else {
-                    return MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)));
+                    return MachineState.INTER(MachineConfiguration.APPLY(k, isSingleCharCodepoint(input.codePointAt(pos)) ? Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err) : Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)));
                   }
                   break;
                 case "ALT":
@@ -386,7 +390,7 @@
                     charClass = cc[j];
                     isMatch = typeof charClass === 'number' ? charClass === inputCodePoint : charClass[0] <= inputCodePoint && charClass[1] >= inputCodePoint;
                     if (isMatch) {
-                      return MachineState.INTER(MachineConfiguration.APPLY(k, inputCodePoint <= 0xFFFF ? Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err) : Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)));
+                      return MachineState.INTER(MachineConfiguration.APPLY(k, isSingleCharCodepoint(inputCodePoint) ? Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err) : Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)));
                     }
                   }
                   return MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrCC(cc)))));
