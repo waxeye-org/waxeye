@@ -25,3 +25,5 @@ lc <: * ( 'a' | '\t' | '\n' | '\r' )
 
 # Unicode character classes
 Unicode <- [ﬆ-𝌆αβγ😃]
+Wildcard <- .
+UnicodeString <- 'αβ😃γ'

@@ -45,6 +45,11 @@ rest = (a) ->
   assert.ok Array.isArray(a)
   Array.prototype.slice.call(a, 1)
 
+# Whether the given Unicode code-point can be represented
+# by a single JavaScript String (UTF-16) character.
+isSingleCharCodepoint = (codePoint) ->
+  codePoint <= 0xFFFF
+
 waxeye = (->
   ###
   # An abstract syntax tree has one of three forms.
@@ -105,7 +110,7 @@ waxeye = (->
 
   class ErrAny
     constructor: () ->
-    toGrammarString: -> '*'
+    toGrammarString: -> '.'
 
   class RawError
     constructor: (@pos, @nonterminals, @failedChars, @currentNT) ->
@@ -204,7 +209,13 @@ waxeye = (->
                 if (eof pos)
                   MachineState.INTER(MachineConfiguration.APPLY(k, Value.FAIL(updateError(err, pos, new ErrAny()))))
                 else
-                  MachineState.INTER(MachineConfiguration.APPLY(k, Value.VAL(pos+1, arrayPrepend(input[pos], asts), err)))
+                  MachineState.INTER MachineConfiguration.APPLY k,
+                    # Advance one position if the input code-point is in BMP, two positions otherwise.
+                    if isSingleCharCodepoint(input.codePointAt(pos))
+                      Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)
+                    else
+                      # A non single-char code-point implies !eof(pos + 1)
+                      Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)
               when "ALT"
                 es = exp.args
                 if es.length > 0
@@ -250,7 +261,7 @@ waxeye = (->
                               charClass[0] <= inputCodePoint and charClass[1] >= inputCodePoint
                   if isMatch
                     return MachineState.INTER MachineConfiguration.APPLY k,
-                      if inputCodePoint <= 0xFFFF
+                      if isSingleCharCodepoint(inputCodePoint)
                         Value.VAL(pos + 1, arrayPrepend(input[pos], asts), err)
                       else
                         Value.VAL(pos + 2, arrayPrepend(input[pos] + input[pos + 1], asts), err)
