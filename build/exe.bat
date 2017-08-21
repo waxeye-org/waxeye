@@ -1,3 +1,4 @@
-C:\"Program Files\Racket\raco.exe" exe src\waxeye\waxeye.scm
-C:\"Program Files\Racket\raco.exe" distribute . src\waxeye\waxeye.exe
-DEL src\waxeye\waxeye.exe
+SET PLTCOLLECTS=";%~dp0..\src\scheme\"
+"C:\Program Files\Racket\raco.exe" exe "%~dp0..\src\waxeye\waxeye.scm"
+"C:\Program Files\Racket\raco.exe" distribute . "%~dp0..\src\waxeye\waxeye.exe"
+DEL "%~dp0..\src\waxeye\waxeye.exe"
