@@ -9,7 +9,7 @@
  */
 
 (function() {
-  var arrayPrepend, assert, codepointsToStrings, first, getLineCol, rest, uniq, waxeye;
+  var arrayPrepend, assert, first, getLineCol, rest, uniq, waxeye;
 
   if (typeof module !== "undefined" && module !== null) {
     assert = require('assert');
@@ -62,12 +62,6 @@
   rest = function(a) {
     assert.ok(Array.isArray(a));
     return Array.prototype.slice.call(a, 1);
-  };
-
-  codepointsToStrings = function(cps) {
-    return cps.map(function(cp) {
-      return String.fromCodePoint(cp);
-    });
   };
 
   waxeye = (function() {
@@ -143,24 +137,14 @@
       }
 
       ParseError.prototype.toString = function() {
-        var chars, ref;
-        if (!Array.isArray(chars)) {
-          chars = [chars];
+        var chars;
+        chars = this.chars.map(function(err) {
+          return err.toGrammarString();
+        }).join(' | ');
+        if (chars === '') {
+          chars = "''";
         }
-        chars = JSON.stringify((ref = this.chars) != null ? ref.map(function(ch) {
-          if (ch.char) {
-            return ch.char;
-          } else if (ch.charClasses) {
-            if (typeof ch.charClasses[0] === 'number') {
-              return codepointsToStrings(ch.charClasses);
-            } else {
-              return ch.charClasses.map(codepointsToStrings);
-            }
-          } else {
-            return '';
-          }
-        }) : void 0);
-        return "parse error: failed to match '" + (this.nt.join(',')) + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos + " (expected " + chars + ")";
+        return "Parse error: Failed to match '" + (this.nt.join(',')) + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos + ". Expected: " + chars;
       };
 
       return ParseError;
@@ -171,6 +155,10 @@
         this.char = char;
       }
 
+      ErrChar.prototype.toGrammarString = function() {
+        return "'" + (JSON.stringify(this.char).slice(1, -1)) + "'";
+      };
+
       return ErrChar;
 
     })();
@@ -179,11 +167,21 @@
         this.charClasses = charClasses;
       }
 
+      ErrCC.prototype.toGrammarString = function() {
+        return "[" + this.charClasses.map(function(charClass) {
+          return JSON.stringify(typeof charClass === 'number' ? String.fromCodePoint(charClass) : (String.fromCodePoint(charClass[0])) + "-" + (String.fromCodePoint(charClass[1]))).slice(1, -1);
+        }).join('') + "]";
+      };
+
       return ErrCC;
 
     })();
     ErrAny = (function() {
       function ErrAny() {}
+
+      ErrAny.prototype.toGrammarString = function() {
+        return '*';
+      };
 
       return ErrAny;
 
