@@ -44,31 +44,19 @@ TestEnv.prototype.match = function(nt, input) {
   return (new waxeye.WaxeyeParser(this.env, nt)).parse(input);
 };
 
-function codepointsToChars(cps) {
-  return cps.map(function(cp) {
-    return String.fromCodePoint(cp);
-  });
-}
-
-function charsToCodepoints(chars) {
-  return chars.map(function(c) {
-    return c.codePointAt(0);
-  });
-}
-
 function fromFixtureExpectationCharClasses(charClasses) {
-  if (typeof charClasses[0] === 'string') {
-    return charsToCodepoints(charClasses);
+  if (typeof charClasses === 'string') {
+    return charClasses.codePointAt(0);
   } else {
-    return charClasses.map(charsToCodepoints);
+    return charClasses.map(fromFixtureExpectationCharClasses);
   }
 }
 
 function toFixtureExpectationCharClasses(charClasses) {
-  if (typeof charClasses[0] === 'number') {
-    return codepointsToChars(charClasses);
+  if (typeof charClasses === 'number') {
+    return String.fromCodePoint(charClasses);
   } else {
-    return charClasses.map(codepointsToChars);
+    return charClasses.map(toFixtureExpectationCharClasses);
   }
 }
 

@@ -45,9 +45,6 @@ rest = (a) ->
   assert.ok Array.isArray(a)
   Array.prototype.slice.call(a, 1)
 
-codepointsToStrings = (cps) ->
-  cps.map (cp) -> String.fromCodePoint(cp)
-
 waxeye = (->
   ###
   # An abstract syntax tree has one of three forms.
@@ -86,25 +83,29 @@ waxeye = (->
     constructor: (@pos, @line, @col, @nt, @chars) ->
 
     toString: ->
-      chars = [chars] unless Array.isArray(chars)
-      chars = JSON.stringify @chars?.map (ch) ->
-        if ch.char
-          ch.char
-        else if ch.charClasses
-          if typeof ch.charClasses[0] == 'number'
-            codepointsToStrings(ch.charClasses)
-          else
-            ch.charClasses.map(codepointsToStrings)
-        else
-          ''
-      "parse error: failed to match '#{@nt.join(',')}' at line=#{@line}, col=#{@col}, pos=#{@pos} (expected #{chars})"
+      chars = @chars.map((err) -> err.toGrammarString()).join(' | ')
+      chars = "''" if chars == ''
+      "Parse error: Failed to match '#{@nt.join(',')}' at line=#{@line}, col=#{@col}, pos=#{@pos}. Expected: #{chars}"
 
   class ErrChar
     constructor: (@char) ->
+    toGrammarString: ->
+      "'#{JSON.stringify(@char).slice(1, -1)}'"
+
   class ErrCC
     constructor: (@charClasses) ->
+    toGrammarString: ->
+      "[" + @charClasses.map((charClass) ->
+          JSON.stringify(
+            if typeof charClass == 'number'
+              String.fromCodePoint(charClass)
+            else
+              "#{String.fromCodePoint(charClass[0])}-#{String.fromCodePoint(charClass[1])}"
+          ).slice(1, -1)).join('') + "]"
+
   class ErrAny
     constructor: () ->
+    toGrammarString: -> '*'
 
   class RawError
     constructor: (@pos, @nonterminals, @failedChars, @currentNT) ->
