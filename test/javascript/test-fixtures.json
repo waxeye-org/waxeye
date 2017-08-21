@@ -331,5 +331,13 @@
   ["MatchError", ["match", "lc", "\r\r\na\r\nb"], ["ParseError", 6, 4, 0, ["lc"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
   ["MatchError", ["match", "lc", "\nb"], ["ParseError", 1, 2, 0, ["lc"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
   ["MatchError", ["match", "lc", "\n\n\nb"], ["ParseError", 3, 4, 0, ["lc"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
-  ["MatchError", ["match", "lc", "\n\na\naabaa"], ["ParseError", 6, 4, 2, ["lc"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]]
+  ["MatchError", ["match", "lc", "\n\na\naabaa"], ["ParseError", 6, 4, 2, ["lc"], [{ "type": "ErrChar", "arg": "a" }, { "type": "ErrChar", "arg": "\t" }, { "type": "ErrChar", "arg": "\n" }, { "type": "ErrChar", "arg": "\r" }]]],
+
+  ["Comment", "Unicode tests"],
+  ["MatchAST",["match","Unicode","ﬅ"],["ParseError",0,1,0,["Unicode"],[{"type":"ErrCC","arg":[["ﬆ","𝌆"]]}]]],
+  ["MatchAST",["match","Unicode","ﬆ"],["Tree","Unicode",[["Char","ﬆ"]]]],
+  ["MatchAST",["match","Unicode","ﬕ"],["Tree","Unicode",[["Char","ﬕ"]]]],
+  ["MatchAST",["match","Unicode","𝌅"],["Tree","Unicode",[["Char","𝌅"]]]],
+  ["MatchAST",["match","Unicode","𝌆"],["Tree","Unicode",[["Char","𝌆"]]]],
+  ["MatchAST",["match","Unicode","𝌇"],["ParseError",0,1,0,["Unicode"],[{"type":"ErrCC","arg":[["ﬆ","𝌆"]]}]]]
 ]
