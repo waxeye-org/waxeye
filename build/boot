@@ -2,4 +2,4 @@
 # Generates a parser for the Waxeye grammar.
 source "${BASH_SOURCE[0]%/*}/env.sh"
 
-build/waxeye -g scheme src/waxeye/ -c src/waxeye/header.txt -p grammar grammars/waxeye.waxeye
+build/waxeye -g racket src/waxeye/ -c src/waxeye/header.txt -p grammar grammars/waxeye.waxeye

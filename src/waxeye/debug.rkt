@@ -3,10 +3,7 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-debug
-mzscheme
-
+#lang racket/base
 (provide debug *debug* debug!)
 
 (define *debug* #f)
@@ -19,5 +16,3 @@ mzscheme
     ((_ a ...)
      (when *debug*
            a ...))))
-
-)

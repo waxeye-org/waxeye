@@ -3,11 +3,8 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-file
-mzscheme
-
-(provide (all-defined))
+#lang racket/base
+(provide (all-defined-out))
 
 (define (input-as-string port)
   (define (input-as-iter)
@@ -17,11 +14,9 @@ mzscheme
           (cons ch (input-as-iter)))))
   (list->string (input-as-iter)))
 
-
 ;; Returns the contents of the file of the given name as a string
 (define (file-as-string path)
   (call-with-input-file path input-as-string))
-
 
 (define (file-as-string-lines path)
   (define (file-as-iter stream)
@@ -30,5 +25,3 @@ mzscheme
           '()
           (cons ch (file-as-iter stream)))))
   (call-with-input-file path file-as-iter))
-
-)

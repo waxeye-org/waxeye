@@ -918,26 +918,21 @@ sudo ln -s /usr/local/waxeye/src/racket/waxeye /usr/local/racket/lib/racket/coll
 ==== Generate Parser ====
 
 -------------------------------------------------------------------------------
-waxeye -g scheme . num.waxeye
+waxeye -g racket . num.waxeye
 -------------------------------------------------------------------------------
 
 ==== Use Parser ====
 
-.src/example/scheme/example.rkt
-[source,scheme]
+.src/example/racket/example.rkt
+[source,racket]
 -------------------------------------------------------------------------------
-(module
-example
-mzscheme
-
+#lang racket/base
 (require "parser.rkt")
 
 ;; Parse our input
 (let ((ast (parser "42")))
   ;; Print our AST
   (display-ast ast))
-
-)
 -------------------------------------------------------------------------------
 
 ==== Run from Racket ====
@@ -1022,7 +1017,7 @@ puts ast.children.join('')
 
 ===== From Scheme =====
 
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 (display (list->string (ast-c ast)))
 (newline)
@@ -1121,7 +1116,7 @@ end
 
 ==== From Scheme ====
 
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 (cond
   ((ast? result) "tree ast")
@@ -1628,13 +1623,10 @@ puts
 
 === Calculator in Scheme ===
 
-.src/example/scheme/calculator.rkt
-[source,scheme]
+.src/example/racket/calculator.rkt
+[source,racket]
 -------------------------------------------------------------------------------
-(module
-calculator
-mzscheme
-
+#lang racket/base
 (require "parser.rkt")
 
 ;; A commandline arithmetic calculator.
@@ -1688,8 +1680,6 @@ mzscheme
       (newline)
       (begin (calc input)
              (loop (rl)))))
-
-)
 -------------------------------------------------------------------------------
 
 
@@ -1715,7 +1705,7 @@ todo
 == Grammar Testing ==
 
 .test/grammars/waxeye.rkt
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 ;; These are tests for the 'Grammar' non-terminal
 (Grammar ; <- This is the non-terminal's name
@@ -1811,7 +1801,7 @@ them. An expression is one of the following:
 
 
 .grammars/modular/mod.rkt
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 ;; A contrived example where we replace the definition of Number in Json with a
 ;; much simpler one that only supports integers.
@@ -1876,10 +1866,10 @@ Currently supported programming languages:
 * javascript
 * python
 * ruby
-* scheme
+* racket
 
 -------------------------------------------------------------------------------
-waxeye -g scheme . grammar.waxeye
+waxeye -g racket . grammar.waxeye
 -------------------------------------------------------------------------------
 
 

@@ -3,13 +3,10 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-javascript
-mzscheme
-
-(require (lib "ast.rkt" "waxeye")
-         (lib "fa.rkt" "waxeye")
-         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
+#lang racket/base
+(require         waxeye/ast
+         waxeye/fa
+         "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-javascript)
 
 
@@ -77,7 +74,7 @@ mzscheme
       [(literal) (if (<= (length (ast-c a)) 1)
         (gen-literal (ast-c a))
         (gen-array gen-exp (map (lambda (b)
-          (make-ast 'literal (cons b '()) '()))
+          (ast 'literal (cons b '()) '()))
           (ast-c a)) ))]
       [(charClass) (gen-char-class (ast-c a))]
       [(and) (gen-array gen-exp (ast-c a))]
@@ -111,7 +108,7 @@ mzscheme
             (indent (if (null? data)
                         ""
                         (string-append (fn (car data))
-                                       (string-concat (map (lambda (a)
+                                       (apply string-append (map (lambda (a)
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr data))))))))
 (define (gen-array fn data)
@@ -119,7 +116,7 @@ mzscheme
             (indent (if (null? data)
                         ""
                         (string-append (fn (car data))
-                                       (string-concat (map (lambda (a)
+                                       (apply string-append (map (lambda (a)
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr data))))))))
 
@@ -172,5 +169,3 @@ if (typeof module !== 'undefined') {
         (gen-nodejs-imports)
         (gen-parser-class)
         (gen-nodejs-exports))))
-
-)

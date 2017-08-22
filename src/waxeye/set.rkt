@@ -3,10 +3,7 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-set
-mzscheme
-
+#lang racket/base
 (provide subset?)
 
 ;; Is 'b' a subset of 'a'?
@@ -27,5 +24,3 @@ mzscheme
                     (if (and (char<=? (car aa) (car bb)) (char<=? (cdr bb) (cdr aa)))
                         (subset? a (cdr b))
                         (subset? (cdr a) b))))))))
-
-)

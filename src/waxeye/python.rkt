@@ -3,13 +3,10 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-python
-mzscheme
-
-(require (lib "ast.rkt" "waxeye")
-         (lib "fa.rkt" "waxeye")
-         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
+#lang racket/base
+(require         waxeye/ast
+         waxeye/fa
+         "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-python)
 
 
@@ -43,7 +40,7 @@ mzscheme
    ((list? a)
     (format "[~a~a]"
             (gen-char-class-item (car a))
-            (string-concat (map (lambda (b)
+            (apply string-append (map (lambda (b)
                                   (string-append ", " (gen-char-class-item b)))
                                 (cdr a)))))
    ((char? a) (gen-char a))
@@ -103,7 +100,7 @@ mzscheme
             (indent (if (null? ss)
                         ""
                         (string-append (fn (car ss))
-                                       (string-concat (map (lambda (a)
+                                       (apply string-append (map (lambda (a)
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr ss)))))))))
 
@@ -139,5 +136,3 @@ mzscheme
             (script-comment *file-header*)
             (script-comment *default-header*))
         (gen-parser-class))))
-
-)

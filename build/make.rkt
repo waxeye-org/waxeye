@@ -3,15 +3,12 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-make
-mzscheme
-
-(require (only (lib "list.rkt") foldr sort) (lib "process.rkt") (only "../src/waxeye/util.rkt" display-ln))
+#lang racket/base
+(require (only-in racket/system system))
 (provide ^ $ ++ cd cd$ run-cmd run-make target)
 
-(define *target-table* (make-hash-table))
-(define *dep-table* (make-hash-table))
+(define *target-table* (make-hasheq))
+(define *dep-table* (make-hasheq))
 
 (define ++ string-append)
 
@@ -19,7 +16,7 @@ mzscheme
   (syntax-rules ()
     ((_ name (deps ...) code ...)
      ;; bind target name to code
-     (hash-table-put! *target-table*
+     (hash-set! *target-table*
                       'name
                       (lambda ()
                         ;; run dependencies
@@ -29,11 +26,11 @@ mzscheme
 
 
 (define (run-target t)
-  (let ((t-code (hash-table-get *target-table* t #f)))
+  (let ((t-code (hash-ref *target-table* t #f)))
     (if t-code
-        (unless (hash-table-get *dep-table* t #f)
-                (hash-table-put! *dep-table* t #t)
-                (apply t-code ()))
+        (unless (hash-ref *dep-table* t #f)
+                (hash-set! *dep-table* t #t)
+                (apply t-code '()))
         (error 'make (++ "target doesn't exist - " (symbol->string t))))))
 
 
@@ -43,8 +40,8 @@ mzscheme
     (if (null? args)
         ;; print all possible targets
         (begin
-          (display-ln "possible targets:")
-          (for-each display-ln (sort (map symbol->string (hash-table-map *target-table* (lambda (k v) k))) string<?)))
+          (displayln "possible targets:")
+          (for-each displayln (sort (map symbol->string (hash-map *target-table* (lambda (k v) k))) string<?)))
         ;; otherwise run targets
         (for-each run-target args))))
 
@@ -61,7 +58,7 @@ mzscheme
                           (++ " " (as-string a) b))
                         ""
                         args))))
-    (display-ln cmd)
+    (displayln cmd)
     (system cmd)))
 
 
@@ -91,5 +88,3 @@ mzscheme
   (syntax-rules ()
     ((_ dir code ...)
      (cd$ 'dir code ...))))
-
-)

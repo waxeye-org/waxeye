@@ -3,15 +3,12 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-parser
-mzscheme
-
-(require (lib "ast.rkt" "waxeye") (lib "fa.rkt" "waxeye") (lib "set.rkt" "waxeye"))
+#lang racket/base
+(require waxeye/ast waxeye/fa waxeye/set)
 (provide make-parser)
 
 
-(define-struct cache-item (val pos line col cr))
+(struct cache-item (val pos line col cr))
 
 
 (define (make-parser start eof-check automata)
@@ -26,10 +23,10 @@ mzscheme
            (error-col 0)
            (error-expected '())
            (fa-stack '())
-           (cache (make-hash-table 'equal)))
+           (cache (make-hash)))
 
       (define (match-automaton index)
-        (let* ((key (cons index input-pos)) (value (hash-table-get cache key #f)))
+        (let* ((key (cons index input-pos)) (value (hash-ref cache key #f)))
           (if value
               (begin
                 (restore-pos (cache-item-pos value) (cache-item-line value) (cache-item-col value) (cache-item-cr value))
@@ -64,15 +61,15 @@ mzscheme
                                      ((null? (cdr res))
                                       (car res))
                                      (else
-                                      (make-ast type res (cons start-pos input-pos)))))
+                                      (ast type res (cons start-pos input-pos)))))
                                    ((leftArrow)
-                                    (make-ast type res (cons start-pos input-pos)))
+                                    (ast type res (cons start-pos input-pos)))
                                    (else (error 'waxeye "Unknown automaton mode")))
                                  ;; Don't need to restore here since we already did
                                  (update-error)))))))
                   ;; Pop from the fa-stack
                   (set! fa-stack (cdr fa-stack))
-                  (hash-table-put! cache key (make-cache-item v input-pos line column last-cr))
+                  (hash-set! cache key (cache-item v input-pos line column last-cr))
                   v)))))
 
       (define (match-state state)
@@ -169,10 +166,10 @@ mzscheme
         (if res
             (if (and eof-check (< input-pos input-len))
                 ;; Create a parse error - Not all input consumed
-                (make-parse-error error-pos error-line error-col error-expected (received) (snippet))
+                (parse-error error-pos error-line error-col error-expected (received) (snippet))
                 res)
             ;; Create a parse error
-            (make-parse-error error-pos error-line error-col error-expected (received) (snippet))))
+            (parse-error error-pos error-line error-col error-expected (received) (snippet))))
 
       (define (received)
         (if (= error-pos input-len)
@@ -210,5 +207,3 @@ mzscheme
                 (build-snippet (- error-pos ss) (+ error-pos ee))))))
 
       (do-eof-check (match-automaton start)))))
-
-)

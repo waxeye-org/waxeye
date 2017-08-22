@@ -3,10 +3,7 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-set
-mzscheme
-
+#lang racket/base
 (provide within-set?)
 
 ;; Is 'b' within set 'a'?
@@ -25,5 +22,3 @@ mzscheme
                 (if (char<? (cdr aa) b)
                     (within-set? (cdr a) b)
                     #f))))))
-
-)

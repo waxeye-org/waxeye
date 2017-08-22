@@ -3,12 +3,9 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-main
-mzscheme
-
+#lang racket/base
 (require waxeye/ast
-         scheme/cmdline
+         racket/cmdline
          "c.rkt"
          "debug.rkt"
          "file.rkt"
@@ -19,10 +16,9 @@ mzscheme
          "load.rkt"
          "python.rkt"
          "ruby.rkt"
-         "scheme.rkt"
+         "racket.rkt"
          "tester.rkt"
          "transform.rkt"
-         "util.rkt"
          "version.rkt")
 (provide main)
 
@@ -49,7 +45,7 @@ mzscheme
                     (file-header! (file-as-string-lines *header-path*)))
               (display-version)
               (for-each (lambda (a)
-                          (display-ln "generated: " a))
+                         (displayln (format "generated: ~a" a)))
                         (*target-lang* grammar-tree *output-path*))))
            (else (display-help))))))
 
@@ -80,7 +76,7 @@ mzscheme
                           ((java) gen-java)
                           ((python) gen-python)
                           ((ruby) gen-ruby)
-                          ((scheme) gen-scheme)
+                          ((racket) gen-racket)
                           ((javascript) gen-javascript)
                           (else #f)))
     (set! *output-path* (if (equal? (string-ref dir (- (string-length dir) 1)) #\/)
@@ -133,10 +129,8 @@ mzscheme
 
 
 (define (display-version)
-  (display-ln "Waxeye Parser Generator v" *version*))
+  (displayln (string-append "Waxeye Parser Generator v" *version*)))
 
 
 (define (display-help)
   (parse-args '("--help")))
-
-)

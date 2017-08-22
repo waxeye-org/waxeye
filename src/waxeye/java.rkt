@@ -3,14 +3,10 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-java
-mzscheme
-
-(require (lib "ast.rkt" "waxeye")
-         (lib "fa.rkt" "waxeye")
-         (only (lib "list.rkt" "mzlib") filter)
-         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
+#lang racket/base
+(require waxeye/ast
+         waxeye/fa
+         "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-java)
 
 
@@ -64,7 +60,7 @@ mzscheme
                      (ind) "_Char,\n"
                      (ind) "_Pos,\n"
                      (ind) "_Neg"
-                     (string-concat (map (lambda (a)
+                     (apply string-append (map (lambda (a)
                                            (format ",\n~a~a"
                                                    (ind)
                                                    (camel-case-upper a)))
@@ -142,10 +138,10 @@ import org.waxeye.parser.WildCardTransition;
              (string-append
               (format "~afinal List<FA<~a>> automata = new ArrayList<FA<~a>>();\n" (ind) *java-node-name* *java-node-name*)
               "\n"
-              (string-concat (map gen-fa-call a-names))
+              (apply string-append (map gen-fa-call a-names))
               (string-append (ind) "return automata;\n")))
             (ind)
-            (string-concat (map gen-fa automata-list a-names))
+            (apply string-append (map gen-fa automata-list a-names))
 )))
 
   
@@ -170,7 +166,7 @@ import org.waxeye.parser.WildCardTransition;
           (indent (string-append
             (format "~aList<State<~a>> states = new ArrayList<State<~a>>();\n" (ind) *java-node-name* *java-node-name*)
             (format "~aList<Edge<~a>> edges;\n" (ind) *java-node-name*)
-            (string-concat (map gen-state (vector->list (fa-states a))))
+            (apply string-append (map gen-state (vector->list (fa-states a))))
             (format "~aautomata.add(new FA<~a>(~a.~a, ~a, states));\n"
                     (ind)
                     *java-node-name*
@@ -193,7 +189,7 @@ import org.waxeye.parser.WildCardTransition;
   (format "~aedges = new ArrayList<Edge<~a>>();\n~a~astates.add(new State<~a>(edges, ~a));\n"
           (ind)
           *java-node-name*
-          (string-concat (map gen-edge (state-edges s)))
+          (apply string-append (map gen-edge (state-edges s)))
           (ind)
           *java-node-name*
           (bool->s (state-match s))))
@@ -242,7 +238,7 @@ import org.waxeye.parser.WildCardTransition;
               ""
               (string-append
                (gen-char (car l))
-               (string-concat (map (lambda (a)
+               (apply string-append (map (lambda (a)
                                      (string-append ", " (gen-char a)))
                                    (cdr l)))))))
 
@@ -259,5 +255,3 @@ import org.waxeye.parser.WildCardTransition;
 
 (define (gen-wild-card-trans)
   (format "WildCardTransition<~a>()" *java-node-name*))
-
-)

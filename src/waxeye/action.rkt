@@ -3,12 +3,9 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-action
-mzscheme
-
-(require (lib "ast.rkt" "waxeye") "gen.rkt")
-(provide (all-defined))
+#lang racket/base
+(require waxeye/ast "gen.rkt")
+(provide (all-defined-out))
 
 (define *action-list* '())
 
@@ -39,5 +36,3 @@ mzscheme
 
   (for-each get-def-actions (get-defs grammar))
   (set! *action-list* (reverse *action-list*)))
-
-)

@@ -3,16 +3,12 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-interp
-mzscheme
-
-(require (lib "ast.rkt" "waxeye")
-         (lib "parser.rkt" "waxeye")
+#lang racket/base
+(require waxeye/ast
+         waxeye/parser
          "dfa.rkt"
          "gen.rkt"
-         "scheme.rkt"
-         "util.rkt")
+         "racket.rkt")
 
 (provide dynamic-parser interpreter)
 
@@ -26,5 +22,3 @@ mzscheme
     (if (parse-error? input-ast)
         (display-parse-error input-ast)
         (display-ast input-ast))))
-
-)
