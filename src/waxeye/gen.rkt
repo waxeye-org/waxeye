@@ -3,13 +3,10 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-gen
-mzscheme
-
-(require (lib "ast.rkt" "waxeye")
-         (only (lib "1.rkt" "srfi") list-index))
-(provide (all-defined))
+#lang racket/base
+(require waxeye/ast
+         (only-in srfi/1 list-index))
+(provide (all-defined-out))
 
 (define *eof-check* #t)
 (define *expression-level* '())
@@ -88,5 +85,3 @@ mzscheme
 
 (define (get-alternation def)
   (caddr (ast-c def)))
-
-)

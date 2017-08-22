@@ -3,11 +3,11 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-tester
-scheme
-
-(require (lib "ast.rkt" "waxeye") "gen.rkt" "interp.rkt" "scheme.rkt")
+#lang racket/base
+(require
+  (only-in racket/list take)
+  waxeye/ast
+  "gen.rkt" "interp.rkt" "racket.rkt")
 (provide tester)
 
 
@@ -88,5 +88,3 @@ scheme
            (or (equal? (car expect) '*)
                (and (is-expected? (car res) (car expect))
                     (children-match? (cdr res) (cdr expect)))))))
-
-)

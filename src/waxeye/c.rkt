@@ -3,14 +3,12 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-c
-mzscheme
+#lang racket/base
 
-(require (lib "ast.rkt" "waxeye")
-         (lib "fa.rkt" "waxeye")
-         (only (lib "list.rkt" "mzlib") filter)
-         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
+(require (only-in racket/format ~r)
+         waxeye/ast
+         waxeye/fa
+         "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-c)
 
 
@@ -99,7 +97,7 @@ extern struct parser_t* ~a_new();
               (ind)
               *c-type-prefix*
               (string->upper (car non-terms))
-              (string-concat
+              (apply string-append
                (map (lambda (a)
                       (string-append ",\n" (ind) *c-type-prefix* (string->upper a)))
                     (cdr non-terms)))))
@@ -134,7 +132,7 @@ struct parser_t* ~a_new() {
              (string-append
               (ind)
               "\"" (car non-terms) "\""
-              (string-concat
+              (apply string-append
                (map (lambda (a)
                       (string-append ",\n" (ind) "\"" a "\""))
                     (cdr non-terms)))))
@@ -185,7 +183,7 @@ struct parser_t* ~a_new() {
 
 
 (define (mapi->s fn l)
-  (string-concat (mapi fn l)))
+  (apply string-append (mapi fn l)))
 
 
 (define (gen-mode a)
@@ -293,22 +291,6 @@ struct parser_t* ~a_new() {
               ""
               (mapi->s ass-char l))))
 
-
-; Convert a number less than 16 into a string with hexadecimal digit
-(define (format-hexadecimal-digit n)
-  (cond ((and (>= n 0) (< n 10)) (format "~a" n))
-        ((< n 16) (string (string-ref "ABCDEF" (- n 10))))
-        (else (error "format-hexadecimal: invalid argument"))))
-
-
-; Convert a number less than 256 into a string with hexadecimal digits.
-; Racket has a function "~r" that can do this, but it's not possible to
-; use it from a module written in mzscheme as it requires passing named parameters.
-(define (format-hexadecimal n)
-  (string-append (format-hexadecimal-digit (quotient n 16))
-                 (format-hexadecimal-digit (remainder n 16))))
-
-
 (define (gen-char t)
   (format "'~a~a'"
           (if (escape-for-java-char? t) "\\" "")
@@ -319,9 +301,7 @@ struct parser_t* ~a_new() {
            ; Printable ASCII characters are in range from 32 to 126.
            ; Non-printable characters would be shown as \xNN.
            ((or (< (char->integer t) 32) (>= (char->integer t) 127))
-            (string-append
-               "\\x"
-               (format-hexadecimal (char->integer t))))
+           (format "\\x~a" (~r (char->integer t) #:base '(up 16))))
            (else t))))
 
 
@@ -329,6 +309,3 @@ struct parser_t* ~a_new() {
   (format "~atrans_d.c = '\\0';
 ~atrans_init(&trans, TRANS_WILD, trans_d);\n"
           (ind) (ind)))
-
-
-)

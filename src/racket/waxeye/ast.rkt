@@ -3,12 +3,8 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-ast
-scheme
-
-(require (only-in (lib "9.rkt" "srfi") define-record-type))
-(require (only-in scheme/list remove-duplicates))
+#lang racket/base
+(require (only-in racket/list remove-duplicates))
 (provide (all-defined-out))
 
 
@@ -17,23 +13,10 @@ scheme
 ;; t = The type of the ast as a symbol
 ;; c = The list of the ast's children as nested asts or characters
 ;; p = The position of the ast in the original string as a pair of start and end indexes
-(define-record-type :ast
-  (make-ast t c p)
-  ast?
-  (t ast-t ast-t!)
-  (c ast-c ast-c!)
-  (p ast-p ast-p!))
+(struct ast (t c p) #:mutable)
 
 
-(define-record-type :parse-error
-  (make-parse-error pos line col expected received snippet)
-  parse-error?
-  (pos parse-error-pos parse-error-pos!)
-  (line parse-error-line parse-error-line!)
-  (col parse-error-col parse-error-col!)
-  (expected parse-error-expected parse-error-expected!)
-  (received parse-error-received parse-error-received!)
-  (snippet parse-error-snippet parse-error-snippet!))
+(struct parse-error (pos line col expected received snippet))
 
 
 (define (ast->string ast)
@@ -92,7 +75,7 @@ scheme
 
 (define (parse-error->string error)
   (define (comma-seperate l)
-    (string-join (map symbol->string l) ", "))
+    (apply string-append (map symbol->string l) ", "))
   (define (expected nts)
     (let ((len (length nts)))
       (if (= len 0)
@@ -113,5 +96,3 @@ scheme
 (define (display-parse-error error)
   (display (parse-error->string error))
   (newline))
-
-)

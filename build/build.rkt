@@ -3,10 +3,7 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-build
-mzscheme
-
+#lang racket/base
 (require "make.rkt" "../src/waxeye/version.rkt")
 
 (define *name* "waxeye")
@@ -41,11 +38,11 @@ mzscheme
 (target gem ()
         (^ mkdir -p lib)
         (^ mkdir -p tmp/gem/lib)
-        (^ cp src/ruby/waxeye.rb tmp/gem/lib/)
+        (^ cp src/ruby/lib/waxeye.rb tmp/gem/lib/)
         (^ cp LICENSE tmp/gem/)
-        (^ cp README tmp/gem/)
+        (^ cp README.md tmp/gem/)
         (cd tmp/gem
-            (^ gem build ../../src/ruby/gem.gemspec))
+            (^ gem build ../../src/ruby/waxeye.gemspec))
         ($ mv (++ "tmp/gem/" *gem-name*) 'lib/))
 
 
@@ -103,4 +100,3 @@ mzscheme
 
 
 (run-make)
-)

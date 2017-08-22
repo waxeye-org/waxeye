@@ -3,10 +3,7 @@
 ;; Copyright (C) 2008-2010 Orlando Hill
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
-(module
-calculator
-mzscheme
-
+#lang racket/base
 (require "parser.rkt")
 
 ;; A commandline arithmetic calculator.
@@ -60,5 +57,3 @@ mzscheme
       (newline)
       (begin (calc input)
              (loop (rl)))))
-
-)
