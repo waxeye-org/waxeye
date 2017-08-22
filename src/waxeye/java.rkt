@@ -7,10 +7,10 @@
 java
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         (only (lib "list.ss" "mzlib") filter)
-         "code.scm" "dfa.scm" "gen.scm" "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         (only (lib "list.rkt" "mzlib") filter)
+         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
 (provide gen-java)
 
 

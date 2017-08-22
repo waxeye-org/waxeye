@@ -6,5 +6,5 @@
 (module
  waxeye
  mzscheme
- (require "main.scm")
+ (require "main.rkt")
  (main (vector->list (current-command-line-arguments))))

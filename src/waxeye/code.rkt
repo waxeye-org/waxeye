@@ -7,7 +7,7 @@
 code
 mzscheme
 
-(require (only "util.scm" string-concat) "version.scm")
+(require (only "util.rkt" string-concat) "version.rkt")
 
 (provide (all-defined))
 

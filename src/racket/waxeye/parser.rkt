@@ -7,7 +7,7 @@
 parser
 mzscheme
 
-(require (lib "ast.ss" "waxeye") (lib "fa.ss" "waxeye") (lib "set.ss" "waxeye"))
+(require (lib "ast.rkt" "waxeye") (lib "fa.rkt" "waxeye") (lib "set.rkt" "waxeye"))
 (provide make-parser)
 
 

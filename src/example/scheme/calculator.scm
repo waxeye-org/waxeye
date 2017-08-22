@@ -7,7 +7,7 @@
 calculator
 mzscheme
 
-(require "parser.scm")
+(require "parser.rkt")
 
 ;; A commandline arithmetic calculator.
 

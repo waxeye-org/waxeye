@@ -7,7 +7,7 @@
 example
 mzscheme
 
-(require "parser.scm")
+(require "parser.rkt")
 
 ;; Parse our input
 (let ((ast (parser "42")))

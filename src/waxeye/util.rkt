@@ -7,7 +7,7 @@
 util
 mzscheme
 
-(require (only (lib "list.ss") foldr))
+(require (only (lib "list.rkt") foldr))
 (provide (all-defined))
 
 ;; Prints the value followed by a newline

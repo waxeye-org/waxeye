@@ -7,12 +7,12 @@
 interp
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "parser.ss" "waxeye")
-         "dfa.scm"
-         "gen.scm"
-         "scheme.scm"
-         "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "parser.rkt" "waxeye")
+         "dfa.rkt"
+         "gen.rkt"
+         "scheme.rkt"
+         "util.rkt")
 
 (provide dynamic-parser interpreter)
 

@@ -7,7 +7,7 @@
 tester
 scheme
 
-(require (lib "ast.ss" "waxeye") "gen.scm" "interp.scm" "scheme.scm")
+(require (lib "ast.rkt" "waxeye") "gen.rkt" "interp.rkt" "scheme.rkt")
 (provide tester)
 
 
