@@ -1,5 +1,5 @@
 set -euo pipefail
 
 run_waxeye() {
-  racket -S src/scheme ./src/waxeye/waxeye.scm "$@"
+  racket -S src/racket ./src/waxeye/waxeye.rkt "$@"
 }

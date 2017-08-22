@@ -7,9 +7,9 @@
 expand
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (only (lib "list.ss" "mzlib") sort memf)
-         "gen.scm")
+(require (lib "ast.rkt" "waxeye")
+         (only (lib "list.rkt" "mzlib") sort memf)
+         "gen.rkt")
 (provide (all-defined))
 
 (define (expand-grammar grammar)

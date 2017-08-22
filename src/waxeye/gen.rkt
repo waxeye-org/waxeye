@@ -7,8 +7,8 @@
 gen
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (only (lib "1.ss" "srfi") list-index))
+(require (lib "ast.rkt" "waxeye")
+         (only (lib "1.rkt" "srfi") list-index))
 (provide (all-defined))
 
 (define *eof-check* #t)

@@ -7,7 +7,7 @@
 make
 mzscheme
 
-(require (only (lib "list.ss") foldr sort) (lib "process.ss") (only "../src/waxeye/util.scm" display-ln))
+(require (only (lib "list.rkt") foldr sort) (lib "process.rkt") (only "../src/waxeye/util.rkt" display-ln))
 (provide ^ $ ++ cd cd$ run-cmd run-make target)
 
 (define *target-table* (make-hash-table))

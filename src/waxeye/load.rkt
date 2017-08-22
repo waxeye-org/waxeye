@@ -7,13 +7,13 @@
 load
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (only (lib "list.ss" "mzlib") filter)
-         "file.scm"
-         "gen.scm"
-         "grammar-parser.scm"
-         "interp.scm"
-         "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (only (lib "list.rkt" "mzlib") filter)
+         "file.rkt"
+         "gen.rkt"
+         "grammar-parser.rkt"
+         "interp.rkt"
+         "util.rkt")
 (provide load-grammar modular-grammar!)
 
 

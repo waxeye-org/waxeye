@@ -7,17 +7,17 @@
 scheme
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         "code.scm" "dfa.scm" "gen.scm" "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
 (provide gen-scheme gen-scheme-parser)
 
 
 (define (gen-scheme grammar path)
   (indent-unit! 1)
   (let ((file-path (string-append path (if *name-prefix*
-                                           (string-append *name-prefix* "-parser.scm")
-                                           "parser.scm"))))
+                                           (string-append *name-prefix* "-parser.rkt")
+                                           "parser.rkt"))))
     (dump-string (gen-scheme-parser grammar) file-path)
     (list file-path)))
 
@@ -84,8 +84,8 @@ mzscheme
 ~a
 mzscheme
 
-(require (lib "ast.ss" "waxeye") (lib "fa.ss" "waxeye") (lib "parser.ss" "waxeye"))
-(provide ~a (all-from (lib "ast.ss" "waxeye")))
+(require (lib "ast.rkt" "waxeye") (lib "fa.rkt" "waxeye") (lib "parser.rkt" "waxeye"))
+(provide ~a (all-from (lib "ast.rkt" "waxeye")))
 
 ~a
 )

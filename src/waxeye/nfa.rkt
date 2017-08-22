@@ -7,9 +7,9 @@
 nfa
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         "util.rkt")
 (provide make-nfa reset-nfa-builder unwinds)
 
 (define is-void #f)

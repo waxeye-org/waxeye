@@ -12,8 +12,8 @@
 grammar-parser
 mzscheme
 
-(require (lib "ast.ss" "waxeye") (lib "fa.ss" "waxeye") (lib "parser.ss" "waxeye"))
-(provide grammar-parser (all-from (lib "ast.ss" "waxeye")))
+(require (lib "ast.rkt" "waxeye") (lib "fa.rkt" "waxeye") (lib "parser.rkt" "waxeye"))
+(provide grammar-parser (all-from (lib "ast.rkt" "waxeye")))
 
 (define automata
   (vector

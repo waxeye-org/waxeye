@@ -7,7 +7,7 @@
 action
 mzscheme
 
-(require (lib "ast.ss" "waxeye") "gen.scm")
+(require (lib "ast.rkt" "waxeye") "gen.rkt")
 (provide (all-defined))
 
 (define *action-list* '())

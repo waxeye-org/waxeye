@@ -9,21 +9,21 @@ mzscheme
 
 (require waxeye/ast
          scheme/cmdline
-         "c.scm"
-         "debug.scm"
-         "file.scm"
-         "gen.scm"
-         "interp.scm"
-         "java.scm"
-         "javascript.scm"
-         "load.scm"
-         "python.scm"
-         "ruby.scm"
-         "scheme.scm"
-         "tester.scm"
-         "transform.scm"
-         "util.scm"
-         "version.scm")
+         "c.rkt"
+         "debug.rkt"
+         "file.rkt"
+         "gen.rkt"
+         "interp.rkt"
+         "java.rkt"
+         "javascript.rkt"
+         "load.rkt"
+         "python.rkt"
+         "ruby.rkt"
+         "scheme.rkt"
+         "tester.rkt"
+         "transform.rkt"
+         "util.rkt"
+         "version.rkt")
 (provide main)
 
 (define *grammar-path* #f)

@@ -7,11 +7,11 @@
 dfa
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         (lib "set.ss" "waxeye")
-         (only (lib "list.ss" "mzlib") filter memf)
-         "debug.scm" "gen.scm" "nfa.scm" "set.scm" "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         (lib "set.rkt" "waxeye")
+         (only (lib "list.rkt" "mzlib") filter memf)
+         "debug.rkt" "gen.rkt" "nfa.rkt" "set.rkt" "util.rkt")
 (provide make-automata)
 
 

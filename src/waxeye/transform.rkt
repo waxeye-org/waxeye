@@ -7,7 +7,7 @@
 transform
 mzscheme
 
-(require (lib "ast.ss" "waxeye") "action.scm" "expand.scm" "gen.scm" "util.scm")
+(require (lib "ast.rkt" "waxeye") "action.rkt" "expand.rkt" "gen.rkt" "util.rkt")
 (provide (all-defined))
 
 

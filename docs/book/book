@@ -912,7 +912,7 @@ Install the waxeye collection where Racket can find it.
 
 -------------------------------------------------------------------------------
 # Install the Waxeye collection; change to your install paths as needed
-sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/racket/lib/racket/collects/
+sudo ln -s /usr/local/waxeye/src/racket/waxeye /usr/local/racket/lib/racket/collects/
 -------------------------------------------------------------------------------
 
 ==== Generate Parser ====
@@ -923,14 +923,14 @@ waxeye -g scheme . num.waxeye
 
 ==== Use Parser ====
 
-.src/example/scheme/example.scm
+.src/example/scheme/example.rkt
 [source,scheme]
 -------------------------------------------------------------------------------
 (module
 example
 mzscheme
 
-(require "parser.scm")
+(require "parser.rkt")
 
 ;; Parse our input
 (let ((ast (parser "42")))
@@ -943,7 +943,7 @@ mzscheme
 ==== Run from Racket ====
 
 -------------------------------------------------------------------------------
-racket -t example.scm
+racket -t example.rkt
 -------------------------------------------------------------------------------
 
 
@@ -1628,14 +1628,14 @@ puts
 
 === Calculator in Scheme ===
 
-.src/example/scheme/calculator.scm
+.src/example/scheme/calculator.rkt
 [source,scheme]
 -------------------------------------------------------------------------------
 (module
 calculator
 mzscheme
 
-(require "parser.scm")
+(require "parser.rkt")
 
 ;; A commandline arithmetic calculator.
 
@@ -1714,7 +1714,7 @@ todo
 
 == Grammar Testing ==
 
-.test/grammars/waxeye.scm
+.test/grammars/waxeye.rkt
 [source,scheme]
 -------------------------------------------------------------------------------
 ;; These are tests for the 'Grammar' non-terminal
@@ -1810,7 +1810,7 @@ them. An expression is one of the following:
   expression. Not needed at the top-level.
 
 
-.grammars/modular/mod.scm
+.grammars/modular/mod.rkt
 [source,scheme]
 -------------------------------------------------------------------------------
 ;; A contrived example where we replace the definition of Number in Json with a
@@ -1907,7 +1907,7 @@ Runs the tests in the specified test file for the language defined by the
 grammar. Displays any test errors.
 
 -------------------------------------------------------------------------------
-waxeye -t tests.scm grammar.waxeye
+waxeye -t tests.rkt grammar.waxeye
 -------------------------------------------------------------------------------
 
 

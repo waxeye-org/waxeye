@@ -7,7 +7,7 @@
 build
 mzscheme
 
-(require "make.scm" "../src/waxeye/version.scm")
+(require "make.rkt" "../src/waxeye/version.rkt")
 
 (define *name* "waxeye")
 (define *doc-book* "/usr/local/docbook")

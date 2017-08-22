@@ -7,9 +7,9 @@
 javascript
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         "code.scm" "dfa.scm" "gen.scm" "util.scm")
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
 (provide gen-javascript)
 
 

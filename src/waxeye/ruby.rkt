@@ -4,20 +4,20 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 (module
-python
+ruby
 mzscheme
 
-(require (lib "ast.ss" "waxeye")
-         (lib "fa.ss" "waxeye")
-         "code.scm" "dfa.scm" "gen.scm" "util.scm")
-(provide gen-python)
+(require (lib "ast.rkt" "waxeye")
+         (lib "fa.rkt" "waxeye")
+         "code.rkt" "dfa.rkt" "gen.rkt" "util.rkt")
+(provide gen-ruby)
 
 
-(define (gen-python grammar path)
-  (indent-unit! 4)
+(define (gen-ruby grammar path)
+  (indent-unit! 2)
   (let ((file-path (string-append path (if *name-prefix*
-                                           (string-append (string-downcase *name-prefix*) "_parser.py")
-                                           "parser.py"))))
+                                           (string-append (string-downcase *name-prefix*) "_parser.rb")
+                                           "parser.rb"))))
     (dump-string (gen-parser grammar) file-path)
     (list file-path)))
 
@@ -35,11 +35,11 @@ mzscheme
   (define (gen-char-class-item a)
     (if (char? a)
         (gen-char a)
-        (format "(~a, ~a)"
+        (format "~a..~a"
                 (char->integer (car a))
                 (char->integer (cdr a)))))
   (cond
-   ((symbol? a) "-1") ;; use -1 for wild card
+   ((symbol? a) (format ":_~a" a))
    ((list? a)
     (format "[~a~a]"
             (gen-char-class-item (car a))
@@ -51,10 +51,10 @@ mzscheme
 
 
 (define (gen-edge a)
-  (format "Edge(~a, ~a, ~a)"
+  (format "Waxeye::Edge.new(~a, ~a, ~a)"
           (gen-trans (edge-t a))
           (edge-s a)
-          (camel-case-upper (bool->s (edge-v a)))))
+          (bool->s (edge-v a))))
 
 
 (define (gen-edges d)
@@ -62,35 +62,27 @@ mzscheme
 
 
 (define (gen-state a)
-  (format "State(~a, ~a)"
+  (format "Waxeye::State.new(~a, ~a)"
           (gen-edges (state-edges a))
-          (camel-case-upper (bool->s (state-match a)))))
+          (bool->s (state-match a))))
 
 
 (define (gen-states d)
   (gen-array gen-state d))
 
 
-(define (gen-mode a)
-  (let ((type (fa-type a)))
-    (cond
-     ((equal? type '&) "POS")
-     ((equal? type '!) "NEG")
-     (else
-      (case (fa-mode a)
-        ((voidArrow) "VOID")
-        ((pruneArrow) "PRUNE")
-        ((leftArrow) "LEFT"))))))
-
-
 (define (gen-fa a)
-  (format "FA(\"~a\", ~a, FA.~a)"
+  (format "Waxeye::FA.new(:~a, ~a, :~a)"
           (let ((type (camel-case-lower (symbol->string (fa-type a)))))
-            (if (or (equal? type "!") (equal? type "&"))
-                ""
-                type))
+            (cond
+             ((equal? type "!") "_not")
+             ((equal? type "&") "_and")
+             (else type)))
           (gen-states (fa-states a))
-          (gen-mode a)))
+          (case (fa-mode a)
+            ((voidArrow) "void")
+            ((pruneArrow) "prune")
+            ((leftArrow) "left"))))
 
 
 (define (gen-fas d)
@@ -107,37 +99,55 @@ mzscheme
                                                              (string-append ",\n" (ind) (fn a)))
                                                            (cdr ss)))))))))
 
+(define (gen-require)
+  (indent (format "
+begin
+  require 'waxeye'
+rescue LoadError
+  require 'rubygems'
+  require 'waxeye'
+end
+")))
+
 
 (define (gen-parser grammar)
   (let ((parser-name (if *name-prefix*
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-       (format "~aclass ~a (WaxeyeParser):\n~a\n"
+       (format "~aclass ~a < Waxeye::WaxeyeParser\n~a~aend\n"
                (ind)
                parser-name
                (indent (format
-"~astart = ~a
-~aeof_check = ~a
-~aautomata = ~a
+"~a@@start = ~a
+~a@@eof_check = ~a
+~a@@automata = ~a
 
-~adef __init__(self):
+~adef initialize()
 ~a
+~aend
 "
 (ind)
 *start-index*
 (ind)
-(camel-case-upper (bool->s *eof-check*))
+(bool->s *eof-check*)
 (ind)
 (gen-fas (make-automata grammar))
 (ind)
-(indent (format "~aWaxeyeParser.__init__(self, ~a.start, ~a.eof_check, ~a.automata)"
-                (ind) parser-name parser-name parser-name))))))
+(indent (format "~asuper(@@start, @@eof_check, @@automata)" (ind)))
+(ind)))
+               (ind)
+               ))
 
-(format "~a\nfrom waxeye import Edge, State, FA, WaxeyeParser\n\n~a"
-        (if *file-header*
-            (script-comment *file-header*)
-            (script-comment *default-header*))
-        (gen-parser-class))))
+    (format "~a~a\n~a"
+            (if *file-header*
+                (script-comment *file-header*)
+                (script-comment *default-header*))
+            (gen-require)
+            (if *module-name*
+                (format "module ~a\n~aend\n"
+                        *module-name*
+                        (indent (gen-parser-class)))
+                (gen-parser-class)))))
 
 )

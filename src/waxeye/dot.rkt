@@ -7,7 +7,7 @@
 dot
 mzscheme
 
-(require "util.scm")
+(require "util.rkt")
 
 
 (define (display-dot name state)

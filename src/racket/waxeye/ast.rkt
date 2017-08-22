@@ -7,7 +7,7 @@
 ast
 scheme
 
-(require (only-in (lib "9.ss" "srfi") define-record-type))
+(require (only-in (lib "9.rkt" "srfi") define-record-type))
 (require (only-in scheme/list remove-duplicates))
 (provide (all-defined-out))
 
