@@ -4,7 +4,8 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require (only-in racket/list remove-duplicates))
+(require (only-in racket/list remove-duplicates)
+         (only-in racket/string string-join))
 (provide (all-defined-out))
 
 
@@ -74,13 +75,13 @@
 
 
 (define (parse-error->string error)
-  (define (comma-seperate l)
-    (apply string-append (map symbol->string l) ", "))
+  (define (comma-separate l)
+    (string-join (map symbol->string l) ", "))
   (define (expected nts)
     (let ((len (length nts)))
       (if (= len 0)
           "<end of input>"
-          (string-append "[" (comma-seperate nts) "]"))))
+          (string-append "[" (comma-separate nts) "]"))))
   (string-append
    (number->string (parse-error-line error))
    ":"

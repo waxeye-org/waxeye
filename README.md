@@ -14,7 +14,7 @@ Features
   - Javascript
   - Python
   - Ruby
-  - Scheme
+  - Racket
 
 * Scanner-less Parsing
 
