@@ -111,7 +111,7 @@
               (hash-set! state-table state-set state-count)
               (set! state-num state-count)
               (set! state-count (+ state-count 1))
-              (let ((new-state (state #f
+              (let ((new-state (state '()
                                       ;; Is our state-set an end state?
                                       (not (not (memf (lambda (a)
                                                         (state-match (vector-ref nfa a)))

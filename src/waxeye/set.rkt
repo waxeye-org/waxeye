@@ -6,6 +6,8 @@
 #lang racket/base
 (provide subset?)
 
+; TODO: Looks like this function is never called? Investigate.
+
 ;; Is 'b' a subset of 'a'?
 (define (subset? a b)
   (if (null? b)

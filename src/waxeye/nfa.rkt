@@ -99,7 +99,7 @@
 
 
 (define (build-closure exp end)
-  (let* ((s (state #f #f))
+  (let* ((s (state '() #f))
          (e (build-states (car (ast-c exp)) s)))
     (set-state-edges! s (append (state-edges e) (list (edge 'e end is-void))))
     s))
