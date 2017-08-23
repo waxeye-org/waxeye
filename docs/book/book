@@ -912,38 +912,33 @@ Install the waxeye collection where Racket can find it.
 
 -------------------------------------------------------------------------------
 # Install the Waxeye collection; change to your install paths as needed
-sudo ln -s /usr/local/waxeye/src/scheme/waxeye /usr/local/racket/lib/racket/collects/
+sudo ln -s /usr/local/waxeye/src/racket/waxeye /usr/local/racket/lib/racket/collects/
 -------------------------------------------------------------------------------
 
 ==== Generate Parser ====
 
 -------------------------------------------------------------------------------
-waxeye -g scheme . num.waxeye
+waxeye -g racket . num.waxeye
 -------------------------------------------------------------------------------
 
 ==== Use Parser ====
 
-.src/example/scheme/example.scm
-[source,scheme]
+.src/example/racket/example.rkt
+[source,racket]
 -------------------------------------------------------------------------------
-(module
-example
-mzscheme
-
-(require "parser.scm")
+#lang racket/base
+(require "parser.rkt")
 
 ;; Parse our input
 (let ((ast (parser "42")))
   ;; Print our AST
   (display-ast ast))
-
-)
 -------------------------------------------------------------------------------
 
 ==== Run from Racket ====
 
 -------------------------------------------------------------------------------
-racket -t example.scm
+racket -t example.rkt
 -------------------------------------------------------------------------------
 
 
@@ -1022,7 +1017,7 @@ puts ast.children.join('')
 
 ===== From Scheme =====
 
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 (display (list->string (ast-c ast)))
 (newline)
@@ -1121,7 +1116,7 @@ end
 
 ==== From Scheme ====
 
-[source,scheme]
+[source,racket]
 -------------------------------------------------------------------------------
 (cond
   ((ast? result) "tree ast")
@@ -1628,14 +1623,11 @@ puts
 
 === Calculator in Scheme ===
 
-.src/example/scheme/calculator.scm
-[source,scheme]
+.src/example/racket/calculator.rkt
+[source,racket]
 -------------------------------------------------------------------------------
-(module
-calculator
-mzscheme
-
-(require "parser.scm")
+#lang racket/base
+(require "parser.rkt")
 
 ;; A commandline arithmetic calculator.
 
@@ -1688,8 +1680,6 @@ mzscheme
       (newline)
       (begin (calc input)
              (loop (rl)))))
-
-)
 -------------------------------------------------------------------------------
 
 
@@ -1714,8 +1704,8 @@ todo
 
 == Grammar Testing ==
 
-.test/grammars/waxeye.scm
-[source,scheme]
+.test/grammars/waxeye.rkt
+[source,racket]
 -------------------------------------------------------------------------------
 ;; These are tests for the 'Grammar' non-terminal
 (Grammar ; <- This is the non-terminal's name
@@ -1810,8 +1800,8 @@ them. An expression is one of the following:
   expression. Not needed at the top-level.
 
 
-.grammars/modular/mod.scm
-[source,scheme]
+.grammars/modular/mod.rkt
+[source,racket]
 -------------------------------------------------------------------------------
 ;; A contrived example where we replace the definition of Number in Json with a
 ;; much simpler one that only supports integers.
@@ -1876,10 +1866,10 @@ Currently supported programming languages:
 * javascript
 * python
 * ruby
-* scheme
+* racket
 
 -------------------------------------------------------------------------------
-waxeye -g scheme . grammar.waxeye
+waxeye -g racket . grammar.waxeye
 -------------------------------------------------------------------------------
 
 
@@ -1907,7 +1897,7 @@ Runs the tests in the specified test file for the language defined by the
 grammar. Displays any test errors.
 
 -------------------------------------------------------------------------------
-waxeye -t tests.scm grammar.waxeye
+waxeye -t tests.rkt grammar.waxeye
 -------------------------------------------------------------------------------
 
 

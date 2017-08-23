@@ -1,0 +1,17 @@
+#!/bin/bash
+source "${BASH_SOURCE%/*}/env.sh"
+
+declare -a langs
+if [ "$#" -gt 0 ]; then
+  langs="$@";
+else
+  langs=(c java javascript python racket ruby);
+fi
+
+for language in "${langs[@]}"; do
+  mkdir -p "tmp/generated-parsers/$language"
+  for grammar in grammars/json grammars/templ grammars/waxeye test/fixtures/env1; do
+    run_waxeye -g "$language" "tmp/generated-parsers/$language" \
+      -p "$(basename "$grammar")" "${grammar}.waxeye"
+  done
+done

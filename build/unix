@@ -1,6 +1,6 @@
 #!/bin/bash
 source "${BASH_SOURCE[0]%/*}/env.sh"
 
-PLTCOLLECTS=":${ROOT}/src/scheme/" raco exe -o waxeye src/waxeye/waxeye.scm
+PLTCOLLECTS=":${ROOT}/src/racket/" raco exe -o waxeye src/waxeye/waxeye.rkt
 raco distribute . waxeye
 rm waxeye
