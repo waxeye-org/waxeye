@@ -1,6 +1,14 @@
 #!/bin/bash
 source "${BASH_SOURCE%/*}/env.sh"
 
-run_waxeye -t test/grammars/json.rkt grammars/json.waxeye > /dev/null
-run_waxeye -t test/grammars/templ.rkt grammars/templ.waxeye > /dev/null
-run_waxeye -t test/grammars/waxeye.rkt grammars/waxeye.waxeye > /dev/null
+
+declare -a tests
+if [ "$#" -gt 0 ]; then
+  tests="$@";
+else
+  tests=(json templ waxeye);
+fi
+
+for test in "${tests[@]}"; do
+  run_waxeye -t "test/grammars/${test}.rkt" "grammars/${test}.waxeye" > /dev/null
+done
