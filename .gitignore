@@ -1,5 +1,6 @@
 docs/javadoc/
 lib/
+src/c/libwaxeye.a
 src/c/tests-build/
 tmp/
 bin/waxeye
