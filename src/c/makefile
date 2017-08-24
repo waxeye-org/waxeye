@@ -6,8 +6,8 @@
 
 CLANG=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
 
-# The "-std=c99" argument is only needed to support gcc < v5.
-GCC=gcc -std=c99
+# The "-std=c11" argument is only needed to support gcc < v5.
+GCC=gcc -std=c11
 
 BASE_FLAGS=-Wall -Wextra -Wshadow -pedantic -I include
 FLAGS=$(BASE_FLAGS) -O3
@@ -108,8 +108,8 @@ debug-lib: clean-all
 	cp $(LIB_NAME) $(LIB_DIR)
 
 
-run: clean-all lib
-	$(GCC) $(FLAGS) parser.c run.c $(LIB) -o run
+display_ast: clean-all lib
+	$(GCC) $(FLAGS) $(PARSER_C) tests/display_ast.c $(LIB) -o $(DISPLAY_AST_OUT)
 
 
 debug: clean-all debug-lib

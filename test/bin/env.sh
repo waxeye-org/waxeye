@@ -3,6 +3,12 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"/../..
 
 source "${BASH_SOURCE%/*}/lib-waxeye.sh"
 
+# Path manipulation
+
+abspath() {
+  echo "$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+}
+
 # Logging
 
 RED='\033[0;31m'

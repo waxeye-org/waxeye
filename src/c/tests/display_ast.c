@@ -5,6 +5,13 @@
  * Licensed under the MIT license. See 'LICENSE' for details.
  */
 
+// Reads and parses the input from stdin and prints the AST.
+// This is used to run e2e tests on the AST.
+// This file is copied to the build directory and compiled together with a parser at test time.
+
+#define _XOPEN_SOURCE 500  // for pclose
+
+#include <stdio.h>
 #include "parser.h"
 
 int main() {
