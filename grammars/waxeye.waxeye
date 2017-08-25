@@ -52,7 +52,7 @@ Range       <- (Char | Hex) ?(:'-' (Char | Hex))
 Char        <- '\\' [nrt\-\]\\] | !'\\' !']' !EndOfLine .
 
 
-Hex         <- :'\\<' [0-9A-Fa-f] [0-9A-Fa-f] :'>'
+Hex         <- :'\\u{' [0-9A-Fa-f] ?[0-9A-Fa-f] ?[0-9A-Fa-f] ?[0-9A-Fa-f] ?[0-9A-Fa-f] ?[0-9A-Fa-f] :'}'
 
 
 WildCard    <- :'.' Ws
