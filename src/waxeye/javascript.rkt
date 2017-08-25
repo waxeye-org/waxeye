@@ -4,10 +4,12 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require         waxeye/ast
+(require (only-in racket/list add-between)
+         waxeye/ast
          waxeye/fa
          "code.rkt" "dfa.rkt" "gen.rkt")
-(provide gen-javascript)
+(provide gen-javascript
+         (rename-out [gen-parser gen-javascript-parser]))
 
 
 (define (javascript-comment lines)
@@ -115,10 +117,9 @@
     (format "[~a]"
             (indent (if (null? data)
                         ""
-                        (string-append (fn (car data))
-                                       (apply string-append (map (lambda (a)
-                                                             (string-append ",\n" (ind) (fn a)))
-                                                           (cdr data))))))))
+                        ; Simulate string-join with string-append . add-between,
+                        ; because racketscript cannot handle racket/string.
+                        (apply string-append (add-between (map fn data) ", "))))))
 
 
 (define (gen-parser grammar)

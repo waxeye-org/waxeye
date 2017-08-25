@@ -4,8 +4,7 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require waxeye/ast
-         (only-in srfi/1 list-index))
+(require waxeye/ast)
 (provide (all-defined-out))
 
 (define *eof-check* #t)
@@ -42,15 +41,21 @@
 
 
 (define (start-nt! name grammar)
+  ; This method exists in racket/list since Racket v6.7,
+  ; but we're compatible with the Racket version in the latest Ubuntu LTS (v6.4 as of this comment).
+  (define (index-of ls v)
+    (let loop ([ls ls]
+               [i 0])
+      (cond [(null? ls) #f]
+            [(equal? (car ls) v) i]
+            [else (loop (cdr ls) (add1 i))])))
   (set! *start-name* name)
-  (if (equal? *start-name* "")
+  (if (equal? name "")
       (start-name! (get-non-term (car (get-defs grammar))))
-      (let ((si (list-index (lambda (a)
-                              (equal? a *start-name*))
-                            (map get-non-term (get-defs grammar)))))
+      (let ([si (index-of (map get-non-term (get-defs grammar)) name)])
         (if si
             (start-index! si)
-            (error 'waxeye "Can't find definition of starting non-terminal: ~a" *start-name*)))))
+            (error 'waxeye (format "Can't find definition of starting non-terminal: ~a" *start-name*))))))
 
 
 (define (push-exp-level level)

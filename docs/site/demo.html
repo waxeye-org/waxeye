@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Waxeye Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script src="genfiles/traceur-runtime.js" charset="UTF-8"></script>
+    <script src="genfiles/racketscript-waxeye-compiler.js" charset="UTF-8"></script>
+    <script src="genfiles/waxeye.js" charset="UTF-8"></script>
+    <script src="demo.js" charset="UTF-8"></script>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="demo.css">
+  </head>
+  <body>
+    <div class="demo-wrapper">
+      <h1>
+        <a href="index.html">Waxeye</a> Demo
+      </h1>
+      <div class="demo-summary">
+        <p>
+          This demo runs the Waxeye compiler via <a href="https://github.com/vishesh/racketscript/">RacketScript</a>,
+          an experimental Racket-to-JavaScript compiler.<br>
+          This demo does not yet fully support Unicode.
+        </p>
+        <p>
+          The Racket version of the Waxeye compiler does support Unicode,
+          even when compiling to a JavaScript parser.
+        </p>
+      </div>
+      <div class="demo-app-wrapper">
+        <div class="demo-grammar">
+          <h2>Grammar</h2>
+          <label class="demo-canned-select">
+            Example:
+            <select name="demo-canned-select">
+              <option value="calc">calc.waxeye</option>
+              <option value="json">json.waxeye</option>
+              <option value="waxeye">waxeye.waxeye</option>
+            </select>
+          </label>
+          <textarea class="demo-grammar-source"
+                    name="demo-grammar-source"
+                    placeholder="Grammar..."></textarea>
+          <h3>Grammar information</h3>
+          <div class="demo-grammar-compilation-status-selector">
+            <label>
+              <input type="radio" name="compilation-status-tab" value="ast" checked> Parser AST
+            </label>
+            <label>
+              <input type="radio" name="compilation-status-tab" value="t-ast"> Transformed Parser AST
+            </label>
+            <label>
+              <input type="radio" name="compilation-status-tab" value="js"> Parser JavaScript
+            </label>
+          </div>
+          <div class="demo-grammar-compilation-status"></div>
+        </div>
+        <div class="demo-parser">
+          <h2>Parser input</h2>
+          <textarea class="demo-parser-input"
+                    name="demo-parser-input"
+                    placeholder="Parser input..."></textarea>
+          <div class="demo-parser-output"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

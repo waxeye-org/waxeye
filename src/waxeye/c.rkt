@@ -5,8 +5,7 @@
 
 #lang racket/base
 
-(require (only-in racket/format ~r)
-         waxeye/ast
+(require waxeye/ast
          waxeye/fa
          "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-c)
@@ -301,7 +300,7 @@ struct parser_t* ~a_new() {
            ; Printable ASCII characters are in range from 32 to 126.
            ; Non-printable characters would be shown as \xNN.
            ((or (< (char->integer t) 32) (>= (char->integer t) 127))
-           (format "\\x~a" (~r (char->integer t) #:base '(up 16))))
+           (format "\\x~x" (char->integer t)))
            (else t))))
 
 

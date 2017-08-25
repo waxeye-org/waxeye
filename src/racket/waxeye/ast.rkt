@@ -4,8 +4,7 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require (only-in racket/list remove-duplicates)
-         (only-in racket/string string-join))
+(require (only-in racket/list remove-duplicates add-between))
 (provide (all-defined-out))
 
 
@@ -14,7 +13,7 @@
 ;; t = The type of the ast as a symbol
 ;; c = The list of the ast's children as nested asts or characters
 ;; p = The position of the ast in the original string as a pair of start and end indexes
-(struct ast (t c p) #:mutable)
+(struct ast (t c pos) #:mutable)
 
 
 (struct parse-error (pos line col expected received snippet))
@@ -76,7 +75,9 @@
 
 (define (parse-error->string error)
   (define (comma-separate l)
-    (string-join (map symbol->string l) ", "))
+    ; Simulate string-join with string-append . add-between,
+    ; because racketscript cannot handle racket/string.
+    (apply string-append (add-between (map symbol->string l) ", ")))
   (define (expected nts)
     (let ((len (length nts)))
       (if (= len 0)

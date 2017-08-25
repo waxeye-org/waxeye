@@ -7,17 +7,13 @@
 (require waxeye/ast "action.rkt" "expand.rkt" "gen.rkt")
 (provide (all-defined-out))
 
-
-;; The hash table for the names of the non-terminals
-(define nt-names (make-hash))
-
-
 ;; Transforms the grammar and performs sanity checks
 (define (transform-grammar g)
+  (define nt-names (make-hash))
   (and (check-not-empty g)
        (collect-actions g)
-       (collect-nt-names g)
-       (check-refs g)
+       (collect-nt-names g nt-names)
+       (check-refs g nt-names)
        (expand-grammar g)))
 
 
@@ -26,7 +22,7 @@
         (error 'check-not-empty "grammar is empty")))
 
 
-(define (collect-nt-names g)
+(define (collect-nt-names g nt-names)
   (let ((ok #t))
     (for-each (lambda (a)
                 (let* ((name (get-non-term a)) (found (hash-ref nt-names name #f)))
@@ -40,7 +36,7 @@
 
 
 ;; Checks that referenced non-terminals have been defined
-(define (check-refs grammar)
+(define (check-refs grammar nt-names)
   (define (visit-nt exp)
     (let ((name (list->string (ast-c exp))))
       (unless (hash-ref nt-names name #f)
