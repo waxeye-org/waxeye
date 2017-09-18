@@ -1,0 +1,4 @@
+-cp src
+-main org.waxeye.Main
+-neko neko/Main.n
+-cmd neko neko/Main

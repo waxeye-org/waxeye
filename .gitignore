@@ -1,3 +1,5 @@
+.vscode
+lib
 docs/javadoc/
 lib/
 src/c/libwaxeye.a

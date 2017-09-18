@@ -12,6 +12,7 @@
          "gen.rkt"
          "interp.rkt"
          "java.rkt"
+         "haxe.rkt"
          "javascript.rkt"
          "load.rkt"
          "python.rkt"
@@ -74,6 +75,7 @@
     (set! *target-lang* (case (string->symbol language)
                           ((c) gen-c)
                           ((java) gen-java)
+                          ((haxe) gen-haxe)
                           ((python) gen-python)
                           ((ruby) gen-ruby)
                           ((racket) gen-racket)

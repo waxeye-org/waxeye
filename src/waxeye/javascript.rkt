@@ -4,7 +4,7 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require         waxeye/ast
+(require waxeye/ast
          waxeye/fa
          "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-javascript)
