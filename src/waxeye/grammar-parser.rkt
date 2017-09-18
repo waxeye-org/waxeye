@@ -187,13 +187,28 @@
     (state (list
      (edge #\\ 1 #t)) #f)
     (state (list
-     (edge #\< 2 #t)) #f)
+     (edge #\u 2 #t)) #f)
     (state (list
-     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 3 #f)) #f)
+     (edge #\{ 3 #t)) #f)
     (state (list
      (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 4 #f)) #f)
     (state (list
-     (edge #\> 5 #t)) #f)
+     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 5 #f)
+     (edge #\} 10 #t)) #f)
+    (state (list
+     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 6 #f)
+     (edge #\} 10 #t)) #f)
+    (state (list
+     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 7 #f)
+     (edge #\} 10 #t)) #f)
+    (state (list
+     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 8 #f)
+     (edge #\} 10 #t)) #f)
+    (state (list
+     (edge (list (cons #\0 #\9) (cons #\A #\F) (cons #\a #\f)) 9 #f)
+     (edge #\} 10 #t)) #f)
+    (state (list
+     (edge #\} 10 #t)) #f)
     (state (list) #t)) 'leftArrow)
    (fa 'wildCard (vector
     (state (list

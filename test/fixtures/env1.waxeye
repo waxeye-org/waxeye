@@ -27,3 +27,6 @@ lc <: * ( 'a' | '\t' | '\n' | '\r' )
 Unicode <- [ﬆ-𝌆αβγ😃]
 Wildcard <- .
 UnicodeString <- 'αβ😃γ'
+
+# 🎁
+HexEscape <- [\u{1F381}]

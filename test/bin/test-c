@@ -1,6 +1,22 @@
 #!/bin/bash
 source "${BASH_SOURCE%/*}/env.sh"
+source "${BASH_SOURCE%/*}/lib-c.sh"
 
-cd src/c
-make -s lib
-make -s test
+rm -rf tmp/c
+make -s --directory=src/c lib
+make -s --directory=src/c test
+
+test_output_contains() {
+  local -r parser_name="$1"
+  local -r input="$2"
+  local -r expected="$3"
+  local -r output="$(display_c_ast "$parser_name" <<< "$input")"
+  if ! grep "$expected" <<< "$output" > /dev/null; then
+    printf "Error:\n    input: ${input}\n expected: ${expected}\n   output: ${output}\n"
+    return 1
+  fi
+}
+
+build_c_parser grammars/calc.waxeye calc
+test_output_contains calc '1 + 2' 'calc'
+test_output_contains calc 'x' 'parse error'
