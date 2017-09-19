@@ -1,0 +1,27 @@
+#!/bin/bash
+source "${BASH_SOURCE[0]%/*}/env.sh"
+
+push_gh_pages() {
+  local -r remote="$(git config remote.origin.url)"
+  local -r described_rev="$(git rev-parse HEAD | git name-rev --stdin)"
+  local -r pages_dir="docs/site"
+
+  cd "$pages_dir"
+  cdup="$(git rev-parse --show-cdup)"
+  if [ "$cdup" != '' ]; then
+      git init
+      git remote add --fetch origin "$remote"
+  fi
+
+  if git rev-parse --verify origin/gh-pages > /dev/null 2>&1; then
+      git checkout gh-pages
+  else
+      git checkout --orphan gh-pages
+  fi
+
+  git add .
+  git commit -m "gh-pages built at $described_rev" -e
+  git push origin gh-pages
+}
+
+push_gh_pages

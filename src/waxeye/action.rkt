@@ -7,11 +7,11 @@
 (require waxeye/ast "gen.rkt")
 (provide (all-defined-out))
 
-(define *action-list* '())
-
 (define (collect-actions grammar)
+  (define action-list '())
+
   (define (visit-action exp)
-    (set! *action-list* (cons exp *action-list*)))
+    (set! action-list (cons exp action-list)))
 
   (define (visit-alternation exp)
     (for-each visit-sequence (ast-c exp)))
@@ -35,4 +35,4 @@
     (visit-alternation (caddr (ast-c def))))
 
   (for-each get-def-actions (get-defs grammar))
-  (set! *action-list* (reverse *action-list*)))
+  (set! action-list (reverse action-list)))

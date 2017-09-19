@@ -5,3 +5,5 @@ src/c/tests-build/
 tmp/
 bin/waxeye
 dist/
+
+docs/site/genfiles/

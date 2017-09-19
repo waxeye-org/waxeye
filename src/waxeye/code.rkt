@@ -4,7 +4,8 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require         "version.rkt")
+(require (only-in racket/list make-list)
+         "version.rkt")
 (provide (all-defined-out))
 
 (define *default-header*
@@ -20,18 +21,9 @@
 (define (dump-string s path)
   (call-with-output-file path (lambda (p) (display s p)) #:exists 'replace))
 
-
 ;; Constructs the indentation string
 (define (ind)
-  (let ((il '()))
-    (let loop ((i 0))
-      (when (< i *indent-level*)
-            (let loop ((j 0))
-              (when (< j *indent-unit*)
-                    (set! il (cons #\space il))
-                    (loop (+ j 1))))
-            (loop (+ i 1))))
-    (list->string il)))
+  (apply string-append (make-list *indent-level* (make-string *indent-unit* #\space))))
 
 
 (define (indent+ n)

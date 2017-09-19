@@ -81,7 +81,7 @@
       (visit-multi-child visit-exp exp))
 
     (define (visit-multi-child visitor exp)
-      (ast (ast-t exp) (map visitor (ast-c exp)) (ast-p exp)))
+      (ast (ast-t exp) (map visitor (ast-c exp)) (ast-pos exp)))
 
     (define (visit-unit exp)
       (define (visit-unit-children cs)
@@ -91,13 +91,13 @@
               (cons c (visit-unit-children rest)))))
       (ast (ast-t exp)
                 (visit-unit-children (ast-c exp))
-                (ast-p exp)))
+                (ast-pos exp)))
 
     (define (visit-ident exp)
       (let* ((name (string->symbol (list->string (ast-c exp))))
              (new-name (hash-ref t name #f)))
         (if new-name
-            (ast (ast-t exp) (string->list (symbol->string new-name)) (ast-p exp))
+            (ast (ast-t exp) (string->list (symbol->string new-name)) (ast-pos exp))
             exp)))
 
     (define (visit-exp exp)
@@ -127,7 +127,7 @@
                       (cons 0 0))
            ,(cadr (ast-c nt))
            ,(visit-alternation (caddr (ast-c nt))))
-         (ast-p nt))))
+         (ast-pos nt))))
     (for-each (lambda (a)
                 (hash-set! t (car a) (cdr a)))
               names)

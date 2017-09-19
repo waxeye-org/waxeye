@@ -16,7 +16,7 @@
             (let ((only (car chil))); Lift that to become our new expression
               (set-ast-t! exp (ast-t only))
               (set-ast-c! exp (ast-c only))
-              (set-ast-p! exp (ast-p only))))))
+              (set-ast-pos! exp (ast-pos only))))))
 
   (define (visit-alternation exp)
     (lift-only-sub-exp visit-sequence exp))
