@@ -4,7 +4,8 @@
 ;; Licensed under the MIT license. See 'LICENSE' for details.
 
 #lang racket/base
-(require "version.rkt")
+(require (only-in racket/list make-list)
+         "version.rkt")
 (provide (all-defined-out))
 
 (define *default-header*
@@ -22,7 +23,7 @@
 
 ;; Constructs the indentation string
 (define (ind)
-  (make-string *indent-level* #\space))
+  (apply string-append (make-list *indent-level* (make-string *indent-unit* #\space))))
 
 
 (define (indent+ n)
