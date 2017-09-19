@@ -35,6 +35,9 @@
   const compile = () => {
     const grammar = ui.grammarSource.value;
     const [jsParserSource, jsParserErr] = safeWaxeyeCompiler('generateParser', grammar);
+    ui.grammarCompilationError.innerText = jsParserErr || '';
+
+    // Compilation details
     const [out, err] = (() => {
       switch (ui.compilationStatusRadios.find(r => r.checked).value) {
         case 'ast':
@@ -45,7 +48,8 @@
           return [jsParserSource, jsParserErr];
       }
     })();
-    ui.grammarCompilationStatus.innerText = out || err;
+    ui.grammarCompilationStatusOutput.innerText = out || err;
+
     setCurrentParser(jsParserSource);
   };
 
@@ -60,7 +64,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     ui.cannedSelect = document.querySelector('[name="demo-canned-select"]');
     ui.grammarSource = document.querySelector('[name="demo-grammar-source"]');
-    ui.grammarCompilationStatus = document.querySelector('.demo-grammar-compilation-status');
+    ui.grammarCompilationError = document.querySelector('.demo-grammar-compilation-error-message');
+    ui.grammarCompilationStatusOutput = document.querySelector('.demo-grammar-compilation-status-output');
     ui.compilationStatusRadios = Array.from(document.querySelectorAll('[name="compilation-status-tab"]'));
     ui.parserInput = document.querySelector('[name="demo-parser-input"]');
     ui.parserOutput = document.querySelector('.demo-parser-output');
@@ -73,10 +78,28 @@
       });
     }
     ui.cannedSelect.addEventListener('change', updateCannedExample);
-    ui.grammarSource.addEventListener('input', compile);
+    ui.grammarSource.addEventListener('input', throttle(compile, 360));
     ui.parserInput.addEventListener('input', parse);
     updateCannedExample();
   });
+
+  const throttle = (f, maxEveryMs) => {
+    let last = 0;
+    let deferred;
+    return (...args) => {
+      const now = +new Date();
+      if (now >= last + maxEveryMs) {
+        last = now;
+        f(...args);
+      } else {
+        clearTimeout(deferred);
+        deferred = setTimeout(() => {
+          last = now;
+          f(...args);
+        }, maxEveryMs - (now - last));
+      }
+    };
+  }
 
   const CANNED_EXAMPLES = {
     calc: [
@@ -151,7 +174,7 @@ Com     <: ',' Ws
 
 
 Col     <: ':' Ws
-`, '["a", {"b": "c"}]'],
+`, '["a", {"cake": "🎂"}]'],
     waxeye: [`# The Waxeye grammar language.
 
 Grammar     <- Ws *Definition

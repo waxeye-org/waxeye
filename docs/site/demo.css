@@ -14,6 +14,10 @@
     max-width: 50em;
 }
 
+.demo-summary > p {
+    margin-top: 0;
+}
+
 .demo-app-wrapper {
     display: flex;
     flex-direction: row;
@@ -28,12 +32,23 @@
     flex-direction: column;
     flex-basis: 29rem;
     flex-grow: 1;
-    margin: 1.5rem 1rem;
+    padding: 0 0.75rem;
+    max-width: 100%;
 }
 
 .demo-grammar > *,
 .demo-parser > * {
-    margin: 0.75rem 0;
+    margin: 0.5rem 0;
+}
+
+.demo-grammar > h2,
+.demo-parser > h2 {
+    margin-bottom: 0;
+}
+
+.demo-parser > h3 {
+    margin-top: 0.375rem;
+    margin-bottom: 0.1875rem;
 }
 
 .demo-canned-select {
@@ -49,7 +64,20 @@
     min-height: 30em;
 }
 
-.demo-grammar-compilation-status-selector label {
+.demo-grammar-compilation-error-message {
+    color: var(--text-error-color);
+    word-break: break-word;
+}
+
+.demo-grammar-compilation-error-message:empty {
+    display: none;
+}
+
+.demo-grammar-compilation-status summary {
+    cursor: pointer;
+}
+
+.demo-grammar-compilation-status label {
     display: inline-block;
 }
 
@@ -64,18 +92,25 @@
 .demo-grammar-source,
 .demo-parser-input,
 .demo-parser-output,
-.demo-grammar-compilation-status {
-    font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+.demo-grammar-compilation-status-output,
+.demo-grammar-compilation-error-message {
+    font-family: var(--font-mono);
     font-size: 14px;
+}
+
+.demo-grammar-source,
+.demo-parser-input {
     padding: 0.75rem;
 }
 
-.demo-grammar-compilation-status {
-    max-height: 300px;
-    overflow-y: scroll;
+.demo-parser-output,
+.demo-grammar-compilation-status-output,
+.demo-grammar-compilation-error-message {
+    white-space: pre-wrap;
 }
 
-.demo-grammar-compilation-status,
-.demo-parser-output {
-    white-space: pre-wrap;
+.demo-grammar-compilation-status-output {
+    display: block;
+    overflow: auto;
+    padding: 0.75rem;
 }

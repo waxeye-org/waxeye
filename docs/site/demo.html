@@ -18,13 +18,8 @@
       </h1>
       <div class="demo-summary">
         <p>
-          This demo runs the Waxeye compiler via <a href="https://github.com/vishesh/racketscript/">RacketScript</a>,
+          This demo uses the Waxeye compiler via <a href="https://github.com/vishesh/racketscript/">RacketScript</a>,
           an experimental Racket-to-JavaScript compiler.<br>
-          This demo does not yet fully support Unicode.
-        </p>
-        <p>
-          The Racket version of the Waxeye compiler does support Unicode,
-          even when compiling to a JavaScript parser.
         </p>
       </div>
       <div class="demo-app-wrapper">
@@ -41,8 +36,9 @@
           <textarea class="demo-grammar-source"
                     name="demo-grammar-source"
                     placeholder="Grammar..."></textarea>
-          <h3>Grammar information</h3>
-          <div class="demo-grammar-compilation-status-selector">
+          <output class="demo-grammar-compilation-error-message"></output>
+          <details class="demo-grammar-compilation-status">
+            <summary>Compilation details</summary>
             <label>
               <input type="radio" name="compilation-status-tab" value="ast" checked> Parser AST
             </label>
@@ -52,15 +48,17 @@
             <label>
               <input type="radio" name="compilation-status-tab" value="js"> Parser JavaScript
             </label>
-          </div>
-          <div class="demo-grammar-compilation-status"></div>
+            <output class="demo-grammar-compilation-status-output"></output>
+          </details>
         </div>
         <div class="demo-parser">
-          <h2>Parser input</h2>
+          <h2>Parser</h2>
+          <h3>Input</h3>
           <textarea class="demo-parser-input"
                     name="demo-parser-input"
                     placeholder="Parser input..."></textarea>
-          <div class="demo-parser-output"></div>
+          <h3>Output</h3>
+          <output class="demo-parser-output"></output>
         </div>
       </div>
     </div>

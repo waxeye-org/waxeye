@@ -24,17 +24,17 @@
 
 (define (js-result grammar-or-error fn)
   (if (ast? grammar-or-error)
-      ($/array (fn grammar-or-error) $/null)
-      ($/array $/null (syntax-error-message grammar-or-error))))
+      ($/array (js-string (fn grammar-or-error)) $/null)
+      ($/array $/null (js-string (syntax-error-message grammar-or-error)))))
 
 (define (grammar-to-ast-string grammar-src)
-  (js-result (grammar-parser grammar-src) ast->string))
+  (js-result (grammar-parser (racket-string grammar-src)) ast->string))
 
 (define (grammar-to-transformed-ast-string grammar-src)
-  (js-result (transform-and-set-start (grammar-parser grammar-src)) ast->string))
+  (js-result (transform-and-set-start (grammar-parser (racket-string grammar-src))) ast->string))
 
 (define (generate-parser grammar-src)
-  (js-result (transform-and-set-start (grammar-parser grammar-src)) gen-javascript-parser))
+  (js-result (transform-and-set-start (grammar-parser (racket-string grammar-src))) gen-javascript-parser))
 
 ($/:= #js*.window.waxeyeCompiler
   ($/obj

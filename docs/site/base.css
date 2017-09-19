@@ -2,6 +2,7 @@
     --brand-primary: #7E57C2;
     --link-focus-color: #673AB7;
     --text-color: rgba(0, 0, 0, 0.87);
+    --text-error-color: #D50000;
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-mono: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
