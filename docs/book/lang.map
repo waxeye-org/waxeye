@@ -1,0 +1,10 @@
+racket = racket.lang
+waxeye = waxeye.lang
+
+# The languages below are bundled with source-highlight.
+# Need to specify them here because this file does not extend but overrides.
+java = java.lang
+ruby = ruby.lang
+python = python.lang
+c = c.lang
+javascript = javascript.lang
