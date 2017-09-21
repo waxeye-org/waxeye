@@ -20,7 +20,9 @@
 
 
 (target book-html ()
-        (^ asciidoc -a toc -n -o docs/manual.html docs/book/book))
+        ; cd to the directory where source-highlight can find the .lang files.
+        (cd docs/book
+            (^ asciidoc -a toc -n -o ../site/manual.html book)))
 
 
 (target book-pdf ()

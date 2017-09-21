@@ -2,5 +2,6 @@
 source "${BASH_SOURCE[0]%/*}/env.sh"
 
 mkdir -p docs/site/genfiles
+build/make book-html
 build/racketscript
 cp src/javascript/waxeye.js docs/site/genfiles/
