@@ -2,8 +2,9 @@ sudo: false
 dist: trusty
 
 # node v4+ is required for String#codePointAt support.
+# node v6+ is required for destructuring assignment support.
 language: node_js
-node_js: '4'
+node_js: '6'
 
 addons:
   apt:
