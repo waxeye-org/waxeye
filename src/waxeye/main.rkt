@@ -78,6 +78,7 @@
                           ((ruby) gen-ruby)
                           ((racket) gen-racket)
                           ((javascript) gen-javascript)
+                          ((typescript) gen-typescript)
                           (else #f)))
     (set! *output-path* (if (equal? (string-ref dir (- (string-length dir) 1)) #\/)
                             dir

@@ -447,7 +447,7 @@ Product
 
 However, if the 'Product' rule parses a string with just one 'Number' in it, we
 will get a tree that is slightly bigger than we need. Parsing the string `5`
-produces the following tree. 
+produces the following tree.
 
 -------------------------------------------------------------------------------
 Product
@@ -775,7 +775,7 @@ commands on Unix and MacOS systems.
 
 -------------------------------------------------------------------------------
 mkdir -p ~/.node_libraries
-ln -s /usr/local/waxeye/src/javascript/waxeye.js ~/.node_libraries/
+ln -s /usr/local/waxeye/src/javascript/dist/waxeye.js ~/.node_libraries/
 -------------------------------------------------------------------------------
 
 ==== Generate Parser ====
@@ -1570,7 +1570,7 @@ class Calculator
 
   def self.calc(input)
     ast = @@p.parse(input)
-  
+
     if ast.is_a?(Waxeye::ParseError)
       ast
     else

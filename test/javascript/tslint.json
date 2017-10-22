@@ -1,0 +1,6 @@
+{
+  "extends": ["./../../src/javascript/tslint.json"],
+  "rules": {
+    "no-console": false
+  }
+}

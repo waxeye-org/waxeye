@@ -1,0 +1,15 @@
+{
+  "extends": "../../src/javascript/tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "allowJs": true,
+    "typeRoots": [
+      "../../src/javascript/node_modules/@types"
+    ],
+    "types" : ["node"],
+    "baseUrl": "./",
+    "paths": {
+      "waxeye": ["../../src/javascript/"]
+    }
+  }
+}

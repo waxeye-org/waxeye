@@ -39,9 +39,14 @@ clean-runtimes: clean-runtime-rubygem clean-runtime-java
 
 # Runtimes
 .PHONY: runtime-javascript
-runtime-javascript: src/javascript/waxeye.js
-src/javascript/waxeye.js: src/javascript/waxeye.coffee
-	coffee -c src/javascript/waxeye.coffee
+runtime-javascript: src/javascript/dist/waxeye.js src/waxeye/javascript.rkt
+src/javascript/dist/waxeye.js: src/javascript/*.ts | src/javascript/node_modules
+	cd src/javascript/ && npm run --silent compile
+	cd src/javascript/ && npm run --silent format -- *.ts
+	cd src/javascript/ && npm run --silent lint -- .
+src/javascript/node_modules: \
+  src/javascript/package.json src/javascript/package-lock.json
+	cd src/javascript/ && npm install && touch node_modules
 
 .PHONY: runtime-rubygem clean-runtime-rubygem
 runtime-rubygem: lib/waxeye-$(VERSION).gem
@@ -86,8 +91,10 @@ docs/site/genfiles/traceur-runtime.js: \
   docs/site/genfiles/racketscript-waxeye-compiler.js
 	cp --preserve tmp/racks/node_modules/traceur/bin/traceur-runtime.js \
 	  docs/site/genfiles/
-docs/site/genfiles/waxeye.js: src/javascript/waxeye.js
-	cp --preserve src/javascript/waxeye.js docs/site/genfiles/
+docs/site/genfiles/waxeye.js: src/javascript/dist/waxeye.js
+	cp --preserve src/javascript/dist/waxeye.js \
+	  src/javascript/dist/waxeye.js.map \
+	  docs/site/genfiles/
 clean-site-demo:
 	rm -rf tmp/racks \
 	  docs/site/genfiles/racketscript-waxeye-compiler.js \
@@ -138,7 +145,7 @@ dist-src: \
 DIST_SRC_FILES=build grammars src test docs LICENSE README.md \
   lib/waxeye-$(VERSION).gem lib/waxeye.jar docs/site/manual.html
 dist/waxeye-$(VERSION): $(DIST_SRC_FILES) | site runtimes
-	rsync --recursive --archive --exclude=".*" \
+	rsync --recursive --archive --exclude=".*" --exclude="node_modules/" \
 	  $(DIST_SRC_FILES) \
 	  dist/waxeye-$(VERSION)
 dist/waxeye-$(VERSION)-src.zip: | dist/waxeye-$(VERSION)
@@ -167,9 +174,22 @@ clean-dist-compiler:
 	  dist/waxeye-compiler-*-bin-unix.tar.bz2
 
 # Testing
-.PHONY: test-all
-test-all:
-	test/bin/test-all
+.PHONY: test-all test-c test-generate-parsers test-grammars test-java \
+  test-javascript
+test-all: test-c test-generate-parsers test-grammars test-java test-javascript
+test-c:
+	test/bin/test-c
+test-generate-parsers:
+	test/bin/test-generate-parsers
+test-grammars:
+	test/bin/test-grammars
+test-java:
+	test/bin/test-java
+test-javascript: runtime-javascript
+	cd src/javascript && npm run --silent format -- \
+		../../test/javascript/{,**/}*.ts
+	cd src/javascript && npm run --silent lint -- ../../test/javascript/
+	test/bin/test-javascript
 
 .PHONY: clean
 clean: clean-dist clean-site clean-book-html clean-book-pdf \

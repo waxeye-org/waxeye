@@ -107,10 +107,10 @@ To then run all the tests, run:
 make test-all
 ```
 
-To run individual language tests, run the respective script, e.g. for JavaScript:
+To run individual language tests, `make` the respective target, e.g. for JavaScript:
 
 ```bash
-test/bin/test-javascript
+make test-javascript
 ```
 
 Support
