@@ -1,0 +1,36 @@
+{
+  "name": "waxeye",
+  "description": "Waxeye Parser Generator Runtime",
+  "main": "dist/waxeye.js",
+  "types": "dist/waxeye.d.ts",
+  "private": true,
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.46",
+    "clang-format": "^1.1.0",
+    "ts-loader": "^3.0.5",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.1"
+  },
+  "scripts": {
+    "compile": "node_modules/.bin/webpack",
+    "format": "node_modules/.bin/clang-format -style=Google -i",
+    "lint": "node_modules/.bin/tslint --fix --format verbose -p",
+    "test": "../../test/bin/test-javascript"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orlandohill/waxeye.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/orlandohill/waxeye/issues"
+  },
+  "homepage": "https://github.com/orlandohill/waxeye"
+}

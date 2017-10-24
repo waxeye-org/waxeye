@@ -8,19 +8,29 @@
          waxeye/ast
          waxeye/fa
          "code.rkt" "dfa.rkt" "gen.rkt")
-(provide gen-javascript
-         (rename-out [gen-parser gen-javascript-parser]))
+(provide gen-javascript gen-javascript-parser
+         gen-typescript gen-typescript-parser)
 
 
 (define (javascript-comment lines)
   (comment-bookend "/*" " *" " */" lines))
+
+(define typescript (make-parameter #f))
+
+(define (gen-typescript grammar path)
+  (indent-unit! 2)
+  (let ((file-path (string-append path (if *name-prefix*
+                                           (string-append (string-downcase *name-prefix*) "_parser.ts")
+                                           "parser.ts"))))
+    (dump-string (gen-typescript-parser grammar) file-path)
+    (list file-path)))
 
 (define (gen-javascript grammar path)
   (indent-unit! 4)
   (let ((file-path (string-append path (if *name-prefix*
                                            (string-append (string-downcase *name-prefix*) "_parser.js")
                                            "parser.js"))))
-    (dump-string (gen-parser grammar) file-path)
+    (dump-string (gen-javascript-parser grammar) file-path)
     (list file-path)))
 
 (define (gen-literal a)
@@ -50,57 +60,74 @@
    ((char? a) (gen-char-class-item a))
    (else a)))
 
+(define exp-id-map
+  (make-hash '(
+    ("NT" . 1)
+    ("ALT" . 2)
+    ("SEQ" . 3)
+    ("PLUS" . 4)
+    ("STAR" . 5)
+    ("OPT" . 6)
+    ("AND" . 7)
+    ("NOT" . 8)
+    ("VOID" . 9)
+    ("ANY" . 10)
+    ("CHAR" . 11)
+    ("CHAR_CLASS" . 12)
+  )))
+
 (define (gen-exp a)
-  (format "{type:'~a', args:~a}"
+  (let-values ([(name args)
     (case (ast-t a)
-      [(wildCard) "ANY"]
-      [(identifier) "NT"]
-      [(void) "VOID"]
+      [(wildCard) (values "ANY" "[]")]
+      [(identifier) (values "NT" (format "['~a']" (list->string (ast-c a))))]
+      [(void) (values "VOID" (gen-array gen-exp (ast-c a)))]
       [(literal) (if (<= (length (ast-c a)) 1)
-        "CHAR"
-        "SEQ")]
-      [(charClass) "CHAR_CLASS"]
-      [(and) "AND"]
-      [(not) "NOT"]
-      [(optional) "OPT"]
-      [(alternation) "ALT"]
-      [(sequence) "SEQ"]
-      [(closure) "STAR"]
-      [(plus) "PLUS"]
+        (values "CHAR" (gen-literal (ast-c a)))
+        (values "SEQ"
+          (gen-array gen-exp (map (lambda (b) (ast 'literal (cons b '()) '()))
+                                  (ast-c a)))))]
+      [(charClass) (values "CHAR_CLASS" (gen-char-class (ast-c a)))]
+      [(and) (values "AND" (gen-array gen-exp (ast-c a)))]
+      [(not) (values "NOT" (gen-array gen-exp (ast-c a)))]
+      [(optional) (values "OPT" (gen-array gen-exp (ast-c a)))]
+      [(alternation) (values "ALT" (gen-array gen-exp (ast-c a)))]
+      [(sequence) (values "SEQ" (gen-array gen-exp (ast-c a)))]
+      [(closure) (values "STAR" (gen-array gen-exp (ast-c a)))]
+      [(plus) (values "PLUS" (gen-array gen-exp (ast-c a)))]
       [else (format "unknown:~a" (ast-t a))]
-    )
-    (case (ast-t a)
-      [(wildCard) "[]"]
-      [(identifier) (format "['~a']" (list->string (ast-c a)))]
-      [(void) (gen-array gen-exp (ast-c a))]
-      [(literal) (if (<= (length (ast-c a)) 1)
-        (gen-literal (ast-c a))
-        (gen-array gen-exp (map (lambda (b)
-          (ast 'literal (cons b '()) '()))
-          (ast-c a)) ))]
-      [(charClass) (gen-char-class (ast-c a))]
-      [(and) (gen-array gen-exp (ast-c a))]
-      [(not) (gen-array gen-exp (ast-c a))]
-      [(optional) (gen-array gen-exp (ast-c a))]
-      [(alternation) (gen-array gen-exp (ast-c a))]
-      [(sequence) (gen-array gen-exp (ast-c a))]
-      [(closure) (gen-array gen-exp (ast-c a))]
-      [(plus) (gen-array gen-exp (ast-c a))]
-      [else (format "unknown:~a" (ast-t a))]
-    )))
+    )])
+    (if (typescript)
+        (format "{ type: ExprType.~a, args: ~a }~a"
+          name
+          args
+          ;; Array args require a type annotation.
+          (cond
+            [(equal? name "SEQ") " as ExprSeq"]
+            [(equal? name "ALT") " as ExprAlt"]
+            [(equal? name "CHAR_CLASS") " as ExprCharClass"]
+            [else ""]))
+        (format "{ type: ~a /* ~a */, args: ~a }" (hash-ref exp-id-map name) name args))))
+
+(define nonterminal-mode-map
+  (make-hash '(
+    ("NORMAL" . 1)
+    ("PRUNING" . 2)
+    ("VOIDING" . 3)
+  )))
 
 (define (gen-def a)
-  (format "'~a' : { mode : waxeye.Modes.~a, exp : ~a }"
-      ; non-term name
-      (list->string (ast-c (list-ref (ast-c a) 0)))
-      ; mode
-      (case (ast-t (list-ref (ast-c a) 1))
-        ((voidArrow) "VOIDING")
-        ((pruneArrow) "PRUNING")
-        ((leftArrow) "NORMAL"))
-      ; right-hand side expression
-      (gen-exp (list-ref (ast-c a) 2))
-  ))
+  (let ([mode-name (case (ast-t (list-ref (ast-c a) 1))
+                         ((voidArrow) "VOIDING")
+                         ((pruneArrow) "PRUNING")
+                         ((leftArrow) "NORMAL"))]
+        [nt-name (list->string (ast-c (list-ref (ast-c a) 0)))]
+        [exp (gen-exp (list-ref (ast-c a) 2))])
+    (if (typescript)
+      (format "'~a': { mode: NonTerminalMode.~a, exp: ~a }"
+        nt-name mode-name exp)
+      (format "'~a': { mode: ~a /* ~a */, exp: ~a }"
+        nt-name (hash-ref nonterminal-mode-map mode-name) mode-name exp))))
 
 (define (gen-defs a)
   (gen-map gen-def (ast-c a)))
@@ -122,27 +149,44 @@
                         (apply string-append (add-between (map fn data) ", "))))))
 
 
-(define (gen-parser grammar)
+(define (gen-typescript-parser grammar)
+  (let ((parser-name (if *name-prefix*
+                         (string-append (camel-case-upper *name-prefix*) "Parser")
+                         "Parser")))
+    (format "
+import {
+  ExprType, ExprAlt, ExprCharClass, ExprSeq,
+  NonTerminalMode, ParserConfig, WaxeyeParser
+} from 'waxeye';
+const parserConfig: ParserConfig =
+ ~a~a~a;
+const start = '~a';
+
+export class ~a extends WaxeyeParser {
+  public constructor() {
+    super(parserConfig, start);
+  }
+}
+"
+            (ind) (ind) (parameterize ([typescript #t]) (gen-defs grammar))
+            *start-name*
+            parser-name)))
+
+
+(define (gen-javascript-parser grammar)
   (let ((parser-name (if *name-prefix*
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (define (gen-parser-class)
-      (format "\n~avar ~a = (function() {\n~a \n~a})();\n"
-              (ind)
-              parser-name
-              (indent (format "
-~avar parser = function() { return this; };
-~aparser.prototype = new waxeye.WaxeyeParser(
+      (format "
+function ~a() {}
+~a.prototype = new waxeye.WaxeyeParser(
 ~a~a~a
-~a~a, '~a');
-~areturn parser;
+~a, '~a');
 "
-                              (ind)
-                              (ind)
-                              (ind) (ind) (gen-defs grammar)
-                              (ind) (ind) *start-name*
-                              (ind)))
-              (ind)))
+              parser-name parser-name
+              (ind) (ind) (parameterize ([typescript #f]) (gen-defs grammar))
+              (ind) *start-name*))
 
 
     (define (gen-nodejs-imports)

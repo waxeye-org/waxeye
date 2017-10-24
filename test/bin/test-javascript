@@ -2,6 +2,7 @@
 source "${BASH_SOURCE%/*}/env.sh"
 source "${BASH_SOURCE%/*}/lib-javascript.sh"
 
+gen_typescript_parser
 gen_javascript_parser
 
-$NODE_CMD test/javascript/test.js
+$TS_NODE_CMD test/javascript/test.ts

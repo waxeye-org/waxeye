@@ -23,4 +23,4 @@ before_script: wget -U "" -q https://downloads.sourceforge.net/project/checkstyl
 env:
 - CHECKSTYLE_LIB=$PWD/checkstyle-8.1-all.jar
 
-script: test/bin/test-all
+script: make test-all
