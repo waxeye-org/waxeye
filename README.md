@@ -79,7 +79,9 @@ Building from Source
 2. Build Waxeye
    * Unix and OSX
 
-     `./build/unix`
+     ```bash
+     make compiler
+     ```
 
    * Windows
 
@@ -102,7 +104,7 @@ sudo apt-get install racket nodejs ant checkstyle testng
 To then run all the tests, run:
 
 ```bash
-test/bin/test-all
+make test-all
 ```
 
 To run individual language tests, run the respective script, e.g. for JavaScript:
