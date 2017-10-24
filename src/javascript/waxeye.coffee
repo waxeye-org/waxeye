@@ -5,14 +5,11 @@
 # Copyright (c) 2015 Joshua Gross
 # Licensed under the MIT license. See 'LICENSE' for details.
 ###
+"use strict"
 
-if module?
-  assert = require('assert')
-else
-  assert =
-    ok: (val) ->
-      throw 'assertion error' if not val
-
+assert =
+  ok: (val) ->
+    throw "Assertion error: #{val}" if not val
 
 arrayPrepend = (item, a) ->
   assert.ok Array.isArray(a) || !a
@@ -187,8 +184,6 @@ waxeye = (->
 
       # move: configuration -> state
       move = (conf) ->
-        #console.log conf
-
         asts = conf.asts
         pos = conf.pos
         exp = conf.exp
