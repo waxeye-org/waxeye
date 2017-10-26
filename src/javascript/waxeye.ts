@@ -175,11 +175,8 @@ export class ParseError {
       public nt: string[], public chars: MatchError[]) {}
 
   public toString(): string {
-    let chars;
-    chars = this.chars.map((err) => err.toGrammarString()).join(' | ');
-    if (chars === '') {
-      chars = '\'\'';
-    }
+    const chars =
+        this.chars.map((err) => err.toGrammarString()).join(' | ') || '\'\'';
     return `Parse error: Failed to match '${this.nt.join(',')}' at line=${
         this.line}, col=${this.col}, pos=${this.pos}. Expected: ${chars}`;
   }
@@ -352,12 +349,9 @@ function reject(err: RawError): Rejected {
   return {type: MatchResultType.REJECT, err};
 }
 
-type Action = ActionEval|ActionApply|ActionReturn;
-
 const enum ActionType {
   EVAL = 1,
   APPLY,
-  RETURN,
 }
 
 interface ActionEval {
@@ -386,47 +380,33 @@ function applyNext(
   return {type: ActionType.APPLY, continuations, value};
 }
 
-interface ActionReturn {
-  type: ActionType.RETURN;
-  result: AST|ParseError;
-}
-
-function returnNext(result: AST|ParseError): ActionReturn {
-  return {type: ActionType.RETURN, result};
-}
-
 function match(env: ParserConfig, start: keyof ParserConfig, input: string):
     AST|ParseError {
   // move from initial state to halting state
-  let action = move(
-      env, start, input,
+  let action = moveEval(
+      env, input,
       evalNext(env[start].exp, 0, [], new RawError(0, [start], [], start), []));
-  while (action.type !== ActionType.RETURN) {
-    action = move(env, start, input, action);
-  }
-  return action.result;
-}
-
-function move(
-    env: ParserConfig, start: keyof ParserConfig, input: string,
-    conf: ActionEval|ActionApply): Action {
-  switch (conf.type) {
-    case ActionType.EVAL:
-      return moveEval(env, input, conf);
-    case ActionType.APPLY:
-      const {continuations, value} = conf;
-      if (continuations.length === 0) {
-        return moveReturn(env, start, input, value);
-      }
-      const [evaluated, ...rest] = continuations;
-      return moveApply(env, input, value, evaluated, rest);
+  while (true) {
+    switch (action.type) {
+      case ActionType.EVAL:
+        action = moveEval(env, input, action);
+        break;
+      case ActionType.APPLY:
+        const {continuations, value} = action;
+        if (continuations.length === 0) {
+          return moveReturn(env, start, input, value);
+        }
+        const [evaluated, ...rest] = continuations;
+        action = moveApply(env, input, value, evaluated, rest);
+        break;
+    }
   }
 }
 
-// Evaluates the result of the expression given in `conf`.
-function moveEval(env: ParserConfig, input: string, conf: ActionEval):
+// Evaluates the result of the expression given in `action`.
+function moveEval(env: ParserConfig, input: string, action: ActionEval):
     ActionEval|ActionApply {
-  const {exp, pos, asts, err, continuations} = conf;
+  const {exp, pos, asts, err, continuations} = action;
   const eof = pos >= input.length;
   switch (exp.type) {
     case ExprType.ANY:
@@ -534,11 +514,13 @@ function moveEval(env: ParserConfig, input: string, conf: ActionEval):
       const nt = env[name];
       return evalNext(
           nt.exp, pos, [],
-          new RawError(err.pos, err.nonterminals, err.failedChars, name),
-          [contNT(nt.mode, name, asts, conf.err.currentNT), ...continuations]);
+          new RawError(err.pos, err.nonterminals, err.failedChars, name), [
+            contNT(nt.mode, name, asts, err.currentNT),
+            ...continuations,
+          ]);
     default:
-      throw new Error(`Unsupported exp.type in exp=${(exp as any).type} conf=${
-          JSON.stringify(conf)}`);
+      throw new Error(`Unsupported exp.type in exp=${
+          (exp as any).type} action=${JSON.stringify(action)}`);
   }
 }
 
@@ -618,6 +600,7 @@ function moveApplyOnAccept(
         default:
           // Without this check, the TypeScript compiler doesn't
           // realize that the outer case is also exhaustive.
+          // tslint:disable-next-line:no-unused-variable
           const checkExhaustive: never = mode;
           throw new Error(`Invalid mode: ${JSON.stringify(mode)}`);
       }
@@ -658,6 +641,7 @@ function moveApplyOnReject(
           reject(new RawError(
               err.pos, err.nonterminals, err.failedChars, evaluated.nt)));
     default:
+      // tslint:disable-next-line:no-unused-variable
       const checkExhaustive: never = evaluated;
       throw new Error(`Invalid continuation: ${JSON.stringify(evaluated)}`);
   }
@@ -666,42 +650,40 @@ function moveApplyOnReject(
 // Called after the final continuation was processed.
 function moveReturn(
     env: ParserConfig, start: keyof ParserConfig, input: string,
-    value: MatchResult): ActionReturn {
+    value: MatchResult): AST|ParseError {
   switch (value.type) {
     case MatchResultType.ACCEPT:
       const asts = value.asts;
       if (value.pos >= input.length) {
         switch (env[start].mode) {
           case NonTerminalMode.NORMAL:
-            return returnNext(new AST(start, asts.reverse()));
+            return new AST(start, asts.reverse());
           case NonTerminalMode.PRUNING:
             switch (asts.length) {
               case 0:
-                return returnNext(EmptyAST());
+                return EmptyAST();
               case 1:
                 const ast = asts[0];
                 if (typeof ast === 'string') {
                   throw new Error(`Expected an AST, got a string ${
                       JSON.stringify(ast)}, in ${value}`);
                 }
-                return returnNext(ast);
+                return ast;
               default:
-                return returnNext(new AST(start, asts.reverse()));
+                return new AST(start, asts.reverse());
             }
           case NonTerminalMode.VOIDING:
-            return returnNext(EmptyAST());
+            return EmptyAST();
         }
       } else if (value.err && value.pos === value.err.pos) {
-        return returnNext(
-            (new RawError(
-                 value.pos, value.err.nonterminals, value.err.failedChars, ''))
-                .toParseError(input));
+        return new RawError(
+                   value.pos, value.err.nonterminals, value.err.failedChars, '')
+            .toParseError(input);
       } else {
-        return returnNext(
-            (new RawError(value.pos, [], [], '')).toParseError(input));
+        return new RawError(value.pos, [], [], '').toParseError(input);
       }
     case MatchResultType.REJECT:
-      return returnNext(value.err.toParseError(input));
+      return value.err.toParseError(input);
   }
 }
 

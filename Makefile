@@ -35,10 +35,10 @@ clean-compiler:
 # Build runtimes
 .PHONY: runtimes clean-runtimes
 runtimes: runtime-javascript runtime-rubygem runtime-java
-clean-runtimes: clean-runtime-rubygem clean-runtime-java
+clean-runtimes: clean-runtime-javascript clean-runtime-rubygem clean-runtime-java
 
 # Runtimes
-.PHONY: runtime-javascript
+.PHONY: runtime-javascript clean-runtime-javascript
 runtime-javascript: src/javascript/dist/waxeye.js src/waxeye/javascript.rkt
 src/javascript/dist/waxeye.js: src/javascript/*.ts | src/javascript/node_modules
 	cd src/javascript/ && npm run --silent compile
@@ -47,6 +47,8 @@ src/javascript/dist/waxeye.js: src/javascript/*.ts | src/javascript/node_modules
 src/javascript/node_modules: \
   src/javascript/package.json src/javascript/package-lock.json
 	cd src/javascript/ && npm install && touch node_modules
+clean-runtime-javascript:
+	rm -rf src/javascript/dist/
 
 .PHONY: runtime-rubygem clean-runtime-rubygem
 runtime-rubygem: lib/waxeye-$(VERSION).gem
