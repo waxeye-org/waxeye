@@ -153,11 +153,12 @@
   (let ((parser-name (if *name-prefix*
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
-    (format "
+    (format "~a
 import {
   ExprType, ExprAlt, ExprCharClass, ExprSeq,
   NonTerminalMode, ParserConfig, WaxeyeParser
 } from 'waxeye';
+
 const parserConfig: ParserConfig =
  ~a~a~a;
 const start = '~a';
@@ -168,6 +169,9 @@ export class ~a extends WaxeyeParser {
   }
 }
 "
+            (if *file-header*
+              (javascript-comment *file-header*)
+              (javascript-comment *default-header*))
             (ind) (ind) (parameterize ([typescript #t]) (gen-defs grammar))
             *start-name*
             parser-name)))
@@ -207,10 +211,10 @@ if (typeof module !== 'undefined') {
 }
 " (ind) parser-name parser-name)))
 
-(format "~a~a~a~a"
-        (if *file-header*
-            (javascript-comment *file-header*)
-            (javascript-comment *default-header*))
-        (gen-nodejs-imports)
-        (gen-parser-class)
-        (gen-nodejs-exports))))
+    (format "~a~a~a~a"
+      (if *file-header*
+          (javascript-comment *file-header*)
+          (javascript-comment *default-header*))
+      (gen-nodejs-imports)
+      (gen-parser-class)
+      (gen-nodejs-exports))))

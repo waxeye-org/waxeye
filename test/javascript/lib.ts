@@ -115,19 +115,6 @@ function exprTypeFromName(name: string): waxeye.ExprType {
   return result;
 }
 
-const NAME_TO_NT_MODE: {[key: string]: waxeye.NonTerminalMode} = {
-  NORMAL: waxeye.NonTerminalMode.NORMAL,
-  PRUNING: waxeye.NonTerminalMode.PRUNING,
-  VOIDING: waxeye.NonTerminalMode.VOIDING,
-};
-function nonTerminalModeFromName(name: string): waxeye.NonTerminalMode {
-  const result = NAME_TO_NT_MODE[name];
-  if (!result) {
-    throw new Error(`Unknown NonTerminalMode ${name}`);
-  }
-  return result;
-}
-
 function fromFixtureExpectationCharClasses(charClasses: string): number;
 function fromFixtureExpectationCharClasses(charClasses: [string, string]):
     [number, number];
