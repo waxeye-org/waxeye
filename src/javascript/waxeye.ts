@@ -77,54 +77,50 @@ export const enum ExprType {
 
 export interface ExprNonTerminal {
   type: ExprType.NT;
-  // Non-terminal's name.
-  args: [string];
+  name: string;
 }
 export interface ExprAlt {
   type: ExprType.ALT;
-  args: Expr[];
+  exprs: Expr[];
 }
 export interface ExprSeq {
   type: ExprType.SEQ;
-  args: Expr[];
+  exprs: Expr[];
 }
 export interface ExprPlus {
   type: ExprType.PLUS;
-  args: [Expr];
+  expr: Expr;
 }
 export interface ExprStar {
   type: ExprType.STAR;
-  args: [Expr];
+  expr: Expr;
 }
 export interface ExprOpt {
   type: ExprType.OPT;
-  args: [Expr];
+  expr: Expr;
 }
 export interface ExprAnd {
   type: ExprType.AND;
-  args: [Expr];
+  expr: Expr;
 }
 export interface ExprNot {
   type: ExprType.NOT;
-  args: [Expr];
+  expr: Expr;
 }
 export interface ExprVoid {
   type: ExprType.VOID;
-  args: [Expr];
+  expr: Expr;
 }
-export interface ExprAny {
-  type: ExprType.ANY;
-  args: never[];
-}
+export interface ExprAny { type: ExprType.ANY; }
 export interface ExprChar {
   type: ExprType.CHAR;
   // A single character (represented by a single Unicode codepoint).
-  args: [string];
+  char: string;
 }
 export interface ExprCharClass {
   type: ExprType.CHAR_CLASS;
   // A list of Unicode codepoints / ranges of codepoints.
-  args: Array<number|[number, number]>;
+  codepoints: Array<number|[number, number]>;
 }
 
 export interface MatchError {
@@ -423,28 +419,27 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
                 // A non single-char code-point implies !eof(pos + 1)
                 accept(pos + 2, [input[pos] + input[pos + 1], ...asts], err));
       }
-    case ExprType.ALT:
-      const es = exp.args;
-      if (es.length > 0) {
+    case ExprType.ALT: {
+      const {exprs} = exp;
+      if (exprs.length > 0) {
         return evalNext(
-            es[0], pos, asts, err,
-            [contAlt(es.slice(1), pos, asts), ...continuations]);
+            exprs[0], pos, asts, err,
+            [contAlt(exprs.slice(1), pos, asts), ...continuations]);
       } else {
         return applyNext(continuations, reject(err));
       }
+    }
     case ExprType.AND:
       return evalNext(
-          exp.args[0], pos, [], err,
-          [contAnd(pos, asts, err), ...continuations]);
+          exp.expr, pos, [], err, [contAnd(pos, asts, err), ...continuations]);
     case ExprType.NOT:
       return evalNext(
-          exp.args[0], pos, [], err,
-          [contNot(pos, asts, err), ...continuations]);
+          exp.expr, pos, [], err, [contNot(pos, asts, err), ...continuations]);
     case ExprType.VOID:
       return evalNext(
-          exp.args[0], pos, [], err, [contVoid(asts), ...continuations]);
+          exp.expr, pos, [], err, [contVoid(asts), ...continuations]);
     case ExprType.CHAR:
-      const c = exp.args[0];
+      const c = exp.char;
       return applyNext(
           continuations,
           c.length === 1 ?
@@ -457,7 +452,7 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
               reject(updateError(err, pos, new ErrChar(c))) :
               accept(pos + 2, [input[pos] + input[pos + 1], ...asts], err));
     case ExprType.CHAR_CLASS:
-      const cc = exp.args;
+      const cc = exp.codepoints;
       if (eof) {
         return applyNext(
             continuations, reject(updateError(err, pos, new ErrCC(cc))));
@@ -485,12 +480,12 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
       }
       return applyNext(
           continuations, reject(updateError(err, pos, new ErrCC(cc))));
-    case ExprType.SEQ:
+    case ExprType.SEQ: {
       // A sequence is made up of a list of expressions.
       // We traverse the list, making sure each expression succeeds.
       // The rest of the string returned by the expression is used
       // as input to the next expression.
-      const exprs = exp.args;
+      const {exprs} = exp;
       if (exprs.length === 0) {
         return applyNext(continuations, accept(pos, asts, err));
       } else {
@@ -498,19 +493,19 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
             exprs[0], pos, asts, err,
             [contSeq(exprs.slice(1)), ...continuations]);
       }
+    }
     case ExprType.PLUS:
       return evalNext(
-          exp.args[0], pos, asts, err,
-          [contPlus(exp.args[0]), ...continuations]);
+          exp.expr, pos, asts, err, [contPlus(exp.expr), ...continuations]);
     case ExprType.STAR:
       return evalNext(
-          exp.args[0], pos, asts, err,
-          [contStar(exp.args[0], pos, asts), ...continuations]);
+          exp.expr, pos, asts, err,
+          [contStar(exp.expr, pos, asts), ...continuations]);
     case ExprType.OPT:
       return evalNext(
-          exp.args[0], pos, asts, err, [contOpt(pos, asts), ...continuations]);
+          exp.expr, pos, asts, err, [contOpt(pos, asts), ...continuations]);
     case ExprType.NT:
-      const name = exp.args[0];
+      const {name} = exp;
       const nt = env[name];
       return evalNext(
           nt.exp, pos, [],

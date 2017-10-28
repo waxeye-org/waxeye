@@ -33,18 +33,15 @@
     (dump-string (gen-javascript-parser grammar) file-path)
     (list file-path)))
 
-(define (gen-literal a)
-  (define (gen-char t)
-    (format "'~a~a'"
-            (if (escape-for-java-char? t) "\\" "")
-            (cond
-             ((equal? t #\") "\\\"")
-             ((equal? t #\linefeed) "\\n")
-             ((equal? t #\tab) "\\t")
-             ((equal? t #\return) "\\r")
-             (else t))))
-  (gen-array gen-char a)
-)
+(define (gen-char t)
+  (format "'~a~a'"
+          (if (escape-for-java-char? t) "\\" "")
+          (cond
+           ((equal? t #\") "\\\"")
+           ((equal? t #\linefeed) "\\n")
+           ((equal? t #\tab) "\\t")
+           ((equal? t #\return) "\\r")
+           (else t))))
 
 (define (gen-char-class a)
   (define (gen-char-class-item a)
@@ -79,35 +76,54 @@
 (define (gen-exp a)
   (let-values ([(name args)
     (case (ast-t a)
-      [(wildCard) (values "ANY" "[]")]
-      [(identifier) (values "NT" (format "['~a']" (list->string (ast-c a))))]
-      [(void) (values "VOID" (gen-array gen-exp (ast-c a)))]
+      [(identifier)
+        (values "NT"
+          (format "name: '~a'" (list->string (ast-c a))))]
       [(literal) (if (<= (length (ast-c a)) 1)
-        (values "CHAR" (gen-literal (ast-c a)))
+        (values "CHAR"
+          (format "char: ~a" (gen-char (car (ast-c a)))))
         (values "SEQ"
-          (gen-array gen-exp (map (lambda (b) (ast 'literal (cons b '()) '()))
-                                  (ast-c a)))))]
-      [(charClass) (values "CHAR_CLASS" (gen-char-class (ast-c a)))]
-      [(and) (values "AND" (gen-array gen-exp (ast-c a)))]
-      [(not) (values "NOT" (gen-array gen-exp (ast-c a)))]
-      [(optional) (values "OPT" (gen-array gen-exp (ast-c a)))]
-      [(alternation) (values "ALT" (gen-array gen-exp (ast-c a)))]
-      [(sequence) (values "SEQ" (gen-array gen-exp (ast-c a)))]
-      [(closure) (values "STAR" (gen-array gen-exp (ast-c a)))]
-      [(plus) (values "PLUS" (gen-array gen-exp (ast-c a)))]
+          (format "exprs: ~a"
+            (gen-array gen-exp
+              (map (lambda (b) (ast 'literal (cons b '()) '()))
+                   (ast-c a))))))]
+      [(charClass)
+        (values "CHAR_CLASS"
+          (format "codepoints: ~a" (gen-char-class (ast-c a))))]
+      [(void)
+        (values "VOID"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(and)
+        (values "AND"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(not)
+        (values "NOT"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(optional)
+        (values "OPT"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(closure)
+        (values "STAR"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(plus)
+        (values "PLUS"
+          (format "expr: ~a" (gen-exp (car (ast-c a)))))]
+      [(alternation)
+        (values "ALT"
+          (format "exprs: ~a" (gen-array gen-exp (ast-c a))))]
+      [(sequence)
+        (values "SEQ"
+          (format "exprs: ~a" (gen-array gen-exp (ast-c a))))]
+      [(wildCard) (values "ANY" "")]
       [else (format "unknown:~a" (ast-t a))]
     )])
+    (define args-str
+      (if (= 0 (string-length args))
+          ""
+          (format ", ~a" args)))
     (if (typescript)
-        (format "{ type: ExprType.~a, args: ~a }~a"
-          name
-          args
-          ;; Array args require a type annotation.
-          (cond
-            [(equal? name "SEQ") " as ExprSeq"]
-            [(equal? name "ALT") " as ExprAlt"]
-            [(equal? name "CHAR_CLASS") " as ExprCharClass"]
-            [else ""]))
-        (format "{ type: ~a /* ~a */, args: ~a }" (hash-ref exp-id-map name) name args))))
+        (format "{ type: ExprType.~a~a }" name args-str)
+        (format "{ type: ~a /* ~a */~a }" (hash-ref exp-id-map name) name args-str))))
 
 (define nonterminal-mode-map
   (make-hash '(
@@ -154,10 +170,7 @@
                          (string-append (camel-case-upper *name-prefix*) "Parser")
                          "Parser")))
     (format "~a
-import {
-  ExprType, ExprAlt, ExprCharClass, ExprSeq,
-  NonTerminalMode, ParserConfig, WaxeyeParser
-} from 'waxeye';
+import { ExprType, NonTerminalMode, ParserConfig, WaxeyeParser } from 'waxeye';
 
 const parserConfig: ParserConfig =
  ~a~a~a;
