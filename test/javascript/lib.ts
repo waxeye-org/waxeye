@@ -17,21 +17,36 @@ export class TestEnv {
 
   public buildRule(rule: any[]): waxeye.Expr {
     const ruleType = exprTypeFromName(rule[0]);
-    if (ruleType === waxeye.ExprType.CHAR_CLASS) {
-      return {
-        type: ruleType,
-        args: fromFixtureExpectationCharClasses(rule.slice(1)),
-      };
+    switch (ruleType) {
+      case waxeye.ExprType.NT:
+        return {type: ruleType, name: rule[1]};
+      case waxeye.ExprType.ALT:
+      case waxeye.ExprType.SEQ:
+        return {
+          type: ruleType,
+          exprs: rule.slice(1).map((r) => this.buildRule(r)),
+        } as waxeye.Expr;
+      case waxeye.ExprType.CHAR:
+        return {type: ruleType, char: rule[1]};
+      case waxeye.ExprType.CHAR_CLASS:
+        return {
+          type: ruleType,
+          codepoints: fromFixtureExpectationCharClasses(rule.slice(1)),
+        };
+      case waxeye.ExprType.PLUS:
+      case waxeye.ExprType.STAR:
+      case waxeye.ExprType.OPT:
+      case waxeye.ExprType.AND:
+      case waxeye.ExprType.NOT:
+      case waxeye.ExprType.VOID:
+        return {type: ruleType, expr: this.buildRule(rule[1])} as waxeye.Expr;
+      case waxeye.ExprType.ANY:
+        return {type: ruleType};
+      default:
+        // tslint:disable-next-line:no-unused-variable
+        const exhaustive: never = ruleType;
+        throw new Error(`Invalid rule type in rule: ${JSON.stringify(rule)}`);
     }
-    return {
-      type: ruleType,
-      args: rule.slice(1).map((r) => {
-        if (Array.isArray(r)) {
-          return this.buildRule(r);
-        }
-        return r;
-      }),
-    } as waxeye.Expr;
   }
 
   public testEval(rule: waxeye.Expr, input: string) {
