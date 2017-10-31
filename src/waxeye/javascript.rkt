@@ -68,7 +68,7 @@
     ("AND" . 7)
     ("NOT" . 8)
     ("VOID" . 9)
-    ("ANY" . 10)
+    ("ANY_CHAR" . 10)
     ("CHAR" . 11)
     ("CHAR_CLASS" . 12)
   )))
@@ -114,7 +114,7 @@
       [(sequence)
         (values "SEQ"
           (format "exprs: ~a" (gen-array gen-exp (ast-c a))))]
-      [(wildCard) (values "ANY" "")]
+      [(wildCard) (values "ANY_CHAR" "")]
       [else (format "unknown:~a" (ast-t a))]
     )])
     (define args-str

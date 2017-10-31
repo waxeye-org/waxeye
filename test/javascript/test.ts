@@ -17,8 +17,8 @@ import {fixtureExpectationToOutput, TestEnv} from './lib';
 const testFixtures = require('./test-fixtures.json');
 /* tslint:enable */
 
-const testEnvTS = new TestEnv(new TestParserTS().env);
-const testEnvJS = new TestEnv(new (TestParserJS as any)().env);
+const testEnvTS = new TestEnv(new TestParserTS().config);
+const testEnvJS = new TestEnv(new (TestParserJS as any)().config);
 
 function toString(
     testType: 'MatchError'|'MatchAST', data: AST|ParseError): string {

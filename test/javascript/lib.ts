@@ -1,7 +1,7 @@
 import * as waxeye from 'waxeye';
 
 export class TestEnv {
-  constructor(public env: waxeye.ParserConfig) {}
+  constructor(private config: waxeye.ParserConfig) {}
 
   public getTestOutput(spec: ['match', string, string]|['eval', any[], string]):
       waxeye.AST|waxeye.ParseError {
@@ -15,7 +15,7 @@ export class TestEnv {
     throw new Error('Unsupported runType ' + JSON.stringify(spec));
   }
 
-  public buildRule(rule: any[]): waxeye.Expr {
+  public buildRule(rule: any[]): waxeye.ConfigExpr {
     const ruleType = exprTypeFromName(rule[0]);
     switch (ruleType) {
       case waxeye.ExprType.NT:
@@ -25,7 +25,7 @@ export class TestEnv {
         return {
           type: ruleType,
           exprs: rule.slice(1).map((r) => this.buildRule(r)),
-        } as waxeye.Expr;
+        } as waxeye.ConfigExpr;
       case waxeye.ExprType.CHAR:
         return {type: ruleType, char: rule[1]};
       case waxeye.ExprType.CHAR_CLASS:
@@ -39,8 +39,9 @@ export class TestEnv {
       case waxeye.ExprType.AND:
       case waxeye.ExprType.NOT:
       case waxeye.ExprType.VOID:
-        return {type: ruleType, expr: this.buildRule(rule[1])} as waxeye.Expr;
-      case waxeye.ExprType.ANY:
+        return {type: ruleType, expr: this.buildRule(rule[1])} as
+            waxeye.ConfigExpr;
+      case waxeye.ExprType.ANY_CHAR:
         return {type: ruleType};
       default:
         // tslint:disable-next-line:no-unused-variable
@@ -49,14 +50,15 @@ export class TestEnv {
     }
   }
 
-  public testEval(rule: waxeye.Expr, input: string) {
-    const env = JSON.parse(JSON.stringify(this.env));
-    env.S = {mode: waxeye.NonTerminalMode.VOIDING, exp: rule};
-    return (new waxeye.WaxeyeParser(env, 'S')).parse(input);
+  public testEval(rule: waxeye.ConfigExpr, input: string) {
+    const config = Object.assign(
+        {}, this.config,
+        {S: {mode: waxeye.NonTerminalMode.VOIDING, exp: rule}});
+    return (new waxeye.WaxeyeParser(config, 'S')).parse(input);
   }
 
   public match(nt: string, input: string) {
-    return (new waxeye.WaxeyeParser(this.env, nt)).parse(input);
+    return (new waxeye.WaxeyeParser(this.config, nt)).parse(input);
   }
 }
 
@@ -118,7 +120,7 @@ const NAME_TO_EXPR_TYPE: {[key: string]: waxeye.ExprType} = {
   AND: waxeye.ExprType.AND,
   NOT: waxeye.ExprType.NOT,
   VOID: waxeye.ExprType.VOID,
-  ANY: waxeye.ExprType.ANY,
+  ANY_CHAR: waxeye.ExprType.ANY_CHAR,
   CHAR: waxeye.ExprType.CHAR,
   CHAR_CLASS: waxeye.ExprType.CHAR_CLASS,
 };
