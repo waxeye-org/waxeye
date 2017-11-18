@@ -3,7 +3,7 @@
 export type ConsList<T> = Cons<T>|Empty;
 
 // Creates a non-empty cons list.
-export function cons<T>(head: T, tail: ConsList<T> = empty()): Cons<T> {
+export function cons<T>(head: T, tail: ConsList<T>): Cons<T> {
   return new Cons<T>(head, tail);
 }
 

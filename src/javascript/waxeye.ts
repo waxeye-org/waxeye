@@ -155,7 +155,8 @@ class RawError {
 function updateError(err: RawError, pos: number, e: MatchError): RawError {
   if (err !== null) {
     if (pos > err.pos) {
-      return new RawError(pos, cons(err.currentNT), cons(e), err.currentNT);
+      return new RawError(
+          pos, cons(err.currentNT, empty()), cons(e, empty()), err.currentNT);
     } else if (pos === err.pos) {
       return new RawError(
           err.pos, cons(err.currentNT, err.nonterminals),
@@ -165,7 +166,7 @@ function updateError(err: RawError, pos: number, e: MatchError): RawError {
           err.pos, err.nonterminals, err.failedChars, err.currentNT);
     }
   } else {
-    return new RawError(0, cons(''), cons(e), '');
+    return new RawError(0, cons('', empty()), cons(e, empty()), '');
   }
 }
 
@@ -339,7 +340,8 @@ function match(
       evalNext(
           env[start].exp, /*pos=*/0, /*asts=*/empty(),
           new RawError(
-              /*pos=*/0, /*nonterminals=*/cons(start), /*failedChars=*/empty(),
+              /*pos=*/0, /*nonterminals=*/cons(start, empty()),
+              /*failedChars=*/empty(),
               /*currentNT=*/start),
           /*continuations=*/empty()));
   while (true) {
