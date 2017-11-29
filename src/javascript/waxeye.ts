@@ -3,10 +3,18 @@
  * Licensed under the MIT license. See 'LICENSE' for details.
  */
 
+import {cons, ConsList, empty} from './cons_list';
+import {Expr, exprToRuntimeExpr, ExprType, RuntimeExpr} from './expr';
+
+export {Expr, ExprType} from './expr';
+
 export class WaxeyeParser {
+  private readonly env: RuntimeParserConfig;
   public constructor(
-      public env: ParserConfig,
-      public start: keyof ParserConfig /* keyof env */) {}
+      public readonly config: ParserConfig,
+      public readonly start: keyof ParserConfig /* keyof env */) {
+    this.env = parserConfigToRuntimeParserConfig(config);
+  }
 
   public parse(input: string, start: string = this.start): AST|ParseError {
     if (!this.env[start]) {
@@ -18,13 +26,24 @@ export class WaxeyeParser {
 }
 
 export interface ParserConfig {
-  // name -> NonTerminal
-  [key: string]: NonTerminal;
+  // name -> ParserConfigNonTerminal
+  [key: string]: {mode: NonTerminalMode, exp: Expr};
+}
+interface RuntimeParserConfig {
+  // name -> ParserConfigNonTerminal
+  [key: string]: {mode: NonTerminalMode, exp: RuntimeExpr};
 }
 
-export interface NonTerminal {
-  mode: NonTerminalMode;
-  exp: Expr;
+function parserConfigToRuntimeParserConfig(config: ParserConfig):
+    RuntimeParserConfig {
+  const result: RuntimeParserConfig = {};
+  for (const [name, nonterminal] of Object.entries(config)) {
+    result[name] = {
+      mode: nonterminal.mode,
+      exp: exprToRuntimeExpr(nonterminal.exp),
+    };
+  }
+  return result;
 }
 
 export const enum NonTerminalMode {
@@ -55,72 +74,6 @@ export interface EmptyAST extends AST {
 
 export function EmptyAST(): EmptyAST {
   return new AST('', []) as EmptyAST;
-}
-
-export type Expr = ExprNonTerminal|ExprAlt|ExprSeq|ExprPlus|ExprStar|ExprOpt|
-    ExprAnd|ExprNot|ExprVoid|ExprAny|ExprChar|ExprCharClass;
-
-export const enum ExprType {
-  NT = 1,
-  ALT,
-  SEQ,
-  PLUS,
-  STAR,
-  OPT,
-  AND,
-  NOT,
-  VOID,
-  ANY,
-  CHAR,
-  CHAR_CLASS,
-}
-
-export interface ExprNonTerminal {
-  type: ExprType.NT;
-  name: string;
-}
-export interface ExprAlt {
-  type: ExprType.ALT;
-  exprs: Expr[];
-}
-export interface ExprSeq {
-  type: ExprType.SEQ;
-  exprs: Expr[];
-}
-export interface ExprPlus {
-  type: ExprType.PLUS;
-  expr: Expr;
-}
-export interface ExprStar {
-  type: ExprType.STAR;
-  expr: Expr;
-}
-export interface ExprOpt {
-  type: ExprType.OPT;
-  expr: Expr;
-}
-export interface ExprAnd {
-  type: ExprType.AND;
-  expr: Expr;
-}
-export interface ExprNot {
-  type: ExprType.NOT;
-  expr: Expr;
-}
-export interface ExprVoid {
-  type: ExprType.VOID;
-  expr: Expr;
-}
-export interface ExprAny { type: ExprType.ANY; }
-export interface ExprChar {
-  type: ExprType.CHAR;
-  // A single character (represented by a single Unicode codepoint).
-  char: string;
-}
-export interface ExprCharClass {
-  type: ExprType.CHAR_CLASS;
-  // A list of Unicode codepoints / ranges of codepoints.
-  codepoints: Array<number|[number, number]>;
 }
 
 export interface MatchError {
@@ -179,8 +132,8 @@ export class ParseError {
 }
 class RawError {
   constructor(
-      public pos: number, public nonterminals: string[],
-      public failedChars: MatchError[], public currentNT: string) {}
+      public pos: number, public nonterminals: ConsList<string>,
+      public failedChars: ConsList<MatchError>, public currentNT: string) {}
 
   public toParseError(input: string): ParseError {
     const [line, col] = getLineCol(this.pos, input);
@@ -194,26 +147,30 @@ class RawError {
       seenNonterminals.add(nt);
     }
     return new ParseError(
-        this.pos, line, col, uniqueNonterminals, this.failedChars.reverse());
+        this.pos, line, col, uniqueNonterminals,
+        this.failedChars.toArray().reverse());
   }
 }
 
 function updateError(err: RawError, pos: number, e: MatchError): RawError {
   if (err !== null) {
     if (pos > err.pos) {
-      return new RawError(pos, [err.currentNT], [e], err.currentNT);
+      return new RawError(
+          pos, cons(err.currentNT, empty()), cons(e, empty()), err.currentNT);
     } else if (pos === err.pos) {
       return new RawError(
-          err.pos, [err.currentNT, ...err.nonterminals],
-          [e, ...err.failedChars], err.currentNT);
+          err.pos, cons(err.currentNT, err.nonterminals),
+          cons(e, err.failedChars), err.currentNT);
     } else {
       return new RawError(
           err.pos, err.nonterminals, err.failedChars, err.currentNT);
     }
   } else {
-    return new RawError(0, [''], [e], '');
+    return new RawError(0, cons('', empty()), cons(e, empty()), '');
   }
 }
+
+type ASTList = ConsList<AST|string>;
 
 type Continuation =
     ContSeq|ContAlt|ContAnd|ContNot|ContOpt|ContStar|ContPlus|ContVoid|ContNT;
@@ -232,76 +189,76 @@ const enum ContType {
 
 interface ContSeq {
   type: ContType.SEQ;
-  expressions: Expr[];
+  expressions: ConsList<RuntimeExpr>;
 }
-function contSeq(expressions: Expr[]): ContSeq {
+function contSeq(expressions: ConsList<RuntimeExpr>): ContSeq {
   return {type: ContType.SEQ, expressions};
 }
 
 interface ContAlt {
   type: ContType.ALT;
-  expressions: Expr[];
+  expressions: ConsList<RuntimeExpr>;
   pos: number;
-  asts: Array<string|AST>;
+  asts: ASTList;
 }
 function contAlt(
-    expressions: Expr[], pos: number, asts: Array<string|AST>): ContAlt {
+    expressions: ConsList<RuntimeExpr>, pos: number, asts: ASTList): ContAlt {
   return {type: ContType.ALT, expressions, pos, asts};
 }
 
 interface ContAnd {
   type: ContType.AND;
   pos: number;
-  asts: Array<string|AST>;
+  asts: ASTList;
   err: RawError;
 }
-function contAnd(pos: number, asts: Array<string|AST>, err: RawError): ContAnd {
+function contAnd(pos: number, asts: ASTList, err: RawError): ContAnd {
   return {type: ContType.AND, pos, asts, err};
 }
 
 interface ContNot {
   type: ContType.NOT;
   pos: number;
-  asts: Array<string|AST>;
+  asts: ASTList;
   err: RawError;
 }
-function contNot(pos: number, asts: Array<string|AST>, err: RawError): ContNot {
+function contNot(pos: number, asts: ASTList, err: RawError): ContNot {
   return {type: ContType.NOT, pos, asts, err};
 }
 
 interface ContOpt {
   type: ContType.OPT;
   pos: number;
-  asts: Array<string|AST>;
+  asts: ASTList;
 }
-function contOpt(pos: number, asts: Array<string|AST>): ContOpt {
+function contOpt(pos: number, asts: ASTList): ContOpt {
   return {type: ContType.OPT, pos, asts};
 }
 
 interface ContStar {
   type: ContType.STAR;
-  expression: Expr;
+  expression: RuntimeExpr;
   pos: number;
-  asts: Array<string|AST>;
+  asts: ASTList;
 }
 function contStar(
-    expression: Expr, pos: number, asts: Array<string|AST>): ContStar {
+    expression: RuntimeExpr, pos: number, asts: ASTList): ContStar {
   return {type: ContType.STAR, expression, pos, asts};
 }
 
 interface ContPlus {
   type: ContType.PLUS;
-  expression: Expr;
+  expression: RuntimeExpr;
 }
-function contPlus(expression: Expr): ContPlus {
+function contPlus(expression: RuntimeExpr): ContPlus {
   return {type: ContType.PLUS, expression};
 }
 
 interface ContVoid {
   type: ContType.VOID;
-  asts: Array<string|AST>;
+  asts: ASTList;
 }
-function contVoid(asts: Array<string|AST>): ContVoid {
+function contVoid(asts: ASTList): ContVoid {
   return {type: ContType.VOID, asts};
 }
 
@@ -309,12 +266,11 @@ interface ContNT {
   type: ContType.NT;
   mode: NonTerminalMode;
   name: string;
-  asts: Array<string|AST>;
+  asts: ASTList;
   nt: string;
 }
 function contNT(
-    mode: NonTerminalMode, name: string, asts: Array<string|AST>,
-    nt: string): ContNT {
+    mode: NonTerminalMode, name: string, asts: ASTList, nt: string): ContNT {
   return {type: ContType.NT, mode, name, asts, nt};
 }
 
@@ -328,11 +284,11 @@ const enum MatchResultType {
 interface Accepted {
   type: MatchResultType.ACCEPT;
   pos: number;
-  asts: Array<AST|string>;
+  asts: ASTList;
   err: RawError;
 }
 
-function accept(pos: number, asts: Array<AST|string>, err: RawError): Accepted {
+function accept(pos: number, asts: ASTList, err: RawError): Accepted {
   return {type: MatchResultType.ACCEPT, pos, asts, err};
 }
 
@@ -352,36 +308,43 @@ const enum ActionType {
 
 interface ActionEval {
   type: ActionType.EVAL;
-  exp: Expr;
+  exp: RuntimeExpr;
   pos: number;
-  asts: Array<AST|string>;
+  asts: ASTList;
   err: RawError;
-  continuations: Continuation[];
+  continuations: ConsList<Continuation>;
 }
 
 function evalNext(
-    exp: Expr, pos: number, asts: Array<AST|string>, err: RawError,
-    continuations: Continuation[]): ActionEval {
+    exp: RuntimeExpr, pos: number, asts: ASTList, err: RawError,
+    continuations: ConsList<Continuation>): ActionEval {
   return {type: ActionType.EVAL, asts, continuations, err, exp, pos};
 }
 
 interface ActionApply {
   type: ActionType.APPLY;
-  continuations: Continuation[];
+  continuations: ConsList<Continuation>;
   value: MatchResult;
 }
 
 function applyNext(
-    continuations: Continuation[], value: MatchResult): ActionApply {
+    continuations: ConsList<Continuation>, value: MatchResult): ActionApply {
   return {type: ActionType.APPLY, continuations, value};
 }
 
-function match(env: ParserConfig, start: keyof ParserConfig, input: string):
-    AST|ParseError {
+function match(
+    env: RuntimeParserConfig, start: keyof ParserConfig, input: string): AST|
+    ParseError {
   // move from initial state to halting state
   let action = moveEval(
       env, input,
-      evalNext(env[start].exp, 0, [], new RawError(0, [start], [], start), []));
+      evalNext(
+          env[start].exp, /*pos=*/0, /*asts=*/empty(),
+          new RawError(
+              /*pos=*/0, /*nonterminals=*/cons(start, empty()),
+              /*failedChars=*/empty(),
+              /*currentNT=*/start),
+          /*continuations=*/empty()));
   while (true) {
     switch (action.type) {
       case ActionType.EVAL:
@@ -389,23 +352,23 @@ function match(env: ParserConfig, start: keyof ParserConfig, input: string):
         break;
       case ActionType.APPLY:
         const {continuations, value} = action;
-        if (continuations.length === 0) {
+        if (continuations.isEmpty()) {
           return moveReturn(env, start, input, value);
         }
-        const [evaluated, ...rest] = continuations;
-        action = moveApply(env, input, value, evaluated, rest);
+        action =
+            moveApply(input, value, continuations.head, continuations.tail);
         break;
     }
   }
 }
 
 // Evaluates the result of the expression given in `action`.
-function moveEval(env: ParserConfig, input: string, action: ActionEval):
+function moveEval(env: RuntimeParserConfig, input: string, action: ActionEval):
     ActionEval|ActionApply {
   const {exp, pos, asts, err, continuations} = action;
   const eof = pos >= input.length;
   switch (exp.type) {
-    case ExprType.ANY:
+    case ExprType.ANY_CHAR:
       if (eof) {
         return applyNext(
             continuations, reject(updateError(err, pos, new ErrAny())));
@@ -415,29 +378,31 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
         return applyNext(
             continuations,
             isSingleCharCodepoint(codePointAtOrFail(input, pos)) ?
-                accept(pos + 1, [input[pos], ...asts], err) :
+                accept(pos + 1, cons(input[pos], asts), err) :
                 // A non single-char code-point implies !eof(pos + 1)
-                accept(pos + 2, [input[pos] + input[pos + 1], ...asts], err));
+                accept(pos + 2, cons(input[pos] + input[pos + 1], asts), err));
       }
     case ExprType.ALT: {
       const {exprs} = exp;
-      if (exprs.length > 0) {
-        return evalNext(
-            exprs[0], pos, asts, err,
-            [contAlt(exprs.slice(1), pos, asts), ...continuations]);
-      } else {
+      if (exprs.isEmpty()) {
         return applyNext(continuations, reject(err));
       }
+      return evalNext(
+          exprs.head, pos, asts, err,
+          cons(contAlt(exprs.tail, pos, asts), continuations));
     }
     case ExprType.AND:
       return evalNext(
-          exp.expr, pos, [], err, [contAnd(pos, asts, err), ...continuations]);
+          exp.expr, pos, /*asts=*/empty(), err,
+          cons(contAnd(pos, asts, err), continuations));
     case ExprType.NOT:
       return evalNext(
-          exp.expr, pos, [], err, [contNot(pos, asts, err), ...continuations]);
+          exp.expr, pos, /*asts=*/empty(), err,
+          cons(contNot(pos, asts, err), continuations));
     case ExprType.VOID:
       return evalNext(
-          exp.expr, pos, [], err, [contVoid(asts), ...continuations]);
+          exp.expr, pos, /*asts=*/empty(), err,
+          cons(contVoid(asts), continuations));
     case ExprType.CHAR:
       const c = exp.char;
       return applyNext(
@@ -445,12 +410,12 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
           c.length === 1 ?
               eof || c !== input[pos] ?
               reject(updateError(err, pos, new ErrChar(c))) :
-              accept(pos + 1, [input[pos], ...asts], err) :
+              accept(pos + 1, cons(input[pos], asts), err) :
               // c.length === 2:
               pos + 1 >= input.length || c[0] !== input[pos] ||
                       c[1] !== input[pos + 1] ?
               reject(updateError(err, pos, new ErrChar(c))) :
-              accept(pos + 2, [input[pos] + input[pos + 1], ...asts], err));
+              accept(pos + 2, cons(input[pos] + input[pos + 1], asts), err));
     case ExprType.CHAR_CLASS:
       const cc = exp.codepoints;
       if (eof) {
@@ -474,8 +439,9 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
           return applyNext(
               continuations,
               isSingleCharCodepoint(inputCodePoint) ?
-                  accept(pos + 1, [input[pos], ...asts], err) :
-                  accept(pos + 2, [input[pos] + input[pos + 1], ...asts], err));
+                  accept(pos + 1, cons(input[pos], asts), err) :
+                  accept(
+                      pos + 2, cons(input[pos] + input[pos + 1], asts), err));
         }
       }
       return applyNext(
@@ -486,33 +452,29 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
       // The rest of the string returned by the expression is used
       // as input to the next expression.
       const {exprs} = exp;
-      if (exprs.length === 0) {
+      if (exprs.isEmpty()) {
         return applyNext(continuations, accept(pos, asts, err));
-      } else {
-        return evalNext(
-            exprs[0], pos, asts, err,
-            [contSeq(exprs.slice(1)), ...continuations]);
       }
+      return evalNext(
+          exprs.head, pos, asts, err, cons(contSeq(exprs.tail), continuations));
     }
     case ExprType.PLUS:
       return evalNext(
-          exp.expr, pos, asts, err, [contPlus(exp.expr), ...continuations]);
+          exp.expr, pos, asts, err, cons(contPlus(exp.expr), continuations));
     case ExprType.STAR:
       return evalNext(
           exp.expr, pos, asts, err,
-          [contStar(exp.expr, pos, asts), ...continuations]);
+          cons(contStar(exp.expr, pos, asts), continuations));
     case ExprType.OPT:
       return evalNext(
-          exp.expr, pos, asts, err, [contOpt(pos, asts), ...continuations]);
+          exp.expr, pos, asts, err, cons(contOpt(pos, asts), continuations));
     case ExprType.NT:
       const {name} = exp;
       const nt = env[name];
       return evalNext(
-          nt.exp, pos, [],
-          new RawError(err.pos, err.nonterminals, err.failedChars, name), [
-            contNT(nt.mode, name, asts, err.currentNT),
-            ...continuations,
-          ]);
+          nt.exp, pos, /*asts=*/empty(),
+          new RawError(err.pos, err.nonterminals, err.failedChars, name),
+          cons(contNT(nt.mode, name, asts, err.currentNT), continuations));
     default:
       throw new Error(`Unsupported exp.type in exp=${
           (exp as any).type} action=${JSON.stringify(action)}`);
@@ -521,37 +483,37 @@ function moveEval(env: ParserConfig, input: string, action: ActionEval):
 
 // Handles the result of a processed continuation.
 function moveApply(
-    env: ParserConfig, input: string, value: MatchResult,
-    evaluated: Continuation, rest: Continuation[]): ActionEval|ActionApply {
+    input: string, value: MatchResult, evaluated: Continuation,
+    rest: ConsList<Continuation>): ActionEval|ActionApply {
   switch (value.type) {
     case MatchResultType.ACCEPT:
-      return moveApplyOnAccept(env, input, value, evaluated, rest);
+      return moveApplyOnAccept(input, value, evaluated, rest);
     case MatchResultType.REJECT:
-      return moveApplyOnReject(env, input, value, evaluated, rest);
+      return moveApplyOnReject(input, value, evaluated, rest);
   }
 }
 
 // Called after the `evaluated` continuation got accepted (matched).
 function moveApplyOnAccept(
-    env: ParserConfig, input: string, accepted: Accepted,
-    evaluated: Continuation, rest: Continuation[]): ActionEval|ActionApply {
+    input: string, accepted: Accepted, evaluated: Continuation,
+    rest: ConsList<Continuation>): ActionEval|ActionApply {
   switch (evaluated.type) {
-    case ContType.SEQ:
-      const es = evaluated.expressions;
-      if (es.length > 0) {
-        return evalNext(
-            es[0], accepted.pos, accepted.asts, accepted.err,
-            [contSeq(es.slice(1)), ...rest]);
-      } else {
+    case ContType.SEQ: {
+      const {expressions} = evaluated;
+      if (expressions.isEmpty()) {
         return applyNext(rest, accepted);
       }
+      return evalNext(
+          expressions.head, accepted.pos, accepted.asts, accepted.err,
+          cons(contSeq(expressions.tail), rest));
+    }
     case ContType.STAR:
     case ContType.PLUS:
       return evalNext(
-          evaluated.expression, accepted.pos, accepted.asts, accepted.err, [
-            contStar(evaluated.expression, accepted.pos, accepted.asts),
-            ...rest,
-          ]);
+          evaluated.expression, accepted.pos, accepted.asts, accepted.err,
+          cons(
+              contStar(evaluated.expression, accepted.pos, accepted.asts),
+              rest));
     case ContType.ALT:
     case ContType.OPT:
       return applyNext(rest, accepted);
@@ -574,21 +536,22 @@ function moveApplyOnAccept(
           return applyNext(
               rest,
               accept(
-                  accepted.pos, [new AST(name, valAsts.reverse()), ...asts],
+                  accepted.pos,
+                  cons(new AST(name, valAsts.toArray().reverse()), asts),
                   newErr));
         case NonTerminalMode.PRUNING:
-          switch (valAsts.length) {
-            case 0:
-              return applyNext(rest, accept(accepted.pos, asts, newErr));
-            case 1:
-              return applyNext(
-                  rest, accept(accepted.pos, [valAsts[0], ...asts], newErr));
-            default:
-              return applyNext(
-                  rest,
-                  accept(
-                      accepted.pos, [new AST(name, valAsts.reverse()), ...asts],
-                      newErr));
+          if (valAsts.isEmpty()) {
+            return applyNext(rest, accept(accepted.pos, asts, newErr));
+          } else if (valAsts.tail.isEmpty()) {
+            return applyNext(
+                rest, accept(accepted.pos, cons(valAsts.head, asts), newErr));
+          } else {
+            return applyNext(
+                rest,
+                accept(
+                    accepted.pos,
+                    cons(new AST(name, valAsts.toArray().reverse()), asts),
+                    newErr));
           }
         case NonTerminalMode.VOIDING:
           return applyNext(rest, accept(accepted.pos, asts, newErr));
@@ -604,20 +567,20 @@ function moveApplyOnAccept(
 
 // Called after the `evaluated` continuation got rejected (did not match).
 function moveApplyOnReject(
-    env: ParserConfig, input: string, rejected: Rejected,
-    evaluated: Continuation, continuations: Continuation[]): ActionEval|
-    ActionApply {
+    input: string, rejected: Rejected, evaluated: Continuation,
+    continuations: ConsList<Continuation>): ActionEval|ActionApply {
   switch (evaluated.type) {
-    case ContType.ALT:
-      const es = evaluated.expressions;
-      if (es.length > 0) {
-        return evalNext(es[0], evaluated.pos, evaluated.asts, rejected.err, [
-          contAlt(es.slice(1), evaluated.pos, evaluated.asts),
-          ...continuations,
-        ]);
-      } else {
+    case ContType.ALT: {
+      const {expressions} = evaluated;
+      if (expressions.isEmpty()) {
         return applyNext(continuations, rejected);
       }
+      return evalNext(
+          expressions.head, evaluated.pos, evaluated.asts, rejected.err,
+          cons(
+              contAlt(expressions.tail, evaluated.pos, evaluated.asts),
+              continuations));
+    }
     case ContType.SEQ:
     case ContType.VOID:
     case ContType.PLUS:
@@ -644,7 +607,7 @@ function moveApplyOnReject(
 
 // Called after the final continuation was processed.
 function moveReturn(
-    env: ParserConfig, start: keyof ParserConfig, input: string,
+    env: RuntimeParserConfig, start: keyof ParserConfig, input: string,
     value: MatchResult): AST|ParseError {
   switch (value.type) {
     case MatchResultType.ACCEPT:
@@ -652,20 +615,19 @@ function moveReturn(
       if (value.pos >= input.length) {
         switch (env[start].mode) {
           case NonTerminalMode.NORMAL:
-            return new AST(start, asts.reverse());
+            return new AST(start, asts.toArray().reverse());
           case NonTerminalMode.PRUNING:
-            switch (asts.length) {
-              case 0:
-                return EmptyAST();
-              case 1:
-                const ast = asts[0];
-                if (typeof ast === 'string') {
-                  throw new Error(`Expected an AST, got a string ${
-                      JSON.stringify(ast)}, in ${value}`);
-                }
-                return ast;
-              default:
-                return new AST(start, asts.reverse());
+            if (asts.isEmpty()) {
+              return EmptyAST();
+            } else if (asts.tail.isEmpty()) {
+              const ast = asts.head;
+              if (typeof ast === 'string') {
+                throw new Error(`Expected an AST, got a string ${
+                    JSON.stringify(ast)}, in ${value}`);
+              }
+              return ast;
+            } else {
+              return new AST(start, asts.toArray().reverse());
             }
           case NonTerminalMode.VOIDING:
             return EmptyAST();
@@ -675,7 +637,8 @@ function moveReturn(
                    value.pos, value.err.nonterminals, value.err.failedChars, '')
             .toParseError(input);
       } else {
-        return new RawError(value.pos, [], [], '').toParseError(input);
+        return new RawError(value.pos, empty(), empty(), '')
+            .toParseError(input);
       }
     case MatchResultType.REJECT:
       return value.err.toParseError(input);

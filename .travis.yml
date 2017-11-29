@@ -3,8 +3,9 @@ dist: trusty
 
 # node v4+ is required for String#codePointAt support.
 # node v6+ is required for destructuring assignment support.
+# node v7+ is required for Object.entries.
 language: node_js
-node_js: '6'
+node_js: '7'
 
 addons:
   apt:
