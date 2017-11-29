@@ -4,9 +4,9 @@
  */
 
 import {cons, ConsList, empty} from './cons_list';
-import {ConfigExpr, configExprToExpr, Expr, ExprType} from './expr';
+import {Expr, exprToRuntimeExpr, ExprType, RuntimeExpr} from './expr';
 
-export {ConfigExpr, ExprType} from './expr';
+export {Expr, ExprType} from './expr';
 
 export class WaxeyeParser {
   private readonly env: RuntimeParserConfig;
@@ -27,11 +27,11 @@ export class WaxeyeParser {
 
 export interface ParserConfig {
   // name -> ParserConfigNonTerminal
-  [key: string]: {mode: NonTerminalMode, exp: ConfigExpr};
+  [key: string]: {mode: NonTerminalMode, exp: Expr};
 }
 interface RuntimeParserConfig {
   // name -> ParserConfigNonTerminal
-  [key: string]: {mode: NonTerminalMode, exp: Expr};
+  [key: string]: {mode: NonTerminalMode, exp: RuntimeExpr};
 }
 
 function parserConfigToRuntimeParserConfig(config: ParserConfig):
@@ -40,7 +40,7 @@ function parserConfigToRuntimeParserConfig(config: ParserConfig):
   for (const [name, nonterminal] of Object.entries(config)) {
     result[name] = {
       mode: nonterminal.mode,
-      exp: configExprToExpr(nonterminal.exp),
+      exp: exprToRuntimeExpr(nonterminal.exp),
     };
   }
   return result;
@@ -189,20 +189,20 @@ const enum ContType {
 
 interface ContSeq {
   type: ContType.SEQ;
-  expressions: ConsList<Expr>;
+  expressions: ConsList<RuntimeExpr>;
 }
-function contSeq(expressions: ConsList<Expr>): ContSeq {
+function contSeq(expressions: ConsList<RuntimeExpr>): ContSeq {
   return {type: ContType.SEQ, expressions};
 }
 
 interface ContAlt {
   type: ContType.ALT;
-  expressions: ConsList<Expr>;
+  expressions: ConsList<RuntimeExpr>;
   pos: number;
   asts: ASTList;
 }
 function contAlt(
-    expressions: ConsList<Expr>, pos: number, asts: ASTList): ContAlt {
+    expressions: ConsList<RuntimeExpr>, pos: number, asts: ASTList): ContAlt {
   return {type: ContType.ALT, expressions, pos, asts};
 }
 
@@ -237,19 +237,20 @@ function contOpt(pos: number, asts: ASTList): ContOpt {
 
 interface ContStar {
   type: ContType.STAR;
-  expression: Expr;
+  expression: RuntimeExpr;
   pos: number;
   asts: ASTList;
 }
-function contStar(expression: Expr, pos: number, asts: ASTList): ContStar {
+function contStar(
+    expression: RuntimeExpr, pos: number, asts: ASTList): ContStar {
   return {type: ContType.STAR, expression, pos, asts};
 }
 
 interface ContPlus {
   type: ContType.PLUS;
-  expression: Expr;
+  expression: RuntimeExpr;
 }
-function contPlus(expression: Expr): ContPlus {
+function contPlus(expression: RuntimeExpr): ContPlus {
   return {type: ContType.PLUS, expression};
 }
 
@@ -307,7 +308,7 @@ const enum ActionType {
 
 interface ActionEval {
   type: ActionType.EVAL;
-  exp: Expr;
+  exp: RuntimeExpr;
   pos: number;
   asts: ASTList;
   err: RawError;
@@ -315,7 +316,7 @@ interface ActionEval {
 }
 
 function evalNext(
-    exp: Expr, pos: number, asts: ASTList, err: RawError,
+    exp: RuntimeExpr, pos: number, asts: ASTList, err: RawError,
     continuations: ConsList<Continuation>): ActionEval {
   return {type: ActionType.EVAL, asts, continuations, err, exp, pos};
 }

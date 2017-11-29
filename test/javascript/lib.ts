@@ -15,7 +15,7 @@ export class TestEnv {
     throw new Error('Unsupported runType ' + JSON.stringify(spec));
   }
 
-  public buildRule(rule: any[]): waxeye.ConfigExpr {
+  public buildRule(rule: any[]): waxeye.Expr {
     const ruleType = exprTypeFromName(rule[0]);
     switch (ruleType) {
       case waxeye.ExprType.NT:
@@ -25,7 +25,7 @@ export class TestEnv {
         return {
           type: ruleType,
           exprs: rule.slice(1).map((r) => this.buildRule(r)),
-        } as waxeye.ConfigExpr;
+        } as waxeye.Expr;
       case waxeye.ExprType.CHAR:
         return {type: ruleType, char: rule[1]};
       case waxeye.ExprType.CHAR_CLASS:
@@ -39,8 +39,7 @@ export class TestEnv {
       case waxeye.ExprType.AND:
       case waxeye.ExprType.NOT:
       case waxeye.ExprType.VOID:
-        return {type: ruleType, expr: this.buildRule(rule[1])} as
-            waxeye.ConfigExpr;
+        return {type: ruleType, expr: this.buildRule(rule[1])} as waxeye.Expr;
       case waxeye.ExprType.ANY_CHAR:
         return {type: ruleType};
       default:
@@ -50,7 +49,7 @@ export class TestEnv {
     }
   }
 
-  public testEval(rule: waxeye.ConfigExpr, input: string) {
+  public testEval(rule: waxeye.Expr, input: string) {
     const config = Object.assign(
         {}, this.config,
         {S: {mode: waxeye.NonTerminalMode.VOIDING, exp: rule}});

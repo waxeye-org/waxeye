@@ -6,7 +6,7 @@
 
 import {cons, ConsList, empty} from './cons_list';
 
-export function configExprToExpr(expr: ConfigExpr): Expr {
+export function exprToRuntimeExpr(expr: Expr): RuntimeExpr {
   switch (expr.type) {
     case ExprType.NT:
     case ExprType.CHAR:
@@ -19,24 +19,25 @@ export function configExprToExpr(expr: ConfigExpr): Expr {
     case ExprType.AND:
     case ExprType.NOT:
     case ExprType.VOID:
-      return {type: expr.type, expr: configExprToExpr(expr.expr)} as Expr;
+      return {type: expr.type, expr: exprToRuntimeExpr(expr.expr)} as
+          RuntimeExpr;
     case ExprType.ALT:
     case ExprType.SEQ:
       return {
         type: expr.type,
         exprs: expr.exprs.reduceRight(
-            (result: ConsList<Expr>, value: ConfigExpr): ConsList<Expr> =>
-                cons(configExprToExpr(value), result),
+            (result: ConsList<RuntimeExpr>, value: Expr):
+                ConsList<RuntimeExpr> => cons(exprToRuntimeExpr(value), result),
             empty()),
-      } as Expr;
+      } as RuntimeExpr;
   }
 }
 
-export type ConfigExpr =
-    NonRecursiveExpr|ConfigExprPlus|ConfigExprStar|ConfigExprOpt|ConfigExprAnd|
-    ConfigExprNot|ConfigExprVoid|ConfigExprAlt|ConfigExprSeq;
 export type Expr = NonRecursiveExpr|ExprPlus|ExprStar|ExprOpt|ExprAnd|ExprNot|
     ExprVoid|ExprAlt|ExprSeq;
+export type RuntimeExpr =
+    NonRecursiveExpr|RuntimeExprPlus|RuntimeExprStar|RuntimeExprOpt|
+    RuntimeExprAnd|RuntimeExprNot|RuntimeExprVoid|RuntimeExprAlt|RuntimeExprSeq;
 export type NonRecursiveExpr =
     ExprNonTerminal|ExprChar|ExprCharClass|ExprAnyChar;
 
@@ -74,74 +75,74 @@ export interface ExprCharClass {
   codepoints: Array<number|[number, number]>;
 }
 
-export interface ConfigExprAlt {
-  type: ExprType.ALT;
-  exprs: ConfigExpr[];
-}
 export interface ExprAlt {
   type: ExprType.ALT;
-  exprs: ConsList<Expr>;
+  exprs: Expr[];
+}
+export interface RuntimeExprAlt {
+  type: ExprType.ALT;
+  exprs: ConsList<RuntimeExpr>;
 }
 
-export interface ConfigExprSeq {
-  type: ExprType.SEQ;
-  exprs: ConfigExpr[];
-}
 export interface ExprSeq {
   type: ExprType.SEQ;
-  exprs: ConsList<Expr>;
+  exprs: Expr[];
+}
+export interface RuntimeExprSeq {
+  type: ExprType.SEQ;
+  exprs: ConsList<RuntimeExpr>;
 }
 
-export interface ConfigExprPlus {
-  type: ExprType.PLUS;
-  expr: ConfigExpr;
-}
 export interface ExprPlus {
   type: ExprType.PLUS;
   expr: Expr;
 }
-
-export interface ConfigExprStar {
-  type: ExprType.STAR;
-  expr: ConfigExpr;
+export interface RuntimeExprPlus {
+  type: ExprType.PLUS;
+  expr: RuntimeExpr;
 }
+
 export interface ExprStar {
   type: ExprType.STAR;
   expr: Expr;
 }
-
-export interface ConfigExprOpt {
-  type: ExprType.OPT;
-  expr: ConfigExpr;
+export interface RuntimeExprStar {
+  type: ExprType.STAR;
+  expr: RuntimeExpr;
 }
+
 export interface ExprOpt {
   type: ExprType.OPT;
   expr: Expr;
 }
-
-export interface ConfigExprAnd {
-  type: ExprType.AND;
-  expr: ConfigExpr;
+export interface RuntimeExprOpt {
+  type: ExprType.OPT;
+  expr: RuntimeExpr;
 }
+
 export interface ExprAnd {
   type: ExprType.AND;
   expr: Expr;
 }
-
-export interface ConfigExprNot {
-  type: ExprType.NOT;
-  expr: ConfigExpr;
+export interface RuntimeExprAnd {
+  type: ExprType.AND;
+  expr: RuntimeExpr;
 }
+
 export interface ExprNot {
   type: ExprType.NOT;
   expr: Expr;
 }
-
-export interface ConfigExprVoid {
-  type: ExprType.VOID;
-  expr: ConfigExpr;
+export interface RuntimeExprNot {
+  type: ExprType.NOT;
+  expr: RuntimeExpr;
 }
+
 export interface ExprVoid {
   type: ExprType.VOID;
   expr: Expr;
+}
+export interface RuntimeExprVoid {
+  type: ExprType.VOID;
+  expr: RuntimeExpr;
 }
