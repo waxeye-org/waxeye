@@ -16,11 +16,21 @@
     if (!currentParser) {
       ui.parserOutput.innerText = '';
     } else {
+      ui.parseErrorOverlay.strategies = [];
       const result = currentParser.parse(ui.parserInput.value);
-
-      ui.parserOutput.innerText = result instanceof waxeye.AST
-          ? JSON.stringify(result, null, '  ')
-          : result.toString();
+      if (result instanceof waxeye.AST) {
+        ui.parserOutput.innerText = JSON.stringify(result, null, '  ');
+      } else {
+        ui.parserOutput.innerText = result.toString();
+        if (result instanceof waxeye.ParseError) {
+          ui.parseErrorOverlay.strategies = [
+            {
+              match: matchForOverlayFrom(result.pos),
+              css: { 'background-color': '#ffebee' }
+            }
+          ];
+        }
+      }
     }
   };
 
@@ -51,14 +61,22 @@
     ui.grammarCompilationStatusOutput.innerText = out || err;
 
     setCurrentParser(jsParserSource);
+    ui.parseErrorOverlay.render();
   };
 
   const updateCannedExample = () => {
-    const id = ui.cannedSelect.selectedOptions[0].value;
+    const id = ui.cannedSelect.value;
     const [grammar, input] = CANNED_EXAMPLES[id];
     ui.grammarSource.value = grammar;
     ui.parserInput.value = input;
+    history.replaceState(null, null, `#${id}`);
     compile();
+  };
+
+  const updateURL = () => {
+    history.replaceState(null, null, '#' +
+      [LZString.compressToEncodedURIComponent(ui.grammarSource.value),
+      LZString.compressToEncodedURIComponent(ui.parserInput.value)].join('/'))
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -80,8 +98,47 @@
     ui.cannedSelect.addEventListener('change', updateCannedExample);
     ui.grammarSource.addEventListener('input', throttle(compile, 360));
     ui.parserInput.addEventListener('input', parse);
-    updateCannedExample();
+    for (const input of [ui.grammarSource, ui.parserInput]) {
+      input.addEventListener('input', throttle(updateURL, 360));
+      input.addEventListener('input', () => { ui.cannedSelect.value = '' });
+    }
+    ui.parseErrorOverlay = new Textoverlay(ui.parserInput, []);
+
+    // Initialize from the URL hash fragment. Cases:
+    //
+    // 1. #a/b => a is the grammar, b is the input, compressed with LZString.
+    // 2. #a => a is the ID of a canned example.
+    // 3. Otherwise, load the selected (default) canned example.
+    if (window.location.hash.length > 2) {
+      if (window.location.hash.indexOf('/') != -1) {
+        ui.cannedSelect.value = '';
+        const [grammar, input] = window.location.hash.slice(1).split('/').
+          map(LZString.decompressFromEncodedURIComponent);
+        ui.grammarSource.value = grammar || '';
+        ui.parserInput.value = input || '';
+        compile();
+      } else {
+        ui.cannedSelect.value = window.location.hash.slice(1);
+        updateCannedExample();
+      }
+    } else {
+      updateCannedExample();
+    }
   });
+
+  function matchForOverlayFrom(from) {
+    let firstExec = true;
+    const matcher = {
+      lastIndex: 0,
+      exec(input) {
+        if (!firstExec) return null;
+        firstExec = false;
+        matcher.lastIndex = input.length + (from >= input.length ? 1 : 0);
+        return { 0: input.slice(from) || " " };
+      }
+    };
+    return matcher;
+  }
 
   const throttle = (f, maxEveryMs) => {
     let last = 0;

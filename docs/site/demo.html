@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>Waxeye Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script src="genfiles/traceur-runtime.js" charset="UTF-8"></script>
     <script src="genfiles/racketscript-waxeye-compiler.js" charset="UTF-8"></script>
     <script src="genfiles/waxeye.js" charset="UTF-8"></script>
+    <script src="third_party/textoverlay.min.js"></script>
+    <script src="third_party/lz-string.min.js"></script>
     <script src="demo.js" charset="UTF-8"></script>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="demo.css">
@@ -28,7 +31,8 @@
           <label class="demo-canned-select">
             Example:
             <select name="demo-canned-select">
-              <option value="calc">calc.waxeye</option>
+              <option value="">Select example...</option>
+              <option value="calc" selected>calc.waxeye</option>
               <option value="json">json.waxeye</option>
               <option value="waxeye">waxeye.waxeye</option>
             </select>
