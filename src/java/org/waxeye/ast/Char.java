@@ -19,6 +19,9 @@ implements IChar
     /** The value of the char. */
     private final char value;
 
+    /** The position of the char. */
+    private final int position;
+
     /**
      * Creates a new Char AST.
      *
@@ -26,16 +29,23 @@ implements IChar
      *
      * @param type The type of the AST.
      */
-    public Char(final char value, final E type)
+    public Char(final char value, final E type, final int position)
     {
         super(type);
         this.value = value;
+        this.position = position;
     }
 
     /** {@inheritDoc} */
     public char getValue()
     {
         return value;
+    }
+    
+    /** {@inheritDoc} */
+    public int getPos()
+    {
+      return position;
     }
 
     /** {@inheritDoc} */
