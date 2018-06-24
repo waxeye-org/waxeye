@@ -9,7 +9,7 @@ module.exports = {
     filename: 'waxeye.js',
     libraryTarget: 'umd',
     // `library` determines the name of the global variable
-    library: '[name]'
+    library: 'waxeye'
   },
   resolve: {
     extensions: ['.ts']
