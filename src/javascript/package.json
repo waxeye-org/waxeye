@@ -20,7 +20,7 @@
     "webpack-cli": "^3.0.8"
   },
   "scripts": {
-    "compile": "node_modules/.bin/webpack",
+    "compile": "node_modules/.bin/webpack --mode production",
     "format": "node_modules/.bin/clang-format -style=Google -i",
     "lint": "node_modules/.bin/tslint --fix --format verbose -p",
     "test": "../../test/bin/test-javascript"
