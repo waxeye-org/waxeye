@@ -333,8 +333,8 @@ function applyNext(
 }
 
 function match(
-    env: RuntimeParserConfig, start: string /* keyof env */, input: string): AST|
-    ParseError {
+    env: RuntimeParserConfig, start: string /* keyof env */,
+    input: string): AST|ParseError {
   // move from initial state to halting state
   let action = moveEval(
       env, input,
