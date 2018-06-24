@@ -12,7 +12,7 @@ export class WaxeyeParser {
   private readonly env: RuntimeParserConfig;
   public constructor(
       public readonly config: ParserConfig,
-      public readonly start: keyof ParserConfig /* keyof env */) {
+      public readonly start: string /* keyof env */) {
     this.env = parserConfigToRuntimeParserConfig(config);
   }
 
@@ -333,7 +333,7 @@ function applyNext(
 }
 
 function match(
-    env: RuntimeParserConfig, start: keyof ParserConfig, input: string): AST|
+    env: RuntimeParserConfig, start: string /* keyof env */, input: string): AST|
     ParseError {
   // move from initial state to halting state
   let action = moveEval(
@@ -607,7 +607,7 @@ function moveApplyOnReject(
 
 // Called after the final continuation was processed.
 function moveReturn(
-    env: RuntimeParserConfig, start: keyof ParserConfig, input: string,
+    env: RuntimeParserConfig, start: string /* keyof env */, input: string,
     value: MatchResult): AST|ParseError {
   switch (value.type) {
     case MatchResultType.ACCEPT:
