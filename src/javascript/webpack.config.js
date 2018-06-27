@@ -4,14 +4,12 @@ const path = require('path');
 // a global.
 module.exports = {
   devtool: 'source-map',
-  entry: {
-    waxeye: './waxeye.ts',
-  },
+  entry: './waxeye.ts',
   output: {
-    filename: './dist/waxeye.js',
+    filename: 'waxeye.js',
     libraryTarget: 'umd',
     // `library` determines the name of the global variable
-    library: '[name]'
+    library: 'waxeye'
   },
   resolve: {
     extensions: ['.ts']

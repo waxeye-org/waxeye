@@ -61,7 +61,9 @@ export interface ExprNonTerminal {
   name: string;
 }
 
-export interface ExprAnyChar { type: ExprType.ANY_CHAR; }
+export interface ExprAnyChar {
+  type: ExprType.ANY_CHAR;
+}
 
 export interface ExprChar {
   type: ExprType.CHAR;

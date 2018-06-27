@@ -44,9 +44,7 @@ testFixtures.map((test: any[], i: number) => {
   assert.equal(
       testOutputTS, testOutputJS,
       `Fixture ${i + 1}: TypeScript output != JavaScript output`);
-  assert.equal(
-      testOutputTS, testExpectation,
-      `Fixture ${i + 1} failed:
+  assert.equal(testOutputTS, testExpectation, `Fixture ${i + 1} failed:
 Expected: ${testExpectation}
   Actual: ${testOutputTS}
 Test Fixture: ${JSON.stringify(test, null, 2)}`);
