@@ -14,8 +14,8 @@
     "clang-format": "^1.2.3",
     "ts-loader": "^4.4.1",
     "ts-node": "^7.0.0",
-    "tslint": "^5.10.0",
-    "typescript": "^2.9.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3",
     "webpack": "^4.12.1",
     "webpack-cli": "^3.0.8"
   },
