@@ -57,7 +57,9 @@ export const enum NonTerminalMode {
  * and a list of child ASTs.
  */
 export class AST {
-  constructor(public type: string, public children: Array<AST|string>) {}
+  constructor(
+      public type: string, public children: Array<AST|string>,
+      public start: number, public end: number) {}
 
   /**
    * The empty AST is an AST that has an empty `type` and no children.
@@ -72,8 +74,8 @@ export interface EmptyAST extends AST {
   children: never[];
 }
 
-export function EmptyAST(): EmptyAST {
-  return new AST('', []) as EmptyAST;
+export function EmptyAST(start: number, end: number): EmptyAST {
+  return new AST('', [], start, end) as EmptyAST;
 }
 
 export interface MatchError {
@@ -268,10 +270,12 @@ interface ContNT {
   name: string;
   asts: ASTList;
   nt: string;
+  startPos: number;
 }
 function contNT(
-    mode: NonTerminalMode, name: string, asts: ASTList, nt: string): ContNT {
-  return {type: ContType.NT, mode, name, asts, nt};
+    mode: NonTerminalMode, name: string, asts: ASTList, nt: string,
+    startPos: number): ContNT {
+  return {type: ContType.NT, mode, name, asts, nt, startPos};
 }
 
 type MatchResult = Accepted|Rejected;
@@ -474,7 +478,7 @@ function moveEval(env: RuntimeParserConfig, input: string, action: ActionEval):
       return evalNext(
           nt.exp, pos, /*asts=*/empty(),
           new RawError(err.pos, err.nonterminals, err.failedChars, name),
-          cons(contNT(nt.mode, name, asts, err.currentNT), continuations));
+          cons(contNT(nt.mode, name, asts, err.currentNT, pos), continuations));
     default:
       throw new Error(`Unsupported exp.type in exp=${
           (exp as any).type} action=${JSON.stringify(action)}`);
@@ -537,7 +541,11 @@ function moveApplyOnAccept(
               rest,
               accept(
                   accepted.pos,
-                  cons(new AST(name, valAsts.toArray().reverse()), asts),
+                  cons(
+                      new AST(
+                          name, valAsts.toArray().reverse(), evaluated.startPos,
+                          accepted.pos),
+                      asts),
                   newErr));
         case NonTerminalMode.PRUNING:
           if (valAsts.isEmpty()) {
@@ -550,7 +558,11 @@ function moveApplyOnAccept(
                 rest,
                 accept(
                     accepted.pos,
-                    cons(new AST(name, valAsts.toArray().reverse()), asts),
+                    cons(
+                        new AST(
+                            name, valAsts.toArray().reverse(),
+                            evaluated.startPos, accepted.pos),
+                        asts),
                     newErr));
           }
         case NonTerminalMode.VOIDING:
@@ -615,10 +627,10 @@ function moveReturn(
       if (value.pos >= input.length) {
         switch (env[start].mode) {
           case NonTerminalMode.NORMAL:
-            return new AST(start, asts.toArray().reverse());
+            return new AST(start, asts.toArray().reverse(), 0, value.pos);
           case NonTerminalMode.PRUNING:
             if (asts.isEmpty()) {
-              return EmptyAST();
+              return EmptyAST(0, value.pos);
             } else if (asts.tail.isEmpty()) {
               const ast = asts.head;
               if (typeof ast === 'string') {
@@ -627,10 +639,10 @@ function moveReturn(
               }
               return ast;
             } else {
-              return new AST(start, asts.toArray().reverse());
+              return new AST(start, asts.toArray().reverse(), 0, value.pos);
             }
           case NonTerminalMode.VOIDING:
-            return EmptyAST();
+            return EmptyAST(0, value.pos);
         }
       } else if (value.err && value.pos === value.err.pos) {
         return new RawError(
