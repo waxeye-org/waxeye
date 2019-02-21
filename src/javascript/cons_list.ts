@@ -69,7 +69,7 @@ export class Empty implements ConsListInterface<never> {
   public isEmpty(): this is Empty {
     return true;
   }
-  public toArray(): never[] {
+  public toArray(): [] {
     return [];
   }
   public[Symbol.iterator](): Iterator<never> {
