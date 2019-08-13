@@ -570,9 +570,7 @@ function moveApplyOnAccept(
         default:
           // Without this check, the TypeScript compiler doesn't
           // realize that the outer case is also exhaustive.
-          // tslint:disable-next-line:no-unused-variable
-          const checkExhaustive: never = mode;
-          throw new Error(`Invalid mode: ${JSON.stringify(mode)}`);
+          throw checkExhaustive(mode, 'Invalid mode');
       }
   }
 }
@@ -611,9 +609,7 @@ function moveApplyOnReject(
           reject(new RawError(
               err.pos, err.nonterminals, err.failedChars, evaluated.nt)));
     default:
-      // tslint:disable-next-line:no-unused-variable
-      const checkExhaustive: never = evaluated;
-      throw new Error(`Invalid continuation: ${JSON.stringify(evaluated)}`);
+      throw checkExhaustive(evaluated, 'Invalid continuation');
   }
 }
 
@@ -625,7 +621,8 @@ function moveReturn(
     case MatchResultType.ACCEPT:
       const asts = value.asts;
       if (value.pos >= input.length) {
-        switch (env[start].mode) {
+        const mode = env[start].mode;
+        switch (mode) {
           case NonTerminalMode.NORMAL:
             return new AST(start, asts.toArray().reverse(), 0, value.pos);
           case NonTerminalMode.PRUNING:
@@ -643,6 +640,8 @@ function moveReturn(
             }
           case NonTerminalMode.VOIDING:
             return EmptyAST(0, value.pos);
+          default:
+            throw checkExhaustive(mode, 'Invalid mode');
         }
       } else if (value.err && value.pos === value.err.pos) {
         return new RawError(
@@ -654,6 +653,8 @@ function moveReturn(
       }
     case MatchResultType.REJECT:
       return value.err.toParseError(input);
+    default:
+      throw checkExhaustive(value, 'Invalid MatchResultType');
   }
 }
 
@@ -683,4 +684,11 @@ function codePointAtOrFail(input: string, pos: number): number {
         `Undefined input codepoint at ${pos} in ${JSON.stringify(input)}`);
   }
   return codePoint;
+}
+
+// Performs a compile-time check that the current codepath is unreachable, and
+// throws an exception at run-time should the type system be compromised.
+// Particularly useful as the 'default' case in a switch.
+function checkExhaustive(value: never, message: string): never {
+  throw new Error(`${message}: ${JSON.stringify(value)}`);
 }
