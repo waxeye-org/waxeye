@@ -1,21 +1,66 @@
+// Test fixture (de-)serialization and matching.
 import * as waxeye from 'waxeye';
+
+export type FixtureOrComment = Fixture|['Comment', string];
+export type Fixture = ['MatchAST', Input, Node]|['MatchError', Input, Error];
+
+// Test input
+export type Input = MatchTestInput|ExprTestInput;
+export type InputText = string;
+
+// Match non-terminal of the test grammar.
+export type MatchTestInput = ['match', NonTerminalName, InputText];
+export type NonTerminalName = string;
+
+// Match the input text against the given (dynamically-constructed) grammar.
+export type Expr = any[];
+export type ExprTestInput = ['eval', Expr, InputText];
+
+// Expected AST
+export type Node = NonTerminalNode|CharNode|EmptyNode;
+export type EmptyNode = ['Empty', /*start*/ number, /*end*/ number];
+export type NonTerminalNode =
+    ['Tree', NonTerminalName, Node[], /*start*/ number, /*end*/ number];
+export type CharNode = ['Char', /*char value*/ string];
+
+// Expected error
+export type Error = [
+  'ParseError', /*pos*/ number, /*line*/ number, /*col*/ number,
+  NonTerminalName[], Array<ErrChar|ErrCC|ErrAny>
+];
+interface ErrChar {
+  type: 'ErrChar';
+  arg: string;
+}
+interface ErrCC {
+  type: 'ErrCC';
+  arg: Array<string|[string, string]>;
+}
+interface ErrAny {
+  type: 'ErrAny';
+}
 
 export class TestEnv {
   constructor(private config: waxeye.ParserConfig) {}
 
-  public getTestOutput(spec: ['match', string, string]|['eval', any[], string]):
-      waxeye.AST|waxeye.ParseError {
-    const [runType, data, input] = spec;
-    if (runType === 'match') {
-      return this.match(data as string, input);
+  public getTestOutput(input: Input): waxeye.AST|waxeye.ParseError {
+    switch (input[0]) {
+      case 'match': {
+        const nt = input[1];
+        const text = input[2];
+        return this.match(nt, text);
+      }
+      case 'eval': {
+        const expr = input[1];
+        const text = input[2];
+        return this.testEval(this.buildRule(expr), text);
+      }
+      default:
+        throw new Error('Unsupported runType ' + JSON.stringify(input));
     }
-    if (runType === 'eval') {
-      return this.testEval(this.buildRule(data as any[]), input);
-    }
-    throw new Error('Unsupported runType ' + JSON.stringify(spec));
   }
 
-  public buildRule(rule: any[]): waxeye.Expr {
+  public buildRule(rule: Expr): waxeye.Expr {
     const ruleType = exprTypeFromName(rule[0]);
     switch (ruleType) {
       case waxeye.ExprType.NT:
@@ -61,51 +106,68 @@ export class TestEnv {
   }
 }
 
-export function fixtureExpectationToOutput(expectation: any[]) {
-  const expType = expectation[0] as string;
-  if (expType === 'ParseError') {
-    return new waxeye.ParseError(
-        expectation[1], expectation[2], expectation[3], expectation[4],
-        fromFixtureExpectationErrChars(expectation[5]));
+export function deserializeExpectation(char: CharNode): string;
+export function deserializeExpectation(node: NonTerminalNode|
+                                       EmptyNode): waxeye.AST;
+export function deserializeExpectation(charOrNode: Node): waxeye.AST|string;
+export function deserializeExpectation(error: Error): waxeye.ParseError;
+export function deserializeExpectation(expectation: Node|Error):
+    waxeye.AST|waxeye.ParseError|string;
+export function deserializeExpectation(expectation: Node|Error):
+    waxeye.AST|waxeye.ParseError|string {
+  switch (expectation[0]) {
+    case 'ParseError':
+      return new waxeye.ParseError(
+          expectation[1], expectation[2], expectation[3], expectation[4],
+          fromFixtureExpectationErrChars(expectation[5]));
+    case 'Tree':
+      return new waxeye.AST(
+          expectation[1],
+          expectation[2].map((child) => deserializeExpectation(child)),
+          expectation[3], expectation[4]);
+    case 'Char':
+      return expectation[1];
+    case 'Empty':
+      return waxeye.EmptyAST(expectation[1], expectation[2]);
+    default:
+      console.log(expectation);
+      throw new Error('Unsupported: ' + expectation);
   }
-  if (expType === 'Tree') {
-    return new waxeye.AST(
-        expectation[1], expectation[2].map(fixtureExpectationToOutput));
-  }
-  if (expType === 'Char') {
-    return expectation[1];
-  }
-  if (expType === 'Empty') {
-    return waxeye.EmptyAST();
-  }
-  console.log(expectation);
-  throw new Error('Unsupported: ' + expectation);
 }
 
-export function outputToFixtureExpectation(node: waxeye.AST|waxeye.ParseError|
-                                           string): any[] {
-  if (node instanceof waxeye.ParseError) {
+export function serializeExpectation(char: string): CharNode;
+export function serializeExpectation(node: waxeye.AST): NonTerminalNode|
+    EmptyNode;
+export function serializeExpectation(charOrNode: string|waxeye.AST): Node;
+export function serializeExpectation(error: waxeye.ParseError): Error;
+export function serializeExpectation(result: waxeye.AST|waxeye.ParseError|
+                                     string): Node|Error;
+export function serializeExpectation(result: waxeye.AST|waxeye.ParseError|
+                                     string): Node|Error {
+  if (result instanceof waxeye.ParseError) {
     return [
       'ParseError',
-      node.pos,
-      node.line,
-      node.col,
-      node.nt,
-      toFixtureExpectationErrChars(node.chars),
+      result.pos,
+      result.line,
+      result.col,
+      result.nt,
+      toFixtureExpectationErrChars(result.chars),
     ];
   }
-  if (node instanceof waxeye.AST) {
-    if (node.isEmpty()) {
-      return ['Empty'];
+  if (result instanceof waxeye.AST) {
+    if (result.isEmpty()) {
+      return ['Empty', result.start, result.end];
     } else {
-      return ['Tree', node.type, node.children.map(outputToFixtureExpectation)];
+      const children =
+          result.children.map((child) => serializeExpectation(child));
+      return ['Tree', result.type, children, result.start, result.end];
     }
   }
-  if (typeof node === 'string') {
-    return ['Char', node];
+  if (typeof result === 'string') {
+    return ['Char', result];
   }
-  console.log(node);
-  throw new Error('Unsupported: ' + node);
+  console.log(result);
+  throw new Error('Unsupported: ' + result);
 }
 
 // We use a const enum for waxeye.ExprType, so we manually create this mapping.
@@ -160,17 +222,6 @@ function toFixtureExpectationCharClasses(charClasses: any): any {
   }
 }
 
-interface ErrChar {
-  type: 'ErrChar';
-  arg: string;
-}
-interface ErrCC {
-  type: 'ErrCC';
-  arg: Array<string|[string, string]>;
-}
-interface ErrAny {
-  type: 'ErrAny';
-}
 function fromFixtureExpectationErrChars(errs: Array<ErrChar|ErrCC|ErrAny>):
     Array<waxeye.ErrChar|waxeye.ErrCC|waxeye.ErrAny> {
   return errs.map((err) => {

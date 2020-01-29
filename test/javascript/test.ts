@@ -11,7 +11,7 @@ import {AST, ParseError} from 'waxeye';
 import {TestParser as TestParserJS} from '../../tmp/js/test_parser';
 import {TestParser as TestParserTS} from '../../tmp/ts/test_parser';
 
-import {fixtureExpectationToOutput, TestEnv} from './lib';
+import {deserializeExpectation, FixtureOrComment, TestEnv} from './lib';
 
 /* tslint:disable */
 const testFixtures = require('./test-fixtures.json');
@@ -21,7 +21,7 @@ const testEnvTS = new TestEnv(new TestParserTS().config);
 const testEnvJS = new TestEnv(new (TestParserJS as any)().config);
 
 function toString(
-    testType: 'MatchError'|'MatchAST', data: AST|ParseError): string {
+    testType: 'MatchError'|'MatchAST', data: AST|string|ParseError): string {
   switch (testType) {
     case 'MatchError':
       return data.toString();
@@ -32,15 +32,14 @@ function toString(
   }
 }
 
-testFixtures.map((test: any[], i: number) => {
+testFixtures.map((test: FixtureOrComment, i: number) => {
   if (test[0] === 'Comment') {
     return;
   }
   const testType = test[0];
   const testOutputTS = toString(testType, testEnvTS.getTestOutput(test[1]));
   const testOutputJS = toString(testType, testEnvJS.getTestOutput(test[1]));
-  const testExpectation =
-      toString(testType, fixtureExpectationToOutput(test[2]));
+  const testExpectation = toString(testType, deserializeExpectation(test[2]));
   assert.equal(
       testOutputTS, testOutputJS,
       `Fixture ${i + 1}: TypeScript output != JavaScript output`);

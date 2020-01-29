@@ -343,12 +343,12 @@ function match(
   let action = moveEval(
       env, input,
       evalNext(
-          env[start].exp, /*pos=*/0, /*asts=*/empty(),
+          env[start].exp, /*pos=*/ 0, /*asts=*/ empty(),
           new RawError(
-              /*pos=*/0, /*nonterminals=*/cons(start, empty()),
-              /*failedChars=*/empty(),
-              /*currentNT=*/start),
-          /*continuations=*/empty()));
+              /*pos=*/ 0, /*nonterminals=*/ cons(start, empty()),
+              /*failedChars=*/ empty(),
+              /*currentNT=*/ start),
+          /*continuations=*/ empty()));
   while (true) {
     switch (action.type) {
       case ActionType.EVAL:
@@ -397,15 +397,15 @@ function moveEval(env: RuntimeParserConfig, input: string, action: ActionEval):
     }
     case ExprType.AND:
       return evalNext(
-          exp.expr, pos, /*asts=*/empty(), err,
+          exp.expr, pos, /*asts=*/ empty(), err,
           cons(contAnd(pos, asts, err), continuations));
     case ExprType.NOT:
       return evalNext(
-          exp.expr, pos, /*asts=*/empty(), err,
+          exp.expr, pos, /*asts=*/ empty(), err,
           cons(contNot(pos, asts, err), continuations));
     case ExprType.VOID:
       return evalNext(
-          exp.expr, pos, /*asts=*/empty(), err,
+          exp.expr, pos, /*asts=*/ empty(), err,
           cons(contVoid(asts), continuations));
     case ExprType.CHAR:
       const c = exp.char;
@@ -476,7 +476,7 @@ function moveEval(env: RuntimeParserConfig, input: string, action: ActionEval):
       const {name} = exp;
       const nt = env[name];
       return evalNext(
-          nt.exp, pos, /*asts=*/empty(),
+          nt.exp, pos, /*asts=*/ empty(),
           new RawError(err.pos, err.nonterminals, err.failedChars, name),
           cons(contNT(nt.mode, name, asts, err.currentNT, pos), continuations));
     default:

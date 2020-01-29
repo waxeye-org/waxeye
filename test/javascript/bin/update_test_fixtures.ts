@@ -7,9 +7,9 @@
 import * as fs from 'fs';
 
 import {TestParser} from '../../../tmp/ts/test_parser';
-import {outputToFixtureExpectation, TestEnv} from '../lib';
+import {serializeExpectation, TestEnv} from '../lib';
 
-const testEnv = new TestEnv(new (TestParser as any)().env);
+const testEnv = new TestEnv(new (TestParser as any)().config);
 
 const path = 'test/javascript/test-fixtures.json';
 fs.writeFileSync(
@@ -23,7 +23,7 @@ fs.writeFileSync(
               return [
                 test[0],
                 test[1],
-                outputToFixtureExpectation(testEnv.getTestOutput(test[1])),
+                serializeExpectation(testEnv.getTestOutput(test[1])),
               ];
             })
             .map((test: any[]) => `  ${JSON.stringify(test)}`)
