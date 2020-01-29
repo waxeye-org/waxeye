@@ -118,7 +118,7 @@ Support
 
 * [Mailing List](https://lists.sourceforge.net/lists/listinfo/waxeye-users)
 
-* [Issue Tracker](https://github.com/orlandohill/waxeye/issues)
+* [Issue Tracker](https://github.com/waxeye-org/waxeye/issues)
 
 
 License
@@ -129,5 +129,5 @@ MIT -- All files (except the user manual) are under the permissive MIT license.
 GNU FDL -- Waxeye's user manual is under the GNU Free Documentation License.
 This includes the files `doc/book/book` and `doc/manual.html`.
 
-[badge-travis]: https://img.shields.io/travis/orlandohill/waxeye.svg
-[travis]: https://travis-ci.org/orlandohill/waxeye
+[badge-travis]: https://img.shields.io/travis/waxeye-org/waxeye.svg
+[travis]: https://travis-ci.org/waxeye-org/waxeye

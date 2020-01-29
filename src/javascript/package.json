@@ -27,11 +27,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/orlandohill/waxeye.git"
+    "url": "git+https://github.com/waxeye-org/waxeye.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/orlandohill/waxeye/issues"
+    "url": "https://github.com/waxeye-org/waxeye/issues"
   },
-  "homepage": "https://github.com/orlandohill/waxeye"
+  "homepage": "https://github.com/waxeye-org/waxeye"
 }
