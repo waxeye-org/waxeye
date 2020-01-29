@@ -27,6 +27,8 @@ implements IChar
      *
      * @param value The character value.
      *
+     * @param position The character index in the input.
+     *
      * @param type The type of the AST.
      */
     public Char(final char value, final E type, final int position)
@@ -41,7 +43,7 @@ implements IChar
     {
         return value;
     }
-    
+
     /** {@inheritDoc} */
     public int getPos()
     {

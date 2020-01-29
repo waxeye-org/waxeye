@@ -65,7 +65,7 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
      *
      * @param negType The negative check type.
      */
-    public Parser(final List<FA<E>> automata,  final boolean eofCheck,
+    public Parser(final List<FA<E>> automata, final boolean eofCheck,
         final int start,
         final E emptyType, final E charType, final E posType, final E negType)
     {
@@ -77,8 +77,14 @@ public abstract class Parser <E extends Enum<?>> implements IParser<E>
         this.posType = posType;
         this.negType = negType;
     }
-    
-    public void setEofCheck(boolean eofCheck) {
+
+    /**
+     * Sets whether the parser will throw a ParseError if not all input is consumed on parse.
+     *
+     * @param eofCheck Whether to throw the error.
+     */
+    public void setEofCheck(final boolean eofCheck)
+    {
       this.eofCheck = eofCheck;
     }
 

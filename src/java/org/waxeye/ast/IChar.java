@@ -19,11 +19,11 @@ public interface IChar
      * @return The character value.
      */
     char getValue();
-    
+
     /**
      * Gets the character position.
-     * 
+     *
      * @return The character position.
      */
-    public int getPos();
+    int getPos();
 }
