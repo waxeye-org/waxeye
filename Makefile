@@ -146,14 +146,16 @@ dist-src: \
   dist/waxeye-$(VERSION)-src.tar.bz2
 DIST_SRC_FILES=build grammars src test docs LICENSE README.md \
   lib/waxeye-$(VERSION).gem lib/waxeye.jar docs/site/manual.html
-dist/waxeye-$(VERSION): $(DIST_SRC_FILES) | site runtimes
+dist/:
+	mkdir -p dist/
+dist/waxeye-$(VERSION): $(DIST_SRC_FILES) | site runtimes dist/
 	rsync --recursive --archive --exclude=".*" --exclude="node_modules/" \
 	  $(DIST_SRC_FILES) \
 	  dist/waxeye-$(VERSION)
-dist/waxeye-$(VERSION)-src.zip: | dist/waxeye-$(VERSION)
+dist/waxeye-$(VERSION)-src.zip: | dist/waxeye-$(VERSION) dist/
 	cd dist && zip --recurse-paths --filesync --latest-time \
 	  waxeye-$(VERSION)-src.zip waxeye-$(VERSION)
-dist/waxeye-$(VERSION)-src.tar.bz2: | dist/waxeye-$(VERSION)
+dist/waxeye-$(VERSION)-src.tar.bz2: | dist/waxeye-$(VERSION) dist/
 	tar --create --bzip2 \
 	  -f dist/waxeye-$(VERSION)-src.tar.bz2 dist/waxeye-$(VERSION)
 clean-dist-src:
@@ -165,10 +167,10 @@ clean-dist-src:
 dist-compiler: \
   dist/waxeye-compiler-$(VERSION)-bin-unix.tar.gz \
   dist/waxeye-compiler-$(VERSION)-bin-unix.tar.bz2
-dist/waxeye-compiler-$(VERSION)-bin-unix.tar.gz: bin/waxeye
+dist/waxeye-compiler-$(VERSION)-bin-unix.tar.gz: bin/waxeye dist/
 	tar --create --gzip -f dist/waxeye-compiler-$(VERSION)-bin-unix.tar.gz \
 	  bin/waxeye
-dist/waxeye-compiler-$(VERSION)-bin-unix.tar.bz2: bin/waxeye
+dist/waxeye-compiler-$(VERSION)-bin-unix.tar.bz2: bin/waxeye dist/
 	tar --create --bzip2 -f dist/waxeye-compiler-$(VERSION)-bin-unix.tar.bz2 \
 	  bin/waxeye
 clean-dist-compiler:
