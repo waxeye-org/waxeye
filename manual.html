@@ -1,0 +1,2341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.10" />
+<title>Language Development with Waxeye</title>
+<style type="text/css">
+/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
+
+/* Default font. */
+body {
+  font-family: Georgia,serif;
+}
+
+/* Title font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+#toctitle,
+#author, #revnumber, #revdate, #revremark,
+#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+h5 {
+  font-size: 1.0em;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+.monospaced, code, pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: inherit;
+  color: navy;
+  padding: 0;
+  margin: 0;
+}
+pre {
+  white-space: pre-wrap;
+}
+
+#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+#email {
+}
+#revnumber, #revdate, #revremark {
+}
+
+#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #888;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; vertical-align: text-bottom; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toc {
+  margin-bottom: 2.5em;
+}
+
+#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+
+span.underline { text-decoration: underline; }
+span.overline { text-decoration: overline; }
+span.line-through { text-decoration: line-through; }
+
+div.unbreakable { page-break-inside: avoid; }
+
+
+/*
+ * xhtml11 specific
+ *
+ * */
+
+div.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+/*
+ * html5 specific
+ *
+ * */
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #527bbd;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #527bbd;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+
+
+/*
+ * manpage specific
+ *
+ * */
+
+body.manpage h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+body.manpage h2 {
+  border-style: none;
+}
+body.manpage div.sectionbody {
+  margin-left: 3em;
+}
+
+@media print {
+  body.manpage div#toc { display: none; }
+}
+
+
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  if (!toc) {
+    return;
+  }
+
+  // Delete existing TOC entries in case we're reloading the TOC.
+  var tocEntriesToRemove = [];
+  var i;
+  for (i = 0; i < toc.childNodes.length; i++) {
+    var entry = toc.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div'
+     && entry.getAttribute("class")
+     && entry.getAttribute("class").match(/^toclevel/))
+      tocEntriesToRemove.push(entry);
+  }
+  for (i = 0; i < tocEntriesToRemove.length; i++) {
+    toc.removeChild(tocEntriesToRemove[i]);
+  }
+
+  // Rebuild TOC entries.
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  // Delete existing footnote entries in case we're reloading the footnodes.
+  var i;
+  var noteholder = document.getElementById("footnotes");
+  if (!noteholder) {
+    return;
+  }
+  var entriesToRemove = [];
+  for (i = 0; i < noteholder.childNodes.length; i++) {
+    var entry = noteholder.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
+      entriesToRemove.push(entry);
+  }
+  for (i = 0; i < entriesToRemove.length; i++) {
+    noteholder.removeChild(entriesToRemove[i]);
+  }
+
+  // Rebuild footnote entries.
+  var cont = document.getElementById("content");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      var note = spans[i].getAttribute("data-note");
+      if (!note) {
+        // Use [\s\S] in place of . so multi-line matches work.
+        // Because JavaScript has no s (dotall) regex flag.
+        note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+        spans[i].innerHTML =
+          "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+        spans[i].setAttribute("data-note", note);
+      }
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+},
+
+install: function(toclevels) {
+  var timerId;
+
+  function reinstall() {
+    asciidoc.footnotes();
+    if (toclevels) {
+      asciidoc.toc(toclevels);
+    }
+  }
+
+  function reinstallAndRemoveTimer() {
+    clearInterval(timerId);
+    reinstall();
+  }
+
+  timerId = setInterval(reinstall, 500);
+  if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", reinstallAndRemoveTimer, false);
+  else
+    window.onload = reinstallAndRemoveTimer;
+}
+
+}
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>Language Development with Waxeye</h1>
+<span id="author">Orlando Hill</span><br />
+<span id="revnumber">version 0.8.1,</span>
+<span id="revdate">January 2014</span>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph"><p><a href="http://waxeye.org/">Waxeye Parser Generator</a></p></div>
+<div class="paragraph"><p>Copyright &#169; 2008-2014 Orlando Hill</p></div>
+<div class="paragraph"><p>Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.2 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no
+Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included
+in the section entitled "GNU Free Documentation License".</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>As programmers, we are required to make use of data that is presented in a
+variety of formats. In order to extract and manipulate the desired information,
+we need the ability to navigate the structure of the language the data is
+written in. Unless the language is very simple, we must use a parser that
+understands the language and gives us the data in a form we can more readily
+use.</p></div>
+<div class="paragraph"><p>Manually creating parsers can be boring and time consuming. It is, therefore,
+common to use a use parser generator to do the grunt work of constructing the
+parser. This is where Waxeye comes in handy.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting_started">2. Getting Started</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_downloading">2.1. Downloading</h3>
+<div class="paragraph"><p>You can download the current official release of Waxeye from
+<a href="http://sourceforge.net/projects/waxeye">Sourceforge</a>. If you want to get the
+very latest version of Waxeye&#8217;s source, you can download it from
+<a href="https://github.com/orlandohill/waxeye">GitHub</a> using the
+<a href="http://git-scm.com/">Git</a> version control system.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_requirements">2.2. Requirements</h3>
+<div class="paragraph"><p>There are no external dependencies needed to run a pre-built version of Waxeye.
+If you build from source, you&#8217;ll need <a href="http://racket-lang.org">Racket</a>.</p></div>
+<div class="paragraph"><p>To use a generated parser, you need a supported programming language to run it
+from.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_installation">2.3. Installation</h3>
+<div class="sect3">
+<h4 id="_unix_and_macosx">2.3.1. Unix and MacOSX</h4>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+Extract the files of the distribution.
+</p>
+</li>
+<li>
+<p>
+Copy the <em>waxeye</em> directory to where you wish to install it.
+</p>
+</li>
+<li>
+<p>
+Add the <em>bin/waxeye</em> binary to your search path. e.g. If you have <code>~/bin</code> in
+   your PATH and installed waxeye to <em>/usr/local/waxeye</em> then you might do the
+   following.
+</p>
+</li>
+</ol></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>ln -s /usr/local/waxeye/bin/waxeye ~/bin/</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_windows">2.3.2. Windows</h4>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+Extract the files of the distribution.
+</p>
+</li>
+<li>
+<p>
+Copy the <em>waxeye</em> directory to where you wish to install it.
+</p>
+</li>
+</ol></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running">2.4. Running</h3>
+<div class="paragraph"><p>Currently, Waxeye is used from a command-line interface. You can use it as a
+command-line tool or, as part of a script or build-system. There are plans to
+develop a graphical tool at a later stage.</p></div>
+<div class="sect3">
+<h4 id="_unix_and_macosx_2">2.4.1. Unix and MacOSX</h4>
+<div class="paragraph"><p>Run Waxeye by executing the <code>waxeye</code> binary.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_windows_2">2.4.2. Windows</h4>
+<div class="paragraph"><p>Use a command prompt to run <code>waxeye.exe</code>.</p></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_basic_concepts">3. Basic Concepts</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_what_is_a_parser">3.1. What is a parser?</h3>
+<div class="paragraph"><p>When we want to understand data that has been written in a language of interest
+(<em>L</em>), we need to break our data into units of the language. This process of
+breaking our input into different parts, based on the structure of <em>L</em>, is
+called <em>parsing</em>. A program used for parsing is called a <em>parser</em>.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_what_is_the_result_of_a_parser">3.2. What is the result of a parser?</h3>
+<div class="paragraph"><p>Once your input has been parsed, you need the result to be presented in a from
+that is easy to understand and manipulate. Since the input was organized based
+on the hierarchical structure of the language, it makes sense that the output
+of the parser mimic this structure. The most effective form to do this with is
+a tree.</p></div>
+<div class="paragraph"><p>Such a tree is known as an Abstract Syntax Tree (AST). A Waxeye parser will
+automatically give you an AST that represents your input. The structure of this
+AST is based on the structure of your language&#8217;s grammar.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_what_is_a_parser_generator">3.3. What is a parser generator?</h3>
+<div class="paragraph"><p>If <em>L</em> is simple, it is easy for us to use our programming lanugage of choice
+to, manually, write a parser for <em>L</em>. However, as the structural complexity of
+<em>L</em> increases, so too, does the size and complexity of the parser program.
+Writing and maintaining a large parser, by hand, can quickly become a tedious
+and laborious job. Thankfully, we can use a parser generator to automate the
+work of creating a parser so we can focus on other problems.</p></div>
+<div class="paragraph"><p>A parser generator is a tool designed to help software developers automate the
+process of creating a parser. Just like compilers and assemblers, a parser
+generator takes a description of a program, automatically does the boring work
+for you and gives you a transformed program as output. Each tool accepts input
+in one language (<em>L1</em>), performs various transformations and creates output in
+another language (<em>L2</em>).</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><code>L1 --&gt; Compiler         --&gt; L2
+L1 --&gt; Assembler        --&gt; L2
+L1 --&gt; Parser Generator --&gt; L2</code></pre>
+</div></div>
+<div class="paragraph"><p>The key difference between the three tools is the level of abstraction held by
+the input and output languages. The assembler works at the lowest level by
+taking assembly files and producing machine code. The compiler works above the
+assembler by taking a more abstract programming language and generating
+assembly files or machine code directly. Finally, the parser generator has the
+highest level of abstraction and transforms a <em>grammar file</em> into programming
+language source code for a compiler to process.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_what_is_a_grammar_file">3.4. What is a grammar file?</h3>
+<div class="paragraph"><p>We can define a language as the set of strings it contains. While it is
+sometimes possible to specify a language simply by enumerating all of its
+strings, such an approach has significant drawbacks. Trying to write each
+string in our language could be very time consuming and, potentially, take
+forever.</p></div>
+<div class="paragraph"><p>Suppose we need to read time information as part of a larger program. In a
+trivial case, the time information may be presented as two digits for the
+hours, a colon <code>:</code>, and then two digits for the minutes.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>00:00, 00:01, 00:02, ... 14:23, 14:24, 14:25, ... 23:57, 23:58, 23:59</code></pre>
+</div></div>
+<div class="paragraph"><p>We could describe our time language this way but, writing all 1,440 possible
+hour/minute combinations wouldn&#8217;t be much fun. Not to mention how bad things
+would be if we extended our language to include date information.</p></div>
+<div class="paragraph"><p>As another example, consider the language that consists of all strings of one
+or more alphabet character.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>a, b, c, ... z, aa, ab, ac, ... az, aaa, aab, aac, ...</code></pre>
+</div></div>
+<div class="paragraph"><p>Even worse than our time example, this language is infinite. It would be
+impossible for us to explicitly list every string in the language.</p></div>
+<div class="paragraph"><p>If we want to describe such languages, we need a notation that is more abstract
+than simply writing out strings. We call this notation a <em>grammar</em> and the file
+that contains it a <em>grammar file</em>.</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_waxeye_grammars">4. Waxeye Grammars</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>To generate a parser for a language, you must supply the parser generator with
+a grammar file that describes the language. Waxeye grammar files are written as
+text documents and are, by convention, given the <code>.waxeye</code> file extension.</p></div>
+<div class="paragraph"><p>A Waxeye grammar consists of a set of rule definitions, called <em>non-terminals</em>.
+Together, the non-terminals succinctly describe the syntax of the language. By
+default, the first non-terminal is considered the starting point of the
+language definition.</p></div>
+<div class="sect2">
+<h3 id="_non_terminals">4.1. Non-terminals</h3>
+<div class="paragraph"><p>Non-terminals are defined in three parts; a name, a rule type and one or more
+grammar expressions.</p></div>
+<div class="paragraph"><p>The most common non-terminal type is the tree constructing non-terminal. A tree
+constructing non-terminal has the following form:</p></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph"><p><em>Name</em> <code>&lt;-</code> <em>+expressions</em></p></div>
+</div></div>
+<div class="paragraph"><p>Where <em>Name</em> matches <code>[a-zA-Z_] *[a-zA-Z0-9_-]</code>.</p></div>
+<div class="listingblock">
+<div class="title">A tree constructing non-terminal</div>
+<div class="content"></div></div>
+<div class="paragraph"><p>The other common non-terminal type is the void non-terminal. The result of a
+void non-terminal is not included in the AST that is constructed by the parser.
+To define a void non-terminal, use this form:</p></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph"><p><em>Name</em> <code>&lt;:</code> <em>+expressions</em></p></div>
+</div></div>
+<div class="listingblock">
+<div class="title">A void non-terminal</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_expressions">4.2. Expressions</h3>
+<div class="paragraph"><p>The most important part of each non-terminal definition is the set of
+expressions it contains. Grammar expressions come in different forms and have
+their own meanings. Places where an expression can be contained within another
+expression are denoted with an <em>e</em>.</p></div>
+<div class="sect3">
+<h4 id="_atomic_expressions">4.2.1. Atomic Expressions</h4>
+<div class="sect4">
+<h5 id="_wildcard">Wildcard</h5>
+<div class="paragraph"><p><code>.</code></p></div>
+<div class="paragraph"><p>Matches any character from the input.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_literal">Literal</h5>
+<div class="paragraph"><p><code>'text'</code></p></div>
+<div class="paragraph"><p>Matches <code>text</code> in the input.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_case_insensitive_literal">Case-insensitive Literal</h5>
+<div class="paragraph"><p><code>"text"</code></p></div>
+<div class="paragraph"><p>Matches <code>text</code> in the input while ignores case. This is equivalent to the
+expression <code>[tT][eE][xX][tT]</code> but, is much more readable.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_character_class">Character Class</h5>
+<div class="paragraph"><p><code>[a-z_-]</code></p></div>
+<div class="paragraph"><p>Character-class that matches either a lower-case English character, <code>_</code> or
+<code>-</code>.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_non_terminal">Non-terminal</h5>
+<div class="paragraph"><p><code>NT</code></p></div>
+<div class="paragraph"><p>References the non-terminal named <code>NT</code>.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_parentheses">Parentheses</h5>
+<div class="paragraph"><p><code>(</code><em>e</em><code>)</code></p></div>
+<div class="paragraph"><p>Raises the precedence of the expression <em>e</em>.</p></div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_prefix_expressions">4.2.2. Prefix Expressions</h4>
+<div class="sect4">
+<h5 id="_void">Void</h5>
+<div class="paragraph"><p><code>:</code><em>e</em></p></div>
+<div class="paragraph"><p>Doesn&#8217;t include the result of <em>e</em> when building the AST.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_closure">Closure</h5>
+<div class="paragraph"><p><code>*</code><em>e</em></p></div>
+<div class="paragraph"><p>Puts <em>e</em> within a closure.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_plus">Plus</h5>
+<div class="paragraph"><p><code>+</code><em>e</em></p></div>
+<div class="paragraph"><p>Puts <em>e</em> within a plus-closure.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_optional">Optional</h5>
+<div class="paragraph"><p><code>?</code><em>e</em></p></div>
+<div class="paragraph"><p>Puts <em>e</em> within an optional.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_negative_check">Negative Check</h5>
+<div class="paragraph"><p><code>!</code><em>e</em></p></div>
+<div class="paragraph"><p>Checks that <em>e</em> fails.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_positive_check">Positive Check</h5>
+<div class="paragraph"><p><code>&amp;</code><em>e</em></p></div>
+<div class="paragraph"><p>Checks that <em>e</em> succeeds.</p></div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sequence_expressions">4.2.3. Sequence Expressions</h4>
+<div class="paragraph"><p><em>e1 e2</em></p></div>
+<div class="paragraph"><p>Matches <em>e1</em> and <em>e2</em> in sequence.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_alternation_expressions">4.2.4. Alternation Expressions</h4>
+<div class="paragraph"><p><em>e1</em><code>|</code><em>e2</em></p></div>
+<div class="paragraph"><p>Tries to match <em>e1</em> and, if that fails, tries to match <em>e2</em>.</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_precedence">4.3. Precedence</h3>
+<div class="paragraph"><p>In Waxeye grammars, some expressions can have other expressions nested within
+them. When we use parentheses, we are explicitly denoting the nesting structure
+of the expressions.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>At times, this can seem needlessly verbose. In many cases, we are able to omit
+the parentheses in favor of a shorter notation. We do this by exploiting the
+precedence of each expression type.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>The precedence of an expression determines the priority it has when resolving
+implicitly nested expressions. Each expression type has a level of precedence
+relative to all other types. There are four different precedence levels in
+Waxeye grammars.</p></div>
+<div class="sect3">
+<h4 id="_level_4">4.3.1. Level 4</h4>
+<div class="paragraph"><p>The highest precedence is held by the atomic expressions. Because these
+expressions cannot, themselves, contain expressions, there is no need to
+consider which expressions are nested within them.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_level_3">4.3.2. Level 3</h4>
+<div class="paragraph"><p>The prefix expressions hold the next precedence level. Their nesting is
+resolved directly after the atomic expressions.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_level_2">4.3.3. Level 2</h4>
+<div class="paragraph"><p>Sequences of expressions are formed once the atomic and prefix expressions have
+been resolved.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_level_1">4.3.4. Level 1</h4>
+<div class="paragraph"><p>Finally, once all other expressions have been resolved, the different choices of
+the alternation expression are resolved.</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pruning_non_terminals">4.4. Pruning Non-terminals</h3>
+<div class="paragraph"><p>Sometimes, creating a new AST node will give us more information than we need.
+We might want to create a new AST node, only if doing so will tell us something
+interesting about our input. If the additional node gives us nothing of
+interest, our tree could be said to contain <em>vertical noise</em>.</p></div>
+<div class="paragraph"><p>To make it easier to process the AST, we can remove this vertical noise by
+using the <em>pruning</em> non-terminal type. This non-terminal type has the following
+form:</p></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph"><p><em>Name</em> <code>&lt;=</code> <em>+expressions</em></p></div>
+</div></div>
+<div class="paragraph"><p>When <em>Name</em> has successfully parsed a string, one of three things will happen,
+depending on the number of results to be included from <em>Name</em>'s expressions.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+If there are no expression results to be included, nothing new will be added
+  to the AST.
+</p>
+</li>
+<li>
+<p>
+If there is one expression result to be included, that result will take the
+  place of the <em>Name</em> AST node.
+</p>
+</li>
+<li>
+<p>
+Otherwise, a new <em>Name</em> AST node will be created, just like a tree
+  constructing non-terminal.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>To help understand how this works, consider an example from a simple arithmetic
+grammar.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>If we use the <em>Product</em> rule to parse the string <code>3*7</code>, we get a tree with
+<em>Product</em> at the root and, below that, a <em>Number</em>, a <code>*</code> character and then
+another <em>Number</em>.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>Product
+-&gt;  Number
+    |   3
+|   *
+-&gt;  Number
+    |   7</code></pre>
+</div></div>
+<div class="paragraph"><p>However, if the <em>Product</em> rule parses a string with just one <em>Number</em> in it, we
+will get a tree that is slightly bigger than we need. Parsing the string <code>5</code>
+produces the following tree.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>Product
+-&gt;  Number
+    |   5</code></pre>
+</div></div>
+<div class="paragraph"><p>In this case, having a <em>Product</em> node at the root of the AST isn&#8217;t necessary.
+If we want to, we can rewrite the original grammar to use a pruning
+non-terminal.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>Now, when we use <em>Product</em> to parse <code>3*7</code>, we will get the same result as
+before but, when parsing <code>5</code>, we get an AST with <em>Number</em> as the root.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>Number
+|   5</code></pre>
+</div></div>
+<div class="paragraph"><p>As a second example, let&#8217;s look at a grammar for nested parentheses.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>Here are some example inputs and their resulting ASTs:</p></div>
+<div class="paragraph"><p>Input: <code>b</code></p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>A
+-&gt;  B
+    |   b</code></pre>
+</div></div>
+<div class="paragraph"><p>Input: <code>(b)</code></p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>A
+-&gt;  A
+    -&gt;  B
+        |   b</code></pre>
+</div></div>
+<div class="paragraph"><p>Input: <code>(((b)))</code></p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>A
+-&gt;  A
+    -&gt;  A
+        -&gt;  A
+            -&gt;  B
+                |   b</code></pre>
+</div></div>
+<div class="paragraph"><p>Unless we want to know the number of parentheses matched, trees like these
+contain more information than we need. Again, we are able to solve this by
+rewriting the grammar using a <em>pruning</em> non-terminal.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>This time, parsing the input <code>(((b)))</code> gives us a much shorter tree.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>B
+|   b</code></pre>
+</div></div>
+</div>
+<div class="sect2">
+<h3 id="_comments">4.5. Comments</h3>
+<div class="paragraph"><p>There are two types of comments in Waxeye grammars; single-line and multi-line.</p></div>
+<div class="sect3">
+<h4 id="_single_line">4.5.1. Single-line</h4>
+<div class="paragraph"><p>Single-line comments start at the first <code>#</code> outside of an atomic expression and
+extend until the end of the line.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_multi_line">4.5.2. Multi-line</h4>
+<div class="paragraph"><p>Multi-line comments are opened at the first <code>/*</code> outside of an atomic
+expression and closed with a <code>*/</code>.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="listingblock">
+<div class="content"></div></div>
+<div class="paragraph"><p>As an added convenience for when editing a grammar, multi-line comments can be
+nested within each other. This is handy when you want to comment out a section
+of the grammar that already contains a comment.</p></div>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_waxeye">5. Using Waxeye</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This chapter will show you how to setup Waxeye for your programming language.
+It covers language specific installation requirements and presents some basic
+boilerplate code to get you started. You can find copies of this boilerplate
+code in <code>src/example/</code>. I use <code>$WAXEYE_HOME</code> to refer to the location where you
+have installed the files of the Waxeye distribution.</p></div>
+<div class="paragraph"><p>The example grammar we&#8217;ll be using can be found in <code>grammars/num.waxeye</code>. You
+may wish to copy it to the directory you&#8217;re working in so you can experiment
+with extending and modifying the grammar.</p></div>
+<div class="listingblock">
+<div class="title">grammars/num.waxeye</div>
+<div class="content"></div></div>
+<div class="paragraph"><p>Once setup and run, the boilerplate example will use the parser you generated
+to parse the string <code>42</code> and print the AST it creates.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>Num
+|   4
+|   2</code></pre>
+</div></div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_c">5.1. Using Waxeye from C</h3>
+<div class="paragraph"><p>Waxeye&#8217;s C runtime is currently supported on unix platforms, MacOSX, and iOS.</p></div>
+<div class="sect3">
+<h4 id="_install">5.1.1. Install</h4>
+<div class="paragraph"><p>To install the C runtime, you need to compile it and, optionally, install the
+header files and library in your system search paths.</p></div>
+<div class="paragraph"><p>To compile the runtime, perform the command <code>make lib</code> from within the <code>src/c</code>
+directory of your waxeye installation.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>cd $WAXEYE_HOME/src/c
+make lib
+make clean</code></pre>
+</div></div>
+<div class="paragraph"><p>To install the header files and library in your search paths, you could copy
+the files directly but, creating symbolic links to them will make upgrading
+easier.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>sudo ln -s $WAXEYE_HOME/lib/libwaxeye.a /usr/local/lib/
+sudo ln -s $WAXEYE_HOME/src/c/include/waxeye.h /usr/local/include/
+sudo ln -s $WAXEYE_HOME/src/c/include/waxeye /usr/local/include/</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_build_for_ios">5.1.2. Build for iOS</h4>
+<div class="paragraph"><p>Instead of building just for your current architecture, you can also build a
+library for iOS by running <code>make lib-ios</code> on a Mac with a recent version of
+Xcode installed. This will compile a runtime for ARMv7, ARMv7S, ARM64, X86_64
+and i386 as a fat binary to <code>$WAXEYE_HOME/lib/libwaxeye_ios.a</code>.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser">5.1.3. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g c . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser">5.1.4. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/c/example.c</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run">5.1.5. Run</h4>
+<div class="paragraph"><p>If you installed the headers and library in your system path:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>gcc example.c parser.c -lwaxeye -o example</code></pre>
+</div></div>
+<div class="paragraph"><p>Otherwise:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>FLAGS="-I $WAXEYE_HOME/src/c/include/ -L $WAXEYE_HOME/lib/"
+gcc $FLAGS example.c parser.c -lwaxeye -o example</code></pre>
+</div></div>
+<div class="paragraph"><p>Finally,</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>./example</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_java">5.2. Using Waxeye from Java</h3>
+<div class="paragraph"><p>Waxeye&#8217;s Java runtime is compatible with version 1.5 and 1.6 of the JRE. It
+should also be possible to use Waxeye with JRE versions 1.3 and 1.4 of by
+retrofitting the classes with <a href="http://retroweaver.sourceforge.net">Retroweaver</a>
+or <a href="http://retrotranslator.sourceforge.net">Retrotranslator</a>.</p></div>
+<div class="sect3">
+<h4 id="_install_2">5.2.1. Install</h4>
+<div class="paragraph"><p>To use a Waxeye parser from Java, you need Waxeye&#8217;s Java runtime in your
+classpath. The required classes are in the Jar file <code>lib/waxeye.jar</code>.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser_2">5.2.2. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g java . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser_2">5.2.3. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/java/Example.java</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run_2">5.2.4. Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>javac -cp .:$WAXEYE_HOME/lib/waxeye.jar Example.java Parser.java Type.java</code></pre>
+</div></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>java -cp .:$WAXEYE_HOME/lib/waxeye.jar Example</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_javascript">5.3. Using Waxeye from Javascript</h3>
+<div class="paragraph"><p>Waxeye parsers generated in Javascript should be able to run from any modern
+Javascript environment. The examples given here will use
+<a href="http://nodejs.org">Node.js</a>.</p></div>
+<div class="sect3">
+<h4 id="_install_3">5.3.1. Install</h4>
+<div class="paragraph"><p>To install Waxeye&#8217;s Javascript runtime library with Node.js, use the following
+commands on Unix and MacOS systems.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>mkdir -p ~/.node_libraries
+ln -s /usr/local/waxeye/src/javascript/dist/waxeye.js ~/.node_libraries/</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser_3">5.3.2. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g javascript . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser_3">5.3.3. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/javascript/nodejs_example.js</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run_3">5.3.4. Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>node nodejs_example.js</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_python">5.4. Using Waxeye from Python</h3>
+<div class="paragraph"><p>Waxeye&#8217;s Python runtime has been tested with Python version 2.5.1 and is
+intended to work with 2.x.x versions of Python.</p></div>
+<div class="sect3">
+<h4 id="_install_4">5.4.1. Install</h4>
+<div class="paragraph"><p>To install Waxeye&#8217;s Python runtime, you need to run the <code>setup.py</code> script from
+the <code>src/python</code> directory.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>cd $WAXEYE_HOME/src/python
+python setup.py build
+sudo python setup.py install
+rm -rf build/</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser_4">5.4.2. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g python . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser_4">5.4.3. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/python/example.py</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run_4">5.4.4. Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>python example.py</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_ruby">5.5. Using Waxeye from Ruby</h3>
+<div class="paragraph"><p>Waxeye&#8217;s Ruby runtime is compatible with Ruby version 1.8.6.</p></div>
+<div class="sect3">
+<h4 id="_install_5">5.5.1. Install</h4>
+<div class="paragraph"><p>Install the Waxeye gem; either from Rubyforge or, from the gem file in <code>lib</code>.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code># Install the Waxeye gem from Rubyforge
+sudo gem install waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser_5">5.5.2. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g ruby . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser_5">5.5.3. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/ruby/example.rb</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run_5">5.5.4. Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>ruby example.rb</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_waxeye_from_scheme">5.6. Using Waxeye from Scheme</h3>
+<div class="paragraph"><p>Waxeye&#8217;s Scheme runtime is compatible with <a href="http://racket-lang.org/">Racket</a>.</p></div>
+<div class="sect3">
+<h4 id="_install_6">5.6.1. Install</h4>
+<div class="paragraph"><p>Install the waxeye collection where Racket can find it.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code># Install the Waxeye collection; change to your install paths as needed
+sudo ln -s /usr/local/waxeye/src/racket/waxeye /usr/local/racket/lib/racket/collects/</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_generate_parser_6">5.6.2. Generate Parser</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g racket . num.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_use_parser_6">5.6.3. Use Parser</h4>
+<div class="listingblock">
+<div class="title">src/example/racket/example.rkt</div>
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_run_from_racket">5.6.4. Run from Racket</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>racket -t example.rkt</code></pre>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_asts_and_parse_errors">6. Using ASTs and Parse Errors</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Since just printing an Abstract Syntax Tree isn&#8217;t very interesting, let&#8217;s have
+a look at how to access the information the ASTs contain.</p></div>
+<div class="paragraph"><p>When you use a Waxeye parser, the result will be one of two things. If the
+parser successfully parsed the input, the result will be an AST. If the input
+doesn&#8217;t match the syntax of the language, the result will be a <em>parse error</em>.</p></div>
+<div class="sect2">
+<h3 id="_asts">6.1. ASTs</h3>
+<div class="paragraph"><p>ASTs come in three different forms; <em>tree</em>, <em>char</em> and <em>empty</em>.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+A <em>tree</em> AST contains a type, a list of children and, the start and end
+  position in the input.
+</p>
+</li>
+<li>
+<p>
+A <em>char</em> AST contains a single character and has no children.
+</p>
+</li>
+<li>
+<p>
+An <em>empty</em> AST simply signifies that parsing was successful. If your starting
+  non-terminal is voided or is pruning and had no children, you will get an
+  empty AST.
+</p>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_using_an_ast_node_as_string">6.1.1. Using an AST node as string</h4>
+<div class="paragraph"><p>If a given AST node will only ever have <em>char</em> children, you may wish to treat
+that node as a single string.</p></div>
+<div class="sect4">
+<h5 id="_from_c">From C</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect4">
+<h5 id="_from_java">From Java</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect4">
+<h5 id="_from_javascript">From Javascript</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect4">
+<h5 id="_from_python">From Python</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect4">
+<h5 id="_from_ruby">From Ruby</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect4">
+<h5 id="_from_scheme">From Scheme</h5>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_parse_errors">6.2. Parse Errors</h3>
+<div class="paragraph"><p>A parse error contains information about where the input is invalid and hints
+about what is wrong with it.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_determining_the_result_type">6.3. Determining the result type</h3>
+<div class="sect3">
+<h4 id="_from_c_2">6.3.1. From C</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_from_java_2">6.3.2. From Java</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_from_javascript_2">6.3.3. From Javascript</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_from_python_2">6.3.4. From Python</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_from_ruby_2">6.3.5. From Ruby</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+<div class="sect3">
+<h4 id="_from_scheme_2">6.3.6. From Scheme</h4>
+<div class="listingblock">
+<div class="content"></div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_example_a_calculator">7. Example: A Calculator</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Now that we know how to write grammars, generate parsers and manipulate AST, we
+can put these skills together to build a small language interpreter. In this
+chapter, we create a command-line calculator.</p></div>
+<div class="paragraph"><p>Our calculator reads a line of input, parses it as an arithmetic expression and
+computes the result. The arithmetic language supports the following constructs.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+floating point numbers
+</p>
+</li>
+<li>
+<p>
+binary operators +,-,*,/
+</p>
+</li>
+<li>
+<p>
+unary negation
+</p>
+</li>
+<li>
+<p>
+parentheses
+</p>
+</li>
+</ul></div>
+<div class="listingblock">
+<div class="title">grammars/calc.waxeye</div>
+<div class="content"></div></div>
+<div class="sect2">
+<h3 id="_calculator_in_c">7.1. Calculator in C</h3>
+<div class="listingblock">
+<div class="title">src/example/c/calculator.c</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_calculator_in_java">7.2. Calculator in Java</h3>
+<div class="listingblock">
+<div class="title">src/example/java/Calculator.java</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_calculator_in_javascript">7.3. Calculator in Javascript</h3>
+<div class="listingblock">
+<div class="title">src/example/javascript/nodejs_calculator.js</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_calculator_in_python">7.4. Calculator in Python</h3>
+<div class="listingblock">
+<div class="title">src/example/python/calculator.py</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_calculator_in_ruby">7.5. Calculator in Ruby</h3>
+<div class="listingblock">
+<div class="title">src/example/ruby/calculator.rb</div>
+<div class="content"></div></div>
+</div>
+<div class="sect2">
+<h3 id="_calculator_in_scheme">7.6. Calculator in Scheme</h3>
+<div class="listingblock">
+<div class="title">src/example/racket/calculator.rkt</div>
+<div class="content"></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_grammar_testing">8. Grammar Testing</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">test/grammars/waxeye.rkt</div>
+<div class="content"></div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_modular_grammars">9. Modular Grammars</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>It is sometimes desirable to have a grammar split across multiple files and to
+have a final grammar built from those files. We can do this by using a
+modular grammar.</p></div>
+<div class="paragraph"><p>Having our grammar split in this way provides us with the opportunity to
+manipulate the definition of the non-terminals and, in the process, create new
+languages. Depending on how we compose our final grammar, we can create vastly
+different languages from the same base grammars and only need to change the one
+modular grammar.</p></div>
+<div class="paragraph"><p>One of the biggest advantages of modular grammars is that they make it very
+easy to embed one language within another. Many languages can be thought of in
+this way. Prime examples are when a programming language is embedded within XML
+or HTML. Or, going the other way, you could embed a data language like SQL
+within a programming language.</p></div>
+<div class="paragraph"><p>There are also cases when a language&#8217;s syntax changes subtly over time. We
+want to have parsers for each version of the language but without duplicating
+large parts of our grammars.</p></div>
+<div class="sect2">
+<h3 id="_grammar_composition">9.1. Grammar Composition</h3>
+<div class="paragraph"><p>A modular grammar is made up of expressions that pull together non-modular
+grammars. Some modular expressions can have other expressions nested within
+them. An expression is one of the following:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<em>"grammar.waxeye"</em><br />
+  A path to a <em>.waxeye</em> file. This path should either be relative to the
+  modular grammar or be an absolute path.
+</p>
+</li>
+<li>
+<p>
+<em>(rename modular-exp (old-name . new-name) &#8230;)</em><br />
+  Renames the specified non-terminals with their new names.
+</p>
+</li>
+<li>
+<p>
+<em>(only modular-exp non-term &#8230;)</em><br />
+  Includes only the listed non-terminals.
+</p>
+</li>
+<li>
+<p>
+<em>(all-except modular-exp non-term &#8230;)</em><br />
+  Includes all non-terminals except those listed.
+</p>
+</li>
+<li>
+<p>
+<em>(prefix prefix modular-exp)</em><br />
+   Prefixes the names of non-terminals from <em>modular-exp</em>.
+</p>
+</li>
+<li>
+<p>
+<em>(prefix-only prefix modular-exp non-term &#8230;)</em><br />
+  Prefixes only the listed non-terminals.
+</p>
+</li>
+<li>
+<p>
+<em>(prefix-all-except prefix modular-exp non-term &#8230;)</em><br />
+  Prefixes all non-terminals except those listed.
+</p>
+</li>
+<li>
+<p>
+<em>(join modular-exp &#8230;)</em><br />
+  Combines the results of multiple modular expressions into a single
+  expression. Not needed at the top-level.
+</p>
+</li>
+</ul></div>
+<div class="listingblock">
+<div class="title">grammars/modular/mod.rkt</div>
+<div class="content"></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_waxeye_options">10. Waxeye Options</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye [ &lt;option&gt; ... ] &lt;grammar&gt;
+ where &lt;option&gt; is one of
+ Waxeye modes:
+/ -g &lt;language&gt; &lt;dir&gt; : Generate
+| -i : Interpret
+\ -t &lt;test&gt; : Test
+ Grammar options:
+  -m : Modular Grammar - default: false
+  -s &lt;start&gt; : Starting non-terminal - default: first non-terminal
+ Parser options:
+  -c &lt;comment&gt; : Header comment for generated files - default: none
+  -e &lt;eof&gt; : Check parser consumes all input - default: true
+  -n &lt;namespace&gt; : Module or package namespace - default: none
+  -p &lt;prefix&gt; : Name prefix for generated files - default: none
+ Misc options:
+  --debug : Activates debug information
+  --version : Prints version number and copyright notice
+  --help, -h : Show this help
+  -- : Do not treat any remaining argument as a switch (at this level)
+ /|\ Brackets indicate mutually exclusive options.
+ Multiple single-letter switches can be combined after one `-'; for
+  example: `-h-' is the same as `-h --'</code></pre>
+</div></div>
+<div class="sect2">
+<h3 id="_waxeye_modes">10.1. Waxeye Modes</h3>
+<div class="listingblock">
+<div class="content">
+<pre><code>grammar</code></pre>
+</div></div>
+<div class="paragraph"><p>The grammar file describing the language you want to parse. It is the last
+argument given to Waxeye and is required by all of Waxeye&#8217;s operating modes.</p></div>
+<div class="sect3">
+<h4 id="_generate">10.1.1. Generate</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>-g &lt;language&gt; &lt;dir&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>Creates a parser written in the specified programming language. Writes the
+parser&#8217;s files to the specified directory.</p></div>
+<div class="paragraph"><p>Currently supported programming languages:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+c
+</p>
+</li>
+<li>
+<p>
+java
+</p>
+</li>
+<li>
+<p>
+javascript
+</p>
+</li>
+<li>
+<p>
+python
+</p>
+</li>
+<li>
+<p>
+ruby
+</p>
+</li>
+<li>
+<p>
+racket
+</p>
+</li>
+</ul></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -g racket . grammar.waxeye</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_interpret">10.1.2. Interpret</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>-i</code></pre>
+</div></div>
+<div class="paragraph"><p>Parses input as a string from the language defined by the grammar. Displays the
+resulting AST or parse error.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -i grammar.waxeye &lt; input.txt</code></pre>
+</div></div>
+</div>
+<div class="sect3">
+<h4 id="_test">10.1.3. Test</h4>
+<div class="listingblock">
+<div class="content">
+<pre><code>-t &lt;test&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>Runs the tests in the specified test file for the language defined by the
+grammar. Displays any test errors.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>waxeye -t tests.rkt grammar.waxeye</code></pre>
+</div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_grammar_options">10.2. Grammar Options</h3>
+<div class="listingblock">
+<div class="content">
+<pre><code>-m</code></pre>
+</div></div>
+<div class="paragraph"><p>Indicates that the grammar is a modular grammar.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>-s &lt;start&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>Specifies the non-terminal that starts the language. Default - The first
+non-terminal in the grammar.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_parser_options">10.3. Parser Options</h3>
+<div class="listingblock">
+<div class="content">
+<pre><code>-c &lt;comment&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>The file to be used as the header comment of generated files. Default - none.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>-e &lt;eof&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>Whether to check that the parser consumes all input. Default - true.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>-n &lt;namespace&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>The module or package namespace. Default - none.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>-p &lt;prefix&gt;</code></pre>
+</div></div>
+<div class="paragraph"><p>The name prefix for any generated files. Default - none.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_misc_options">10.4. Misc Options</h3>
+<div class="listingblock">
+<div class="content">
+<pre><code>--debug</code></pre>
+</div></div>
+<div class="paragraph"><p>Activates debug information.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>--version</code></pre>
+</div></div>
+<div class="paragraph"><p>Prints the version number and copyright notice.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><code>--help, -h</code></pre>
+</div></div>
+<div class="paragraph"><p>Prints a message describing the available command-line options.</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gnu_free_documentation_license">11. GNU Free Documentation License</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content">
+<pre><code>                GNU Free Documentation License
+                  Version 1.2, November 2002
+
+
+ Copyright (C) 2000,2001,2002  Free Software Foundation, Inc.
+     51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+0. PREAMBLE
+
+The purpose of this License is to make a manual, textbook, or other
+functional and useful document "free" in the sense of freedom: to
+assure everyone the effective freedom to copy and redistribute it,
+with or without modifying it, either commercially or noncommercially.
+Secondarily, this License preserves for the author and publisher a way
+to get credit for their work, while not being considered responsible
+for modifications made by others.
+
+This License is a kind of "copyleft", which means that derivative
+works of the document must themselves be free in the same sense.  It
+complements the GNU General Public License, which is a copyleft
+license designed for free software.
+
+We have designed this License in order to use it for manuals for free
+software, because free software needs free documentation: a free
+program should come with manuals providing the same freedoms that the
+software does.  But this License is not limited to software manuals;
+it can be used for any textual work, regardless of subject matter or
+whether it is published as a printed book.  We recommend this License
+principally for works whose purpose is instruction or reference.
+
+
+1. APPLICABILITY AND DEFINITIONS
+
+This License applies to any manual or other work, in any medium, that
+contains a notice placed by the copyright holder saying it can be
+distributed under the terms of this License.  Such a notice grants a
+world-wide, royalty-free license, unlimited in duration, to use that
+work under the conditions stated herein.  The "Document", below,
+refers to any such manual or work.  Any member of the public is a
+licensee, and is addressed as "you".  You accept the license if you
+copy, modify or distribute the work in a way requiring permission
+under copyright law.
+
+A "Modified Version" of the Document means any work containing the
+Document or a portion of it, either copied verbatim, or with
+modifications and/or translated into another language.
+
+A "Secondary Section" is a named appendix or a front-matter section of
+the Document that deals exclusively with the relationship of the
+publishers or authors of the Document to the Document's overall subject
+(or to related matters) and contains nothing that could fall directly
+within that overall subject.  (Thus, if the Document is in part a
+textbook of mathematics, a Secondary Section may not explain any
+mathematics.)  The relationship could be a matter of historical
+connection with the subject or with related matters, or of legal,
+commercial, philosophical, ethical or political position regarding
+them.
+
+The "Invariant Sections" are certain Secondary Sections whose titles
+are designated, as being those of Invariant Sections, in the notice
+that says that the Document is released under this License.  If a
+section does not fit the above definition of Secondary then it is not
+allowed to be designated as Invariant.  The Document may contain zero
+Invariant Sections.  If the Document does not identify any Invariant
+Sections then there are none.
+
+The "Cover Texts" are certain short passages of text that are listed,
+as Front-Cover Texts or Back-Cover Texts, in the notice that says that
+the Document is released under this License.  A Front-Cover Text may
+be at most 5 words, and a Back-Cover Text may be at most 25 words.
+
+A "Transparent" copy of the Document means a machine-readable copy,
+represented in a format whose specification is available to the
+general public, that is suitable for revising the document
+straightforwardly with generic text editors or (for images composed of
+pixels) generic paint programs or (for drawings) some widely available
+drawing editor, and that is suitable for input to text formatters or
+for automatic translation to a variety of formats suitable for input
+to text formatters.  A copy made in an otherwise Transparent file
+format whose markup, or absence of markup, has been arranged to thwart
+or discourage subsequent modification by readers is not Transparent.
+An image format is not Transparent if used for any substantial amount
+of text.  A copy that is not "Transparent" is called "Opaque".
+
+Examples of suitable formats for Transparent copies include plain
+ASCII without markup, Texinfo input format, LaTeX input format, SGML
+or XML using a publicly available DTD, and standard-conforming simple
+HTML, PostScript or PDF designed for human modification.  Examples of
+transparent image formats include PNG, XCF and JPG.  Opaque formats
+include proprietary formats that can be read and edited only by
+proprietary word processors, SGML or XML for which the DTD and/or
+processing tools are not generally available, and the
+machine-generated HTML, PostScript or PDF produced by some word
+processors for output purposes only.
+
+The "Title Page" means, for a printed book, the title page itself,
+plus such following pages as are needed to hold, legibly, the material
+this License requires to appear in the title page.  For works in
+formats which do not have any title page as such, "Title Page" means
+the text near the most prominent appearance of the work's title,
+preceding the beginning of the body of the text.
+
+A section "Entitled XYZ" means a named subunit of the Document whose
+title either is precisely XYZ or contains XYZ in parentheses following
+text that translates XYZ in another language.  (Here XYZ stands for a
+specific section name mentioned below, such as "Acknowledgements",
+"Dedications", "Endorsements", or "History".)  To "Preserve the Title"
+of such a section when you modify the Document means that it remains a
+section "Entitled XYZ" according to this definition.
+
+The Document may include Warranty Disclaimers next to the notice which
+states that this License applies to the Document.  These Warranty
+Disclaimers are considered to be included by reference in this
+License, but only as regards disclaiming warranties: any other
+implication that these Warranty Disclaimers may have is void and has
+no effect on the meaning of this License.
+
+
+2. VERBATIM COPYING
+
+You may copy and distribute the Document in any medium, either
+commercially or noncommercially, provided that this License, the
+copyright notices, and the license notice saying this License applies
+to the Document are reproduced in all copies, and that you add no other
+conditions whatsoever to those of this License.  You may not use
+technical measures to obstruct or control the reading or further
+copying of the copies you make or distribute.  However, you may accept
+compensation in exchange for copies.  If you distribute a large enough
+number of copies you must also follow the conditions in section 3.
+
+You may also lend copies, under the same conditions stated above, and
+you may publicly display copies.
+
+
+3. COPYING IN QUANTITY
+
+If you publish printed copies (or copies in media that commonly have
+printed covers) of the Document, numbering more than 100, and the
+Document's license notice requires Cover Texts, you must enclose the
+copies in covers that carry, clearly and legibly, all these Cover
+Texts: Front-Cover Texts on the front cover, and Back-Cover Texts on
+the back cover.  Both covers must also clearly and legibly identify
+you as the publisher of these copies.  The front cover must present
+the full title with all words of the title equally prominent and
+visible.  You may add other material on the covers in addition.
+Copying with changes limited to the covers, as long as they preserve
+the title of the Document and satisfy these conditions, can be treated
+as verbatim copying in other respects.
+
+If the required texts for either cover are too voluminous to fit
+legibly, you should put the first ones listed (as many as fit
+reasonably) on the actual cover, and continue the rest onto adjacent
+pages.
+
+If you publish or distribute Opaque copies of the Document numbering
+more than 100, you must either include a machine-readable Transparent
+copy along with each Opaque copy, or state in or with each Opaque copy
+a computer-network location from which the general network-using
+public has access to download using public-standard network protocols
+a complete Transparent copy of the Document, free of added material.
+If you use the latter option, you must take reasonably prudent steps,
+when you begin distribution of Opaque copies in quantity, to ensure
+that this Transparent copy will remain thus accessible at the stated
+location until at least one year after the last time you distribute an
+Opaque copy (directly or through your agents or retailers) of that
+edition to the public.
+
+It is requested, but not required, that you contact the authors of the
+Document well before redistributing any large number of copies, to give
+them a chance to provide you with an updated version of the Document.
+
+
+4. MODIFICATIONS
+
+You may copy and distribute a Modified Version of the Document under
+the conditions of sections 2 and 3 above, provided that you release
+the Modified Version under precisely this License, with the Modified
+Version filling the role of the Document, thus licensing distribution
+and modification of the Modified Version to whoever possesses a copy
+of it.  In addition, you must do these things in the Modified Version:
+
+A. Use in the Title Page (and on the covers, if any) a title distinct
+   from that of the Document, and from those of previous versions
+   (which should, if there were any, be listed in the History section
+   of the Document).  You may use the same title as a previous version
+   if the original publisher of that version gives permission.
+B. List on the Title Page, as authors, one or more persons or entities
+   responsible for authorship of the modifications in the Modified
+   Version, together with at least five of the principal authors of the
+   Document (all of its principal authors, if it has fewer than five),
+   unless they release you from this requirement.
+C. State on the Title page the name of the publisher of the
+   Modified Version, as the publisher.
+D. Preserve all the copyright notices of the Document.
+E. Add an appropriate copyright notice for your modifications
+   adjacent to the other copyright notices.
+F. Include, immediately after the copyright notices, a license notice
+   giving the public permission to use the Modified Version under the
+   terms of this License, in the form shown in the Addendum below.
+G. Preserve in that license notice the full lists of Invariant Sections
+   and required Cover Texts given in the Document's license notice.
+H. Include an unaltered copy of this License.
+I. Preserve the section Entitled "History", Preserve its Title, and add
+   to it an item stating at least the title, year, new authors, and
+   publisher of the Modified Version as given on the Title Page.  If
+   there is no section Entitled "History" in the Document, create one
+   stating the title, year, authors, and publisher of the Document as
+   given on its Title Page, then add an item describing the Modified
+   Version as stated in the previous sentence.
+J. Preserve the network location, if any, given in the Document for
+   public access to a Transparent copy of the Document, and likewise
+   the network locations given in the Document for previous versions
+   it was based on.  These may be placed in the "History" section.
+   You may omit a network location for a work that was published at
+   least four years before the Document itself, or if the original
+   publisher of the version it refers to gives permission.
+K. For any section Entitled "Acknowledgements" or "Dedications",
+   Preserve the Title of the section, and preserve in the section all
+   the substance and tone of each of the contributor acknowledgements
+   and/or dedications given therein.
+L. Preserve all the Invariant Sections of the Document,
+   unaltered in their text and in their titles.  Section numbers
+   or the equivalent are not considered part of the section titles.
+M. Delete any section Entitled "Endorsements".  Such a section
+   may not be included in the Modified Version.
+N. Do not retitle any existing section to be Entitled "Endorsements"
+   or to conflict in title with any Invariant Section.
+O. Preserve any Warranty Disclaimers.
+
+If the Modified Version includes new front-matter sections or
+appendices that qualify as Secondary Sections and contain no material
+copied from the Document, you may at your option designate some or all
+of these sections as invariant.  To do this, add their titles to the
+list of Invariant Sections in the Modified Version's license notice.
+These titles must be distinct from any other section titles.
+
+You may add a section Entitled "Endorsements", provided it contains
+nothing but endorsements of your Modified Version by various
+parties--for example, statements of peer review or that the text has
+been approved by an organization as the authoritative definition of a
+standard.
+
+You may add a passage of up to five words as a Front-Cover Text, and a
+passage of up to 25 words as a Back-Cover Text, to the end of the list
+of Cover Texts in the Modified Version.  Only one passage of
+Front-Cover Text and one of Back-Cover Text may be added by (or
+through arrangements made by) any one entity.  If the Document already
+includes a cover text for the same cover, previously added by you or
+by arrangement made by the same entity you are acting on behalf of,
+you may not add another; but you may replace the old one, on explicit
+permission from the previous publisher that added the old one.
+
+The author(s) and publisher(s) of the Document do not by this License
+give permission to use their names for publicity for or to assert or
+imply endorsement of any Modified Version.
+
+
+5. COMBINING DOCUMENTS
+
+You may combine the Document with other documents released under this
+License, under the terms defined in section 4 above for modified
+versions, provided that you include in the combination all of the
+Invariant Sections of all of the original documents, unmodified, and
+list them all as Invariant Sections of your combined work in its
+license notice, and that you preserve all their Warranty Disclaimers.
+
+The combined work need only contain one copy of this License, and
+multiple identical Invariant Sections may be replaced with a single
+copy.  If there are multiple Invariant Sections with the same name but
+different contents, make the title of each such section unique by
+adding at the end of it, in parentheses, the name of the original
+author or publisher of that section if known, or else a unique number.
+Make the same adjustment to the section titles in the list of
+Invariant Sections in the license notice of the combined work.
+
+In the combination, you must combine any sections Entitled "History"
+in the various original documents, forming one section Entitled
+"History"; likewise combine any sections Entitled "Acknowledgements",
+and any sections Entitled "Dedications".  You must delete all sections
+Entitled "Endorsements".
+
+
+6. COLLECTIONS OF DOCUMENTS
+
+You may make a collection consisting of the Document and other documents
+released under this License, and replace the individual copies of this
+License in the various documents with a single copy that is included in
+the collection, provided that you follow the rules of this License for
+verbatim copying of each of the documents in all other respects.
+
+You may extract a single document from such a collection, and distribute
+it individually under this License, provided you insert a copy of this
+License into the extracted document, and follow this License in all
+other respects regarding verbatim copying of that document.
+
+
+7. AGGREGATION WITH INDEPENDENT WORKS
+
+A compilation of the Document or its derivatives with other separate
+and independent documents or works, in or on a volume of a storage or
+distribution medium, is called an "aggregate" if the copyright
+resulting from the compilation is not used to limit the legal rights
+of the compilation's users beyond what the individual works permit.
+When the Document is included in an aggregate, this License does not
+apply to the other works in the aggregate which are not themselves
+derivative works of the Document.
+
+If the Cover Text requirement of section 3 is applicable to these
+copies of the Document, then if the Document is less than one half of
+the entire aggregate, the Document's Cover Texts may be placed on
+covers that bracket the Document within the aggregate, or the
+electronic equivalent of covers if the Document is in electronic form.
+Otherwise they must appear on printed covers that bracket the whole
+aggregate.
+
+
+8. TRANSLATION
+
+Translation is considered a kind of modification, so you may
+distribute translations of the Document under the terms of section 4.
+Replacing Invariant Sections with translations requires special
+permission from their copyright holders, but you may include
+translations of some or all Invariant Sections in addition to the
+original versions of these Invariant Sections.  You may include a
+translation of this License, and all the license notices in the
+Document, and any Warranty Disclaimers, provided that you also include
+the original English version of this License and the original versions
+of those notices and disclaimers.  In case of a disagreement between
+the translation and the original version of this License or a notice
+or disclaimer, the original version will prevail.
+
+If a section in the Document is Entitled "Acknowledgements",
+"Dedications", or "History", the requirement (section 4) to Preserve
+its Title (section 1) will typically require changing the actual
+title.
+
+
+9. TERMINATION
+
+You may not copy, modify, sublicense, or distribute the Document except
+as expressly provided for under this License.  Any other attempt to
+copy, modify, sublicense or distribute the Document is void, and will
+automatically terminate your rights under this License.  However,
+parties who have received copies, or rights, from you under this
+License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+
+10. FUTURE REVISIONS OF THIS LICENSE
+
+The Free Software Foundation may publish new, revised versions
+of the GNU Free Documentation License from time to time.  Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.  See
+http://www.gnu.org/copyleft/.
+
+Each version of the License is given a distinguishing version number.
+If the Document specifies that a particular numbered version of this
+License "or any later version" applies to it, you have the option of
+following the terms and conditions either of that specified version or
+of any later version that has been published (not as a draft) by the
+Free Software Foundation.  If the Document does not specify a version
+number of this License, you may choose any version ever published (not
+as a draft) by the Free Software Foundation.
+
+
+ADDENDUM: How to use this License for your documents
+
+To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and
+license notices just after the title page:
+
+    Copyright (c)  YEAR  YOUR NAME.
+    Permission is granted to copy, distribute and/or modify this document
+    under the terms of the GNU Free Documentation License, Version 1.2
+    or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+    A copy of the license is included in the section entitled "GNU
+    Free Documentation License".
+
+If you have Invariant Sections, Front-Cover Texts and Back-Cover Texts,
+replace the "with...Texts." line with this:
+
+    with the Invariant Sections being LIST THEIR TITLES, with the
+    Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+
+If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
+
+If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License,
+to permit their use in free software.</code></pre>
+</div></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+Version 0.8.1<br />
+Last updated
+ 2020-01-29 00:15:54 GMT
+</div>
+</div>
+</body>
+</html>
