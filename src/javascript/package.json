@@ -10,14 +10,14 @@
     "test": "test"
   },
   "devDependencies": {
-    "@types/node": "^10.3.5",
-    "clang-format": "^1.2.3",
-    "ts-loader": "^4.4.1",
-    "ts-node": "^7.0.0",
-    "tslint": "^5.12.1",
-    "typescript": "^3.3.3",
-    "webpack": "^4.12.1",
-    "webpack-cli": "^3.0.8"
+    "@types/node": "^10.17.14",
+    "clang-format": "^1.4.0",
+    "ts-loader": "^4.5.0",
+    "ts-node": "^8.6.2",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "scripts": {
     "compile": "node_modules/.bin/webpack --mode production",
