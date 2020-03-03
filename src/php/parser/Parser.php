@@ -3,44 +3,88 @@
 
 namespace parser;
 
-include "FA.php";
-include "Edge.php";
-include "State.php";
-include "CharTransition.php";
 
+use ast\AST;
+use RuntimeException;
+use SplDoublyLinkedList;
 
 class Parser
 {
-    private FA $fa;
+    private SplDoublyLinkedList $fas;
+    private AST $ast;
 
-    public function __construct(FA $fa)
+    public function __construct(SplDoublyLinkedList $fas)
     {
-        $this->fa = $fa;
+        $this->fas = $fas;
+        $this->ast = new AST($this->fas[0]->getType(), 0, new SplDoublyLinkedList());
     }
 
     public function parse(string $input)
     {
-        print "parsing input " . $input . "\n";
-        $this->matchState(0);
+        $this->matchAutomaton($input);
+
+        printf("%s\n", $this->ast);
     }
 
-    protected function matchState(int $index)
+    private function matchAutomaton($input, int $position = 0, int $index = 0)
     {
-        $state = $this->fa->getStates()[$index];
+        $fa = $this->fas->offsetGet($index);
 
-        printf("matching state at index %s\n", $index);
+        printf("matching automaton at index %s: %s\n", $index, $fa);
 
-        $res = $this->matchEdges($state->getEdges(), 0);
+        $result = $this->matchStates($input, $fa);
+
+        if ($result) {
+            printf("matched automaton %s\n", $fa);
+        }
+
+        printf("result: %s\n", $result);
     }
 
-    protected function matchEdges(Edges $edges, int $index)
+    private function matchStates(string $input, FA $automaton, int $stateIndex = 0, int $position = 0): bool
     {
-        printf("\tmatching edge at %s\n", $index);
-        $this->matchEdge($edges[$index]);
+        $state = $automaton->getStates()[$stateIndex];
+        $substr = substr($input, $position);
+
+        printf("\tmatching state at stateIndex %s: %s with input %s\n", $stateIndex, $state, $substr);
+
+
+        $result = $this->matchState($input, $position, $state);
+
+        if (null == $result) {
+            if ($state->isMatch()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            printf("\t\t\tmatched with result: %s\n", $result);
+            return $this->matchStates($input, $automaton, $result->getState(), $position + 1);
+        }
     }
 
-    protected function matchEdge(Edge $edge)
+    private function matchState(string $input, int $position, State $state): ?Edge
     {
-        printf("\t\tmatching edge %s\n", $edge);
+        foreach ($state->getEdges() as $edge) {
+            $transition = $edge->getTransition();
+            printf("\t\tchecking transition %s\n", $transition);
+
+            if ($transition instanceof AutomatonTransition) {
+                return $this->matchAutomaton($input, $position, $transition->getIndex());
+            } else if ($transition instanceof CharTransition) {
+                $result = $edge->getTransition()->visitTransition($input, $position);
+
+                if (null != $result) {
+                    $this->ast->getChildren()->push($result);
+                    return $edge;
+                } else {
+                    continue;
+                }
+            } else {
+                throw new RuntimeException("Unsupported transition type: " . get_class($transition));
+            }
+        }
+
+        return null;
     }
 }

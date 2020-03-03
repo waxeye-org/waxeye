@@ -4,8 +4,6 @@
 namespace parser;
 
 
-use ArrayIterator;
-
 class State
 {
     private Edges $edges;
@@ -32,22 +30,11 @@ class State
     {
         return $this->match;
     }
-}
 
-class States extends ArrayIterator
-{
-    public function __construct(State...$states)
+    public function __toString()
     {
-        parent::__construct($states);
-    }
-
-    public function current(): State
-    {
-        return parent::current();
-    }
-
-    public function offsetGet($index): State
-    {
-        return parent::offsetGet($index);
+        return "State{edges: " . $this->edges . ", match: " . $this->match . "}";
     }
 }
+
+

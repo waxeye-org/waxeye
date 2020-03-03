@@ -4,8 +4,6 @@
 namespace parser;
 
 
-use ArrayIterator;
-
 class Edge
 {
     private ITransition $transition;
@@ -21,7 +19,7 @@ class Edge
 
     public function __toString()
     {
-        return "[edge " . $this->state . ": " . $this->voided . "]";
+        return "Edge{transition: " . $this->transition . ", state: " . $this->state . ", voided: " . $this->voided . "}";
     }
 
     /**
@@ -46,23 +44,5 @@ class Edge
     public function isVoided(): bool
     {
         return $this->voided;
-    }
-}
-
-class Edges extends ArrayIterator
-{
-    public function __construct(Edge...$edges)
-    {
-        parent::__construct($edges);
-    }
-
-    public function current(): Edge
-    {
-        return parent::current();
-    }
-
-    public function offsetGet($index): Edge
-    {
-        return parent::offsetGet($index);
     }
 }

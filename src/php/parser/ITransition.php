@@ -4,7 +4,9 @@
 namespace parser;
 
 
+use ast\IAST;
+
 interface ITransition
 {
-    public function acceptVisitor(ITransitionVisitor $visitor);
+    public function visitTransition(string $input, int $position): ?IAST;
 }
