@@ -4,8 +4,6 @@
 namespace ast;
 
 
-use SplDoublyLinkedList;
-
 class AST implements IAST
 {
     private string $type;

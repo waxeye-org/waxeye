@@ -9,6 +9,7 @@ use parser\FAs;
 use parser\Parser;
 use parser\State;
 use parser\States;
+use parser\WildcardTransition;
 use util\CharArray;
 
 spl_autoload_register(function ($class_name) {
@@ -30,6 +31,10 @@ class TestParser extends Parser
 
         $edges = new Edges();
         $edges->append(new Edge(new AutomatonTransition(2), 2, false));
+        $states->append(new State($edges, false));
+
+        $edges = new Edges();
+        $edges->append(new Edge(new AutomatonTransition(3), 3, false));
         $states->append(new State($edges, false));
 
         $edges = new Edges();
@@ -71,6 +76,39 @@ class TestParser extends Parser
         $states->append(new State($edges, true));
         $fas[] = new FA("SenderType", $states);
 
+        $states = new States();
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 1, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 2, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 3, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 4, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 5, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 6, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 7, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 8, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $edges->append(new Edge(new WildcardTransition(), 9, false));
+        $states->append(new State($edges, false));
+        $edges = new Edges();
+        $states->append(new State($edges, true));
+        $fas[] = new FA("SenderId", $states);
+
+
         printf("%s\n", $fas);
 
         parent::__construct($fas);
@@ -79,5 +117,6 @@ class TestParser extends Parser
 
 
 $parser = new TestParser();
-$parser->parse("HDRPB");//512590964KICK  THE FLAME MUSIKVERLAG, RAJK BARTHEL    01.102019112512513620191125               ");
+$result = $parser->parse("HDRPB512590964");//KICK  THE FLAME MUSIKVERLAG, RAJK BARTHEL    01.102019112512513620191125               ");
+printf("%s\n", $result);
 

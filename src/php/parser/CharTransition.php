@@ -41,11 +41,12 @@ class CharTransition implements ITransition
     public function visitTransition(string $input, int $position): ?IAST
     {
         $result = substr($input, $position, 1);
-        if ($this->matches($result)) {
-            return new Char($input[$position], $position, "char");
-        }
 
-        return null;
+        if (($result !== false) && ($this->matches($result))) {
+            return new Char($input[$position], $position, "char");
+        } else {
+            return null;
+        }
     }
 
     /**

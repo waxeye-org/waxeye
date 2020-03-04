@@ -19,7 +19,6 @@ class Parser
     public function __construct(FAs $fas)
     {
         $this->faStack = new FAStack();
-
         $this->fas = $fas;
     }
 
@@ -40,7 +39,6 @@ class Parser
     {
         $startPosition = $this->inputPosition;
         $automaton = $this->fas[$index];
-
 
         $this->faStack->push($automaton);
         $result = $this->matchState();
@@ -92,12 +90,11 @@ class Parser
         $transition = $edge->getTransition();
 
         if ($transition instanceof AutomatonTransition) {
-            $result = $this->matchAutomaton($transition->getIndex());
+            $result = $this->visitAutomatonTransition($transition);
         } else if ($transition instanceof CharTransition) {
-            $result = $edge->getTransition()->visitTransition($this->input, $this->inputPosition);
-            if ($result) {
-                $this->inputPosition++;
-            }
+            $result = $this->visitCharTransition($transition);
+        } else if ($transition instanceof WildcardTransition) {
+            $result = $this->visitWildcardTransition($transition);
         } else {
             throw new RuntimeException("Unsupported transition type: " . get_class($transition));
         }
@@ -120,6 +117,31 @@ class Parser
                 return null;
             }
         }
+    }
+
+    private function visitCharTransition(CharTransition $transition): ?IAST
+    {
+        $result = $transition->visitTransition($this->input, $this->inputPosition);
+        if ($result) {
+            $this->inputPosition++;
+        }
+
+        return $result;
+    }
+
+    private function visitAutomatonTransition(AutomatonTransition $transition): ?IAST
+    {
+        return $this->matchAutomaton($transition->getIndex());
+    }
+
+    private function visitWildcardTransition(WildcardTransition $transition): ?IAST
+    {
+        $result = $transition->visitTransition($this->input, $this->inputPosition);
+        if ($result) {
+            $this->inputPosition++;
+        }
+
+        return $result;
     }
 
     private function addAtBegin(IAST $iast, IASTs $iasts): IASTs

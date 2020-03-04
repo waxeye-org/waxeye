@@ -11,7 +11,13 @@ class WildcardTransition implements ITransition
 {
     public function visitTransition(string $input, int $position): ?IAST
     {
-        return new Char($input[$position], $position, "wild");
+        $result = substr($input, $position, 1);
+
+        if ($result !== false) {
+            return new Char($input[$position], $position, "char");
+        } else {
+            return null;
+        }
     }
 
     /**
