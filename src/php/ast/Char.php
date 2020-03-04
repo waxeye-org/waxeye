@@ -54,6 +54,14 @@ class Char extends NoChildren implements IChar
 
     public function __toString()
     {
-        return "AST{type: " . $this->type . ", position: " . $this->position . ", value: " . $this->value . "}";
+        return json_encode($this);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("Char" => get_object_vars($this));
     }
 }

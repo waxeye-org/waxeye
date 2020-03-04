@@ -37,6 +37,14 @@ class AutomatonTransition implements ITransition
      */
     public function __toString()
     {
-        return "AutomatonTransition{index: " . $this->index . "}";
+        return json_encode($this);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("AutomatonTransition" => get_object_vars($this));
     }
 }

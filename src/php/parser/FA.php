@@ -4,7 +4,9 @@
 namespace parser;
 
 
-class FA
+use JsonSerializable;
+
+class FA implements JsonSerializable
 {
     private int $mode;
     private string $type;
@@ -43,6 +45,14 @@ class FA
 
     public function __toString()
     {
-        return "Automaton{mode: " . $this->mode . ", type: " . $this->type . ", states: " . $this->states . "}";
+        return json_encode($this);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("FA" => get_object_vars($this));
     }
 }

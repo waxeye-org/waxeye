@@ -4,7 +4,9 @@
 namespace parser;
 
 
-class Edge
+use JsonSerializable;
+
+class Edge implements JsonSerializable
 {
     private ITransition $transition;
     private int $state;
@@ -19,7 +21,7 @@ class Edge
 
     public function __toString()
     {
-        return "Edge{transition: " . $this->transition . ", state: " . $this->state . ", voided: " . $this->voided . "}";
+        return json_encode($this);
     }
 
     /**
@@ -44,5 +46,13 @@ class Edge
     public function isVoided(): bool
     {
         return $this->voided;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("Edge" => get_object_vars($this));
     }
 }

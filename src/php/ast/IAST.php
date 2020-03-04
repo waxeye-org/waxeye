@@ -4,9 +4,10 @@
 namespace ast;
 
 
+use JsonSerializable;
 use SplDoublyLinkedList;
 
-interface IAST
+interface IAST extends JsonSerializable
 {
     public function getType(): string;
 

@@ -4,7 +4,9 @@
 namespace parser;
 
 
-class State
+use JsonSerializable;
+
+class State implements JsonSerializable
 {
     private Edges $edges;
     private bool $match;
@@ -33,7 +35,15 @@ class State
 
     public function __toString()
     {
-        return "State{edges: " . $this->edges . ", match: " . $this->match . "}";
+        return json_encode($this);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("State" => get_object_vars($this));
     }
 }
 

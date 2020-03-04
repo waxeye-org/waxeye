@@ -71,7 +71,7 @@ class TestParser extends Parser
         $fas->push(new FA("SenderType", $states));
 
         foreach ($fas as $fa) {
-            printf("FA: %s\n", $fa);
+            printf("%s\n", $fa);
         }
 
         parent::__construct($fas);

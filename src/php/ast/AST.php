@@ -50,12 +50,14 @@ class AST implements IAST
 
     public function __toString()
     {
-        $result = "{AST{type: " . $this->type . ", position: " . $this->position . ", children: {";
-        foreach ($this->children as $child) {
-            $result .= $child;
-        }
-        $result .= "}}";
+        return json_encode($this);
+    }
 
-        return $result;
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("AST" => get_object_vars($this));
     }
 }

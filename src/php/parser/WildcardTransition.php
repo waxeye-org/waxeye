@@ -13,4 +13,17 @@ class WildcardTransition implements ITransition
     {
         return new Char($input[$position], $position, "wild");
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return array("WildcardTransition" => get_object_vars($this));
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
+    }
 }

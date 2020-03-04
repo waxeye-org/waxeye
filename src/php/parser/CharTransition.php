@@ -42,17 +42,22 @@ class CharTransition implements ITransition
     {
         $result = substr($input, $position, 1);
         if ($this->matches($result)) {
-            return new Char($input[$position], $position,"char");
+            return new Char($input[$position], $position, "char");
         }
 
         return null;
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
+    public function jsonSerialize()
+    {
+        return array("CharTransition" => get_object_vars($this));
+    }
+
     public function __toString()
     {
-        return "CharTransition{single: " . $this->single . ", min: " . $this->min . ", max: " . $this->max . "}";
+        return json_encode($this);
     }
 }
