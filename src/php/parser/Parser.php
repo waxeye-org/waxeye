@@ -8,18 +8,17 @@ use ast\AST;
 use ast\IAST;
 use ast\IASTs;
 use RuntimeException;
-use SplStack;
 
 class Parser
 {
     private FAs $fas;
-    private SplStack $faStack;  // TODO: change to typed datatype
+    private FAStack $faStack;
     private string $input;
     private int $inputPosition;
 
     public function __construct(FAs $fas)
     {
-        $this->faStack = new SplStack();
+        $this->faStack = new FAStack();
 
         $this->fas = $fas;
     }

@@ -3,8 +3,6 @@
 namespace ast;
 
 
-use SplDoublyLinkedList;
-
 abstract class NoChildren implements IAST
 {
     protected string $type;

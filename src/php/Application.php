@@ -18,8 +18,6 @@ spl_autoload_register(function ($class_name) {
 
 class TestParser extends Parser
 {
-    private SplStack $faStack;
-
     public function __construct()
     {
         $fas = new FAs();

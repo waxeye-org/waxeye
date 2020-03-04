@@ -12,12 +12,6 @@ class AST implements IAST
     private int $position;
     private IASTs $children;
 
-    /**
-     * AST constructor.
-     * @param string $type
-     * @param int $position
-     * @param SplDoublyLinkedList $children
-     */
     public function __construct(string $type, int $position, IASTs $children)
     {
         $this->type = $type;
@@ -25,9 +19,6 @@ class AST implements IAST
         $this->children = $children;
     }
 
-    /**
-     * @param SplDoublyLinkedList $children
-     */
     public function setChildren(IASTs $children): void
     {
         $this->children = $children;

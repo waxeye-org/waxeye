@@ -5,7 +5,6 @@ namespace ast;
 
 
 use util\ArrayIteratorStr;
-use function Sodium\add;
 
 class IASTs extends ArrayIteratorStr
 {

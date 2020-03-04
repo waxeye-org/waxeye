@@ -5,7 +5,6 @@ namespace ast;
 
 
 use JsonSerializable;
-use SplDoublyLinkedList;
 
 interface IAST extends JsonSerializable
 {
