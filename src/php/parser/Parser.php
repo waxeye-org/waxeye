@@ -5,86 +5,132 @@ namespace parser;
 
 
 use ast\AST;
+use ast\IAST;
+use ast\IASTs;
 use RuntimeException;
-use SplDoublyLinkedList;
+use SplStack;
 
 class Parser
 {
-    private SplDoublyLinkedList $fas;
-    private AST $ast;
+    private FAs $fas;
+    private SplStack $faStack;  // TODO: change to typed datatype
+    private string $input;
+    private int $inputPosition;
 
-    public function __construct(SplDoublyLinkedList $fas)
+    public function __construct(FAs $fas)
     {
+        $this->faStack = new SplStack();
+
         $this->fas = $fas;
-        $this->ast = new AST($this->fas[0]->getType(), 0, new SplDoublyLinkedList());
     }
 
     public function parse(string $input)
     {
-        $this->matchAutomaton($input);
+        $this->input = $input;
+        $this->inputPosition = 0;
+        $result = $this->matchAutomaton();
 
-        printf("%s\n", $this->ast);
-    }
-
-    private function matchAutomaton($input, int $position = 0, int $index = 0)
-    {
-        $fa = $this->fas->offsetGet($index);
-
-        printf("matching automaton at index %s: %s\n", $index, $fa);
-
-        $result = $this->matchStates($input, $fa);
-
-        if ($result) {
-            printf("matched automaton %s\n", $fa);
+        if ($result && $this->inputPosition < strlen($this->input)) {
+            throw new RuntimeException("Could not parse remaining input " . substr($this->input, $this->inputPosition));
         }
 
-        printf("result: %s\n", $result);
+        return $result;
     }
 
-    private function matchStates(string $input, FA $automaton, int $stateIndex = 0, int $position = 0): bool
+    private function matchAutomaton(int $index = 0)
     {
-        $state = $automaton->getStates()[$stateIndex];
-        $substr = substr($input, $position);
-
-        printf("\tmatching state at stateIndex %s: %s with input %s\n", $stateIndex, $state, $substr);
+        $startPosition = $this->inputPosition;
+        $automaton = $this->fas[$index];
 
 
-        $result = $this->matchState($input, $position, $state);
+        $this->faStack->push($automaton);
+        $result = $this->matchState();
+        $this->faStack->pop();
 
-        if (null == $result) {
-            if ($state->isMatch()) {
-                return true;
+        switch ($automaton->getMode()) {
+            default:
+            {
+                if ($result->getType() != "EMPTY") {
+                    $value = new AST($automaton->getType(), $startPosition, new IASTs($result));
+                } else {
+                    $value = new AST($automaton->getType(), $startPosition, $result->getChildren());
+                }
+            }
+        }
+
+        return $value;
+    }
+
+    private function matchState(int $stateIndex = 0): ?IAST
+    {
+        $state = $this->faStack->top()->getStates()[$stateIndex];
+        $result = $this->matchEdges($state->getEdges());
+
+        if (null == $result && $state->isMatch()) {
+            return new AST("EMPTY", $this->inputPosition, new IASTs());
+        } else {
+            return $result;
+        }
+    }
+
+    private function matchEdges(Edges $edges, int $edgeIndex = 0): ?IAST
+    {
+        if ($edgeIndex < $edges->count()) {
+            $result = $this->matchEdge($edges[$edgeIndex]);
+
+            if ($result) {
+                return $result;
             } else {
-                return false;
+                return $this->matchEdges($edges, $edgeIndex + 1);
             }
         } else {
-            printf("\t\t\tmatched with result: %s\n", $result);
-            return $this->matchStates($input, $automaton, $result->getState(), $position + 1);
+            return null;
         }
     }
 
-    private function matchState(string $input, int $position, State $state): ?Edge
+    private function matchEdge(Edge $edge): ?IAST
     {
-        foreach ($state->getEdges() as $edge) {
-            $transition = $edge->getTransition();
-            printf("\t\tchecking transition %s\n", $transition);
+        $transition = $edge->getTransition();
 
-            if ($transition instanceof AutomatonTransition) {
-                return $this->matchAutomaton($input, $position, $transition->getIndex());
-            } else if ($transition instanceof CharTransition) {
-                $result = $edge->getTransition()->visitTransition($input, $position);
-
-                if (null != $result) {
-                    $this->ast->getChildren()->push($result);
-                    return $edge;
-                } else {
-                    continue;
-                }
-            } else {
-                throw new RuntimeException("Unsupported transition type: " . get_class($transition));
+        if ($transition instanceof AutomatonTransition) {
+            $result = $this->matchAutomaton($transition->getIndex());
+        } else if ($transition instanceof CharTransition) {
+            $result = $edge->getTransition()->visitTransition($this->input, $this->inputPosition);
+            if ($result) {
+                $this->inputPosition++;
             }
+        } else {
+            throw new RuntimeException("Unsupported transition type: " . get_class($transition));
         }
 
-        return null;
+        if (null == $result) {
+            return $result;
+        } else {
+            $tranRes = $this->matchState($edge->getState());
+
+            if ($tranRes) {
+                if ($edge->isVoided() || $result->getType() === "EMPTY") {
+                    return $tranRes;
+                } else {
+                    $tranRes->setChildren($this->addAtBegin($result, $tranRes->getChildren()));
+
+                    return $tranRes;
+                }
+            } else {
+                // TODO restore position
+                return null;
+            }
+        }
+    }
+
+    private function addAtBegin(IAST $iast, IASTs $iasts): IASTs
+    {
+        $val = new IASTs();
+        $val[] = $iast;
+        foreach ($iasts as $current) {
+            $val[] = $current;
+        }
+
+        return $val;
     }
 }

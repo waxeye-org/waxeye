@@ -15,5 +15,7 @@ interface IAST extends JsonSerializable
 
     public function getPosition(): int;
 
-    public function getChildren(): SplDoublyLinkedList;
+    public function getChildren(): IASTs;
+
+    public function setChildren(IASTs $children);
 }

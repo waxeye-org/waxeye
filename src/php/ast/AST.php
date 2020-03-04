@@ -10,7 +10,7 @@ class AST implements IAST
 {
     private string $type;
     private int $position;
-    private SplDoublyLinkedList $children;
+    private IASTs $children;
 
     /**
      * AST constructor.
@@ -18,12 +18,21 @@ class AST implements IAST
      * @param int $position
      * @param SplDoublyLinkedList $children
      */
-    public function __construct(string $type, int $position, SplDoublyLinkedList $children)
+    public function __construct(string $type, int $position, IASTs $children)
     {
         $this->type = $type;
         $this->position = $position;
         $this->children = $children;
     }
+
+    /**
+     * @param SplDoublyLinkedList $children
+     */
+    public function setChildren(IASTs $children): void
+    {
+        $this->children = $children;
+    }
+
 
     public function getValue(): string
     {
@@ -43,7 +52,7 @@ class AST implements IAST
         return $this->position;
     }
 
-    public function getChildren(): SplDoublyLinkedList
+    public function getChildren(): IASTs
     {
         return $this->children;
     }

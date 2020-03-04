@@ -5,6 +5,7 @@ use parser\CharTransition;
 use parser\Edge;
 use parser\Edges;
 use parser\FA;
+use parser\FAs;
 use parser\Parser;
 use parser\State;
 use parser\States;
@@ -17,9 +18,11 @@ spl_autoload_register(function ($class_name) {
 
 class TestParser extends Parser
 {
+    private SplStack $faStack;
+
     public function __construct()
     {
-        $fas = new SplDoublyLinkedList();
+        $fas = new FAs();
 
         // CWR File
         $states = new States();
@@ -33,7 +36,7 @@ class TestParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas->push(new FA("CWRFile", $states));
+        $fas[] = new FA("CWRFile", $states);
 
 
         // TransmissionHeader
@@ -53,7 +56,7 @@ class TestParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas->push(new FA("TransmissionHeader", $states));
+        $fas[] = new FA("TransmissionHeader", $states);
 
 
         // SenderType
@@ -68,11 +71,9 @@ class TestParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas->push(new FA("SenderType", $states));
+        $fas[] = new FA("SenderType", $states);
 
-        foreach ($fas as $fa) {
-            printf("%s\n", $fa);
-        }
+        printf("%s\n", $fas);
 
         parent::__construct($fas);
     }

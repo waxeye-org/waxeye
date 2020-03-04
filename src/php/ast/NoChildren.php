@@ -20,9 +20,14 @@ abstract class NoChildren implements IAST
     }
 
 
-    public function getChildren(): SplDoublyLinkedList
+    public function getChildren(): IASTs
     {
-        return new SplDoublyLinkedList();
+        return new IASTs();
+    }
+
+    public function setChildren(IASTs $children)
+    {
+        return false;
     }
 }
 
