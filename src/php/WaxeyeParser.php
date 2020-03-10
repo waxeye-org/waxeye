@@ -35,7 +35,7 @@ class WaxeyeParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas[] = new FA("CWRFile", $states);
+        $fas[] = new FA("CWRFile", $states, FA::LEFT);
 
 
         // TransmissionHeader
@@ -55,7 +55,7 @@ class WaxeyeParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas[] = new FA("TransmissionHeader", $states);
+        $fas[] = new FA("TransmissionHeader", $states, FA::LEFT);
 
 
         // SenderType
@@ -70,7 +70,7 @@ class WaxeyeParser extends Parser
 
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas[] = new FA("SenderType", $states);
+        $fas[] = new FA("SenderType", $states, FA::LEFT);
 
         $states = new States();
         $edges = new Edges();
@@ -102,7 +102,7 @@ class WaxeyeParser extends Parser
         $states->append(new State($edges, false));
         $edges = new Edges();
         $states->append(new State($edges, true));
-        $fas[] = new FA("SenderId", $states);
+        $fas[] = new FA("SenderId", $states, FA::LEFT);
 
 
         printf("%s\n", $fas);

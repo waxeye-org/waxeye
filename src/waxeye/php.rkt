@@ -10,12 +10,14 @@
     (list parser-file)))
 
 (define (php-parser grammar)
-  (displayln "generating php parser")
-  (format "<?php\n\n~a\n\nclass GenParser extends Parser\n{\n~a\n{\n~a\n~a\n}\n}\n"
+  (printf "generating php parser with grammar ~a\n" grammar)
+  (display-ast grammar)
+  (format "<?php\n\n~a\n\nclass GenParser extends Parser\n{\n~a\n{\n~a\n~a\n~a\n}\n}\n"
           (gen-php-imports)
           (indent (gen-constructor))
           (indent (gen-init))
-          (gen-array gen-automaton (make-automata grammar))))
+          (gen-array gen-automaton (make-automata grammar))
+          (indent (gen-parent-call))))
 
 (define (gen-php-imports)
   "use parser\\AutomatonTransition;
@@ -30,6 +32,10 @@ use parser\\States;
 use parser\\WildcardTransition;
 use util\\CharArray;")
 
+(define (gen-parent-call)
+  (format "printf('%s', $fas);
+parent::__construct($fas, \"~a\");" *start-name*))
+
 (define (gen-constructor)
   (format "~apublic function __construct()" (ind)))
 
@@ -39,10 +45,14 @@ use util\\CharArray;")
 
 (define (gen-automaton automaton)
   (printf "generating automaton (~a,~a,~a)\n" (fa-type automaton) (fa-states automaton) (fa-mode automaton))
-  (format "~a\n$states = new States();\n~a\n$fas[] = new FA(\"~a\", $states);\n~a\n"
+  (format "~a\n$states = new States();\n~a\n$fas[] = new FA(\"~a\", $states, ~a);\n~a\n"
           (gen-automaton-begin-comment automaton)
           (gen-states (fa-states automaton))
           (fa-type automaton)
+          (case (fa-mode automaton)
+            ((voidArrow) "FA::VOID")
+            ((pruneArrow) "FA::PRUNE")
+            ((leftArrow) "FA::LEFT"))
           (gen-automaton-end-comment automaton)))
 
 (define (gen-automaton-begin-comment automaton)

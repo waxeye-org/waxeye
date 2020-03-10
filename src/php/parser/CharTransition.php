@@ -27,9 +27,18 @@ class CharTransition implements ITransition
 
     public function matches(string $input): bool
     {
+        //printf("matching %s\n", $input);
         if (strlen($input) == 1) {
             foreach ($this->single as $single) {
+                //printf("\twith %s\n", $this->single);
                 if ($input === $single) {
+                    return true;
+                }
+            }
+
+            for ($i = 0; $i < $this->min->count(); $i++) {
+                //printf("\t with [%s,%s]\n", $this->min[$i], $this->max[$i]);
+                if ($input >= $this->min[$i] && $input <= $this->max[$i]) {
                     return true;
                 }
             }
@@ -40,9 +49,11 @@ class CharTransition implements ITransition
 
     public function visitTransition(string $input, int $position): ?IAST
     {
-        $result = substr($input, $position, 1);
+        $substr = substr($input, $position, 1);
+        //printf("matching char: %s, %s; (%s), matches: %s\n", $input, $position, $substr, $this->matches($substr));
 
-        if (($result !== false) && ($this->matches($result))) {
+
+        if (($substr !== false) && ($this->matches($substr))) {
             return new Char($input[$position], $position, "char");
         } else {
             return null;

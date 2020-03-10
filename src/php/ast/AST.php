@@ -46,6 +46,11 @@ class AST implements IAST
         return $this->children;
     }
 
+    public function isEmpty(): bool
+    {
+        return $this->type === EmptyAST::TYPE && $this->children->count() === 0;
+    }
+
     public function __toString()
     {
         return json_encode($this);
