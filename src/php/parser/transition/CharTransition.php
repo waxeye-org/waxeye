@@ -1,7 +1,7 @@
 <?php
 
 
-namespace parser;
+namespace parser\transition;
 
 use ast\Char;
 use ast\IAST;

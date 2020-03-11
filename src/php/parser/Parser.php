@@ -4,12 +4,24 @@
 namespace parser;
 
 
-use ast\AST;
-use ast\EmptyAST;
-use ast\IAST;
 use ast\IASTs;
-use parser\error\ParseError;
+use parser\action\ActionType;
+use parser\action\ApplyAction;
+use parser\action\EvalAction;
+use parser\config\Automata;
+use parser\config\ParserConfig;
+use parser\continuation\AltContinuation;
+use parser\continuation\Continuations;
+use parser\continuation\NonTerminalContinuation;
+use parser\error\CharacterError;
+use parser\error\MatchError;
 use parser\error\ParseErrors;
+use parser\error\RawError;
+use parser\expression\Expression;
+use parser\expression\Expressions;
+use parser\expression\ExpressionType;
+use parser\result\Accepted;
+use parser\result\Rejected;
 use RuntimeException;
 
 class Parser
@@ -31,6 +43,150 @@ class Parser
 
     private ParseErrors $parseErrors;
 
+    private Automata $automata;
+
+    public function __construct(ParserConfig $parserConfig)
+    {
+        $this->automata = $parserConfig->getAutomata();
+        $this->start = $parserConfig->getStart();
+    }
+
+    public function parse(string $input, string $start = null): string
+    {
+        $this->input = $input;
+
+        if (null !== $start) {
+            $this->start = $start;
+        }
+
+        if (!array_key_exists($this->start, $this->automata->getArrayCopy())) {
+            $keys = join(", ", array_keys($this->automata->getArrayCopy()));
+            throw new RuntimeException("Invalid non-terminal $this->start. Expected one of $keys!");
+        }
+
+        $this->match($input);
+
+        return "x";
+    }
+
+    private function match(string $input)
+    {
+        $firstEval = $this->moveEval(new EvalAction(new Continuations(), $this->automata[$this->start]->getExpression(), 0, new IASTs(), new RawError(0, $this->start)));
+        $action = $this->moveEval($firstEval);
+
+        while (true) {
+            switch ($action->getType()) {
+                case ActionType::EVAL:
+                {
+                    $action = $this->moveEval($action);
+                    printf("\tresult: %s\n", $action);
+                    break;
+                }
+                case ActionType::APPLY:
+                {
+                    printf("\tresult: %s\n", $action);
+                    return;
+                    break;
+                }
+                default:
+                {
+                    $type = $action->getType();
+                    throw new RuntimeException("Unsupported action type $type!");
+                }
+            }
+        }
+    }
+
+    private function moveEval(EvalAction $action)
+    {
+        printf("evaluating action %s with input %s at position %s\n", $action, $this->input, $action->getPosition());
+        $expression = $action->getExpression();
+        $position = $action->getPosition();
+        $asts = $action->getAsts();
+        $error = $action->getError();
+        $continuations = $action->getContinuations();
+        $eof = $position >= strlen($this->input);
+
+        switch ($expression->getType()) {
+            case ExpressionType::NT:
+            {
+                $expression = Expression::asNonTerminalExpression($expression);
+                $automaton = $this->automata[$expression->getName()];
+                $cons = new Continuations(new NonTerminalContinuation($automaton->getMode(), $expression->getName(), $asts, $error->getCurrentNonTerminal(), $position));
+
+                return new EvalAction($cons, $automaton->getExpression(), $position, $asts, $error);
+            }
+            case ExpressionType::ALT:
+            {
+                $expression = Expression::asAltExpression($expression);
+                $expressions = $expression->getExpressions();
+
+                if (0 === sizeof($expressions)) {
+
+                } else {
+                    $cons = new Continuations(new AltContinuation(Expressions::from(array_slice($expressions->getArrayCopy(), 1)), $position, $asts));
+                    return new EvalAction($cons, $expressions[0], $position, $asts, $error);
+                }
+                break;
+            }
+            case ExpressionType::CHAR:
+            {
+                $expression = Expression::asCharExpression($expression);
+                $char = $expression->getChar();
+
+                if (1 === strlen($char)) {
+                    if ($eof || $char !== $this->input[$position]) {
+                        $matchResult = Rejected($this->updateError($error, $position, new CharacterError($char)));
+                    } else {
+                        $matchResult = new Accepted($position + 1, $asts, $error);
+                    }
+                } elseif (2 === strlen($char)) {
+                    if (($position + 1) >= strlen($this->input) || $char[0] !== $this->input[$position] || $char[1] !== $this->input[$position + 1]) {
+                        $matchResult = Rejected($this->updateError($error, $position, new CharacterError($char)));
+                    } else {
+                        $matchResult = new Accepted($position + 2, $asts, $error);
+                    }
+                } else {
+                    $length = strlen($char);
+                    throw new RuntimeException("Unsupported char length ($length) of character $char.");
+                }
+
+                return new ApplyAction($continuations, $matchResult);
+
+                break;
+            }
+            default:
+            {
+                $type = $expression->getType();
+                throw new RuntimeException("Unsupported expression type $type!");
+            }
+        }
+    }
+
+    private function updateError(RawError $rawError, int $position, MatchError $matchError): RawError
+    {
+        if (null === $rawError) {
+            return new RawError(0, "");
+        } else {
+            if ($position > $rawError->getPosition()) {
+                // TODO: return new RawError(pos, cons(err.currentNT, empty()), cons(e, empty()), err.currentNT);
+                return new RawError($position, $rawError->getCurrentNonTerminal());
+            } elseif ($position === $rawError->getPosition()) {
+                // TODO:  return new RawError(err.pos, cons(err.currentNT, err.nonterminals), cons(e, err.failedChars), err.currentNT);
+                return new RawError($position, $rawError->getCurrentNonTerminal());
+            } else {
+                // TODO: return new RawError(err.pos, err.nonterminals, err.failedChars, err.currentNT);
+                return new RawError($position, $rawError->getCurrentNonTerminal());
+            }
+        }
+    }
+
+    private function evalNext(Expression $expression, int $position, IASTs $asts, RawError $error, Continuations $continuations): EvalAction
+    {
+        return new EvalAction($continuations, $expression, $position, $asts, $error);
+    }
+
+    /*
     public function __construct(FAs $fas, string $start)
     {
         $this->faStack = new FAStack();
@@ -243,4 +399,5 @@ class Parser
             $this->errorNonTerminal = $this->faStack->top()->getType();
         }
     }
+    */
 }
