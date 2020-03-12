@@ -3,26 +3,26 @@
 namespace parser\continuation;
 
 
-use ast\IASTs;
+use parser\ast\ASTs;
 use parser\expression\Expressions;
 
 class AltContinuation extends Continuation
 {
-    private Expressions $expression;
+    private Expressions $expressions;
     private int $position;
-    private IASTs $asts;
+    private ASTs $asts;
 
     /**
      * AltContinuation constructor.
-     * @param Expressions $expression
+     * @param Expressions $expressions
      * @param int $position
-     * @param IASTs $asts
+     * @param ASTs $asts
      */
-    public function __construct(Expressions $expression, int $position, IASTs $asts)
+    public function __construct(Expressions $expressions, int $position, ASTs $asts)
     {
         parent::__construct(ContinuationType::ALT);
 
-        $this->expression = $expression;
+        $this->expressions = $expressions;
         $this->position = $position;
         $this->asts = $asts;
     }
@@ -30,9 +30,9 @@ class AltContinuation extends Continuation
     /**
      * @return Expressions
      */
-    public function getExpression(): Expressions
+    public function getExpressions(): Expressions
     {
-        return $this->expression;
+        return $this->expressions;
     }
 
     /**
@@ -44,9 +44,9 @@ class AltContinuation extends Continuation
     }
 
     /**
-     * @return IASTs
+     * @return ASTs
      */
-    public function getAsts(): IASTs
+    public function getAsts(): ASTs
     {
         return $this->asts;
     }
@@ -54,5 +54,10 @@ class AltContinuation extends Continuation
     public function __toString()
     {
         return json_encode($this);
+    }
+
+    public static function asAltContinuation($continuation): AltContinuation
+    {
+        return $continuation;
     }
 }

@@ -4,21 +4,21 @@
 namespace parser\result;
 
 
-use ast\IASTs;
+use parser\ast\ASTs;
 use parser\error\RawError;
 
 class Accepted extends MatchResult
 {
     private int $position;
-    private IASTs $asts;
+    private ASTs $asts;
 
     /**
      * Accepted constructor.
      * @param int $position
-     * @param IASTs $asts
+     * @param ASTs $asts
      * @param RawError $error
      */
-    public function __construct(int $position, IASTs $asts, RawError $error)
+    public function __construct(int $position, ASTs $asts, RawError $error)
     {
         parent::__construct(MatchResultType::ACCEPTED, $error);
 
@@ -26,8 +26,33 @@ class Accepted extends MatchResult
         $this->asts = $asts;
     }
 
-    public function __toString()
+
+    public function jsonSerialize()
     {
-        return json_encode($this);
+        return get_object_vars($this);
     }
+
+
+    public static function asAccepted($matchResult): Accepted
+    {
+        return $matchResult;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @return ASTs
+     */
+    public function getAsts(): ASTs
+    {
+        return $this->asts;
+    }
+
+
 }

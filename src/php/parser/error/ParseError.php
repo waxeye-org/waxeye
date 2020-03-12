@@ -11,22 +11,26 @@ class ParseError implements JsonSerializable
     private int $position;
     private int $line;
     private int $column;
-    private string $nt;
+    private array $nonTerminals;
+    private MatchErrors $chars;
 
     /**
      * ParseError constructor.
      * @param int $position
      * @param int $line
      * @param int $column
-     * @param string $nt
+     * @param array $nonTerminals
+     * @param MatchErrors $chars
      */
-    public function __construct(int $position, int $line, int $column, string $nt)
+    public function __construct(int $position, int $line, int $column, array $nonTerminals, MatchErrors $chars)
     {
         $this->position = $position;
         $this->line = $line;
         $this->column = $column;
-        $this->nt = $nt;
+        $this->nonTerminals = $nonTerminals;
+        $this->chars = $chars;
     }
+
 
     public function __toString()
     {

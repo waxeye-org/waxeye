@@ -4,7 +4,9 @@
 namespace parser\error;
 
 
-class CharacterError implements MatchError
+use JsonSerializable;
+
+class CharacterError implements MatchError, JsonSerializable
 {
     private string $char;
 
@@ -21,5 +23,18 @@ class CharacterError implements MatchError
     public function toGrammarString(): string
     {
         return substr($this->char, 1, strlen($this->char) - 1);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
     }
 }

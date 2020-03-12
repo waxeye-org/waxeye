@@ -32,4 +32,24 @@ class Expressions extends ArrayIteratorStr
     {
         return parent::offsetGet($index);
     }
+
+    public function head(): Expression
+    {
+        return $this->offsetGet(0);
+    }
+
+    public function tail(): Expressions
+    {
+        return Expressions::from(array_slice($this->getArrayCopy(), 1));
+    }
+
+    public static function exps(Expression $head, Expressions $tail): Expressions
+    {
+        $result = new Expressions($head);
+        foreach ($tail as $expression) {
+            $result[] = $expression;
+        }
+
+        return $result;
+    }
 }

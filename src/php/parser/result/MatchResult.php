@@ -23,8 +23,26 @@ abstract class MatchResult implements JsonSerializable
         $this->error = $error;
     }
 
-    public function jsonSerialize()
+    public function __toString()
     {
-        return get_object_vars($this);
+        return json_encode($this);
     }
+
+    /**
+     * @return int
+     */
+    public function getType(): int
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return RawError
+     */
+    public function getError(): RawError
+    {
+        return $this->error;
+    }
+
+
 }

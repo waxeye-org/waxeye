@@ -12,4 +12,9 @@ abstract class ArrayIteratorStr extends ArrayIterator
     {
         return "[" . implode(",", $this->getArrayCopy()) . "]";
     }
+
+    public function isEmpty(): bool
+    {
+        return 0 === $this->count();
+    }
 }

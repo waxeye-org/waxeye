@@ -5,22 +5,33 @@ namespace parser\expression;
 
 class CharClassExpression extends Expression
 {
-    private string $char;
+    private array $min;
+    private array $max;
 
-    public function __construct(string $char)
+    public function __construct(array $min, array $max)
     {
         parent::__construct(ExpressionType::CHAR_CLASS);
 
-        $this->char = $char;
+        $this->min = $min;
+        $this->max = $max;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getChar(): string
+    public function getMin(): array
     {
-        return $this->char;
+        return $this->min;
     }
+
+    /**
+     * @return array
+     */
+    public function getMax(): array
+    {
+        return $this->max;
+    }
+
 
     /**
      * @inheritDoc
@@ -33,5 +44,10 @@ class CharClassExpression extends Expression
     public function __toString()
     {
         return json_encode($this);
+    }
+
+    public static function asCharClassExpression($expression): CharClassExpression
+    {
+        return $expression;
     }
 }

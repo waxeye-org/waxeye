@@ -22,4 +22,9 @@ class OptExpression extends ExpressionWithExpression
     {
         return json_encode($this);
     }
+
+    public static function asOptExpression($expression): OptExpression
+    {
+        return $expression;
+    }
 }

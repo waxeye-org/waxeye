@@ -22,11 +22,6 @@ abstract class Action implements JsonSerializable
         $this->continuations = $continuations;
     }
 
-    public function __toString()
-    {
-        return json_encode($this);
-    }
-
     /**
      * @return int
      */

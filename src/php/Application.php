@@ -6,7 +6,7 @@ spl_autoload_register(function ($class_name) {
 });
 
 $parser = new WaxeyeParser2();
-$result = $parser->parse("XY");
+$result = $parser->parse("X");
 printf($result);
 
 

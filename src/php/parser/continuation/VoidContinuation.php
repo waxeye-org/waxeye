@@ -2,10 +2,29 @@
 
 namespace parser\continuation;
 
+use parser\ast\ASTs;
+
 class VoidContinuation extends Continuation
 {
-    public function __construct()
+    private ASTs $asts;
+
+    /**
+     * VoidContinuation constructor.
+     * @param ASTs $asts
+     */
+    public function __construct(ASTs $asts)
     {
         parent::__construct(ContinuationType::VOID);
+
+        $this->asts = $asts;
     }
+
+    /**
+     * @return ASTs
+     */
+    public function getAsts(): ASTs
+    {
+        return $this->asts;
+    }
+
 }

@@ -4,7 +4,7 @@
 namespace parser\action;
 
 
-use ast\IASTs;
+use parser\ast\ASTs;
 use parser\continuation\Continuations;
 use parser\error\RawError;
 use parser\expression\Expression;
@@ -13,7 +13,7 @@ class EvalAction extends Action
 {
     private Expression $expression;
     private int $position;
-    private IASTs $asts;
+    private ASTs $asts;
     private RawError $error;
 
     /**
@@ -21,10 +21,10 @@ class EvalAction extends Action
      * @param Continuations $continuations
      * @param Expression $expression
      * @param int $position
-     * @param IASTs $asts
+     * @param ASTs $asts
      * @param RawError $error
      */
-    public function __construct(Continuations $continuations, Expression $expression, int $position, IASTs $asts, RawError $error)
+    public function __construct(Continuations $continuations, Expression $expression, int $position, ASTs $asts, RawError $error)
     {
         parent::__construct(ActionType::EVAL, $continuations);
 
@@ -50,14 +50,14 @@ class EvalAction extends Action
         return $this->position;
     }
 
-
     /**
-     * @return IASTs
+     * @return ASTs
      */
-    public function getAsts(): IASTs
+    public function getAsts(): ASTs
     {
         return $this->asts;
     }
+
 
     /**
      * @return RawError
@@ -73,5 +73,15 @@ class EvalAction extends Action
     public function jsonSerialize()
     {
         return get_object_vars($this);
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
+    }
+
+    public static function asEvalAction($action): EvalAction
+    {
+        return $action;
     }
 }

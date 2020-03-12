@@ -22,4 +22,9 @@ class PlusExpression extends ExpressionWithExpression
     {
         return json_encode($this);
     }
+
+    public static function asPlusExpression($expression): PlusExpression
+    {
+        return $expression;
+    }
 }

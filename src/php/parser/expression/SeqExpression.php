@@ -22,4 +22,9 @@ class SeqExpression extends ExpressionWithExpressions
     {
         return json_encode($this);
     }
+
+    public static function asSeqExpression($expression): SeqExpression
+    {
+        return $expression;
+    }
 }

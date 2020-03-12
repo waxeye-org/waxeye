@@ -22,4 +22,9 @@ class StarExpression extends ExpressionWithExpression
     {
         return json_encode($this);
     }
+
+    public static function asStarExpression($expression): StarExpression
+    {
+        return $expression;
+    }
 }

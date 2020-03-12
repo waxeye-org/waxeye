@@ -2,14 +2,13 @@
 
 namespace parser\continuation;
 
-use ast\IASTs;
-use parser\NonTerminalMode;
+use parser\ast\ASTs;
 
 class NonTerminalContinuation extends Continuation
 {
     private int $mode;
     private string $name;
-    private IASTs $asts;
+    private ASTs $asts;
     private string $nonTerminal;
     private int $startPosition;
 
@@ -17,11 +16,11 @@ class NonTerminalContinuation extends Continuation
      * NonTerminalContinuation constructor.
      * @param int $mode
      * @param string $name
-     * @param IASTs $asts
+     * @param ASTs $asts
      * @param string $nonTerminal
      * @param int $startPosition
      */
-    public function __construct(int $mode, string $name, IASTs $asts, string $nonTerminal, int $startPosition)
+    public function __construct(int $mode, string $name, ASTs $asts, string $nonTerminal, int $startPosition)
     {
         parent::__construct(ContinuationType::NT);
 
@@ -32,5 +31,53 @@ class NonTerminalContinuation extends Continuation
         $this->startPosition = $startPosition;
     }
 
+    public static function asNTContinuation($continuation): NonTerminalContinuation
+    {
+        return $continuation;
+    }
 
+    /**
+     * @return int
+     */
+    public function getMode(): int
+    {
+        return $this->mode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return ASTs
+     */
+    public function getAsts(): ASTs
+    {
+        return $this->asts;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonTerminal(): string
+    {
+        return $this->nonTerminal;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStartPosition(): int
+    {
+        return $this->startPosition;
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
+    }
 }

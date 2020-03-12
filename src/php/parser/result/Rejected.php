@@ -18,8 +18,13 @@ class Rejected extends MatchResult
         parent::__construct(MatchResultType::REJECTED, $error);
     }
 
-    public function __toString()
+    public function jsonSerialize()
     {
-        return json_encode($this);
+        return get_object_vars($this);
+    }
+
+    public static function asRejected($matchResult): Rejected
+    {
+        return $matchResult;
     }
 }

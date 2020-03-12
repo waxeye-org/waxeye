@@ -13,16 +13,16 @@ class WaxeyeParser2 extends Parser
 {
     public function __construct()
     {
-        $a = new Automaton("A", NonTerminalMode::NORMAL, Expression::AltExpression(Expression::NonTerminalExpression("B"), Expression::NonTerminalExpression("C")));
-        $b = new Automaton("B", NonTerminalMode::NORMAL, Expression::CharExpression("X"));
-        $c = new Automaton("C", NonTerminalMode::NORMAL, Expression::CharExpression("Y"));
+        $a = new Automaton("cwrFile", NonTerminalMode::NORMAL, Expression::AltExpression(Expression::NonTerminalExpression("hdr"), Expression::NonTerminalExpression("trl")));
+        $b = new Automaton("hdr", NonTerminalMode::NORMAL, Expression::CharExpression("X"));
+        $c = new Automaton("trl", NonTerminalMode::NORMAL, Expression::CharExpression("Y"));
 
         $automata = new Automata();
-        $automata["A"] = $a;
-        $automata["B"] = $b;
-        $automata["C"] = $c;
+        $automata[$a->getKey()] = $a;
+        $automata[$b->getKey()] = $b;
+        $automata[$c->getKey()] = $c;
 
-        $config = new ParserConfig($automata, "A");
+        $config = new ParserConfig($automata, $a->getKey());
 
         printf("%s\n", $config);
 
