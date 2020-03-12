@@ -49,4 +49,9 @@ class NotContinuation extends Continuation
     {
         return $this->error;
     }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
 }

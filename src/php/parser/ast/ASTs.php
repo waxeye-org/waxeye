@@ -54,4 +54,9 @@ class ASTs extends ArrayIteratorStr
         return $result;
     }
 
+    public function reverse(): ASTs
+    {
+        return self::from(array_reverse($this->getArrayCopy()));
+    }
+
 }

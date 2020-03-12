@@ -56,7 +56,7 @@ class Parser
         $this->start = $parserConfig->getStart();
     }
 
-    public function parse(string $input, string $start = null): string
+    public function parse(string $input, string $start = null)
     {
         $this->input = $input;
 
@@ -72,10 +72,11 @@ class Parser
         return $this->match();
     }
 
-    private function match(): AST
+    private function match()
     {
         $action = $this->moveEval($this->evalNext($this->automata[$this->start]->getExpression(), 0, new ASTs(), new RawError(0, array($this->start), new MatchErrors(), $this->start), new Continuations()));
         $action = $this->moveEval(EvalAction::asEvalAction($action));
+
 
         while (true) {
             switch ($action->getType()) {
@@ -117,20 +118,19 @@ class Parser
         $continuations = $action->getContinuations();
         $eof = $position >= strlen($this->input);
 
+        printf("%s\n", $expression);
+
+
         switch ($expression->getType()) {
             case ExpressionType::ANY_CHAR:
             {
                 if ($eof) {
-                    return $this->applyNext($continuations, $this->reject($this->updateError($error, $position, new WildcardError())));
+                    $matchResult = $this->reject($this->updateError($error, $position, new WildcardError()));
                 } else {
-                    if ($this->isSingleCharCodepoint($this->codePointAtOrFail($this->input, $position))) {
-                        $matchResult = $this->accept($position + 1, IASTs::asts($this->input[$position], $asts), $error);
-                    } else {
-                        $matchResult = $this->accept($position + 2, IASTs::asts($this->input[$position] . $this->input[$position + 1], $asts), $error);
-                    }
-
-                    return $this->applyNext($continuations, $matchResult);
+                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
                 }
+
+                return $this->applyNext($continuations, $matchResult);
             }
             case ExpressionType::ALT:
             {
@@ -173,11 +173,12 @@ class Parser
             case ExpressionType::CHAR_CLASS:
             {
                 $expression = CharClassExpression::asCharClassExpression($expression);
+                $single = $expression->getSingle();
                 $min = $expression->getMin();
                 $max = $expression->getMax();
 
                 if ($eof) {
-                    $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError(array($min, $max))));
+                    $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                 } else {
                     $char = $this->input[$position];
                     $match = false;
@@ -188,12 +189,22 @@ class Parser
                         }
                     }
 
-                    if ($match) {
-                        $matchResult = $this->accept($position + 1, ASTs::asts($this->input[$position], $asts));
+                    if (!$match) {
+                        for ($i = 0; $i < count($single); $i++) {
+                            if ($char === $single) {
+                                $match = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($match === true) {
+                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
                     } else {
-                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError(array($min, $max))));
+                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                     }
                 }
+
 
                 return $this->applyNext($continuations, $matchResult);
             }
@@ -228,8 +239,10 @@ class Parser
                 $expression = Expression::asNonTerminalExpression($expression);
                 $name = $expression->getName();
                 $automaton = $this->automata[$name];
+                printf("entering automaton %s\n", $automaton);
 
                 $cons = Continuations::cons(new NonTerminalContinuation($automaton->getMode(), $name, $asts, $error->getCurrentNonTerminal(), $position), $continuations);
+                printf("\tcontinuations: %s\n", $cons);
                 return $this->evalNext($automaton->getExpression(), $position, new ASTs(), new RawError($error->getPosition(), $error->getNonTerminals(), $error->getFailedChars(), $name), $cons);
             }
             default:
@@ -313,7 +326,7 @@ class Parser
                 switch ($mode) {
                     case NonTerminalMode::NORMAL:
                     {
-                        return $this->applyNext($rest, $this->accept($accepted->getPosition(), ASTs::asts(new AST($name, $valAsts, $evaluated->getStartPosition(), $accepted->getPosition()), $asts), $newError));
+                        return $this->applyNext($rest, $this->accept($accepted->getPosition(), ASTs::asts(new AST($name, $valAsts->reverse(), $evaluated->getStartPosition(), $accepted->getPosition()), $asts), $newError));
                     }
                     case NonTerminalMode::PRUNING:
                     {
@@ -322,10 +335,10 @@ class Parser
                         } elseif ($valAsts->tail()->isEmpty()) {
                             return $this->applyNext($rest, $this->accept($accepted->getPosition(), ASTs::asts($valAsts->head(), $asts), $newError));
                         } else {
-                            return $this->applyNext($rest, $this->accept($accepted->getPosition(), ASTs::asts(new AST($name, $valAsts, $evaluated->getStartPosition(), $accepted->getPosition()), $asts), $newError));
+                            return $this->applyNext($rest, $this->accept($accepted->getPosition(), ASTs::asts(new AST($name, $valAsts->reverse(), $evaluated->getStartPosition(), $accepted->getPosition()), $asts), $newError));
                         }
                     }
-                    case NonTerminalMode::VOID:
+                    case NonTerminalMode::VOIDING:
                     {
                         return $this->applyNext($rest, $this->accept($accepted->getPosition(), $asts, $newError));
                     }
@@ -399,7 +412,7 @@ class Parser
                     switch ($mode) {
                         case NonTerminalMode::NORMAL:
                         {
-                            return new AST($this->start, $matchResult->getAsts(), 0, $matchResult->getPosition());
+                            return new AST($this->start, $matchResult->getAsts()->reverse(), 0, $matchResult->getPosition());
                         }
                         case NonTerminalMode::PRUNING:
                         {
@@ -414,10 +427,10 @@ class Parser
                                     return $ast;
                                 }
                             } else {
-                                return new AST($this->start, $matchResult->getAsts(), 0, $matchResult->getPosition());
+                                return new AST($this->start, $matchResult->getAsts()->reverse(), 0, $matchResult->getPosition());
                             }
                         }
-                        case NonTerminalMode::VOID:
+                        case NonTerminalMode::VOIDING:
                         {
                             return new EmptyAST($matchResult->getPosition());
                         }

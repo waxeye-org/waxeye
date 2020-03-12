@@ -56,6 +56,11 @@ class AltContinuation extends Continuation
         return json_encode($this);
     }
 
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
     public static function asAltContinuation($continuation): AltContinuation
     {
         return $continuation;

@@ -1,5 +1,6 @@
 #lang racket/base
-(require waxeye/ast
+(require (only-in racket/list add-between)
+         waxeye/ast
          waxeye/fa
          "code.rkt" "dfa.rkt" "gen.rkt")
 (provide gen-php)
@@ -16,50 +17,124 @@
           (gen-php-imports)
           (indent (gen-constructor))
           (indent (gen-init))
-          (gen-array gen-automaton (make-automata grammar))
+          ;(gen-array gen-automaton (make-automata grammar))
+          (gen-defs grammar)
           (indent (gen-parent-call))))
 
+(define (gen-defs ast)
+  (gen-map gen-def (ast-c ast)))
+
+(define (gen-def a)
+  (printf "ast: (~a, ~a, ~a)\n" (ast-t a) (ast-c a) (ast-pos a))
+ (let ([mode-name (case (ast-t (list-ref (ast-c a) 1))
+                         ((voidArrow) "VOIDING")
+                         ((pruneArrow) "PRUNING")
+                         ((leftArrow) "NORMAL"))]
+        [nt-name (list->string (ast-c (list-ref (ast-c a) 0)))]
+        [exp (gen-exp (list-ref (ast-c a) 2))])
+      (format "$automata[\"~a\"] = new Automaton(\"~a\", NonTerminalMode::~a, ~a);"
+        nt-name nt-name mode-name exp)))
+
+(define (gen-exp a)
+  (printf "gen-exp: (~a, ~a, ~a)\n" (ast-t a)(ast-c a)(ast-pos a))
+  (case (ast-t a)
+    [(identifier)
+     (format "Expression::NonTerminalExpression(\"~a\")" (list->string (ast-c a)))]
+    [(literal)
+     (if (<= (length (ast-c a)) 1)
+         (format "Expression::CharExpression(~a)" (gen-char (car (ast-c a))))
+         (format "Expression::SeqExpression(~a)" (gen-array gen-exp (map (lambda (b) (ast 'literal (cons b '()) '())) (ast-c a)))))]
+    [(charClass)
+     (format "Expression::CharClassExpression(~a)" (gen-char-class (ast-c a)))]
+    [(void)
+     (format "Expression::VoidExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(and)
+     (format "Expression::AndExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(not)
+     (format "Expression::NotExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(optional)
+     (format "Expression::OptExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(closure)
+     (format "Expression::StarExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(plus)
+     (format "Expression::PlusExpression(~a)" (gen-exp (car (ast-c a))))]
+    [(alternation)
+     (format "Expression::AltExpression(~a)" (gen-array gen-exp (ast-c a)))]
+    [(sequence)
+     (format "Expression::SeqExpression(~a)" (gen-array gen-exp (ast-c a)))]
+    [(wildCard) (values "ANY_CHAR" "")]
+    [else (format "unknown:~a" (ast-t a))]))
+
+(define (gen-char-class char-class)
+  (printf "generating char class for ~a\n" char-class)
+  (let* ((single (filter char? char-class))
+         (ranges (filter pair? char-class))
+         (min (map car ranges))
+         (max (map cdr ranges)))
+    (format "~a, ~a, ~a" (gen-char-list single) (gen-char-list min) (gen-char-list max))))
+
+(define (gen-char-list l)
+  (format "array(~a)"
+          (if (null? l)
+              ""
+              (string-append
+               (gen-char (car l))
+               (apply string-append (map (lambda (a)
+                                     (string-append ", " (gen-char a)))
+                                   (cdr l)))))))
+
+;(define (gen-char-class-trans t)
+  ;(let* ((single (filter char? t))
+  ;       (ranges (filter pair? t))
+ ;        (min (map car ranges))
+;         (max (map cdr ranges)))
+    ;(format "CharTransition<~a>(~a, ~a, ~a)"
+   ;         *java-node-name*
+  ;          (gen-char-list single)
+ ;           (gen-char-list min)
+;            (gen-char-list max))))
+
+(define (gen-map fn data)
+   (format "~a"
+            (indent (if (null? data)
+                        ""
+                        (string-append (fn (car data))
+                                       (apply string-append (map (lambda (a)
+                                                             (string-append "\n" (ind) (fn a)))
+                                                           (cdr data))))))))
+
+  
+
 (define (gen-php-imports)
-  "use parser\\AutomatonTransition;
-use parser\\CharTransition;
-use parser\\Edge;
-use parser\\Edges;
-use parser\\FA;
-use parser\\FAs;
-use parser\\Parser;
-use parser\\State;
-use parser\\States;
-use parser\\WildcardTransition;
-use util\\CharArray;")
+  "use parser\\config\\Automata;
+use parser\\config\\Automaton;
+use parser\\config\\ParserConfig;
+use parser\\expression\\Expression;
+use parser\\expression\\Expressions;
+use parser\\NonTerminalMode;
+use parser\\Parser;")
 
 (define (gen-parent-call)
-  (format "printf('%s', $fas);
-parent::__construct($fas, \"~a\");" *start-name*))
+  (format "$config = new ParserConfig($automata, \"~a\");
+parent::__construct($config);" *start-name*))
 
 (define (gen-constructor)
   (format "~apublic function __construct()" (ind)))
 
 (define (gen-init)
-  (format "~a~a$fas = new FAs();\n" (ind) (ind)))
+  (format "~a~a$automata = new Automata();\n" (ind) (ind)))
 
 
 (define (gen-automaton automaton)
   (printf "generating automaton (~a,~a,~a)\n" (fa-type automaton) (fa-states automaton) (fa-mode automaton))
-  (format "~a\n$states = new States();\n~a\n$fas[] = new FA(\"~a\", $states, ~a);\n~a\n"
-          (gen-automaton-begin-comment automaton)
-          (gen-states (fa-states automaton))
+  (gen-states (fa-states automaton))
+  (format "$automata[\"~a\"] = new Automaton(\"~a\", ~a, EXPRESSIONS);"
+          (fa-type automaton)          
           (fa-type automaton)
           (case (fa-mode automaton)
-            ((voidArrow) "FA::VOID")
-            ((pruneArrow) "FA::PRUNE")
-            ((leftArrow) "FA::LEFT"))
-          (gen-automaton-end-comment automaton)))
-
-(define (gen-automaton-begin-comment automaton)
-  (format "//BEGIN: AUTOMATON ~a" (fa-type automaton)))
-
-(define (gen-automaton-end-comment automaton)
-  (format "//END: AUTOMATON ~a" (fa-type automaton)))
+            ((voidArrow) "NonTerminalMode::VOID")
+            ((pruneArrow) "NonTerminalMode::PRUNING")
+            ((leftArrow) "NonTerminalMode::NORMAL"))))
 
 (define (gen-states state)
   (gen-array gen-state state))
@@ -108,15 +183,7 @@ parent::__construct($fas, \"~a\");" *start-name*))
           (gen-char-list max))))
   
 
-(define (gen-char-list l)
-  (format "~a"
-          (if (null? l)
-              ""
-              (string-append
-               (gen-char (car l))
-               (apply string-append (map (lambda (a)
-                                     (string-append ", " (gen-char a)))
-                                   (cdr l)))))))
+
 
 
 (define (gen-char t)
@@ -129,8 +196,16 @@ parent::__construct($fas, \"~a\");" *start-name*))
            (else t))))
 
 (define (gen-array fn data)
-  (let ((ss (vector->list data)))
     (format "~a"
-            (indent (if (null? ss)
+            (indent (if (null? data)
                         ""
-                        (string-append (fn (car ss)) (apply string-append (map (lambda (a) (string-append "\n" (ind) (fn a))) (cdr ss)))))))))
+                        ; Simulate string-join with string-append . add-between,
+                        ; because racketscript cannot handle racket/string.
+                        (apply string-append (add-between (map fn data) ", "))))))
+
+;(define (gen-array fn data)
+;  (let ((ss (vector->list data)))
+;    (format "~a"
+;            (indent (if (null? ss)
+;                        ""
+;                        (string-append (fn (car ss)) (apply string-append (map (lambda (a) (string-append "\n" (ind) (fn a))) (cdr ss)))))))))

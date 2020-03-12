@@ -4,24 +4,25 @@ namespace parser\expression;
 
 
 use JsonSerializable;
+use parser\continuation\SeqContinuation;
 
 abstract class Expression implements JsonSerializable
 {
-    protected int $type;
+    protected string $type;
 
     /**
      * Expression constructor.
-     * @param int $type
+     * @param string $type
      */
-    protected function __construct(int $type)
+    protected function __construct(string $type)
     {
         $this->type = $type;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getType(): int
+    public function getType(): string
     {
         return $this->type;
     }
@@ -54,5 +55,40 @@ abstract class Expression implements JsonSerializable
     public static function asAltExpression($expression): AltExpression
     {
         return $expression;
+    }
+
+    public static function AndExpression(Expression $expression): AndExpression
+    {
+        return new AndExpression($expression);
+    }
+
+    public static function SeqExpression(Expression...$expressions): SeqExpression
+    {
+        return new SeqExpression(Expressions::from($expressions));
+    }
+
+    public static function StarExpression(Expression $expression): StarExpression
+    {
+        return new StarExpression($expression);
+    }
+
+    public static function CharClassExpression(array $single, array $min, array $max): CharClassExpression
+    {
+        return new CharClassExpression($single, $min, $max);
+    }
+
+    public static function PlusExpression(Expression $expression): PlusExpression
+    {
+        return new PlusExpression($expression);
+    }
+
+    public static function OptExpression(Expression $expression): OptExpression
+    {
+        return new OptExpression($expression);
+    }
+
+    public static function VoidExpression(Expression $expression): VoidExpression
+    {
+        return new VoidExpression($expression);
     }
 }

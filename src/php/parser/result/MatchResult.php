@@ -9,8 +9,8 @@ use parser\error\RawError;
 
 abstract class MatchResult implements JsonSerializable
 {
-    private int $type;
-    private RawError $error;
+    protected int $type;
+    protected RawError $error;
 
     /**
      * MatchResult constructor.
@@ -21,11 +21,6 @@ abstract class MatchResult implements JsonSerializable
     {
         $this->type = $type;
         $this->error = $error;
-    }
-
-    public function __toString()
-    {
-        return json_encode($this);
     }
 
     /**

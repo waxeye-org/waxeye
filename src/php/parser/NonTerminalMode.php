@@ -6,7 +6,7 @@ namespace parser;
 
 interface NonTerminalMode
 {
-    const NORMAL = 1;
-    const PRUNING = 2;
-    const VOID = 3;
+    const NORMAL = "NORMAL";
+    const PRUNING = "PRUNING";
+    const VOIDING = "VOIDING";
 }

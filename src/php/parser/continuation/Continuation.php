@@ -6,7 +6,7 @@ use JsonSerializable;
 
 abstract class Continuation implements JsonSerializable
 {
-    private int $type;
+    protected int $type;
 
     /**
      * Continuation constructor.
@@ -25,8 +25,5 @@ abstract class Continuation implements JsonSerializable
         return $this->type;
     }
 
-    public function jsonSerialize()
-    {
-        return get_object_vars($this);
-    }
+
 }

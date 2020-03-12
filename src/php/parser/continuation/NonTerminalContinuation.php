@@ -6,7 +6,7 @@ use parser\ast\ASTs;
 
 class NonTerminalContinuation extends Continuation
 {
-    private int $mode;
+    private string $mode;
     private string $name;
     private ASTs $asts;
     private string $nonTerminal;
@@ -14,13 +14,13 @@ class NonTerminalContinuation extends Continuation
 
     /**
      * NonTerminalContinuation constructor.
-     * @param int $mode
+     * @param string $mode
      * @param string $name
      * @param ASTs $asts
      * @param string $nonTerminal
      * @param int $startPosition
      */
-    public function __construct(int $mode, string $name, ASTs $asts, string $nonTerminal, int $startPosition)
+    public function __construct(string $mode, string $name, ASTs $asts, string $nonTerminal, int $startPosition)
     {
         parent::__construct(ContinuationType::NT);
 
@@ -37,9 +37,9 @@ class NonTerminalContinuation extends Continuation
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getMode(): int
+    public function getMode(): string
     {
         return $this->mode;
     }
@@ -79,5 +79,10 @@ class NonTerminalContinuation extends Continuation
     public function __toString()
     {
         return json_encode($this);
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
     }
 }

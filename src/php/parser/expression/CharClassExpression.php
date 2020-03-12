@@ -5,15 +5,25 @@ namespace parser\expression;
 
 class CharClassExpression extends Expression
 {
+    private array $single;
     private array $min;
     private array $max;
 
-    public function __construct(array $min, array $max)
+    public function __construct(array $single, array $min, array $max)
     {
         parent::__construct(ExpressionType::CHAR_CLASS);
 
+        $this->single = $single;
         $this->min = $min;
         $this->max = $max;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSingle(): array
+    {
+        return $this->single;
     }
 
     /**

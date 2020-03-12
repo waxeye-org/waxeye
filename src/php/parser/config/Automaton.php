@@ -10,16 +10,16 @@ use parser\expression\Expression;
 class Automaton implements JsonSerializable
 {
     private string $key;
-    private int $mode;
+    private string $mode;
     private Expression $expression;
 
     /**
      * ParserConfig constructor.
      * @param string $key
-     * @param int $mode
+     * @param string $mode
      * @param Expression $expression
      */
-    public function __construct(string $key, int $mode, Expression $expression)
+    public function __construct(string $key, string $mode, Expression $expression)
     {
         $this->key = $key;
         $this->mode = $mode;
@@ -35,9 +35,9 @@ class Automaton implements JsonSerializable
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getMode(): int
+    public function getMode(): string
     {
         return $this->mode;
     }

@@ -4,19 +4,20 @@
 namespace parser\error;
 
 
+use parser\expression\CharClassExpression;
 use RuntimeException;
 
 class CharacterClassError implements MatchError
 {
-    private array $charClasses;
+    private CharClassExpression $charClass;
 
     /**
      * CharacterClassError constructor.
-     * @param array $charClasses
+     * @param CharClassExpression $charClass
      */
-    public function __construct(array $charClasses)
+    public function __construct(CharClassExpression $charClass)
     {
-        $this->charClasses = $charClasses;
+        $this->charClass = $charClass;
     }
 
 
@@ -41,5 +42,18 @@ class CharacterClassError implements MatchError
             })
             .join('')}]`;
          */
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
     }
 }

@@ -6,7 +6,7 @@ abstract class ExpressionWithExpression extends Expression
 {
     protected Expression $expression;
 
-    public function __construct(Expression $expression, int $type)
+    public function __construct(Expression $expression, string $type)
     {
         parent::__construct($type);
 

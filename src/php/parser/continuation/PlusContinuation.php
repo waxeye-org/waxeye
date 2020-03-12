@@ -27,5 +27,8 @@ class PlusContinuation extends Continuation
         return $this->expression;
     }
 
-
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
 }
