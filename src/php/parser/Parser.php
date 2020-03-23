@@ -174,7 +174,6 @@ class Parser
             }
             case ExpressionType::CHAR_CLASS:
             {
-                //printf("evaluating char class\n");
                 $expression = CharClassExpression::asCharClassExpression($expression);
                 $single = $expression->getSingle();
                 $min = $expression->getMin();
@@ -194,7 +193,7 @@ class Parser
 
                     if (!$match) {
                         for ($i = 0; $i < count($single); $i++) {
-                            if ($char === $single) {
+                            if ($char === $single[$i]) {
                                 $match = true;
                                 break;
                             }
@@ -202,10 +201,8 @@ class Parser
                     }
 
                     if ($match === true) {
-                        //printf("\tmatched! with %s at position %s of input %s (expression: %s)\n", $char, $position, $this->input, $expression);
                         $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
                     } else {
-                        //printf("\t!matched! with %s at position %s of input %s (expression: %s)\n", $char, $position, $this->input, $expression);
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                         //printf("matchresult: %s\n", $matchResult);
                     }
