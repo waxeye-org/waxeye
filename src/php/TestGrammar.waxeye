@@ -1,2 +1,3 @@
-calc <- number'+' number
-number <- +[0-9]
+Product <= Number *([*/] Number)
+
+Number  <- +[0-9]

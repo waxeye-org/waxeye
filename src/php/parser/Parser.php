@@ -11,6 +11,7 @@ use parser\action\EvalAction;
 use parser\ast\AST;
 use parser\ast\ASTs;
 use parser\ast\Char;
+use parser\ast\EmptyAST;
 use parser\config\Automata;
 use parser\config\ParserConfig;
 use parser\continuation\AltContinuation;
@@ -77,7 +78,6 @@ class Parser
         $action = $this->moveEval($this->evalNext($this->automata[$this->start]->getExpression(), 0, new ASTs(), new RawError(0, array(), new MatchErrors(), $this->start), new Continuations()));
 
         while (true) {
-            //printf("action: %s [type: %s]\n", $action, $action->getType());
             switch ($action->getType()) {
                 case ActionType::EVAL:
                 {
@@ -94,7 +94,6 @@ class Parser
                         return $this->moveReturn($matchResult);
                     }
 
-                    //printf("calling moveapply with %s, rest: %s\n", $continuations->head(), $continuations->tail());
                     $action = $this->moveApply($matchResult, $continuations->head(), $continuations->tail());
                     break;
                 }
@@ -111,15 +110,12 @@ class Parser
 
     private function moveEval(EvalAction $action): Action
     {
-        //printf("moveEval with action %s\n", $action);
         $expression = $action->getExpression();
         $position = $action->getPosition();
         $asts = $action->getAsts();
         $error = $action->getError();
         $continuations = $action->getContinuations();
         $eof = $position >= strlen($this->input);
-
-        //printf("expression: %s at position %s (%s)\n", $expression, $position, $this->input);
 
         switch ($expression->getType()) {
             case ExpressionType::ANY_CHAR:
@@ -162,8 +158,6 @@ class Parser
             {
                 $char = Expression::asCharExpression($expression)->getChar();
 
-                //printf("checking char %s against %s (input: %s at position %s)\n", $char, $this->input[$position], $this->input, $position);
-
                 if ($eof || $char !== $this->input[$position]) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
                 } else {
@@ -204,16 +198,13 @@ class Parser
                         $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
                     } else {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
-                        //printf("matchresult: %s\n", $matchResult);
                     }
                 }
 
-                //printf("remaining cons: %s\n", $continuations);
                 return $this->applyNext($continuations, $matchResult);
             }
             case ExpressionType::SEQ:
             {
-                //printf("PARSING SEQ %s\n", $expression);
                 $expressions = SeqExpression::asSeqExpression($expression)->getExpressions();
 
                 if ($expressions->isEmpty()) {
@@ -257,7 +248,6 @@ class Parser
 
     private function moveApply(MatchResult $value, Continuation $evaluated, Continuations $rest): Action
     {
-        //printf("\tmove apply with %s, matchresult-type: %s\n", $evaluated, $value->getType());
         switch ($value->getType()) {
             case MatchResultType::ACCEPTED:
             {
@@ -265,7 +255,6 @@ class Parser
             }
             case MatchResultType::REJECTED:
             {
-                //printf("returning: %s\n", $this->moveApplyOnReject(Rejected::asRejected($value), $evaluated, $rest));
                 return $this->moveApplyOnReject(Rejected::asRejected($value), $evaluated, $rest);
             }
             default:
@@ -354,10 +343,6 @@ class Parser
 
     private function moveApplyOnReject(Rejected $rejected, Continuation $evaluated, Continuations $continuations): Action
     {
-        //printf("\tmoveApplyOnReject:\n");
-        //printf("\t\trejected: %s\n", $rejected);
-        //printf("\t\tevaluated: %s\n", $evaluated);
-        //printf("\t\tcontinuations: %s\n", $continuations);
         switch ($evaluated->getType()) {
             case ContinuationType::ALT:
             {
@@ -375,7 +360,6 @@ class Parser
             case ContinuationType::VOID:
             case ContinuationType::PLUS:
             {
-                //printf("calling applynext with %s, REJECTED: %s\n", $continuations, $rejected);
                 return $this->applyNext($continuations, $rejected);
             }
             case ContinuationType:: AND:
@@ -420,7 +404,7 @@ class Parser
                         case NonTerminalMode::PRUNING:
                         {
                             if ($matchResult->getAsts()->isEmpty()) {
-                                return new EmptyAST($matchResult->getPosition());
+                                return new EmptyAST(0, $matchResult->getPosition());
                             } elseif ($matchResult->getAsts()->tail()->isEmpty()) {
                                 $ast = $matchResult->getAsts()->head();
 
@@ -435,7 +419,7 @@ class Parser
                         }
                         case NonTerminalMode::VOIDING:
                         {
-                            return new EmptyAST($matchResult->getPosition());
+                            return new EmptyAST(0, $matchResult->getPosition());
                         }
                         default:
                         {
@@ -445,18 +429,15 @@ class Parser
                 } elseif ($matchResult->getError() && $matchResult->getPosition() === $matchResult->getError()->getPosition()) {
                     $error = new RawError($matchResult->getPosition(), $matchResult->getError()->getNonTerminals(), $matchResult->getError()->getFailedChars(), "");
                     throw new RuntimeException($error->toParseError($this->input));
-                    //return $error->toParseError($this->input);
                 } else {
                     $error = new RawError($matchResult->getPosition(), array(), new MatchErrors(), "");
                     throw new RuntimeException($error->toParseError($this->input));
-                    //return $error->toParseError($this->input);
                 }
                 break;
             }
             case MatchResultType::REJECTED:
             {
                 throw new RuntimeException($matchResult->getError()->toParseError($this->input));
-                //return $matchResult->getError()->toParseError($this->input);
             }
             default:
             {

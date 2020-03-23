@@ -6,8 +6,8 @@ spl_autoload_register(function ($class_name) {
 });
 
 $parser = new GenParser();
-$result = $parser->parse("123 * 1");
-printf($result);
+$result = $parser->parse("3");
+printf("%s\n", $result);
 
 
 
