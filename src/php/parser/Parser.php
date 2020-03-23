@@ -56,7 +56,7 @@ class Parser
         $this->start = $parserConfig->getStart();
     }
 
-    public function parse(string $input, string $start = null)
+    public function parse(string $input, string $start = null): AST
     {
         $this->input = $input;
 
@@ -72,7 +72,7 @@ class Parser
         return $this->match();
     }
 
-    private function match()
+    private function match(): AST
     {
         $action = $this->moveEval($this->evalNext($this->automata[$this->start]->getExpression(), 0, new ASTs(), new RawError(0, array(), new MatchErrors(), $this->start), new Continuations()));
 
@@ -111,7 +111,7 @@ class Parser
 
     private function moveEval(EvalAction $action): Action
     {
-        printf("moveEval with action %s\n", $action);
+        //printf("moveEval with action %s\n", $action);
         $expression = $action->getExpression();
         $position = $action->getPosition();
         $asts = $action->getAsts();
@@ -213,7 +213,7 @@ class Parser
             }
             case ExpressionType::SEQ:
             {
-                printf("PARSING SEQ %s\n", $expression);
+                //printf("PARSING SEQ %s\n", $expression);
                 $expressions = SeqExpression::asSeqExpression($expression)->getExpressions();
 
                 if ($expressions->isEmpty()) {
@@ -354,10 +354,10 @@ class Parser
 
     private function moveApplyOnReject(Rejected $rejected, Continuation $evaluated, Continuations $continuations): Action
     {
-        printf("\tmoveApplyOnReject:\n");
-        printf("\t\trejected: %s\n", $rejected);
-        printf("\t\tevaluated: %s\n", $evaluated);
-        printf("\t\tcontinuations: %s\n", $continuations);
+        //printf("\tmoveApplyOnReject:\n");
+        //printf("\t\trejected: %s\n", $rejected);
+        //printf("\t\tevaluated: %s\n", $evaluated);
+        //printf("\t\tcontinuations: %s\n", $continuations);
         switch ($evaluated->getType()) {
             case ContinuationType::ALT:
             {
@@ -401,7 +401,7 @@ class Parser
         }
     }
 
-    private function moveReturn(MatchResult $matchResult)
+    private function moveReturn(MatchResult $matchResult): AST
     {
         switch ($matchResult->getType()) {
             case MatchResultType::ACCEPTED:
@@ -444,16 +444,19 @@ class Parser
                     }
                 } elseif ($matchResult->getError() && $matchResult->getPosition() === $matchResult->getError()->getPosition()) {
                     $error = new RawError($matchResult->getPosition(), $matchResult->getError()->getNonTerminals(), $matchResult->getError()->getFailedChars(), "");
-                    return $error->toParseError($this->input);
+                    throw new RuntimeException($error->toParseError($this->input));
+                    //return $error->toParseError($this->input);
                 } else {
                     $error = new RawError($matchResult->getPosition(), array(), new MatchErrors(), "");
-                    return $error->toParseError($this->input);
+                    throw new RuntimeException($error->toParseError($this->input));
+                    //return $error->toParseError($this->input);
                 }
                 break;
             }
             case MatchResultType::REJECTED:
             {
-                return $matchResult->getError()->toParseError($this->input);
+                throw new RuntimeException($matchResult->getError()->toParseError($this->input));
+                //return $matchResult->getError()->toParseError($this->input);
             }
             default:
             {

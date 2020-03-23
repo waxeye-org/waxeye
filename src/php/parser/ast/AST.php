@@ -44,6 +44,17 @@ class AST implements JsonSerializable
         return $this->children;
     }
 
+    public function getChildrenAsString(): string
+    {
+        $result = "";
+
+        foreach ($this->children as $child) {
+            $result .= Char::asCharAST($child)->getValue();
+        }
+
+        return $result;
+    }
+
     /**
      * @return int
      */

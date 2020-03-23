@@ -32,4 +32,9 @@ class Char extends AST
     {
         return get_object_vars($this);
     }
+
+    public static function asCharAST($ast): Char
+    {
+        return $ast;
+    }
 }
