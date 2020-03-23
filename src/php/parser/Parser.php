@@ -74,11 +74,10 @@ class Parser
 
     private function match()
     {
-        $action = $this->moveEval($this->evalNext($this->automata[$this->start]->getExpression(), 0, new ASTs(), new RawError(0, array($this->start), new MatchErrors(), $this->start), new Continuations()));
-        $action = $this->moveEval(EvalAction::asEvalAction($action));
-
+        $action = $this->moveEval($this->evalNext($this->automata[$this->start]->getExpression(), 0, new ASTs(), new RawError(0, array(), new MatchErrors(), $this->start), new Continuations()));
 
         while (true) {
+            //printf("action: %s [type: %s]\n", $action, $action->getType());
             switch ($action->getType()) {
                 case ActionType::EVAL:
                 {
@@ -93,9 +92,10 @@ class Parser
 
                     if ($continuations->isEmpty()) {
                         return $this->moveReturn($matchResult);
-                    } else {
-                        $action = $this->moveApply($matchResult, $continuations->head(), $continuations->tail());
                     }
+
+                    //printf("calling moveapply with %s, rest: %s\n", $continuations->head(), $continuations->tail());
+                    $action = $this->moveApply($matchResult, $continuations->head(), $continuations->tail());
                     break;
                 }
                 default:
@@ -111,6 +111,7 @@ class Parser
 
     private function moveEval(EvalAction $action): Action
     {
+        printf("moveEval with action %s\n", $action);
         $expression = $action->getExpression();
         $position = $action->getPosition();
         $asts = $action->getAsts();
@@ -118,8 +119,7 @@ class Parser
         $continuations = $action->getContinuations();
         $eof = $position >= strlen($this->input);
 
-        printf("%s\n", $expression);
-
+        //printf("expression: %s at position %s (%s)\n", $expression, $position, $this->input);
 
         switch ($expression->getType()) {
             case ExpressionType::ANY_CHAR:
@@ -162,6 +162,8 @@ class Parser
             {
                 $char = Expression::asCharExpression($expression)->getChar();
 
+                //printf("checking char %s against %s (input: %s at position %s)\n", $char, $this->input[$position], $this->input, $position);
+
                 if ($eof || $char !== $this->input[$position]) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
                 } else {
@@ -172,6 +174,7 @@ class Parser
             }
             case ExpressionType::CHAR_CLASS:
             {
+                //printf("evaluating char class\n");
                 $expression = CharClassExpression::asCharClassExpression($expression);
                 $single = $expression->getSingle();
                 $min = $expression->getMin();
@@ -199,17 +202,21 @@ class Parser
                     }
 
                     if ($match === true) {
+                        //printf("\tmatched! with %s at position %s of input %s (expression: %s)\n", $char, $position, $this->input, $expression);
                         $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
                     } else {
+                        //printf("\t!matched! with %s at position %s of input %s (expression: %s)\n", $char, $position, $this->input, $expression);
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
+                        //printf("matchresult: %s\n", $matchResult);
                     }
                 }
 
-
+                //printf("remaining cons: %s\n", $continuations);
                 return $this->applyNext($continuations, $matchResult);
             }
             case ExpressionType::SEQ:
             {
+                printf("PARSING SEQ %s\n", $expression);
                 $expressions = SeqExpression::asSeqExpression($expression)->getExpressions();
 
                 if ($expressions->isEmpty()) {
@@ -239,10 +246,8 @@ class Parser
                 $expression = Expression::asNonTerminalExpression($expression);
                 $name = $expression->getName();
                 $automaton = $this->automata[$name];
-                printf("entering automaton %s\n", $automaton);
-
                 $cons = Continuations::cons(new NonTerminalContinuation($automaton->getMode(), $name, $asts, $error->getCurrentNonTerminal(), $position), $continuations);
-                printf("\tcontinuations: %s\n", $cons);
+
                 return $this->evalNext($automaton->getExpression(), $position, new ASTs(), new RawError($error->getPosition(), $error->getNonTerminals(), $error->getFailedChars(), $name), $cons);
             }
             default:
@@ -253,9 +258,9 @@ class Parser
         }
     }
 
-    private
-    function moveApply(MatchResult $value, Continuation $evaluated, Continuations $rest): Action
+    private function moveApply(MatchResult $value, Continuation $evaluated, Continuations $rest): Action
     {
+        //printf("\tmove apply with %s, matchresult-type: %s\n", $evaluated, $value->getType());
         switch ($value->getType()) {
             case MatchResultType::ACCEPTED:
             {
@@ -263,6 +268,7 @@ class Parser
             }
             case MatchResultType::REJECTED:
             {
+                //printf("returning: %s\n", $this->moveApplyOnReject(Rejected::asRejected($value), $evaluated, $rest));
                 return $this->moveApplyOnReject(Rejected::asRejected($value), $evaluated, $rest);
             }
             default:
@@ -287,13 +293,9 @@ class Parser
                 break;
             }
             case ContinuationType::STAR:
-            {
-                $cons = Continuations::cons(new StarContinuation($evaluated->getExpression(), $accepted->getPosition(), $accepted->getAsts()), $rest);
-                return $this->evalNext($evaluated->getExpression(), $accepted->getPosition(), $accepted->getAsts(), $accepted->getError(), $cons);
-            }
             case ContinuationType::PLUS:
             {
-                $cons = Continuations::cons(new PlusContinuation($evaluated->getExpression()), $rest);
+                $cons = Continuations::cons(new StarContinuation($evaluated->getExpression(), $accepted->getPosition(), $accepted->getAsts()), $rest);
                 return $this->evalNext($evaluated->getExpression(), $accepted->getPosition(), $accepted->getAsts(), $accepted->getError(), $cons);
             }
             case ContinuationType::ALT:
@@ -353,9 +355,12 @@ class Parser
         throw new RuntimeException("unexpected location");
     }
 
-    private
-    function moveApplyOnReject(Rejected $rejected, Continuation $evaluated, Continuations $continuations): Action
+    private function moveApplyOnReject(Rejected $rejected, Continuation $evaluated, Continuations $continuations): Action
     {
+        printf("\tmoveApplyOnReject:\n");
+        printf("\t\trejected: %s\n", $rejected);
+        printf("\t\tevaluated: %s\n", $evaluated);
+        printf("\t\tcontinuations: %s\n", $continuations);
         switch ($evaluated->getType()) {
             case ContinuationType::ALT:
             {
@@ -373,6 +378,7 @@ class Parser
             case ContinuationType::VOID:
             case ContinuationType::PLUS:
             {
+                //printf("calling applynext with %s, REJECTED: %s\n", $continuations, $rejected);
                 return $this->applyNext($continuations, $rejected);
             }
             case ContinuationType:: AND:
@@ -474,9 +480,9 @@ class Parser
         }
     }
 
-    private function evalNext(Expression $expression, int $position, ASTs $asts, RawError $error, Continuations $continuations): EvalAction
+    private function evalNext(Expression $expression, int $position, ASTs $asts, RawError $rawError, Continuations $continuations): EvalAction
     {
-        return new EvalAction($continuations, $expression, $position, $asts, $error);
+        return new EvalAction($continuations, $expression, $position, $asts, $rawError);
     }
 
     private function applyNext(Continuations $continuations, MatchResult $matchResult): ApplyAction

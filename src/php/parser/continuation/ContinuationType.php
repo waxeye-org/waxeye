@@ -3,13 +3,13 @@
 namespace parser\continuation;
 interface ContinuationType
 {
-    const SEQ = 1;
-    const ALT = 2;
-    const AND = 3;
-    const NOT = 4;
-    const OPT = 5;
-    const STAR = 6;
-    const PLUS = 7;
-    const VOID = 8;
-    const NT = 9;
+    const SEQ = "CONT_SEQ";
+    const ALT = "CONT_ALT";
+    const AND = "CONT_AND";
+    const NOT = "CONT_NOT";
+    const OPT = "CONT_OPT";
+    const STAR = "CONT_STAR";
+    const PLUS = "CONT_PLUS";
+    const VOID = "CONT_VOID";
+    const NT = "CONT_NT";
 }

@@ -4,9 +4,7 @@
 namespace parser\error;
 
 
-use JsonSerializable;
-
-interface MatchError extends JsonSerializable
+interface MatchError
 {
     public function toGrammarString(): string;
 }

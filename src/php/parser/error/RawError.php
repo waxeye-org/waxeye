@@ -109,4 +109,19 @@ class RawError implements JsonSerializable
     {
         return json_encode($this);
     }
+
+    public static function updateError(RawError $rawError, int $position, MatchError $matchError): RawError
+    {
+        if (null === $rawError) {
+            return new RawError(0, array(''), new MatchErrors($matchError), '');
+        } else {
+            if ($position > $rawError->getPosition()) {
+                return new RawError($position, array($rawError->getCurrentNonTerminal()), new MatchErrors($matchError), $rawError->getCurrentNonTerminal());
+            } elseif ($position === $rawError->getPosition()) {
+                return new RawError($position, array_merge(array($rawError->getCurrentNonTerminal()), $rawError->getNonTerminals()), MatchErrors::matchErrors($matchError, $rawError->getFailedChars()), $rawError->getCurrentNonTerminal());
+            } else {
+                return new RawError($rawError->getPosition(), $rawError->getNonTerminals(), $rawError->getFailedChars(), $rawError->getCurrentNonTerminal());
+            }
+        }
+    }
 }

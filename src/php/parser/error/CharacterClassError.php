@@ -4,10 +4,11 @@
 namespace parser\error;
 
 
+use JsonSerializable;
 use parser\expression\CharClassExpression;
 use RuntimeException;
 
-class CharacterClassError implements MatchError
+class CharacterClassError implements MatchError, JsonSerializable
 {
     private CharClassExpression $charClass;
 
@@ -23,7 +24,7 @@ class CharacterClassError implements MatchError
 
     public function toGrammarString(): string
     {
-        throw new RuntimeException("Class " + self::class + "->toGrammarString not implemented yet!");
+        throw new RuntimeException("Class " . self::class . "->toGrammarString not implemented yet!");
 
         /*
          *   constructor(public charClasses: Array<number|[number, number]>) {}

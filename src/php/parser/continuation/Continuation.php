@@ -6,21 +6,21 @@ use JsonSerializable;
 
 abstract class Continuation implements JsonSerializable
 {
-    protected int $type;
+    protected string $type;
 
     /**
      * Continuation constructor.
-     * @param int $type
+     * @param string $type
      */
-    public function __construct(int $type)
+    public function __construct(string $type)
     {
         $this->type = $type;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getType(): int
+    public function getType(): string
     {
         return $this->type;
     }
