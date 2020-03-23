@@ -18,6 +18,7 @@ class Calculator
 
     public function calc(string $input): float
     {
+        printf("calculating %s\n", $input);
         $ast = $this->parser->parse($input);
         return $this->sum($ast->getChildren()[0]);
     }
@@ -100,6 +101,9 @@ class Calculator
     }
 }
 
+printf("input: ");
+$line = trim(fgets(STDIN));
+
 $calc = new Calculator();
-$result = $calc->calc("3+3+7/(3+3)*4-155837277+7/2+5.444*3.14");
+$result = $calc->calc($line);
 printf("result: %s\n", $result);
