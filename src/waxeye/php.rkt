@@ -11,13 +11,11 @@
     (list parser-file)))
 
 (define (php-parser grammar)
-  (printf "generating php parser with grammar ~a\n" grammar)
   (display-ast grammar)
   (format "<?php\n\n~a\n\nclass GenParser extends Parser\n{\n~a\n{\n~a\n~a\n~a\n}\n}\n"
           (gen-php-imports)
           (indent (gen-constructor))
           (indent (gen-init))
-          ;(gen-array gen-automaton (make-automata grammar))
           (gen-defs grammar)
           (indent (gen-parent-call))))
 
@@ -25,7 +23,6 @@
   (gen-map gen-def (ast-c ast)))
 
 (define (gen-def a)
-  (printf "ast: (~a, ~a, ~a)\n" (ast-t a) (ast-c a) (ast-pos a))
  (let ([mode-name (case (ast-t (list-ref (ast-c a) 1))
                          ((voidArrow) "VOIDING")
                          ((pruneArrow) "PRUNING")
@@ -36,7 +33,6 @@
         nt-name nt-name mode-name exp)))
 
 (define (gen-exp a)
-  (printf "gen-exp: (~a, ~a, ~a)\n" (ast-t a)(ast-c a)(ast-pos a))
   (case (ast-t a)
     [(identifier)
      (format "Expression::NonTerminalExpression(\"~a\")" (list->string (ast-c a)))]
@@ -66,7 +62,6 @@
     [else (format "unknown:~a" (ast-t a))]))
 
 (define (gen-char-class char-class)
-  (printf "generating char class for ~a\n" char-class)
   (let* ((single (filter char? char-class))
          (ranges (filter pair? char-class))
          (min (map car ranges))
@@ -83,17 +78,6 @@
                                      (string-append ", " (gen-char a)))
                                    (cdr l)))))))
 
-;(define (gen-char-class-trans t)
-  ;(let* ((single (filter char? t))
-  ;       (ranges (filter pair? t))
- ;        (min (map car ranges))
-;         (max (map cdr ranges)))
-    ;(format "CharTransition<~a>(~a, ~a, ~a)"
-   ;         *java-node-name*
-  ;          (gen-char-list single)
- ;           (gen-char-list min)
-;            (gen-char-list max))))
-
 (define (gen-map fn data)
    (format "~a"
             (indent (if (null? data)
@@ -102,8 +86,6 @@
                                        (apply string-append (map (lambda (a)
                                                              (string-append "\n" (ind) (fn a)))
                                                            (cdr data))))))))
-
-  
 
 (define (gen-php-imports)
   "use parser\\config\\Automata;
@@ -126,7 +108,6 @@ parent::__construct($config);" *start-name*))
 
 
 (define (gen-automaton automaton)
-  (printf "generating automaton (~a,~a,~a)\n" (fa-type automaton) (fa-states automaton) (fa-mode automaton))
   (gen-states (fa-states automaton))
   (format "$automata[\"~a\"] = new Automaton(\"~a\", ~a, EXPRESSIONS);"
           (fa-type automaton)          
@@ -140,7 +121,6 @@ parent::__construct($config);" *start-name*))
   (gen-array gen-state state))
 
 (define (gen-state state)
-  (printf "\tgenerating state (~a, ~a)\n" (state-edges state) (state-match state))
   (format "$edges = new Edges();\n~a$states->append(new State($edges, ~a));"
           (gen-edges (state-edges state))
           (bool->s (state-match state))))
@@ -149,14 +129,12 @@ parent::__construct($config);" *start-name*))
   (gen-array gen-edge (list->vector edges)))
 
 (define (gen-edge edge)
-  (printf "\t\tgenerating edge (~a, ~a, ~a)\n" (edge-t edge) (edge-s edge) (edge-v edge))
   (format "$edges->append(new Edge(~a, ~a, ~a));\n"
           (gen-transition (edge-t edge))
           (edge-s edge)
           (bool->s (edge-v edge))))
 
 (define (gen-transition transition)
-  (printf "\t\t\tgenerating trans ~a\n" transition)
   (cond
     ((equal? transition 'wild) (gen-wildcard-transition))
     ((integer? transition) (gen-automaton-transition transition))
@@ -202,10 +180,3 @@ parent::__construct($config);" *start-name*))
                         ; Simulate string-join with string-append . add-between,
                         ; because racketscript cannot handle racket/string.
                         (apply string-append (add-between (map fn data) ", "))))))
-
-;(define (gen-array fn data)
-;  (let ((ss (vector->list data)))
-;    (format "~a"
-;            (indent (if (null? ss)
-;                        ""
-;                        (string-append (fn (car ss)) (apply string-append (map (lambda (a) (string-append "\n" (ind) (fn a))) (cdr ss)))))))))

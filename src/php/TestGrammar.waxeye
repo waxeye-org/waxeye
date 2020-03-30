@@ -1,3 +1,0 @@
-Product <= Number *([*/] Number)
-
-Number  <- +[0-9]

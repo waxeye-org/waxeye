@@ -7,6 +7,8 @@ spl_autoload_register(function ($class_name) {
     include "../../php/" . $class_name . ".php";
 });
 
+include "GenParser.php";
+
 class Calculator
 {
     private GenParser $parser;
