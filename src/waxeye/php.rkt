@@ -11,7 +11,6 @@
     (list parser-file)))
 
 (define (php-parser grammar)
-  (display-ast grammar)
   (format "<?php\n\n~a\n\nclass GenParser extends Parser\n{\n~a\n{\n~a\n~a\n~a\n}\n}\n"
           (gen-php-imports)
           (indent (gen-constructor))
