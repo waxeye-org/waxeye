@@ -165,9 +165,10 @@ parent::__construct($config);" *start-name*))
 
 
 (define (gen-char t)
-  (format "'~a~a'"
+  (format "\"~a~a\""
           (if (escape-for-java-char? t) "\\" "")
           (cond
+           ((equal? t #\") "\\\"")
            ((equal? t #\linefeed) "\\n")
            ((equal? t #\tab) "\\t")
            ((equal? t #\return) "\\r")

@@ -31,6 +31,45 @@ class ParseError implements JsonSerializable
         $this->chars = $chars;
     }
 
+    /**
+     * @return int
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLine(): int
+    {
+        return $this->line;
+    }
+
+    /**
+     * @return int
+     */
+    public function getColumn(): int
+    {
+        return $this->column;
+    }
+
+    /**
+     * @return array
+     */
+    public function getNonTerminals(): array
+    {
+        return $this->nonTerminals;
+    }
+
+    /**
+     * @return MatchErrors
+     */
+    public function getChars(): MatchErrors
+    {
+        return $this->chars;
+    }
 
     public function __toString()
     {

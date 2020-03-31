@@ -30,6 +30,7 @@ use parser\error\CharacterClassError;
 use parser\error\CharacterError;
 use parser\error\MatchError;
 use parser\error\MatchErrors;
+use parser\error\ParseException;
 use parser\error\RawError;
 use parser\error\WildcardError;
 use parser\expression\CharClassExpression;
@@ -178,7 +179,7 @@ class Parser
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
                 } else {
                     if (substr($char, 0, 1) == "\\") {
-                        $matches = $char === substr($char, 0, 2);
+                        $matches = $char === substr($this->input, $position, 2);
                     } else {
                         $matches = $char === $this->input[$position];
                     }
@@ -436,16 +437,16 @@ class Parser
                     }
                 } elseif ($matchResult->getError() && $matchResult->getPosition() === $matchResult->getError()->getPosition()) {
                     $error = new RawError($matchResult->getPosition(), $matchResult->getError()->getNonTerminals(), $matchResult->getError()->getFailedChars(), "");
-                    throw new RuntimeException($error->toParseError($this->input));
+                    throw new ParseException($error->toParseError($this->input));
                 } else {
                     $error = new RawError($matchResult->getPosition(), array(), new MatchErrors(), "");
-                    throw new RuntimeException($error->toParseError($this->input));
+                    throw new ParseException($error->toParseError($this->input));
                 }
                 break;
             }
             case MatchResultType::REJECTED:
             {
-                throw new RuntimeException($matchResult->getError()->toParseError($this->input));
+                throw new ParseException($matchResult->getError()->toParseError($this->input));
             }
             default:
             {
