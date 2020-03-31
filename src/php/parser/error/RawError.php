@@ -91,7 +91,7 @@ class RawError implements JsonSerializable
         while (($newLinePos !== false) && ($newLinePos < $this->position)) {
             $lineNumber++;
             $lineStartPos = $newLinePos + 1;
-            $newLinePos = strpos($input, "\n");
+            $newLinePos = strpos($input, "\n", $lineStartPos);
         }
 
         return array($lineNumber, $position - $lineStartPos + 1);

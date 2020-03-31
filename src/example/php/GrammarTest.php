@@ -6,5 +6,5 @@ spl_autoload_register(function ($class_name) {
 include "GenParser.php";
 
 $parser = new GenParser();
-$result = $parser->parse("3*3");
+$result = $parser->parse("3456*3");
 printf("%s\n", $result);

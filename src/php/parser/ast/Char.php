@@ -10,14 +10,14 @@ class Char extends AST
 
     /**
      * Char constructor.
-     * @param string $input
+     * @param string $value
      * @param int $position
      */
-    public function __construct(string $input, int $position)
+    public function __construct(string $value, int $position)
     {
-        parent::__construct("CHAR", new ASTs(), $position, $position + 1);
+        parent::__construct("CHAR", new ASTs(), $position, $position + strlen($value));
 
-        $this->value = $input[$position];
+        $this->value = $value;
     }
 
     /**

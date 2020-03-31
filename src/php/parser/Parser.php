@@ -57,6 +57,22 @@ class Parser
         $this->start = $parserConfig->getStart();
     }
 
+    /**
+     * @return string
+     */
+    public function getStart(): string
+    {
+        return $this->start;
+    }
+
+    /**
+     * @return Automata
+     */
+    public function getAutomata(): Automata
+    {
+        return $this->automata;
+    }
+
     public function parse(string $input, string $start = null): AST
     {
         $this->input = $input;
@@ -123,7 +139,7 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new WildcardError()));
                 } else {
-                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
+                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
                 }
 
                 return $this->applyNext($continuations, $matchResult);
@@ -157,11 +173,22 @@ class Parser
             case ExpressionType::CHAR:
             {
                 $char = Expression::asCharExpression($expression)->getChar();
+                printf("matching %s at position %s of input %s\n", $char, $position, $this->input);
 
-                if ($eof || $char !== $this->input[$position]) {
+                if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
                 } else {
-                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
+                    if (substr($char, 0, 1) == "\\") {
+                        $matches = $char === substr($char, 0, 2);
+                    } else {
+                        $matches = $char === $this->input[$position];
+                    }
+
+                    if (!$matches) {
+                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
+                    } else {
+                        $matchResult = $this->accept($position + strlen($char), ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
+                    }
                 }
 
                 return $this->applyNext($continuations, $matchResult);
@@ -169,33 +196,15 @@ class Parser
             case ExpressionType::CHAR_CLASS:
             {
                 $expression = CharClassExpression::asCharClassExpression($expression);
-                $single = $expression->getSingle();
-                $min = $expression->getMin();
-                $max = $expression->getMax();
 
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                 } else {
-                    $char = $this->input[$position];
-                    $match = false;
-                    for ($i = 0; $i < count($min); $i++) {
-                        if ($char >= $min[$i] && $char <= $max[$i]) {
-                            $match = true;
-                            break;
-                        }
-                    }
+                    $match = $this->matchCharClass($this->input[$position], $expression);
 
-                    if (!$match) {
-                        for ($i = 0; $i < count($single); $i++) {
-                            if ($char === $single[$i]) {
-                                $match = true;
-                                break;
-                            }
-                        }
-                    }
 
                     if ($match === true) {
-                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input, $position), $asts), $error);
+                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
                     } else {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                     }
@@ -479,5 +488,32 @@ class Parser
     private function reject(RawError $error): Rejected
     {
         return new Rejected($error);
+    }
+
+    private function matchCharClass(string $char, CharClassExpression $expression): bool
+    {
+        $single = $expression->getSingle();
+        $min = $expression->getMin();
+        $max = $expression->getMax();
+
+        $match = false;
+        for ($i = 0; $i < count($min); $i++) {
+            if ($char >= $min[$i] && $char <= $max[$i]) {
+                $match = true;
+                break;
+            }
+        }
+
+        if (!$match) {
+            for ($i = 0; $i < count($single); $i++) {
+                if ($char === $single[$i]) {
+                    $match = true;
+                    break;
+                }
+
+            }
+        }
+
+        return $match;
     }
 }
