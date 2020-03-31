@@ -173,7 +173,6 @@ class Parser
             case ExpressionType::CHAR:
             {
                 $char = Expression::asCharExpression($expression)->getChar();
-                printf("matching %s at position %s of input %s\n", $char, $position, $this->input);
 
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));

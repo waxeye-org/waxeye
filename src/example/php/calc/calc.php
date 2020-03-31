@@ -4,18 +4,18 @@ use parser\ast\AST;
 use parser\ast\Char;
 
 spl_autoload_register(function ($class_name) {
-    include "../../php/" . $class_name . ".php";
+    include "../../../php/" . $class_name . ".php";
 });
 
-include "GenParser.php";
+include "CalcParser.php";
 
 class Calculator
 {
-    private GenParser $parser;
+    private CalcParser $parser;
 
     public function __construct()
     {
-        $this->parser = new GenParser();
+        $this->parser = new CalcParser();
     }
 
     public function calc(string $input): float
