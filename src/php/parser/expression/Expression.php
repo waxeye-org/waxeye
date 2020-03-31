@@ -62,6 +62,16 @@ abstract class Expression implements JsonSerializable
         return new AndExpression($expression);
     }
 
+    public static function AnyCharExpression(): AnyCharExpression
+    {
+        return new AnyCharExpression();
+    }
+
+    public static function NotExpression(Expression $expression): NotExpression
+    {
+        return new NotExpression($expression);
+    }
+
     public static function SeqExpression(Expression...$expressions): SeqExpression
     {
         return new SeqExpression(Expressions::from($expressions));

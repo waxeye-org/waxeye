@@ -57,7 +57,8 @@
      (format "Expression::AltExpression(~a)" (gen-array gen-exp (ast-c a)))]
     [(sequence)
      (format "Expression::SeqExpression(~a)" (gen-array gen-exp (ast-c a)))]
-    [(wildCard) (values "ANY_CHAR" "")]
+    [(wildCard)
+     (format "Expression::AnyCharExpression()")]
     [else (format "unknown:~a" (ast-t a))]))
 
 (define (gen-char-class char-class)
