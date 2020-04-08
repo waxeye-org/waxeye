@@ -164,9 +164,10 @@ parent::__construct($config);" *start-name*))
 
 
 
-(define (gen-char t)
+(define (gen-char t)  
   (format "\"~a~a\""
-          (if (escape-for-java-char? t) "\\" "")
+          ; added a check against ' since we must not escape this in php
+          (if (equal? t #\') "" (if (escape-for-java-char? t) "\\" ""))
           (cond
            ((equal? t #\") "\\\"")
            ((equal? t #\linefeed) "\\n")
