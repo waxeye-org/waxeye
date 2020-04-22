@@ -178,15 +178,7 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
                 } else {
-                    if ($this->input[$position] == "\\") {
-                    }
-
-                    if (substr($char, 0, 1) == "\\") {
-                        $matches = $char === substr($this->input, $position, 2);
-                    } else {
-                        $matches = $char === $this->input[$position];
-                    }
-
+                    $matches = $char === $this->input[$position];
 
                     if (!$matches) {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));

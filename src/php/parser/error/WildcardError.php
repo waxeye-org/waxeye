@@ -11,4 +11,17 @@ class WildcardError implements MatchError
     {
         return ".";
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function __toString()
+    {
+        return json_encode($this);
+    }
 }
