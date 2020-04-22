@@ -15,8 +15,6 @@ $files[] = "../../../../grammars/num.waxeye";
 $files[] = "../../../../grammars/regexp.waxeye";
 $files[] = "../../../../grammars/templ.waxeye";
 
-#$files[] = "charclass.grammar";
-
 $parser = new WaxeyeGrammarParser();
 
 foreach ($files as $file) {
