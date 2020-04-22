@@ -22,7 +22,7 @@ class CharacterError implements MatchError, JsonSerializable
 
     public function toGrammarString(): string
     {
-        return substr($this->char, 1, strlen($this->char) - 1);
+        return substr($this->char, 0, strlen($this->char) - 1);
     }
 
     /**
