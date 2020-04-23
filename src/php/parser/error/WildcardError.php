@@ -12,9 +12,6 @@ class WildcardError implements MatchError
         return ".";
     }
 
-    /**
-     * @inheritDoc
-     */
     public function jsonSerialize()
     {
         return get_object_vars($this);
