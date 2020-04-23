@@ -106,74 +106,16 @@ parent::__construct($config);" *start-name*))
 (define (gen-init)
   (format "~a~a$automata = new Automata();\n" (ind) (ind)))
 
+(define (gen-char t)
+  (format "~a" (char->integer t)))
+  ;(let* ((hex-val (gen-hex t)))
+;    (format "0x~a" hex-val)))
+            ;(if (equal? (modulo (string-length hex-val) 2) 0)
+             ;   hex-val
+              ;  (string-append "0" hex-val)))))
 
-(define (gen-automaton automaton)
-  (gen-states (fa-states automaton))
-  (format "$automata[\"~a\"] = new Automaton(\"~a\", ~a, EXPRESSIONS);"
-          (fa-type automaton)          
-          (fa-type automaton)
-          (case (fa-mode automaton)
-            ((voidArrow) "NonTerminalMode::VOID")
-            ((pruneArrow) "NonTerminalMode::PRUNING")
-            ((leftArrow) "NonTerminalMode::NORMAL"))))
-
-(define (gen-states state)
-  (gen-array gen-state state))
-
-(define (gen-state state)
-  (format "$edges = new Edges();\n~a$states->append(new State($edges, ~a));"
-          (gen-edges (state-edges state))
-          (bool->s (state-match state))))
-
-(define (gen-edges edges)
-  (gen-array gen-edge (list->vector edges)))
-
-(define (gen-edge edge)
-  (format "$edges->append(new Edge(~a, ~a, ~a));\n"
-          (gen-transition (edge-t edge))
-          (edge-s edge)
-          (bool->s (edge-v edge))))
-
-(define (gen-transition transition)
-  (cond
-    ((equal? transition 'wild) (gen-wildcard-transition))
-    ((integer? transition) (gen-automaton-transition transition))
-    ((char? transition) (gen-char-transition transition))
-    ((pair? transition) (gen-char-class-transition transition))))
-
-(define (gen-wildcard-transition transition)
-  (format "new WildcardTransition()"))
-
-(define (gen-automaton-transition transition)
-  (format "new AutomatonTransition(~a)" transition))
-
-(define (gen-char-transition transition)
-  (format "new CharTransition(new CharArray(~a), new CharArray(), new CharArray())" (gen-char transition)))
-
-(define (gen-char-class-transition transition)
-  (let* ((single (filter char? transition))
-         (ranges (filter pair? transition))
-         (min (map car ranges))
-         (max (map cdr ranges)))
-    (format "new CharTransition(new CharArray(~a), new CharArray(~a), new CharArray(~a))"
-          (gen-char-list single)
-          (gen-char-list min)
-          (gen-char-list max))))
-  
-
-
-
-
-(define (gen-char t)  
-  (format "\"~a~a\""
-          ; added a check against ' since we must not escape this in php
-          (if (equal? t #\') "" (if (escape-for-java-char? t) "\\" ""))
-          (cond
-           ((equal? t #\") "\\\"")
-           ((equal? t #\linefeed) "\\n")
-           ((equal? t #\tab) "\\t")
-           ((equal? t #\return) "\\r")
-           (else t))))
+(define (gen-hex chr)
+  (format "~x" (char->integer chr)))
 
 (define (gen-array fn data)
     (format "~a"

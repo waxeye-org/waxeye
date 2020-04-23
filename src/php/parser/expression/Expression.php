@@ -3,8 +3,8 @@
 namespace parser\expression;
 
 
+use IntlChar;
 use JsonSerializable;
-use parser\continuation\SeqContinuation;
 
 abstract class Expression implements JsonSerializable
 {
@@ -27,9 +27,9 @@ abstract class Expression implements JsonSerializable
         return $this->type;
     }
 
-    public static function CharExpression(string $char): CharExpression
+    public static function CharExpression(int $char): CharExpression
     {
-        return new CharExpression($char);
+        return new CharExpression(IntlChar::chr($char));
     }
 
     public static function asCharExpression($expression): CharExpression

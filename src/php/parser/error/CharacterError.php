@@ -5,16 +5,17 @@ namespace parser\error;
 
 
 use JsonSerializable;
+use parser\expression\CharExpression;
 
 class CharacterError implements MatchError, JsonSerializable
 {
-    private string $char;
+    private CharExpression $char;
 
     /**
      * CharacterError constructor.
-     * @param string $char
+     * @param CharExpression $char
      */
-    public function __construct(string $char)
+    public function __construct(CharExpression $char)
     {
         $this->char = $char;
     }
@@ -22,7 +23,7 @@ class CharacterError implements MatchError, JsonSerializable
 
     public function toGrammarString(): string
     {
-        return substr($this->char, 0, strlen($this->char) - 1);
+        return substr($this->char, 0, strlen($this->char->getValue()) - 1);
     }
 
     /**

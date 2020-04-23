@@ -4,6 +4,7 @@
 namespace parser;
 
 
+use IntlChar;
 use parser\action\Action;
 use parser\action\ActionType;
 use parser\action\ApplyAction;
@@ -34,6 +35,7 @@ use parser\error\ParseException;
 use parser\error\RawError;
 use parser\error\WildcardError;
 use parser\expression\CharClassExpression;
+use parser\expression\CharExpression;
 use parser\expression\Expression;
 use parser\expression\ExpressionType;
 use parser\expression\OptExpression;
@@ -140,7 +142,10 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new WildcardError()));
                 } else {
-                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
+                    $expected = mb_substr($this->input, $position, 1);
+                    $ord = IntlChar::ord($expected);
+
+                    $matchResult = $this->accept($position + strlen($expected), ASTs::asts(new Char($ord, $position), $asts), $error);
                 }
 
                 return $this->applyNext($continuations, $matchResult);
@@ -173,17 +178,21 @@ class Parser
             }
             case ExpressionType::CHAR:
             {
-                $char = Expression::asCharExpression($expression)->getChar();
+                $expression = CharExpression::asCharExpression($expression);
 
                 if ($eof) {
-                    $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
+                    $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                 } else {
-                    $matches = $char === $this->input[$position];
+                    $expected = Expression::asCharExpression($expression)->getChar();
+                    $char = mb_substr($this->input, $position, 1);
+
+                    $matches = IntlChar::ord($expected) === IntlChar::ord($char);
+                    #printf("match(%s,%s)=%s, len=%s\n", IntlChar::chr($expected), $char, $matches, strlen($char));
 
                     if (!$matches) {
-                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($char)));
+                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                     } else {
-                        $matchResult = $this->accept($position + strlen($char), ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
+                        $matchResult = $this->accept($position + strlen($char), ASTs::asts(new Char($char, $position), $asts), $error);
                     }
                 }
 
@@ -196,11 +205,14 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                 } else {
-                    $match = $this->matchCharClass($this->input[$position], $expression);
+                    $char = mb_substr($this->input, $position, 1);
+                    $match = $this->matchCharClass($char, $expression);
+
+                   #tf("match(%s,%s)=%s\n", $char, $expression, $match);
 
 
                     if ($match === true) {
-                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($this->input[$position], $position), $asts), $error);
+                        $matchResult = $this->accept($position + strlen($char), ASTs::asts(new Char($char, $position), $asts), $error);
                     } else {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                     }
@@ -488,6 +500,8 @@ class Parser
 
     private function matchCharClass(string $char, CharClassExpression $expression): bool
     {
+        $char = IntlChar::ord($char);
+
         $single = $expression->getSingle();
         $min = $expression->getMin();
         $max = $expression->getMax();
@@ -501,14 +515,15 @@ class Parser
         }
 
         if (!$match) {
-            for ($i = 0; $i < count($single); $i++) {
-                if ($char === $single[$i]) {
+            foreach ($single as $singleChar) {
+                if ($char === $singleChar) {
                     $match = true;
                     break;
                 }
 
             }
         }
+
 
         return $match;
     }

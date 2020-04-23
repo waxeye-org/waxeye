@@ -15,15 +15,15 @@ class Char extends AST
      */
     public function __construct(string $value, int $position)
     {
-        parent::__construct("CHAR", new ASTs(), $position, $position + strlen($value));
+        parent::__construct("CHAR", new ASTs(), $position, $position + 1);
 
         $this->value = $value;
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
