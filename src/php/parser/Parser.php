@@ -187,7 +187,6 @@ class Parser
                     $char = mb_substr($this->input, $position, 1);
 
                     $matches = IntlChar::ord($expected) === IntlChar::ord($char);
-                    #printf("match(%s,%s)=%s, len=%s\n", IntlChar::chr($expected), $char, $matches, strlen($char));
 
                     if (!$matches) {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
@@ -207,9 +206,6 @@ class Parser
                 } else {
                     $char = mb_substr($this->input, $position, 1);
                     $match = $this->matchCharClass($char, $expression);
-
-                   #tf("match(%s,%s)=%s\n", $char, $expression, $match);
-
 
                     if ($match === true) {
                         $matchResult = $this->accept($position + strlen($char), ASTs::asts(new Char($char, $position), $asts), $error);
