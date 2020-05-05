@@ -53,6 +53,7 @@ class Parser
     private string $start;
     private int $inputLength;
     private string $input;
+    private int $codePointMaxLength;
     private Automata $automata;
 
     public function __construct(ParserConfig $parserConfig)
@@ -77,10 +78,11 @@ class Parser
         return $this->automata;
     }
 
-    public function parse(string $input, string $start = null): AST
+    public function parse(string $input, string $start = null, int $codePointMaxLength = 4): AST
     {
         $this->input = $input;
         $this->inputLength = strlen($input);
+        $this->codePointMaxLength = $codePointMaxLength;
 
         if (null !== $start) {
             $this->start = $start;
@@ -144,7 +146,7 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new WildcardError()));
                 } else {
-                    $char = $this->codePointAt($this->input, $position);
+                    $char = $this->codePointAt($this->input, $position, $this->codePointMaxLength);
                     $len = strlen($char);
 
                     $matchResult = $this->accept($position + $len, ASTs::asts(new Char($char, $position), $asts), $error);
@@ -186,7 +188,7 @@ class Parser
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                 } else {
                     $expected = Expression::asCharExpression($expression)->getChar();
-                    $actual = $this->codePointAt($this->input, $position);
+                    $actual = $this->codePointAt($this->input, $position, $this->codePointMaxLength);
                     $len = strlen($expected);
                     $matches = $expected === $actual;
 
@@ -206,7 +208,7 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                 } else {
-                    $char = $this->codePointAt($this->input, $position);
+                    $char = $this->codePointAt($this->input, $position, $this->codePointMaxLength);
                     $matches = $this->matchCharClass($char, $expression);
 
                     if ($matches) {
