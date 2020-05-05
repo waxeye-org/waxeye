@@ -95,6 +95,10 @@ class Calculator
             {
                 return $this->sum($unary);
             }
+            case "unary":
+            {
+                return - $this->unary($unary->getChildren()[1]);
+            }
             default:
             {
                 throw new RuntimeException("Not supported type in unary $unary");

@@ -51,8 +51,8 @@ use RuntimeException;
 class Parser
 {
     private string $start;
-    private array $inputArray;
     private int $inputLength;
+    private string $input;
     private Automata $automata;
 
     public function __construct(ParserConfig $parserConfig)
@@ -79,8 +79,8 @@ class Parser
 
     public function parse(string $input, string $start = null): AST
     {
-        $this->inputArray = mb_str_split($input);
-        $this->inputLength = count($this->inputArray);
+        $this->input = $input;
+        $this->inputLength = strlen($input);
 
         if (null !== $start) {
             $this->start = $start;
@@ -136,7 +136,7 @@ class Parser
         $asts = $action->getAsts();
         $error = $action->getError();
         $continuations = $action->getContinuations();
-        $eof = $position >= count($this->inputArray);
+        $eof = $position >= $this->inputLength;
 
         switch ($expression->getType()) {
             case ExpressionType::ANY_CHAR:
@@ -144,10 +144,10 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new WildcardError()));
                 } else {
-                    $expected = $this->inputArray[$position];
-                    $ord = IntlChar::ord($expected);
+                    $char = $this->codePointAt($this->input, $position);
+                    $len = strlen($char);
 
-                    $matchResult = $this->accept($position + 1, ASTs::asts(new Char($ord, $position), $asts), $error);
+                    $matchResult = $this->accept($position + $len, ASTs::asts(new Char($char, $position), $asts), $error);
                 }
 
                 return $this->applyNext($continuations, $matchResult);
@@ -186,13 +186,14 @@ class Parser
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                 } else {
                     $expected = Expression::asCharExpression($expression)->getChar();
-                    $actual = $this->inputArray[$position];
+                    $actual = $this->codePointAt($this->input, $position);
+                    $len = strlen($expected);
                     $matches = $expected === $actual;
 
-                    if (!$matches) {
-                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
+                    if ($matches) {
+                        $matchResult = $this->accept($position + $len, ASTs::asts(new Char($actual, $position), $asts), $error);
                     } else {
-                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($actual, $position), $asts), $error);
+                        $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                     }
                 }
 
@@ -205,11 +206,12 @@ class Parser
                 if ($eof) {
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                 } else {
-                    $char = $this->inputArray[$position];
-                    $match = $this->matchCharClass($char, $expression);
+                    $char = $this->codePointAt($this->input, $position);
+                    $matches = $this->matchCharClass($char, $expression);
 
-                    if ($match === true) {
-                        $matchResult = $this->accept($position + 1, ASTs::asts(new Char($char, $position), $asts), $error);
+                    if ($matches) {
+                        $len = strlen($char);
+                        $matchResult = $this->accept($position + $len, ASTs::asts(new Char($char, $position), $asts), $error);
                     } else {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterClassError($expression)));
                     }
@@ -442,16 +444,16 @@ class Parser
                     }
                 } elseif ($matchResult->getError() && $matchResult->getPosition() === $matchResult->getError()->getPosition()) {
                     $error = new RawError($matchResult->getPosition(), $matchResult->getError()->getNonTerminals(), $matchResult->getError()->getFailedChars(), "");
-                    throw new ParseException($error->toParseError(implode("", $this->inputArray)));
+                    throw new ParseException($error->toParseError($this->input));
                 } else {
                     $error = new RawError($matchResult->getPosition(), array(), new MatchErrors(), "");
-                    throw new ParseException($error->toParseError(implode("", $this->inputArray)));
+                    throw new ParseException($error->toParseError($this->input));
                 }
                 break;
             }
             case MatchResultType::REJECTED:
             {
-                throw new ParseException($matchResult->getError()->toParseError(implode("", $this->inputArray)));
+                throw new ParseException($matchResult->getError()->toParseError($this->input));
             }
             default:
             {
@@ -524,4 +526,18 @@ class Parser
 
         return $match;
     }
+
+    /**
+     * Returns the code point starting at $position in $input using the given maximal length of a code point.
+     *
+     * @param string $input the input
+     * @param int $position the start position of the code point
+     * @param int $codePointMaxLength the maximal length in bytes for encoding a single code point (e.g. UTF-8 uses 4 bytes)
+     * @return string the code point starting at the given position in the given input
+     */
+    private function codePointAt(string $input, int $position, int $codePointMaxLength = 4): string
+    {
+        return mb_substr(mb_strcut($input, $position, $codePointMaxLength), 0, 1);
+    }
+
 }
