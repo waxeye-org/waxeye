@@ -165,7 +165,7 @@ class Parser
                     return $this->evalNext($expressions->head(), $position, $asts, $error, $cons);
                 }
             }
-            case ExpressionType:: AND:
+            case ExpressionType::AND:
             {
                 $cons = Continuations::cons(new AndContinuation($position, $asts, $error), $continuations);
                 return $this->evalNext($expression->getExpression(), $position, new ASTs(), $error, $cons);
@@ -306,7 +306,7 @@ class Parser
             {
                 return $this->applyNext($rest, $accepted);
             }
-            case ContinuationType:: AND:
+            case ContinuationType::AND:
             {
                 return $this->applyNext($rest, $this->accept($evaluated->getPosition(), $evaluated->getAsts(), $evaluated->getError()));
             }
@@ -379,7 +379,7 @@ class Parser
             {
                 return $this->applyNext($continuations, $rejected);
             }
-            case ContinuationType:: AND:
+            case ContinuationType::AND:
             {
                 return $this->applyNext($continuations, $this->reject(AndContinuation::asAndContinuation($evaluated)->getError()));
             }
