@@ -188,12 +188,11 @@ class Parser
                     $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                 } else {
                     $expected = Expression::asCharExpression($expression)->getChar();
-                    $actual = $this->codePointAt($this->input, $position, $this->codePointMaxLength);
                     $len = strlen($expected);
-                    $matches = $expected === $actual;
+                    $matches = $expected === mb_strcut($this->input, $position, $len);
 
                     if ($matches) {
-                        $matchResult = $this->accept($position + $len, ASTs::asts(new Char($actual, $position), $asts), $error);
+                        $matchResult = $this->accept($position + $len, ASTs::asts(new Char($expected, $position), $asts), $error);
                     } else {
                         $matchResult = $this->reject($this->updateError($error, $position, new CharacterError($expression)));
                     }
