@@ -87,8 +87,9 @@ docs/site/genfiles/racketscript-waxeye-compiler.js: src/waxeye/** src/racket/**
 	PLTCOLLECTS=":$(shell pwd)/src/racket/" $(RACKS_BIN) \
 		--target traceur-browser -d tmp/racks src/waxeye/racketscript.rkt
 	mkdir -p docs/site/genfiles/
-	cp --preserve tmp/racks/dist/compiled.js \
-	  docs/site/genfiles/racketscript-waxeye-compiler.js
+	# Work around a strange traceur compilation issue.
+	sed '/export {__rjs_quoted__};/ { d }' tmp/racks/dist/compiled.js \
+	  > docs/site/genfiles/racketscript-waxeye-compiler.js
 docs/site/genfiles/traceur-runtime.js: \
   docs/site/genfiles/racketscript-waxeye-compiler.js
 	cp --preserve tmp/racks/node_modules/traceur/bin/traceur-runtime.js \
