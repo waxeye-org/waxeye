@@ -1,10 +1,9 @@
-var $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
+const $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/raw_hashing.js";
   function hash(o) {
     if (o === null)
       return 0;
-    switch ((typeof o === 'undefined' ? 'undefined' : $traceurRuntime.typeof(o))) {
+    switch (typeof o) {
       case 'number':
         return hashNumber(o);
       case 'string':
@@ -21,16 +20,16 @@ var $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
     }
   }
   function hashString(s) {
-    var h = 0;
-    var n = s.length;
-    for (var i = 0; i < n; ++i) {
+    let h = 0;
+    const n = s.length;
+    for (let i = 0; i < n; ++i) {
       h = ~~(((h << 5) - h) + s.charCodeAt(i));
     }
     return h;
   }
-  var kBuf = new ArrayBuffer(8);
-  var kBufAsF64 = new Float64Array(kBuf);
-  var kBufAsI32 = new Int32Array(kBuf);
+  const kBuf = new ArrayBuffer(8);
+  const kBufAsF64 = new Float64Array(kBuf);
+  const kBufAsI32 = new Int32Array(kBuf);
   function hashNumber(n) {
     if (~~n === n) {
       return ~~n;
@@ -38,10 +37,10 @@ var $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
     kBufAsF64[0] = n;
     return kBufAsI32[0] ^ kBufAsI32[1];
   }
-  var objectIds = new WeakMap();
-  var currentId = 0;
+  const objectIds = new WeakMap();
+  let currentId = 0;
   function hashObjectIdentity(o) {
-    var result = objectIds.get(o);
+    const result = objectIds.get(o);
     if (result === undefined) {
       currentId = ~~(currentId + 1);
       objectIds.set(o, currentId);
@@ -50,17 +49,17 @@ var $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
     return result;
   }
   function hashIntArray(a) {
-    var h = 0;
-    var n = a.length;
-    for (var i = 0; i < n; ++i) {
+    let h = 0;
+    const n = a.length;
+    for (let i = 0; i < n; ++i) {
       h = ~~(((h << 5) - h) + a[i]);
     }
     return h;
   }
   function hashArray(a, valueToIntFn) {
-    var h = 0;
-    var n = a.length;
-    for (var i = 0; i < n; ++i) {
+    let h = 0;
+    const n = a.length;
+    for (let i = 0; i < n; ++i) {
       h = ~~(((h << 5) - h) + valueToIntFn(a[i]));
     }
     return h;
@@ -86,16 +85,14 @@ var $__runtime_47_core_47_raw_95_hashing_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_primitive_46_js__ = (function() {
+const $__runtime_47_core_47_primitive_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/primitive.js";
-  var hashString = ($__runtime_47_core_47_raw_95_hashing_46_js__).hashString;
-  var Primitive = function() {
-    function Primitive() {}
-    return ($traceurRuntime.createClass)(Primitive, {hashForEqual: function() {
-        return hashString(this.toString());
-      }}, {});
-  }();
+  const {hashString} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  class Primitive {
+    hashForEqual() {
+      return hashString(this.toString());
+    }
+  }
   function check(v) {
     return (v instanceof Primitive);
   }
@@ -108,47 +105,43 @@ var $__runtime_47_core_47_primitive_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__ = (function() {
+const $__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/mini_native_output_string_port.js";
-  var MiniNativeOutputStringPort = function() {
-    function MiniNativeOutputStringPort() {
+  class MiniNativeOutputStringPort {
+    constructor() {
       this._buffer = [];
     }
-    return ($traceurRuntime.createClass)(MiniNativeOutputStringPort, {
-      consume: function(nativeString) {
-        this._buffer.push(nativeString);
-      },
-      getOutputString: function() {
-        return this._buffer.join('');
-      }
-    }, {});
-  }();
+    consume(nativeString) {
+      this._buffer.push(nativeString);
+    }
+    getOutputString() {
+      return this._buffer.join('');
+    }
+  }
   return {get MiniNativeOutputStringPort() {
       return MiniNativeOutputStringPort;
     }};
 })();
-var $__runtime_47_core_47_bytes_46_js__ = (function() {
+const $__runtime_47_core_47_bytes_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/bytes.js";
-  var hashIntArray = ($__runtime_47_core_47_raw_95_hashing_46_js__).hashIntArray;
-  var TextDecoder = (typeof window === 'undefined') ? require('util').TextDecoder : window.TextDecoder;
+  const {hashIntArray} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  const TextDecoder = (typeof window === 'undefined') ? require('util').TextDecoder : window.TextDecoder;
   function check(bs) {
-    return (typeof bs === 'undefined' ? 'undefined' : $traceurRuntime.typeof(bs)) === 'object' && bs !== null && bs.constructor === Uint8Array;
+    return typeof bs === 'object' && bs !== null && bs.constructor === Uint8Array;
   }
   function eq(a, b) {
     if (a.length !== b.length)
       return false;
-    var n = a.length;
-    for (var i = 0; i < n; i++) {
+    const n = a.length;
+    for (let i = 0; i < n; i++) {
       if (a[i] !== b[i])
         return false;
     }
     return true;
   }
   function lt(a, b) {
-    var n = Math.min(a.length, b.length);
-    for (var i = 0; i < n; i++) {
+    const n = Math.min(a.length, b.length);
+    for (let i = 0; i < n; i++) {
       if (a[i] !== b[i]) {
         return a[i] < b[i];
       }
@@ -156,8 +149,8 @@ var $__runtime_47_core_47_bytes_46_js__ = (function() {
     return (a.length < b.length);
   }
   function gt(a, b) {
-    var n = Math.min(a.length, b.length);
-    for (var i = 0; i < n; i++) {
+    const n = Math.min(a.length, b.length);
+    for (let i = 0; i < n; i++) {
       if (a[i] !== b[i]) {
         return a[i] > b[i];
       }
@@ -173,7 +166,7 @@ var $__runtime_47_core_47_bytes_46_js__ = (function() {
   function fromIntArray(ints) {
     return new Uint8Array(ints);
   }
-  var utf8Decoder = new TextDecoder('utf-8');
+  const utf8Decoder = new TextDecoder('utf-8');
   function toString(bytes) {
     return utf8Decoder.decode(bytes);
   }
@@ -216,86 +209,83 @@ var $__runtime_47_core_47_bytes_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_char_46_js__ = (function() {
+const $__runtime_47_core_47_char_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/char.js";
-  var Primitive = ($__runtime_47_core_47_primitive_46_js__).Primitive;
-  var Char = function($__super) {
-    function Char(codepoint, nativeString) {
-      $traceurRuntime.superConstructor(Char).call(this);
+  const {Primitive} = $__runtime_47_core_47_primitive_46_js__;
+  class Char extends Primitive {
+    constructor(codepoint, nativeString) {
+      super();
       this.codepoint = codepoint;
       this._nativeString = nativeString;
     }
-    return ($traceurRuntime.createClass)(Char, {
-      equals: function(v) {
-        return check(v) && eq(this, v);
-      },
-      isImmutable: function() {
-        return true;
-      },
-      valueOf: function() {
-        return this.codepoint;
-      },
-      toString: function() {
-        if (this._nativeString === null) {
-          this._nativeString = String.fromCodePoint(this.codepoint);
-        }
-        return this._nativeString;
-      },
-      hashForEqual: function() {
-        return this.codepoint;
-      },
-      displayNativeString: function(out) {
-        out.consume(this.toString());
-      },
-      writeNativeString: function(out) {
-        var c = this.codepoint;
-        switch (c) {
-          case 0:
-            out.consume('#\\nul');
-            break;
-          case 8:
-            out.consume('#\\backspace');
-            break;
-          case 9:
-            out.consume('#\\tab');
-            break;
-          case 10:
-            out.consume('#\\newline');
-            break;
-          case 11:
-            out.consume('#\\vtab');
-            break;
-          case 12:
-            out.consume('#\\page');
-            break;
-          case 13:
-            out.consume('#\\return');
-            break;
-          case 32:
-            out.consume('#\\space');
-            break;
-          case 127:
-            out.consume('#\\rubout');
-            break;
-          default:
-            if (isGraphicCodepoint(c)) {
-              out.consume(("#\\" + this.toString()));
-            } else {
-              out.consume(c > 0xFFFF ? ("#\\U" + c.toString(16).toUpperCase().padStart(8, '0')) : ("#\\u" + c.toString(16).toUpperCase().padStart(4, '0')));
-            }
-        }
-      },
-      printNativeString: function(out) {
-        this.writeNativeString(out);
-      },
-      printUString: function(out) {
-        this.writeUString(out);
+    equals(v) {
+      return check(v) && eq(this, v);
+    }
+    isImmutable() {
+      return true;
+    }
+    valueOf() {
+      return this.codepoint;
+    }
+    toString() {
+      if (this._nativeString === null) {
+        this._nativeString = String.fromCodePoint(this.codepoint);
       }
-    }, {}, $__super);
-  }(Primitive);
-  var INTERN_CACHE_SIZE = 256;
-  var internedCache = new Array(INTERN_CACHE_SIZE);
+      return this._nativeString;
+    }
+    hashForEqual() {
+      return this.codepoint;
+    }
+    displayNativeString(out) {
+      out.consume(this.toString());
+    }
+    writeNativeString(out) {
+      const c = this.codepoint;
+      switch (c) {
+        case 0:
+          out.consume('#\\nul');
+          break;
+        case 8:
+          out.consume('#\\backspace');
+          break;
+        case 9:
+          out.consume('#\\tab');
+          break;
+        case 10:
+          out.consume('#\\newline');
+          break;
+        case 11:
+          out.consume('#\\vtab');
+          break;
+        case 12:
+          out.consume('#\\page');
+          break;
+        case 13:
+          out.consume('#\\return');
+          break;
+        case 32:
+          out.consume('#\\space');
+          break;
+        case 127:
+          out.consume('#\\rubout');
+          break;
+        default:
+          if (isGraphic(this)) {
+            out.consume(`#\\${this.toString()}`);
+          } else {
+            out.consume(c > 0xFFFF ? `#\\U${c.toString(16).toUpperCase().padStart(8, '0')}` : `#\\u${c.toString(16).toUpperCase().padStart(4, '0')}`);
+          }
+      }
+    }
+    printNativeString(out) {
+      this.writeNativeString(out);
+    }
+    printUString(out) {
+      this.writeUString(out);
+    }
+  }
+  const INTERN_CACHE_SIZE = 256;
+  const internedCache = new Array(INTERN_CACHE_SIZE);
   function charFromCodepoint(codepoint) {
     if (codepoint < INTERN_CACHE_SIZE) {
       if (internedCache[codepoint] === undefined) {
@@ -306,7 +296,7 @@ var $__runtime_47_core_47_char_46_js__ = (function() {
     return new Char(codepoint, null);
   }
   function charFromNativeString(s) {
-    var codepoint = s.codePointAt(0);
+    const codepoint = s.codePointAt(0);
     if (codepoint < INTERN_CACHE_SIZE) {
       if (internedCache[codepoint] === undefined) {
         internedCache[codepoint] = new Char(codepoint, s);
@@ -316,7 +306,7 @@ var $__runtime_47_core_47_char_46_js__ = (function() {
     return new Char(codepoint, s);
   }
   function check(char) {
-    return (typeof char === 'undefined' ? 'undefined' : $traceurRuntime.typeof(char)) === 'object' && char !== null && char.constructor === Char;
+    return typeof char === 'object' && char !== null && char.constructor === Char;
   }
   function eq(a, b) {
     return a.codepoint === b.codepoint;
@@ -328,7 +318,7 @@ var $__runtime_47_core_47_char_46_js__ = (function() {
     return charFromCodepoint(k);
   }
   function charUtf8Length(c) {
-    var cp = c.codepoint;
+    const cp = c.codepoint;
     if (cp < 0x80) {
       return 1;
     } else if (cp < 0x800) {
@@ -342,14 +332,64 @@ var $__runtime_47_core_47_char_46_js__ = (function() {
     }
     return 6;
   }
-  function isGraphicCodepoint(c) {
-    return (c > 32 && c < 127 || (c > 160 && c < 896 && !(c === 173 || c > 887 && c < 890)) || (c > 899 && c < 1480 && !(c === 1328 || c > 1366 && c < 1369 || c === 1376 || c === 1416 || c > 1418 && c < 1421 || c === 1424 || (c > 906 && c < 910 && c !== 908) || c === 930)) || c > 1487 && c < 1515 || c > 1519 && c < 1525 || (c > 1541 && c < 1970 && !(c > 1563 && c < 1566 || c === 1757 || c > 1805 && c < 1808 || c > 1866 && c < 1869)) || c > 1983 && c < 2043);
+  function isSingleCodePoint(str) {
+    return str.length === 1 || (str.length === 2 && str.codePointAt(0) > 0xFFFF);
   }
-  function isBlankCodepoint(c) {
-    return (c === 9 || c === 32 || c === 160 || c === 5760 || c > 8191 && c < 8203 || c === 8239 || c === 8287 || c === 12288);
+  function upcase(c) {
+    const upper = c.toString().toUpperCase();
+    if (!isSingleCodePoint(upper))
+      return c;
+    return charFromNativeString(upper);
   }
-  function isWhitespaceCodepoint(c) {
-    return (c > 8 && c < 14 || c === 32 || c === 133 || c === 160 || c === 5760 || c > 8191 && c < 8203 || c > 8231 && c < 8234 || c === 8239 || c === 8287 || c === 12288);
+  function downcase(c) {
+    const lower = c.toString().toLowerCase();
+    if (!isSingleCodePoint(lower))
+      return c;
+    return charFromNativeString(lower);
+  }
+  const IS_ALPHABETIC = new RegExp('\\p{Alphabetic}', 'u');
+  const IS_LOWER_CASE = new RegExp('\\p{Lowercase}', 'u');
+  const IS_UPPER_CASE = new RegExp('\\p{Uppercase}', 'u');
+  const IS_TITLE_CASE = new RegExp('\\p{Lt}', 'u');
+  const IS_NUMERIC = new RegExp('\\p{Nd}', 'u');
+  const IS_SYMBOLIC = new RegExp('\\p{S}', 'u');
+  const IS_PUNCTUATION = new RegExp('\\p{P}', 'u');
+  const IS_GRAPHIC = new RegExp('[\\p{L}\\p{N}\\p{M}\\p{S}\\p{P}\\p{Alphabetic}]', 'u');
+  const IS_WHITESPACE = new RegExp('\\p{White_Space}', 'u');
+  const IS_BLANK = new RegExp('[\\p{Zs}\\t]', 'u');
+  function isAlphabetic(c) {
+    return IS_ALPHABETIC.test(c.toString());
+  }
+  function isLowerCase(c) {
+    return IS_LOWER_CASE.test(c.toString());
+  }
+  function isUpperCase(c) {
+    return IS_UPPER_CASE.test(c.toString());
+  }
+  function isTitleCase(c) {
+    return IS_TITLE_CASE.test(c.toString());
+  }
+  function isNumeric(c) {
+    return IS_NUMERIC.test(c.toString());
+  }
+  function isSymbolic(c) {
+    return IS_SYMBOLIC.test(c.toString());
+  }
+  function isPunctuation(c) {
+    return IS_PUNCTUATION.test(c.toString());
+  }
+  function isGraphic(c) {
+    return IS_GRAPHIC.test(c.toString());
+  }
+  function isWhitespace(c) {
+    return IS_WHITESPACE.test(c.toString());
+  }
+  function isBlank(c) {
+    return IS_BLANK.test(c.toString());
+  }
+  function isIsoControl(c) {
+    const cp = c.codepoint;
+    return (cp >= 0 && cp <= 0x1F) || (cp >= 0x7F && cp <= 0x9F);
   }
   return {
     get Char() {
@@ -376,24 +416,53 @@ var $__runtime_47_core_47_char_46_js__ = (function() {
     get charUtf8Length() {
       return charUtf8Length;
     },
-    get isGraphicCodepoint() {
-      return isGraphicCodepoint;
+    get upcase() {
+      return upcase;
     },
-    get isBlankCodepoint() {
-      return isBlankCodepoint;
+    get downcase() {
+      return downcase;
     },
-    get isWhitespaceCodepoint() {
-      return isWhitespaceCodepoint;
+    get isAlphabetic() {
+      return isAlphabetic;
+    },
+    get isLowerCase() {
+      return isLowerCase;
+    },
+    get isUpperCase() {
+      return isUpperCase;
+    },
+    get isTitleCase() {
+      return isTitleCase;
+    },
+    get isNumeric() {
+      return isNumeric;
+    },
+    get isSymbolic() {
+      return isSymbolic;
+    },
+    get isPunctuation() {
+      return isPunctuation;
+    },
+    get isGraphic() {
+      return isGraphic;
+    },
+    get isWhitespace() {
+      return isWhitespace;
+    },
+    get isBlank() {
+      return isBlank;
+    },
+    get isIsoControl() {
+      return isIsoControl;
     }
   };
 })();
-var $__runtime_47_third_45_party_47_hamt_46_js__ = (function() {
+const $__runtime_47_third_45_party_47_hamt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/third-party/hamt.js";
-  var _typeof = typeof Symbol === "function" && $traceurRuntime.typeof(Symbol.iterator) === "symbol" ? function(obj) {
-    return (typeof obj === 'undefined' ? 'undefined' : $traceurRuntime.typeof(obj));
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
+    return typeof obj;
   } : function(obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : (typeof obj === 'undefined' ? 'undefined' : $traceurRuntime.typeof(obj));
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
   var hamt = {};
   var SIZE = 5;
@@ -991,15 +1060,12 @@ var $__runtime_47_third_45_party_47_hamt_46_js__ = (function() {
     return count(this);
   };
   Object.defineProperty(Map.prototype, 'size', {get: Map.prototype.count});
-  ;
   return {get hamt() {
       return hamt;
     }};
 })();
-var $__runtime_47_core_47_lib_46_js__ = (function() {
+const $__runtime_47_core_47_lib_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/lib.js";
-  ;
   function argumentsToArray(args) {
     return Array.prototype.slice.call(args, 0);
   }
@@ -1014,10 +1080,10 @@ var $__runtime_47_core_47_lib_46_js__ = (function() {
     });
   }
   function internedMake(f) {
-    var cache = new Map();
-    return function(v) {
+    const cache = new Map();
+    return (v) => {
       v = v.toString();
-      var result = cache.get(v);
+      let result = cache.get(v);
       if (result === undefined) {
         result = f(v);
         cache.set(v, result);
@@ -1043,220 +1109,178 @@ var $__runtime_47_core_47_lib_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
+const $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/unicode_string.js";
-  var Primitive = ($__runtime_47_core_47_primitive_46_js__).Primitive;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
-  var Char = $__runtime_47_core_47_char_46_js__;
-  var MiniNativeOutputStringPort = ($__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__).MiniNativeOutputStringPort;
-  var internedMake = ($__runtime_47_core_47_lib_46_js__).internedMake;
-  var hashIntArray = ($__runtime_47_core_47_raw_95_hashing_46_js__).hashIntArray;
-  var TextEncoder = (typeof window === 'undefined') ? require('util').TextEncoder : window.TextEncoder;
-  var UString = function($__super) {
-    function UString(chars, nativeString) {
-      $traceurRuntime.superConstructor(UString).call(this);
+  const {Primitive} = $__runtime_47_core_47_primitive_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const Char = $__runtime_47_core_47_char_46_js__;
+  const {MiniNativeOutputStringPort} = $__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__;
+  const {internedMake} = $__runtime_47_core_47_lib_46_js__;
+  const {hashIntArray} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  const TextEncoder = (typeof window === 'undefined') ? require('util').TextEncoder : window.TextEncoder;
+  class UString extends Primitive {
+    constructor(chars, nativeString) {
+      super();
       this.chars = chars;
       this._nativeString = nativeString;
       this._cachedHashCode = null;
     }
-    return ($traceurRuntime.createClass)(UString, {
-      get length() {
-        return this.chars.length;
-      },
-      toString: function() {
-        if (this._nativeString === null) {
-          this._nativeString = this.chars.join('');
-        }
-        return this._nativeString;
-      },
-      charAt: function(i) {
-        return this.chars[i];
-      },
-      toLowerCase: function() {
-        return makeMutable(this.toString().toLowerCase());
-      },
-      toUpperCase: function() {
-        return makeMutable(this.toString().toUpperCase());
-      },
-      substring: function(start, end) {
-        return new MutableUString(this.chars.slice(start, end), null);
-      },
-      split: function(sep) {
-        return this.toString().split(sep).map(function(s) {
-          return makeMutable(s);
-        });
-      },
-      isValidIndex: function(i) {
-        return i < this.length;
-      },
-      isEmpty: function() {
-        return this.length === 0;
-      },
-      valueOf: function() {
-        return this.toString();
-      },
-      equals: function(v) {
-        return check(v) && this.toString() === v.toString();
-      },
-      hashForEqual: function() {
-        if (this._cachedHashCode === null) {
-          this._cachedHashCode = hashIntArray(this.chars);
-        }
-        return this._cachedHashCode;
-      },
-      displayNativeString: function(out) {
-        out.consume(this.toString());
-      },
-      displayUString: function(out) {
-        out.consume(this);
-      },
-      writeNativeString: function(out) {
-        out.consume('"');
-        var $__7 = true;
-        var $__8 = false;
-        var $__9 = undefined;
-        try {
-          for (var $__5 = void 0,
-              $__4 = (this.chars)[Symbol.iterator](); !($__7 = ($__5 = $__4.next()).done); $__7 = true) {
-            var char = $__5.value;
-            {
-              var c = char.codepoint;
-              switch (c) {
-                case 7:
-                  out.consume('\\a');
-                  break;
-                case 8:
-                  out.consume('\\b');
-                  break;
-                case 9:
-                  out.consume('\\t');
-                  break;
-                case 11:
-                  out.consume('\\v');
-                  break;
-                case 12:
-                  out.consume('\\f');
-                  break;
-                case 10:
-                  out.consume('\\n');
-                  break;
-                case 13:
-                  out.consume('\\r');
-                  break;
-                case 27:
-                  out.consume('\\e');
-                  break;
-                case 34:
-                  out.consume('\\"');
-                  break;
-                case 92:
-                  out.consume('\\\\');
-                  break;
-                default:
-                  if (Char.isGraphicCodepoint(c) || Char.isBlankCodepoint(c)) {
-                    out.consume(char.toString());
-                  } else {
-                    out.consume(c > 0xFFFF ? ("\\U" + c.toString(16).toUpperCase().padStart(8, '0')) : ("\\u" + c.toString(16).toUpperCase().padStart(4, '0')));
-                  }
-              }
-            }
-          }
-        } catch ($__10) {
-          $__8 = true;
-          $__9 = $__10;
-        } finally {
-          try {
-            if (!$__7 && $__4.return != null) {
-              $__4.return();
-            }
-          } finally {
-            if ($__8) {
-              throw $__9;
-            }
-          }
-        }
-        out.consume('"');
-      },
-      writeUString: function(out) {
-        var stringOut = new MiniNativeOutputStringPort();
-        this.writeNativeString(stringOut);
-        out.consume(makeMutable(stringOut.getOutputString()));
-      },
-      printNativeString: function(out) {
-        this.writeNativeString(out);
-      },
-      printUString: function(out) {
-        this.writeUString(out);
-      },
-      isValidInteger: function(radix) {
-        var chars = this.chars;
-        var startFrom = chars[0].codepoint === 45 ? 1 : 0;
-        if (radix > 10) {
-          var maxLowercase = 86 + radix;
-          var maxUppercase = maxLowercase - 32;
-          for (var i = startFrom; i < chars.length; ++i) {
-            var cp = chars[i].codepoint;
-            if (cp < 48 || cp > maxLowercase || cp > maxUppercase && cp < 97 || cp > 57 && cp < 65)
-              return false;
-          }
-        } else {
-          var max = 47 + radix;
-          for (var i$__14 = startFrom; i$__14 < chars.length; ++i$__14) {
-            var cp$__15 = chars[i$__14].codepoint;
-            if (cp$__15 < 48 || cp$__15 > max)
-              return false;
-          }
-        }
-        return true;
+    get length() {
+      return this.chars.length;
+    }
+    toString() {
+      if (this._nativeString === null) {
+        this._nativeString = this.chars.join('');
       }
-    }, {}, $__super);
-  }(Primitive);
-  var ImmutableUString = function($__super) {
-    function ImmutableUString() {
-      $traceurRuntime.superConstructor(ImmutableUString).apply(this, arguments);
+      return this._nativeString;
     }
-    return ($traceurRuntime.createClass)(ImmutableUString, {isImmutable: function() {
-        return true;
-      }}, {}, $__super);
-  }(UString);
-  var ImmutableBMPString = function($__super) {
-    function ImmutableBMPString() {
-      $traceurRuntime.superConstructor(ImmutableBMPString).apply(this, arguments);
+    charAt(i) {
+      return this.chars[i];
     }
-    return ($traceurRuntime.createClass)(ImmutableBMPString, {
-      substring: function(start, end) {
-        return new MutableUString(this.chars.slice(start, end), this.toString().substring(start, end));
-      },
-      writeNativeString: function(out) {
-        out.consume(JSON.stringify(this.toString()));
+    toLowerCase() {
+      return makeMutable(this.toString().toLowerCase());
+    }
+    toUpperCase() {
+      return makeMutable(this.toString().toUpperCase());
+    }
+    substring(start, end) {
+      return new MutableUString(this.chars.slice(start, end), null);
+    }
+    split(sep) {
+      return this.toString().split(sep).map((s) => makeMutable(s));
+    }
+    isValidIndex(i) {
+      return i < this.length;
+    }
+    isEmpty() {
+      return this.length === 0;
+    }
+    valueOf() {
+      return this.toString();
+    }
+    equals(v) {
+      return check(v) && this.toString() === v.toString();
+    }
+    hashForEqual() {
+      if (this._cachedHashCode === null) {
+        this._cachedHashCode = hashIntArray(this.chars);
       }
-    }, {}, $__super);
-  }(ImmutableUString);
-  var MutableUString = function($__super) {
-    function MutableUString() {
-      $traceurRuntime.superConstructor(MutableUString).apply(this, arguments);
+      return this._cachedHashCode;
     }
-    return ($traceurRuntime.createClass)(MutableUString, {
-      isImmutable: function() {
-        return false;
-      },
-      setCharAt: function(i, char) {
-        if (!Char.eq(char, this.chars[i])) {
-          this.chars[i] = char;
-          this._nativeString = null;
-          this._cachedHashCode = null;
+    displayNativeString(out) {
+      out.consume(this.toString());
+    }
+    displayUString(out) {
+      out.consume(this);
+    }
+    writeNativeString(out) {
+      out.consume('"');
+      for (const char of this.chars) {
+        const c = char.codepoint;
+        switch (c) {
+          case 7:
+            out.consume('\\a');
+            break;
+          case 8:
+            out.consume('\\b');
+            break;
+          case 9:
+            out.consume('\\t');
+            break;
+          case 11:
+            out.consume('\\v');
+            break;
+          case 12:
+            out.consume('\\f');
+            break;
+          case 10:
+            out.consume('\\n');
+            break;
+          case 13:
+            out.consume('\\r');
+            break;
+          case 27:
+            out.consume('\\e');
+            break;
+          case 34:
+            out.consume('\\"');
+            break;
+          case 92:
+            out.consume('\\\\');
+            break;
+          default:
+            if (Char.isGraphic(char) || Char.isBlank(char)) {
+              out.consume(char.toString());
+            } else {
+              out.consume(c > 0xFFFF ? `\\U${c.toString(16).toUpperCase().padStart(8, '0')}` : `\\u${c.toString(16).toUpperCase().padStart(4, '0')}`);
+            }
         }
       }
-    }, {}, $__super);
-  }(UString);
+      out.consume('"');
+    }
+    writeUString(out) {
+      const stringOut = new MiniNativeOutputStringPort();
+      this.writeNativeString(stringOut);
+      out.consume(makeMutable(stringOut.getOutputString()));
+    }
+    printNativeString(out) {
+      this.writeNativeString(out);
+    }
+    printUString(out) {
+      this.writeUString(out);
+    }
+    isValidInteger(radix) {
+      const chars = this.chars;
+      const startFrom = chars[0].codepoint === 45 ? 1 : 0;
+      if (radix > 10) {
+        const maxLowercase = 86 + radix;
+        const maxUppercase = maxLowercase - 32;
+        for (let i = startFrom; i < chars.length; ++i) {
+          let cp = chars[i].codepoint;
+          if (cp < 48 || cp > maxLowercase || cp > maxUppercase && cp < 97 || cp > 57 && cp < 65)
+            return false;
+        }
+      } else {
+        const max = 47 + radix;
+        for (let i = startFrom; i < chars.length; ++i) {
+          let cp = chars[i].codepoint;
+          if (cp < 48 || cp > max)
+            return false;
+        }
+      }
+      return true;
+    }
+  }
+  class ImmutableUString extends UString {
+    isImmutable() {
+      return true;
+    }
+  }
+  class ImmutableBMPString extends ImmutableUString {
+    substring(start, end) {
+      return new MutableUString(this.chars.slice(start, end), this.toString().substring(start, end));
+    }
+    writeNativeString(out) {
+      out.consume(JSON.stringify(this.toString()));
+    }
+  }
+  class MutableUString extends UString {
+    isImmutable() {
+      return false;
+    }
+    setCharAt(i, char) {
+      if (!Char.eq(char, this.chars[i])) {
+        this.chars[i] = char;
+        this._nativeString = null;
+        this._cachedHashCode = null;
+      }
+    }
+  }
   function nativeStringToChars(nativeString) {
     return Array.from(nativeString, Char.charFromNativeString);
   }
-  var makeInternedImmutable = internedMake(function(nativeString) {
-    return makeImmutable(nativeString);
-  });
-  var make = makeInternedImmutable;
+  const makeInternedImmutable = internedMake((nativeString) => makeImmutable(nativeString));
+  const make = makeInternedImmutable;
   function makeImmutable(nativeString) {
     return makeImmutableFromCharsAndNativeString(nativeStringToChars(nativeString), nativeString);
   }
@@ -1272,10 +1296,7 @@ var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
   function copyAsMutable(str) {
     return new MutableUString(str.chars, str._nativeString);
   }
-  function makeMutableFromCharsVarArgs() {
-    for (var chars = [],
-        $__11 = 0; $__11 < arguments.length; $__11++)
-      chars[$__11] = arguments[$__11];
+  function makeMutableFromCharsVarArgs(...chars) {
     return makeMutableFromChars(chars);
   }
   function stringToImmutableString(v) {
@@ -1288,8 +1309,8 @@ var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
     return a.toString() === b.toString();
   }
   function lt(a, b) {
-    var n = Math.min(a.length, b.length);
-    for (var i = 0; i < n; i++) {
+    const n = Math.min(a.length, b.length);
+    for (let i = 0; i < n; i++) {
       if (!Char.eq(a.chars[i], b.chars[i])) {
         return a.chars[i] < b.chars[i];
       }
@@ -1297,8 +1318,8 @@ var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
     return (a.length < b.length);
   }
   function gt(a, b) {
-    var n = Math.min(a.length, b.length);
-    for (var i = 0; i < n; i++) {
+    const n = Math.min(a.length, b.length);
+    for (let i = 0; i < n; i++) {
       if (!Char.eq(a.chars[i], b.chars[i])) {
         return a.chars[i] > b.chars[i];
       }
@@ -1312,31 +1333,25 @@ var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
     return !lt(a, b);
   }
   function repeatChar(k, c) {
-    var chars = new Array(k);
+    const chars = new Array(k);
     chars.fill(c.toString());
     return new MutableUString(chars, null);
   }
-  var utf8Encoder = new TextEncoder();
+  const utf8Encoder = new TextEncoder();
   function toBytesUtf8(str) {
     return utf8Encoder.encode(str.toString());
   }
   function fromBytesUtf8(bytes) {
     return makeMutable(Bytes.toString(bytes));
   }
-  function stringAppend() {
-    var $__13;
-    for (var strs = [],
-        $__12 = 0; $__12 < arguments.length; $__12++)
-      strs[$__12] = arguments[$__12];
-    return makeMutableFromChars(($__13 = []).concat.apply($__13, $traceurRuntime.spread(strs.map(function(s) {
-      return s.chars;
-    }))));
+  function stringAppend(...strs) {
+    return makeMutableFromChars([].concat(...strs.map((s) => s.chars)));
   }
   Char.Char.prototype.displayUString = function(out) {
     out.consume(new MutableUString([this], this._nativeString));
   };
   Char.Char.prototype.writeUString = function(out) {
-    var stringOut = new MiniNativeOutputStringPort();
+    const stringOut = new MiniNativeOutputStringPort();
     this.writeNativeString(stringOut);
     out.consume(makeMutable(stringOut.getOutputString()));
   };
@@ -1400,56 +1415,49 @@ var $__runtime_47_core_47_unicode_95_string_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_printable_95_primitive_46_js__ = (function() {
+const $__runtime_47_core_47_printable_95_primitive_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/printable_primitive.js";
-  var Primitive = ($__runtime_47_core_47_primitive_46_js__).Primitive;
-  var MiniNativeOutputStringPort = ($__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__).MiniNativeOutputStringPort;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var PRINT_PREFIX_USTRING = UString.makeInternedImmutable("'");
-  var PrintablePrimitive = function($__super) {
-    function PrintablePrimitive() {
-      $traceurRuntime.superConstructor(PrintablePrimitive).apply(this, arguments);
+  const {Primitive} = $__runtime_47_core_47_primitive_46_js__;
+  const {MiniNativeOutputStringPort} = $__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const PRINT_PREFIX_USTRING = UString.makeInternedImmutable("'");
+  class PrintablePrimitive extends Primitive {
+    displayUString(out) {
+      const stringOut = new MiniNativeOutputStringPort();
+      this.displayNativeString(stringOut);
+      out.consume(UString.makeMutable(stringOut.getOutputString()));
     }
-    return ($traceurRuntime.createClass)(PrintablePrimitive, {
-      displayUString: function(out) {
-        var stringOut = new MiniNativeOutputStringPort();
-        this.displayNativeString(stringOut);
-        out.consume(UString.makeMutable(stringOut.getOutputString()));
-      },
-      writeNativeString: function(out) {
-        this.displayNativeString(out);
-      },
-      writeUString: function(out) {
-        var stringOut = new MiniNativeOutputStringPort();
-        this.writeNativeString(stringOut);
-        out.consume(UString.makeMutable(stringOut.getOutputString()));
-      },
-      printNativeString: function(out) {
-        out.consume("'");
-        this.writeNativeString(out);
-      },
-      printUString: function(out) {
-        out.consume(PRINT_PREFIX_USTRING);
-        this.writeUString(out);
-      },
-      toString: function() {
-        var out = new MiniNativeOutputStringPort();
-        this.displayNativeString(out);
-        return out.getOutputString();
-      }
-    }, {}, $__super);
-  }(Primitive);
+    writeNativeString(out) {
+      this.displayNativeString(out);
+    }
+    writeUString(out) {
+      const stringOut = new MiniNativeOutputStringPort();
+      this.writeNativeString(stringOut);
+      out.consume(UString.makeMutable(stringOut.getOutputString()));
+    }
+    printNativeString(out) {
+      out.consume("'");
+      this.writeNativeString(out);
+    }
+    printUString(out) {
+      out.consume(PRINT_PREFIX_USTRING);
+      this.writeUString(out);
+    }
+    toString() {
+      const out = new MiniNativeOutputStringPort();
+      this.displayNativeString(out);
+      return out.getOutputString();
+    }
+  }
   return {get PrintablePrimitive() {
       return PrintablePrimitive;
     }};
 })();
-var $__runtime_47_core_47_equality_46_js__ = (function() {
+const $__runtime_47_core_47_equality_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/equality.js";
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var Char = $__runtime_47_core_47_char_46_js__;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const Char = $__runtime_47_core_47_char_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
   function isEq(v1, v2) {
     return v1 === v2;
   }
@@ -1477,13 +1485,12 @@ var $__runtime_47_core_47_equality_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_hashing_46_js__ = (function() {
+const $__runtime_47_core_47_hashing_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/hashing.js";
-  var hash = ($__runtime_47_core_47_raw_95_hashing_46_js__).hash;
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var Char = $__runtime_47_core_47_char_46_js__;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const {hash} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const Char = $__runtime_47_core_47_char_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
   function hashForEq(o) {
     return hash(o);
   }
@@ -1511,9 +1518,8 @@ var $__runtime_47_core_47_hashing_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_procedure_46_js__ = (function() {
+const $__runtime_47_core_47_procedure_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/procedure.js";
   function attachProcedureArity(fn, arity) {
     fn.__rjs_arityValue = arity || fn.length;
     return fn;
@@ -1526,7 +1532,7 @@ var $__runtime_47_core_47_procedure_46_js__ = (function() {
     return typeof v === 'function';
   }
   function toString(f) {
-    return f.__rjs_name ? ("#<procedure:" + f.__rjs_name + ">") : (f.name ? ("#<procedure:" + f.name + ">") : '#<procedure>');
+    return f.__rjs_name ? `#<procedure:${f.__rjs_name}>` : (f.name ? `#<procedure:${f.name}>` : '#<procedure>');
   }
   function displayNativeString(out, f) {
     out.consume(toString(f));
@@ -1549,12 +1555,11 @@ var $__runtime_47_core_47_procedure_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_print_95_native_95_string_46_js__ = (function() {
+const $__runtime_47_core_47_print_95_native_95_string_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/print_native_string.js";
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
-  var Procedure = $__runtime_47_core_47_procedure_46_js__;
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const Procedure = $__runtime_47_core_47_procedure_46_js__;
   function displayNativeString(out, v) {
     if (v === true) {
       out.consume('#t');
@@ -1602,16 +1607,15 @@ var $__runtime_47_core_47_print_95_native_95_string_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_print_95_ustring_46_js__ = (function() {
+const $__runtime_47_core_47_print_95_ustring_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/print_ustring.js";
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
-  var Procedure = $__runtime_47_core_47_procedure_46_js__;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var TRUE_USTRING = UString.makeInternedImmutable('#t');
-  var FALSE_USTRING = UString.makeInternedImmutable('#f');
-  var VOID_USTRING = UString.makeInternedImmutable('#<void>');
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const Procedure = $__runtime_47_core_47_procedure_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const TRUE_USTRING = UString.makeInternedImmutable('#t');
+  const FALSE_USTRING = UString.makeInternedImmutable('#f');
+  const VOID_USTRING = UString.makeInternedImmutable('#<void>');
   function displayUString(out, v) {
     if (v === true) {
       out.consume(TRUE_USTRING);
@@ -1661,56 +1665,51 @@ var $__runtime_47_core_47_print_95_ustring_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_box_46_js__ = (function() {
+const $__runtime_47_core_47_box_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/box.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var isEqual = ($__runtime_47_core_47_equality_46_js__).isEqual;
-  var hashForEqual = ($__runtime_47_core_47_hashing_46_js__).hashForEqual;
-  var $__4 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__4.displayNativeString,
-      writeNativeString = $__4.writeNativeString;
-  var $__5 = $__runtime_47_core_47_print_95_ustring_46_js__,
-      displayUString = $__5.displayUString,
-      writeUString = $__5.writeUString;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var BOX_PREFIX_USTRING = UString.makeInternedImmutable('#&');
-  var Box = function($__super) {
-    function Box(v) {
-      $traceurRuntime.superConstructor(Box).call(this);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {isEqual} = $__runtime_47_core_47_equality_46_js__;
+  const {hashForEqual} = $__runtime_47_core_47_hashing_46_js__;
+  const {displayNativeString,
+    writeNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {displayUString,
+    writeUString} = $__runtime_47_core_47_print_95_ustring_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const BOX_PREFIX_USTRING = UString.makeInternedImmutable('#&');
+  class Box extends PrintablePrimitive {
+    constructor(v) {
+      super();
       this.value = v;
     }
-    return ($traceurRuntime.createClass)(Box, {
-      set: function(v) {
-        this.value = v;
-      },
-      get: function() {
-        return this.value;
-      },
-      equals: function(v) {
-        return isEqual(v.value, this.value);
-      },
-      hashForEqual: function() {
-        return hashForEqual(this.value);
-      },
-      displayNativeString: function(out) {
-        out.consume('#&');
-        displayNativeString(out, this.value);
-      },
-      displayUString: function(out) {
-        out.consume(BOX_PREFIX_USTRING);
-        displayUString(out, this.value);
-      },
-      writeNativeString: function(out) {
-        out.consume('#&');
-        writeNativeString(out, this.value);
-      },
-      writeUString: function(out) {
-        out.consume(BOX_PREFIX_USTRING);
-        writeUString(out, this.value);
-      }
-    }, {}, $__super);
-  }(PrintablePrimitive);
+    set(v) {
+      this.value = v;
+    }
+    get() {
+      return this.value;
+    }
+    equals(v) {
+      return isEqual(v.value, this.value);
+    }
+    hashForEqual() {
+      return hashForEqual(this.value);
+    }
+    displayNativeString(out) {
+      out.consume('#&');
+      displayNativeString(out, this.value);
+    }
+    displayUString(out) {
+      out.consume(BOX_PREFIX_USTRING);
+      displayUString(out, this.value);
+    }
+    writeNativeString(out) {
+      out.consume('#&');
+      writeNativeString(out, this.value);
+    }
+    writeUString(out) {
+      out.consume(BOX_PREFIX_USTRING);
+      writeUString(out, this.value);
+    }
+  }
   function make(v) {
     return new Box(v);
   }
@@ -1726,136 +1725,120 @@ var $__runtime_47_core_47_box_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_pair_46_js__ = (function() {
+const $__runtime_47_core_47_pair_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/pair.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var $__4 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__4.displayNativeString,
-      writeNativeString = $__4.writeNativeString;
-  var isEqual = ($__runtime_47_core_47_equality_46_js__).isEqual;
-  var Empty = function($__super) {
-    function Empty() {
-      $traceurRuntime.superConstructor(Empty).apply(this, arguments);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {isEqual} = $__runtime_47_core_47_equality_46_js__;
+  class Empty extends PrintablePrimitive {
+    equals(v) {
+      return this === v;
     }
-    return ($traceurRuntime.createClass)(Empty, {
-      equals: function(v) {
-        return this === v;
-      },
-      get length() {
-        return 0;
-      },
-      displayNativeString: function(out) {
-        out.consume('()');
-      },
-      isImmutable: function() {
-        return false;
-      }
-    }, {}, $__super);
-  }(PrintablePrimitive);
-  var EMPTY = new Empty();
+    get length() {
+      return 0;
+    }
+    displayNativeString(out) {
+      out.consume('()');
+    }
+    isImmutable() {
+      return false;
+    }
+  }
+  const EMPTY = new Empty();
   function isEmpty(v) {
     return v === EMPTY;
   }
-  var Pair = function($__super) {
-    function Pair(hd, tl) {
-      $traceurRuntime.superConstructor(Pair).call(this);
+  class Pair extends PrintablePrimitive {
+    constructor(hd, tl) {
+      super();
       this.hd = hd;
       this.tl = tl;
       this._listLength = isList(tl) ? tl.length + 1 : -1;
       this._cachedHashCode = null;
     }
-    return ($traceurRuntime.createClass)(Pair, {
-      writeToPort: function(out, itemFn) {
-        out.consume('(');
-        var rest = this;
-        while (true) {
-          if (check(rest)) {
-            itemFn(out, rest.hd);
-          } else {
-            out.consume('. ');
-            itemFn(out, rest);
-            break;
-          }
-          rest = rest.tl;
-          if (isEmpty(rest)) {
-            break;
-          } else {
-            out.consume(' ');
-          }
+    writeToPort(out, itemFn) {
+      out.consume('(');
+      let rest = this;
+      while (true) {
+        if (check(rest)) {
+          itemFn(out, rest.hd);
+        } else {
+          out.consume('. ');
+          itemFn(out, rest);
+          break;
         }
-        out.consume(')');
-      },
-      displayNativeString: function(out) {
-        this.writeToPort(out, displayNativeString);
-      },
-      writeNativeString: function(out) {
-        this.writeToPort(out, writeNativeString);
-      },
-      equals: function(v) {
-        if (!check(v) || this.length !== v.length) {
-          return false;
+        rest = rest.tl;
+        if (isEmpty(rest)) {
+          break;
+        } else {
+          out.consume(' ');
         }
-        var hd1 = this.hd;
-        var tl1 = this.tl;
-        var hd2 = v.hd;
-        var tl2 = v.tl;
-        while (true) {
-          if (!isEqual(hd1, hd2)) {
-            return false;
-          }
-          if (!check(tl1) || isEmpty(tl1)) {
-            return isEqual(tl1, tl2);
-          }
-          hd1 = tl1.hd;
-          tl1 = tl1.tl;
-          hd2 = tl2.hd;
-          tl2 = tl2.tl;
-        }
-      },
-      hashForEqual: function() {
-        if (this._cachedHashCode === null) {
-          this._cachedHashCode = $traceurRuntime.superGet(this, Pair.prototype, "hashForEqual").call(this);
-        }
-        return this._cachedHashCode;
-      },
-      car: function() {
-        return this.hd;
-      },
-      cdr: function() {
-        return this.tl;
-      },
-      get length() {
-        return this._listLength;
-      },
-      isImmutable: function() {
+      }
+      out.consume(')');
+    }
+    displayNativeString(out) {
+      this.writeToPort(out, displayNativeString);
+    }
+    writeNativeString(out) {
+      this.writeToPort(out, writeNativeString);
+    }
+    equals(v) {
+      if (!check(v) || this.length !== v.length) {
         return false;
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
+      let hd1 = this.hd;
+      let tl1 = this.tl;
+      let hd2 = v.hd;
+      let tl2 = v.tl;
+      while (true) {
+        if (!isEqual(hd1, hd2)) {
+          return false;
+        }
+        if (!check(tl1) || isEmpty(tl1)) {
+          return isEqual(tl1, tl2);
+        }
+        hd1 = tl1.hd;
+        tl1 = tl1.tl;
+        hd2 = tl2.hd;
+        tl2 = tl2.tl;
+      }
+    }
+    hashForEqual() {
+      if (this._cachedHashCode === null) {
+        this._cachedHashCode = super.hashForEqual();
+      }
+      return this._cachedHashCode;
+    }
+    car() {
+      return this.hd;
+    }
+    cdr() {
+      return this.tl;
+    }
+    get length() {
+      return this._listLength;
+    }
+    isImmutable() {
+      return false;
+    }
+  }
   function check(v) {
-    return (typeof v === 'undefined' ? 'undefined' : $traceurRuntime.typeof(v)) === 'object' && v !== null && v.constructor === Pair;
+    return typeof v === 'object' && v !== null && v.constructor === Pair;
   }
   function make(hd, tl) {
     return new Pair(hd, tl);
   }
-  function makeList() {
-    for (var items = [],
-        $__2 = 0; $__2 < arguments.length; $__2++)
-      items[$__2] = arguments[$__2];
-    return items.reduceRight(function(result, item) {
-      return make(item, result);
-    }, EMPTY);
+  function makeList(...items) {
+    return items.reduceRight((result, item) => make(item, result), EMPTY);
   }
   function listToArray(lst) {
-    var r = [];
-    listForEach(lst, function(x) {
-      return r.push(x);
-    });
+    const r = [];
+    listForEach(lst, (x) => r.push(x));
     return r;
   }
   function listFromArray(lst) {
-    return makeList.apply((void 0), $traceurRuntime.spread(lst));
+    return makeList(...lst);
   }
   function listForEach(lst, fn) {
     while (!isEmpty(lst)) {
@@ -1865,7 +1848,7 @@ var $__runtime_47_core_47_pair_46_js__ = (function() {
   }
   function listFind(lst, fn) {
     while (!isEmpty(lst)) {
-      var result = fn(lst.hd);
+      const result = fn(lst.hd);
       if (result !== false) {
         return result;
       }
@@ -1874,10 +1857,8 @@ var $__runtime_47_core_47_pair_46_js__ = (function() {
     return false;
   }
   function listMap(lst, fn) {
-    var result = [];
-    var mapper = function(x) {
-      return result.push(result, fn(x));
-    };
+    const result = [];
+    const mapper = (x) => result.push(result, fn(x));
     listForEach(lst, mapper);
     return listFromArray(result);
   }
@@ -1923,53 +1904,26 @@ var $__runtime_47_core_47_pair_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_errors_46_js__ = (function() {
+const $__runtime_47_core_47_errors_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/errors.js";
-  var MiniNativeOutputStringPort = ($__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__).MiniNativeOutputStringPort;
-  var printNativeString = ($__runtime_47_core_47_print_95_native_95_string_46_js__).printNativeString;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const {MiniNativeOutputStringPort} = $__runtime_47_core_47_mini_95_native_95_output_95_string_95_port_46_js__;
+  const {printNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
   function printError(out, msg, args) {
     out.consume(msg);
-    var $__4 = true;
-    var $__5 = false;
-    var $__6 = undefined;
-    try {
-      for (var $__2 = void 0,
-          $__1 = (args)[Symbol.iterator](); !($__4 = ($__2 = $__1.next()).done); $__4 = true) {
-        var arg = $__2.value;
-        {
-          out.consume(' ');
-          if (typeof arg === 'string') {
-            out.consume(arg);
-          } else {
-            printNativeString(out, arg, true, 0);
-          }
-        }
-      }
-    } catch ($__7) {
-      $__5 = true;
-      $__6 = $__7;
-    } finally {
-      try {
-        if (!$__4 && $__1.return != null) {
-          $__1.return();
-        }
-      } finally {
-        if ($__5) {
-          throw $__6;
-        }
+    for (const arg of args) {
+      out.consume(' ');
+      if (typeof arg === 'string') {
+        out.consume(arg);
+      } else {
+        printNativeString(out, arg, true, 0);
       }
     }
   }
   function makeError(name) {
-    var $__0 = this;
-    var e = function(msg) {
-      for (var args = [],
-          $__8 = 1; $__8 < arguments.length; $__8++)
-        args[$__8 - 1] = arguments[$__8];
+    const e = function(msg, ...args) {
       this.name = name;
-      var stringOut = new MiniNativeOutputStringPort();
+      const stringOut = new MiniNativeOutputStringPort();
       printError(stringOut, msg, args);
       this.message = stringOut.getOutputString();
       this.stack = (new Error()).stack;
@@ -1981,15 +1935,10 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
     };
     e.prototype = Object.create(Error.prototype);
     e.prototype.constructor = e;
-    return function() {
-      for (var args = [],
-          $__9 = 0; $__9 < arguments.length; $__9++)
-        args[$__9] = arguments[$__9];
-      return new (Function.prototype.bind.apply(e, [$__0].concat(args)))();
-    };
+    return (...args) => new (Function.prototype.bind.apply(e, [this].concat(args)))();
   }
-  var racketCoreError = makeError('RacketCoreError');
-  var racketContractError = makeError('RacketContractError');
+  const racketCoreError = makeError('RacketCoreError');
+  const racketContractError = makeError('RacketContractError');
   function isContractErr(e) {
     return e.name !== undefined && e.name === "RacketContractError";
   }
@@ -2016,12 +1965,9 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
     }
     return i + "th";
   }
-  function makeArgumentError(name, expected) {
-    for (var rest = [],
-        $__8 = 2; $__8 < arguments.length; $__8++)
-      rest[$__8 - 2] = arguments[$__8];
-    var stringOut = new MiniNativeOutputStringPort();
-    stringOut.consume((name.toString() + ": contract violation\n"));
+  function makeArgumentError(name, expected, ...rest) {
+    const stringOut = new MiniNativeOutputStringPort();
+    stringOut.consume(`${name.toString()}: contract violation\n`);
     stringOut.consume('  expected: ');
     stringOut.consume(expected.toString());
     stringOut.consume('\n');
@@ -2036,7 +1982,7 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
         printNativeString(stringOut, toOrdinal(rest[0] + 1), true, 0);
         stringOut.consume('\n');
         stringOut.consume('  other arguments...:');
-        for (var i = 1; i < rest.length; i++) {
+        for (let i = 1; i < rest.length; i++) {
           if (i === rest[0] + 1) {
             continue;
           }
@@ -2047,18 +1993,15 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
     }
     return racketContractError(stringOut.getOutputString());
   }
-  function makeArgumentsError(name, msg, field) {
-    for (var rest = [],
-        $__9 = 3; $__9 < arguments.length; $__9++)
-      rest[$__9 - 3] = arguments[$__9];
-    var stringOut = new MiniNativeOutputStringPort();
-    stringOut.consume((name.toString() + ": "));
+  function makeArgumentsError(name, msg, field, ...rest) {
+    const stringOut = new MiniNativeOutputStringPort();
+    stringOut.consume(`${name.toString()}: `);
     stringOut.consume(msg);
     stringOut.consume('\n  ');
     stringOut.consume(field);
     stringOut.consume(': ');
     printNativeString(stringOut, rest[0], true, 0);
-    for (var i = 1; i < rest.length; i = i + 2) {
+    for (let i = 1; i < rest.length; i = i + 2) {
       stringOut.consume('\n  ');
       stringOut.consume(rest[i]);
       stringOut.consume(': ');
@@ -2066,17 +2009,14 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
     }
     return racketContractError(stringOut.getOutputString());
   }
-  function makeMismatchError(name, msg) {
-    for (var rest = [],
-        $__10 = 2; $__10 < arguments.length; $__10++)
-      rest[$__10 - 2] = arguments[$__10];
+  function makeMismatchError(name, msg, ...rest) {
     if (rest.length === 0) {
       return racketContractError(name.toString(), msg);
     } else {
-      var stringOut = new MiniNativeOutputStringPort();
-      stringOut.consume((name.toString() + ": "));
+      const stringOut = new MiniNativeOutputStringPort();
+      stringOut.consume(`${name.toString()}: `);
       stringOut.consume(msg);
-      for (var i = 0; i < rest.length; i++) {
+      for (let i = 0; i < rest.length; i++) {
         if (UString.check(rest[i])) {
           stringOut.consume(rest[i]);
         } else {
@@ -2089,9 +2029,13 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
   function makeOutOfRangeError(name, type, v, len, i) {
     if (i >= len) {
       if (len > 0) {
-        return racketContractError((name + ": index is out of range\n  index: " + i + "\n  valid range: [0, " + (len - 1) + "]\n  " + type + ": "), v);
+        return racketContractError(`${name}: index is out of range
+  index: ${i}
+  valid range: [0, ${len - 1}]
+  ${type}: `, v);
       } else {
-        return racketContractError((name + ": index is out of range for empty " + type + "\n  index: " + i));
+        return racketContractError(`${name}: index is out of range for empty ${type}
+  index: ${i}`);
       }
     }
   }
@@ -2128,13 +2072,12 @@ var $__runtime_47_core_47_errors_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_regexp_46_js__ = (function() {
+const $__runtime_47_core_47_regexp_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/regexp.js";
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var Pair = $__runtime_47_core_47_pair_46_js__;
-  var racketContractError = ($__runtime_47_core_47_errors_46_js__).racketContractError;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const Pair = $__runtime_47_core_47_pair_46_js__;
+  const {racketContractError} = $__runtime_47_core_47_errors_46_js__;
   function check(v) {
     return v instanceof RegExp;
   }
@@ -2142,28 +2085,24 @@ var $__runtime_47_core_47_regexp_46_js__ = (function() {
     return new RegExp(str.toString());
   }
   function match(pattern, input) {
-    var isRegexpPattern = check(pattern);
-    var isBytesPattern = !isRegexpPattern && Bytes.check(pattern);
-    var isStringPattern = !isRegexpPattern && !isBytesPattern && UString.check(pattern);
-    var isBytesInput = Bytes.check(input);
-    var isStringInput = !isBytesInput && UString.check(input);
+    const isRegexpPattern = check(pattern);
+    const isBytesPattern = !isRegexpPattern && Bytes.check(pattern);
+    const isStringPattern = !isRegexpPattern && !isBytesPattern && UString.check(pattern);
+    const isBytesInput = Bytes.check(input);
+    const isStringInput = !isBytesInput && UString.check(input);
     if (!(isRegexpPattern || isBytesPattern || isStringPattern) || !(isBytesInput || isStringInput)) {
       throw racketContractError('expected regexp, string or byte pat, ' + 'and string or byte input, got pattern:', pattern, ', input:', input);
     }
-    var stringInput = isBytesInput ? UString.fromBytesUtf8((input)) : input;
-    var stringOrRegExpPattern = isBytesPattern ? UString.fromBytesUtf8((pattern)) : pattern;
-    var result = stringInput.toString().match(stringOrRegExpPattern);
+    const stringInput = isBytesInput ? UString.fromBytesUtf8((input)) : input;
+    const stringOrRegExpPattern = isBytesPattern ? UString.fromBytesUtf8((pattern)) : pattern;
+    const result = stringInput.toString().match(stringOrRegExpPattern);
     if (result === null) {
       return false;
     }
     if ((isStringPattern || isRegexpPattern) && isStringInput) {
-      return Pair.listFromArray(result.map(function(x) {
-        return (x !== undefined ? UString.makeMutable(x) : false);
-      }));
+      return Pair.listFromArray(result.map((x) => (x !== undefined ? UString.makeMutable(x) : false)));
     }
-    return Pair.listFromArray(result.map(function(x) {
-      return (x !== undefined ? UString.toBytesUtf8(x) : false);
-    }));
+    return Pair.listFromArray(result.map((x) => (x !== undefined ? UString.toBytesUtf8(x) : false)));
   }
   return {
     get check() {
@@ -2177,24 +2116,21 @@ var $__runtime_47_core_47_regexp_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_values_46_js__ = (function() {
+const $__runtime_47_core_47_values_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/values.js";
-  var Primitive = ($__runtime_47_core_47_primitive_46_js__).Primitive;
-  var Values = function($__super) {
-    function Values(vals) {
-      $traceurRuntime.superConstructor(Values).call(this);
+  const {Primitive} = $__runtime_47_core_47_primitive_46_js__;
+  class Values extends Primitive {
+    constructor(vals) {
+      super();
       this.v = vals;
     }
-    return ($traceurRuntime.createClass)(Values, {
-      getAt: function(i) {
-        return this.v[i];
-      },
-      getAll: function() {
-        return this.v;
-      }
-    }, {}, $__super);
-  }(Primitive);
+    getAt(i) {
+      return this.v[i];
+    }
+    getAll() {
+      return this.v;
+    }
+  }
   function make(vals) {
     return new Values(vals);
   }
@@ -2210,25 +2146,21 @@ var $__runtime_47_core_47_values_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_hash_46_js__ = (function() {
+const $__runtime_47_core_47_hash_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/hash.js";
-  var $ = $__runtime_47_core_47_lib_46_js__;
-  var Pair = $__runtime_47_core_47_pair_46_js__;
-  var Values = $__runtime_47_core_47_values_46_js__;
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var $__13 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__13.displayNativeString,
-      writeNativeString = $__13.writeNativeString;
-  var $__14 = $__runtime_47_core_47_equality_46_js__,
-      isEqual = $__14.isEqual,
-      isEqv = $__14.isEqv,
-      isEq = $__14.isEq;
-  var $__15 = $__runtime_47_core_47_hashing_46_js__,
-      hashForEqual = $__15.hashForEqual,
-      hashForEqv = $__15.hashForEqv,
-      hashForEq = $__15.hashForEq;
-  var hashConfigs = {
+  const $ = $__runtime_47_core_47_lib_46_js__;
+  const Pair = $__runtime_47_core_47_pair_46_js__;
+  const Values = $__runtime_47_core_47_values_46_js__;
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {isEqual,
+    isEqv,
+    isEq} = $__runtime_47_core_47_equality_46_js__;
+  const {hashForEqual,
+    hashForEqv,
+    hashForEq} = $__runtime_47_core_47_hashing_46_js__;
+  const hashConfigs = {
     eq: {
       hash: hashForEq,
       keyEq: isEq
@@ -2242,283 +2174,155 @@ var $__runtime_47_core_47_hash_46_js__ = (function() {
       keyEq: isEqual
     }
   };
-  var Hash = function($__super) {
-    function Hash(hash, type, mutable) {
-      $traceurRuntime.superConstructor(Hash).call(this);
+  class Hash extends PrintablePrimitive {
+    constructor(hash, type, mutable) {
+      super();
       this._h = hash;
       this._mutable = mutable;
       this._type = type;
       this._iterator = undefined;
     }
-    return ($traceurRuntime.createClass)(Hash, {
-      writeToPort: function(out, itemFn) {
-        var $__10,
-            $__11;
-        out.consume('#hash');
-        if (this._type === 'eq' || this._type === 'eqv') {
-          out.consume(this._type);
-        }
-        out.consume('(');
-        var n = this._h.size;
-        var i = 0;
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (this._h)[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var $__9 = $__3.value,
-                k = ($__10 = $__9[Symbol.iterator](), ($__11 = $__10.next()).done ? void 0 : $__11.value),
-                v = ($__11 = $__10.next()).done ? void 0 : $__11.value;
-            {
-              out.consume('(');
-              itemFn(out, k);
-              out.consume(' . ');
-              itemFn(out, v);
-              out.consume(')');
-              if (++i !== n)
-                out.consume(' ');
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
-        }
-        out.consume(')');
-      },
-      displayNativeString: function(out) {
-        this.writeToPort(out, displayNativeString);
-      },
-      writeNativeString: function(out) {
-        this.writeToPort(out, writeNativeString);
-      },
-      toRawString: function() {
-        return ("'" + this.toString());
-      },
-      isImmutable: function() {
-        return !this._mutable;
-      },
-      ref: function(k, fail) {
-        var result = this._h.get(k);
-        if (result !== undefined) {
-          return result;
-        } else {
-          return typeof fail === 'function' ? fail() : fail;
-        }
-      },
-      hasKey: function(k) {
-        return this._h.has(k);
-      },
-      refKey: function(k, fail) {
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (this._h.keys())[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var key = $__3.value;
-            {
-              if (hashConfigs[this._type].keyEq(key, k)) {
-                return key;
-              }
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
-        }
-        return typeof fail === 'function' ? fail() : fail;
-      },
-      set: function(k, v) {
-        return new Hash(this._h.set(k, v), this._type, false);
-      },
-      remove: function(k) {
-        return new Hash(this._h.delete(k), this._type, false);
-      },
-      doset: function(k, v) {
-        this._h = this._h.set(k, v);
-        this._iterator = undefined;
-      },
-      doremove: function(k) {
-        this._h = this._h.delete(k);
-        this._iterator = undefined;
-      },
-      size: function() {
-        return this._h.size;
-      },
-      iterateFirst: function() {
-        if (this._h.size == 0)
-          return false;
-        this._iterator = this._h.entries();
-        return this._iterator.next();
-      },
-      iterateNext: function(i) {
-        if (this._iterator == undefined) {
-          return false;
-        }
-        var j = this._iterator.next();
-        if (j.done) {
-          this._iterator = undefined;
-          return false;
-        }
-        return j;
-      },
-      iterateKey: function(i) {
-        return i.value[0];
-      },
-      iterateValue: function(i) {
-        return i.value[1];
-      },
-      iteratePair: function(i) {
-        return Pair.make(i.value[0], i.value[1]);
-      },
-      iterateKeyValue: function(i) {
-        return Values.make(i.value);
-      },
-      union: function(h) {
-        var $__10,
-            $__11;
-        var newH = this._h;
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (h)[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var $__9 = $__3.value,
-                key = ($__10 = $__9[Symbol.iterator](), ($__11 = $__10.next()).done ? void 0 : $__11.value),
-                val = ($__11 = $__10.next()).done ? void 0 : $__11.value;
-            {
-              newH = newH.set(key, val);
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
-        }
-        if (this._mutable) {
-          this._h = newH;
-        } else {
-          return new Hash(newH, this._type, false);
-        }
-      },
-      isSameType: function(h) {
-        return this._type === h._type;
-      },
-      isKeysSubset: function(v) {
-        if (this._h.size > v._h.size) {
-          return false;
-        }
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (this._h.keys())[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var key = $__3.value;
-            {
-              var vv = v._h.get(key);
-              if (vv === undefined) {
-                return false;
-              }
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
-        }
-        return true;
-      },
-      equals: function(v) {
-        var $__10,
-            $__11;
-        if (!check(v)) {
-          return false;
-        }
-        if (this._h.size !== v._h.size || this._type !== v._type || this._mutable !== v._mutable) {
-          return false;
-        }
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (this._h)[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var $__9 = $__3.value,
-                key = ($__10 = $__9[Symbol.iterator](), ($__11 = $__10.next()).done ? void 0 : $__11.value),
-                val = ($__11 = $__10.next()).done ? void 0 : $__11.value;
-            {
-              var vv = v._h.get(key);
-              if (vv === undefined || !isEqual(val, vv)) {
-                return false;
-              }
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
-        }
-        return true;
+    writeToPort(out, itemFn) {
+      out.consume('#hash');
+      if (this._type === 'eq' || this._type === 'eqv') {
+        out.consume(this._type);
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
+      out.consume('(');
+      const n = this._h.size;
+      let i = 0;
+      for (const [k, v] of this._h) {
+        out.consume('(');
+        itemFn(out, k);
+        out.consume(' . ');
+        itemFn(out, v);
+        out.consume(')');
+        if (++i !== n)
+          out.consume(' ');
+      }
+      out.consume(')');
+    }
+    displayNativeString(out) {
+      this.writeToPort(out, displayNativeString);
+    }
+    writeNativeString(out) {
+      this.writeToPort(out, writeNativeString);
+    }
+    toRawString() {
+      return `'${this.toString()}`;
+    }
+    isImmutable() {
+      return !this._mutable;
+    }
+    ref(k, fail) {
+      const result = this._h.get(k);
+      if (result !== undefined) {
+        return result;
+      } else {
+        return typeof fail === 'function' ? fail() : fail;
+      }
+    }
+    hasKey(k) {
+      return this._h.has(k);
+    }
+    refKey(k, fail) {
+      for (const key of this._h.keys()) {
+        if (hashConfigs[this._type].keyEq(key, k)) {
+          return key;
+        }
+      }
+      return typeof fail === 'function' ? fail() : fail;
+    }
+    set(k, v) {
+      return new Hash(this._h.set(k, v), this._type, false);
+    }
+    remove(k) {
+      return new Hash(this._h.delete(k), this._type, false);
+    }
+    doset(k, v) {
+      this._h = this._h.set(k, v);
+      this._iterator = undefined;
+    }
+    doremove(k) {
+      this._h = this._h.delete(k);
+      this._iterator = undefined;
+    }
+    size() {
+      return this._h.size;
+    }
+    iterateFirst() {
+      if (this._h.size == 0)
+        return false;
+      this._iterator = this._h.entries();
+      return this._iterator.next();
+    }
+    iterateNext(i) {
+      if (this._iterator == undefined) {
+        return false;
+      }
+      const j = this._iterator.next();
+      if (j.done) {
+        this._iterator = undefined;
+        return false;
+      }
+      return j;
+    }
+    iterateKey(i) {
+      return i.value[0];
+    }
+    iterateValue(i) {
+      return i.value[1];
+    }
+    iteratePair(i) {
+      return Pair.make(i.value[0], i.value[1]);
+    }
+    iterateKeyValue(i) {
+      return Values.make(i.value);
+    }
+    union(h) {
+      let newH = this._h;
+      for (const [key, val] of h) {
+        newH = newH.set(key, val);
+      }
+      if (this._mutable) {
+        this._h = newH;
+      } else {
+        return new Hash(newH, this._type, false);
+      }
+    }
+    isSameType(h) {
+      return this._type === h._type;
+    }
+    isKeysSubset(v) {
+      if (this._h.size > v._h.size) {
+        return false;
+      }
+      for (const key of this._h.keys()) {
+        const vv = v._h.get(key);
+        if (vv === undefined) {
+          return false;
+        }
+      }
+      return true;
+    }
+    equals(v) {
+      if (!check(v)) {
+        return false;
+      }
+      if (this._h.size !== v._h.size || this._type !== v._type || this._mutable !== v._mutable) {
+        return false;
+      }
+      for (const [key, val] of this._h) {
+        const vv = v._h.get(key);
+        if (vv === undefined || !isEqual(val, vv)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
   function make(items, type, mutable) {
-    var h = items.reduce(function(acc, item) {
-      var $__10,
-          $__11;
-      var $__9 = item,
-          k = ($__10 = $__9[Symbol.iterator](), ($__11 = $__10.next()).done ? void 0 : $__11.value),
-          v = ($__11 = $__10.next()).done ? void 0 : $__11.value;
+    const h = items.reduce((acc, item) => {
+      const [k, v] = item;
       return acc.set(k, v);
     }, $.hamt.make(hashConfigs[type]));
     return new Hash(h, type, mutable);
@@ -2533,8 +2337,8 @@ var $__runtime_47_core_47_hash_46_js__ = (function() {
     return make(items, 'equal', mutable);
   }
   function makeFromAssocs(assocs, type, mutable) {
-    var items = [];
-    Pair.listForEach(assocs, function(item) {
+    const items = [];
+    Pair.listForEach(assocs, (item) => {
       items.push([item.hd, item.tl]);
     });
     return make(items, type, mutable);
@@ -2549,8 +2353,8 @@ var $__runtime_47_core_47_hash_46_js__ = (function() {
     return makeFromAssocs(assocs, 'equal', mutable);
   }
   function map(hash, proc) {
-    var result = Pair.EMPTY;
-    hash._h.forEach(function(value, key) {
+    let result = Pair.EMPTY;
+    hash._h.forEach((value, key) => {
       result = Pair.make(proc(key, value), result);
     });
     return result;
@@ -2609,37 +2413,32 @@ var $__runtime_47_core_47_hash_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_keyword_46_js__ = (function() {
+const $__runtime_47_core_47_keyword_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/keyword.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var internedMake = ($__runtime_47_core_47_lib_46_js__).internedMake;
-  var Keyword = function($__super) {
-    function Keyword(v) {
-      $traceurRuntime.superConstructor(Keyword).call(this);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {internedMake} = $__runtime_47_core_47_lib_46_js__;
+  class Keyword extends PrintablePrimitive {
+    constructor(v) {
+      super();
       this.v = v;
     }
-    return ($traceurRuntime.createClass)(Keyword, {
-      displayNativeString: function(out) {
-        out.consume('#:');
-        out.consume(this.v);
-      },
-      equals: function(v) {
-        return check(v) && this.v === v.v;
-      },
-      lt: function(v) {
-        if (v === this) {
-          return false;
-        } else {
-          return this.v < v.v;
-        }
+    displayNativeString(out) {
+      out.consume('#:');
+      out.consume(this.v);
+    }
+    equals(v) {
+      return check(v) && this.v === v.v;
+    }
+    lt(v) {
+      if (v === this) {
         return false;
+      } else {
+        return this.v < v.v;
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
-  var make = internedMake(function(v) {
-    return new Keyword(v);
-  });
+      return false;
+    }
+  }
+  const make = internedMake((v) => new Keyword(v));
   function check(v) {
     return (v instanceof Keyword);
   }
@@ -2652,105 +2451,63 @@ var $__runtime_47_core_47_keyword_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_numbers_46_js__ = (function() {
+const $__runtime_47_core_47_numbers_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/numbers.js";
-  var racketCoreError = ($__runtime_47_core_47_errors_46_js__).racketCoreError;
-  function add() {
-    for (var operands = [],
-        $__0 = 0; $__0 < arguments.length; $__0++)
-      operands[$__0] = arguments[$__0];
-    return [].reduce.call(operands, function(a, b) {
-      return a + b;
-    }, 0);
+  const {racketCoreError} = $__runtime_47_core_47_errors_46_js__;
+  function add(...operands) {
+    return [].reduce.call(operands, (a, b) => a + b, 0);
   }
-  function sub() {
-    for (var operands = [],
-        $__1 = 0; $__1 < arguments.length; $__1++)
-      operands[$__1] = arguments[$__1];
+  function sub(...operands) {
     if (operands.length === 1) {
       return -operands[0];
     }
-    var result = operands[0];
-    for (var i = 1; i < operands.length; ++i) {
+    let result = operands[0];
+    for (let i = 1; i < operands.length; ++i) {
       result -= operands[i];
     }
     return result;
   }
-  function mul() {
-    for (var operands = [],
-        $__2 = 0; $__2 < arguments.length; $__2++)
-      operands[$__2] = arguments[$__2];
-    return [].reduce.call(operands, function(a, b) {
-      return a * b;
-    }, 1);
+  function mul(...operands) {
+    return [].reduce.call(operands, (a, b) => a * b, 1);
   }
-  function div() {
-    for (var operands = [],
-        $__3 = 0; $__3 < arguments.length; $__3++)
-      operands[$__3] = arguments[$__3];
+  function div(...operands) {
     if (operands.length === 1) {
       return 1 / operands[0];
     }
-    var result = operands[0];
-    for (var i = 1; i < operands.length; ++i) {
+    let result = operands[0];
+    for (let i = 1; i < operands.length; ++i) {
       result /= operands[i];
     }
     return result;
   }
   function compare(cmp, operands) {
     if (operands.length < 1) {
-      throw racketCoreError.apply((void 0), $traceurRuntime.spread(['compare: at least 1 argument required, given'], operands));
+      throw racketCoreError('compare: at least 1 argument required, given', ...operands);
     }
     if (operands.length === 1) {
       return true;
     }
-    for (var i = 1; i < operands.length; i++) {
+    for (let i = 1; i < operands.length; i++) {
       if (!cmp(operands[i - 1], operands[i])) {
         return false;
       }
     }
     return true;
   }
-  function lt() {
-    for (var operands = [],
-        $__4 = 0; $__4 < arguments.length; $__4++)
-      operands[$__4] = arguments[$__4];
-    return compare(function(a, b) {
-      return a < b;
-    }, operands);
+  function lt(...operands) {
+    return compare((a, b) => a < b, operands);
   }
-  function lte() {
-    for (var operands = [],
-        $__5 = 0; $__5 < arguments.length; $__5++)
-      operands[$__5] = arguments[$__5];
-    return compare(function(a, b) {
-      return a <= b;
-    }, operands);
+  function lte(...operands) {
+    return compare((a, b) => a <= b, operands);
   }
-  function gt() {
-    for (var operands = [],
-        $__6 = 0; $__6 < arguments.length; $__6++)
-      operands[$__6] = arguments[$__6];
-    return compare(function(a, b) {
-      return a > b;
-    }, operands);
+  function gt(...operands) {
+    return compare((a, b) => a > b, operands);
   }
-  function gte() {
-    for (var operands = [],
-        $__7 = 0; $__7 < arguments.length; $__7++)
-      operands[$__7] = arguments[$__7];
-    return compare(function(a, b) {
-      return a >= b;
-    }, operands);
+  function gte(...operands) {
+    return compare((a, b) => a >= b, operands);
   }
-  function equals() {
-    for (var operands = [],
-        $__8 = 0; $__8 < arguments.length; $__8++)
-      operands[$__8] = arguments[$__8];
-    return compare(function(a, b) {
-      return a === b;
-    }, operands);
+  function equals(...operands) {
+    return compare((a, b) => a === b, operands);
   }
   function check(v) {
     return typeof v === 'number';
@@ -2791,37 +2548,26 @@ var $__runtime_47_core_47_numbers_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_ports_46_js__ = (function() {
+const $__runtime_47_core_47_ports_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/ports.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var Port = function($__super) {
-    function Port() {
-      $traceurRuntime.superConstructor(Port).apply(this, arguments);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  class Port extends PrintablePrimitive {
+    isOutputPort() {
+      return false;
     }
-    return ($traceurRuntime.createClass)(Port, {
-      isOutputPort: function() {
-        return false;
-      },
-      isInputPort: function() {
-        return false;
-      }
-    }, {}, $__super);
-  }(PrintablePrimitive);
-  var OutputPort = function($__super) {
-    function OutputPort() {
-      $traceurRuntime.superConstructor(OutputPort).apply(this, arguments);
+    isInputPort() {
+      return false;
     }
-    return ($traceurRuntime.createClass)(OutputPort, {
-      isOutputPort: function() {
-        return true;
-      },
-      displayNativeString: function(out) {
-        out.consume(("#<output-port:" + this.name + ">"));
-      }
-    }, {}, $__super);
-  }(Port);
+  }
+  class OutputPort extends Port {
+    isOutputPort() {
+      return true;
+    }
+    displayNativeString(out) {
+      out.consume(`#<output-port:${this.name}>`);
+    }
+  }
   function check(v) {
     return v instanceof Port;
   }
@@ -2831,93 +2577,81 @@ var $__runtime_47_core_47_ports_46_js__ = (function() {
   function isOutputPort(v) {
     return check(v) && v.isOutputPort();
   }
-  var NewlineFlushingOutputPort = function($__super) {
-    function NewlineFlushingOutputPort(consumeFn, name) {
-      $traceurRuntime.superConstructor(NewlineFlushingOutputPort).call(this);
+  class NewlineFlushingOutputPort extends OutputPort {
+    constructor(consumeFn, name) {
+      super();
       this._buffer = [];
       this._consumeFn = consumeFn;
       this.name = name;
     }
-    return ($traceurRuntime.createClass)(NewlineFlushingOutputPort, {
-      consume: function(nativeString) {
-        var lastNewlineIndex = nativeString.lastIndexOf('\n');
-        if (lastNewlineIndex >= 0) {
-          this._buffer.push(nativeString.slice(0, lastNewlineIndex));
-          this._consumeFn(this._buffer.join(''));
-          var restChars = nativeString.slice(lastNewlineIndex + 1);
-          this._buffer = [];
-          if (restChars !== '') {
-            this._buffer.push(restChars);
-          }
-        } else {
-          this._buffer.push(nativeString);
+    consume(nativeString) {
+      const lastNewlineIndex = nativeString.lastIndexOf('\n');
+      if (lastNewlineIndex >= 0) {
+        this._buffer.push(nativeString.slice(0, lastNewlineIndex));
+        this._consumeFn(this._buffer.join(''));
+        const restChars = nativeString.slice(lastNewlineIndex + 1);
+        this._buffer = [];
+        if (restChars !== '') {
+          this._buffer.push(restChars);
         }
-      },
-      isUStringPort: function() {
-        return false;
+      } else {
+        this._buffer.push(nativeString);
       }
-    }, {}, $__super);
-  }(OutputPort);
-  var standardOutputPort = new NewlineFlushingOutputPort(function(str) {
-    return console.log(str);
-  }, 'stdout');
-  var standardErrorPort = new NewlineFlushingOutputPort(function(str) {
-    return console.log(str);
-  }, 'stderr');
-  var NativeOutputStringPort = function($__super) {
-    function NativeOutputStringPort() {
-      $traceurRuntime.superConstructor(NativeOutputStringPort).call(this);
+    }
+    isUStringPort() {
+      return false;
+    }
+  }
+  const standardOutputPort = new NewlineFlushingOutputPort((str) => console.log(str), 'stdout');
+  const standardErrorPort = new NewlineFlushingOutputPort((str) => console.log(str), 'stderr');
+  class NativeOutputStringPort extends OutputPort {
+    constructor() {
+      super();
       this._buffer = [];
     }
-    return ($traceurRuntime.createClass)(NativeOutputStringPort, {
-      consume: function(s) {
-        this._buffer.push(s);
-      },
-      getOutputString: function() {
-        var $__5;
-        if (this._buffer.length === 0) {
-          return '';
-        }
-        if (this._buffer.length > 1) {
-          this._buffer = [($__5 = '').concat.apply($__5, $traceurRuntime.spread(this._buffer))];
-        }
-        return this._buffer[0];
-      },
-      get name() {
-        return 'js-string';
-      },
-      isUStringPort: function() {
-        return false;
+    consume(s) {
+      this._buffer.push(s);
+    }
+    getOutputString() {
+      if (this._buffer.length === 0) {
+        return '';
       }
-    }, {}, $__super);
-  }(OutputPort);
-  var OutputStringPort = function($__super) {
-    function OutputStringPort() {
-      $traceurRuntime.superConstructor(OutputStringPort).call(this);
+      if (this._buffer.length > 1) {
+        this._buffer = [''.concat(...this._buffer)];
+      }
+      return this._buffer[0];
+    }
+    get name() {
+      return 'js-string';
+    }
+    isUStringPort() {
+      return false;
+    }
+  }
+  class OutputStringPort extends OutputPort {
+    constructor() {
+      super();
       this._buffer = [];
     }
-    return ($traceurRuntime.createClass)(OutputStringPort, {
-      consume: function(s) {
-        this._buffer.push(s);
-      },
-      getOutputString: function() {
-        var $__5;
-        if (this._buffer.length === 0) {
-          return UString.makeMutable('');
-        }
-        if (this._buffer.length > 1) {
-          this._buffer = [($__5 = UString).stringAppend.apply($__5, $traceurRuntime.spread(this._buffer))];
-        }
-        return UString.copyAsMutable(this._buffer[0]);
-      },
-      get name() {
-        return 'string';
-      },
-      isUStringPort: function() {
-        return true;
+    consume(s) {
+      this._buffer.push(s);
+    }
+    getOutputString() {
+      if (this._buffer.length === 0) {
+        return UString.makeMutable('');
       }
-    }, {}, $__super);
-  }(OutputPort);
+      if (this._buffer.length > 1) {
+        this._buffer = [UString.stringAppend(...this._buffer)];
+      }
+      return UString.copyAsMutable(this._buffer[0]);
+    }
+    get name() {
+      return 'string';
+    }
+    isUStringPort() {
+      return true;
+    }
+  }
   function openOutputString() {
     return new OutputStringPort();
   }
@@ -2951,32 +2685,25 @@ var $__runtime_47_core_47_ports_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_check_46_js__ = (function() {
+const $__runtime_47_core_47_check_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/check.js";
-  function raise(exp) {
-    for (var args = [],
-        $__0 = 1; $__0 < arguments.length; $__0++)
-      args[$__0 - 1] = arguments[$__0];
+  function raise(exp, ...args) {
     throw exp.apply(this, args);
   }
-  function truthy(val, exp) {
-    var msg = arguments[2] !== (void 0) ? arguments[2] : '';
+  function truthy(val, exp, msg = '') {
     if (val !== true) {
       raise(exp, msg);
     }
     return true;
   }
-  function falsy(val, exp) {
-    var msg = arguments[2] !== (void 0) ? arguments[2] : '';
+  function falsy(val, exp, msg = '') {
     return truthy(val === false, exp, msg);
   }
-  function type(val, type) {
-    var msg = arguments[2] !== (void 0) ? arguments[2] : '';
+  function type(val, type, msg = '') {
     if (val instanceof type) {
       return true;
     }
-    raise(TypeError, (msg + "(" + val + " : " + $traceurRuntime.typeof((val)) + " != " + type.name + ")"));
+    raise(TypeError, `${msg}(${val} : ${typeof(val)} != ${type.name})`);
   }
   function eq(val1, val2, exp, msg) {
     if (val1 !== val2) {
@@ -3002,33 +2729,30 @@ var $__runtime_47_core_47_check_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_struct_46_js__ = (function() {
+const $__runtime_47_core_47_struct_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/struct.js";
-  var C = $__runtime_47_core_47_check_46_js__;
-  var $ = $__runtime_47_core_47_lib_46_js__;
-  var racketCoreError = ($__runtime_47_core_47_errors_46_js__).racketCoreError;
-  var Pair = $__runtime_47_core_47_pair_46_js__;
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var $__15 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__15.displayNativeString,
-      writeNativeString = $__15.writeNativeString,
-      printNativeString = $__15.printNativeString;
-  var isEqual = ($__runtime_47_core_47_equality_46_js__).isEqual;
-  var hashArray = ($__runtime_47_core_47_raw_95_hashing_46_js__).hashArray;
-  var hashForEqual = ($__runtime_47_core_47_hashing_46_js__).hashForEqual;
-  var Values = $__runtime_47_core_47_values_46_js__;
-  var Struct = function($__super) {
-    function Struct(desc, fields) {
-      var callerName = arguments[2] !== (void 0) ? arguments[2] : false;
-      $traceurRuntime.superConstructor(Struct).call(this);
+  const C = $__runtime_47_core_47_check_46_js__;
+  const $ = $__runtime_47_core_47_lib_46_js__;
+  const {racketCoreError} = $__runtime_47_core_47_errors_46_js__;
+  const Pair = $__runtime_47_core_47_pair_46_js__;
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString,
+    printNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {isEqual} = $__runtime_47_core_47_equality_46_js__;
+  const {hashArray} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  const {hashForEqual} = $__runtime_47_core_47_hashing_46_js__;
+  const Values = $__runtime_47_core_47_values_46_js__;
+  class Struct extends PrintablePrimitive {
+    constructor(desc, fields, callerName = false) {
+      super();
       this._desc = desc;
       C.eq(fields.length, this._desc._totalInitFields, racketCoreError, 'arity mismatch');
-      var guardLambda = this._desc._options.guard;
-      var finalCallerName = callerName || this._desc._options.constructorName || this._desc._options.name;
+      const guardLambda = this._desc._options.guard;
+      const finalCallerName = callerName || this._desc._options.constructorName || this._desc._options.name;
       if (guardLambda) {
-        var guardFields = fields.concat(finalCallerName);
-        var new_fields = guardLambda.apply((void 0), $traceurRuntime.spread(guardFields));
+        const guardFields = fields.concat(finalCallerName);
+        let new_fields = guardLambda(...guardFields);
         if (Values.check(new_fields)) {
           fields = new_fields.getAll();
         } else {
@@ -3036,169 +2760,101 @@ var $__runtime_47_core_47_struct_46_js__ = (function() {
         }
       }
       this._superStructInstance = false;
-      var superType = this._desc.getSuperType();
+      const superType = this._desc.getSuperType();
       if (superType !== false) {
-        var superInitFields = fields.slice(0, superType._totalInitFields);
+        const superInitFields = fields.slice(0, superType._totalInitFields);
         this._fields = fields.slice(superType._totalInitFields);
-        this._superStructInstance = superType.getStructConstructor(finalCallerName).apply((void 0), $traceurRuntime.spread(superInitFields));
+        this._superStructInstance = superType.getStructConstructor(finalCallerName)(...superInitFields);
       } else {
         this._fields = fields;
       }
-      var autoV = this._desc._options.autoV;
-      for (var i = 0; i < this._desc._options.autoFieldCount; i++) {
+      const autoV = this._desc._options.autoV;
+      for (let i = 0; i < this._desc._options.autoFieldCount; i++) {
         this._fields.push(autoV);
       }
     }
-    return ($traceurRuntime.createClass)(Struct, {
-      writeToPort: function(out, itemFn) {
-        if (this._desc._options.inspector) {
-          out.consume('#<');
-          out.consume(this._desc.getName());
-          out.consume('>');
-        } else {
-          out.consume('#(struct:');
-          out.consume(this._desc.getName());
-          var $__8 = true;
-          var $__9 = false;
-          var $__10 = undefined;
-          try {
-            for (var $__6 = void 0,
-                $__5 = (this._fields)[Symbol.iterator](); !($__8 = ($__6 = $__5.next()).done); $__8 = true) {
-              var field = $__6.value;
-              {
-                out.consume(' ');
-                itemFn(out, field);
-              }
-            }
-          } catch ($__11) {
-            $__9 = true;
-            $__10 = $__11;
-          } finally {
-            try {
-              if (!$__8 && $__5.return != null) {
-                $__5.return();
-              }
-            } finally {
-              if ($__9) {
-                throw $__10;
-              }
-            }
-          }
-          out.consume(')');
+    writeToPort(out, itemFn) {
+      if (this._desc._options.inspector) {
+        out.consume('#<');
+        out.consume(this._desc.getName());
+        out.consume('>');
+      } else {
+        out.consume('#(struct:');
+        out.consume(this._desc.getName());
+        for (const field of this._fields) {
+          out.consume(' ');
+          itemFn(out, field);
         }
-      },
-      displayNativeString: function(out) {
-        this.writeToPort(out, displayNativeString);
-      },
-      writeNativeString: function(out) {
-        this.writeToPort(out, writeNativeString);
-      },
-      printNativeString: function(out) {
-        if (this._desc._options.inspector) {
-          this.writeNativeString(out);
-        } else {
-          out.consume('(');
-          out.consume(this._desc.getName());
-          var $__8 = true;
-          var $__9 = false;
-          var $__10 = undefined;
-          try {
-            for (var $__6 = void 0,
-                $__5 = (this._fields)[Symbol.iterator](); !($__8 = ($__6 = $__5.next()).done); $__8 = true) {
-              var field = $__6.value;
-              {
-                out.consume(' ');
-                printNativeString(out, field, true, 0);
-              }
-            }
-          } catch ($__11) {
-            $__9 = true;
-            $__10 = $__11;
-          } finally {
-            try {
-              if (!$__8 && $__5.return != null) {
-                $__5.return();
-              }
-            } finally {
-              if ($__9) {
-                throw $__10;
-              }
-            }
-          }
-          out.consume(')');
+        out.consume(')');
+      }
+    }
+    displayNativeString(out) {
+      this.writeToPort(out, displayNativeString);
+    }
+    writeNativeString(out) {
+      this.writeToPort(out, writeNativeString);
+    }
+    printNativeString(out) {
+      if (this._desc._options.inspector) {
+        this.writeNativeString(out);
+      } else {
+        out.consume('(');
+        out.consume(this._desc.getName());
+        for (const field of this._fields) {
+          out.consume(' ');
+          printNativeString(out, field, true, 0);
         }
-      },
-      equals: function(v) {
-        if (!check(v, this._desc)) {
-          return false;
-        }
-        var p = this._desc._options.props.get(propEqualHash);
-        if (p !== undefined) {
-          var eqhashfn = p.car();
-          return eqhashfn(this, v, null);
-        }
-        if (this._desc._options.inspector) {
-          return this === v;
-        }
-        for (var i = 0; i < this._fields.length; i++) {
-          if (!isEqual(this._fields[i], v._fields[i])) {
-            return false;
-          }
-        }
-        return true;
-      },
-      getField: function(n) {
-        if (n >= this._fields.length) {
-          throw new Error(("TypeError: invalid field at position " + n));
-        }
-        return this._fields[n];
-      },
-      setField: function(n, v) {
-        C.truthy(n < this._fields.length, racketCoreError, 'invalid field at position');
-        C.falsy(this._desc.isFieldImmutable(n), racketCoreError, 'field is immutable');
-        this._fields[n] = v;
-      },
-      _maybeFindSuperInstance: function(targetDesc) {
-        for (var s = this; s !== false; s = s._superStructInstance) {
-          if (s._desc === targetDesc) {
-            return s;
-          }
-        }
+        out.consume(')');
+      }
+    }
+    equals(v) {
+      if (!check(v, this._desc)) {
         return false;
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
-  var StructTypeDescriptor = function($__super) {
-    function StructTypeDescriptor(options) {
-      $traceurRuntime.superConstructor(StructTypeDescriptor).call(this);
+      const p = this._desc._options.props.get(propEqualHash);
+      if (p !== undefined) {
+        const eqhashfn = p.car();
+        return eqhashfn(this, v, null);
+      }
+      if (this._desc._options.inspector) {
+        return this === v;
+      }
+      for (let i = 0; i < this._fields.length; i++) {
+        if (!isEqual(this._fields[i], v._fields[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    getField(n) {
+      if (n >= this._fields.length) {
+        throw new Error(`TypeError: invalid field at position ${n}`);
+      }
+      return this._fields[n];
+    }
+    setField(n, v) {
+      C.truthy(n < this._fields.length, racketCoreError, 'invalid field at position');
+      C.falsy(this._desc.isFieldImmutable(n), racketCoreError, 'field is immutable');
+      this._fields[n] = v;
+    }
+    _maybeFindSuperInstance(targetDesc) {
+      for (let s = this; s !== false; s = s._superStructInstance) {
+        if (s._desc === targetDesc) {
+          return s;
+        }
+      }
+      return false;
+    }
+  }
+  class StructTypeDescriptor extends PrintablePrimitive {
+    constructor(options) {
+      super();
       this._options = options;
-      var props = options.props && Pair.listToArray(options.props);
+      const props = options.props && Pair.listToArray(options.props);
       this._options.props = new Map();
       if (props) {
-        var $__8 = true;
-        var $__9 = false;
-        var $__10 = undefined;
-        try {
-          for (var $__6 = void 0,
-              $__5 = (props)[Symbol.iterator](); !($__8 = ($__6 = $__5.next()).done); $__8 = true) {
-            var prop = $__6.value;
-            {
-              prop.hd.attachToStructTypeDescriptor(this, prop.tl);
-            }
-          }
-        } catch ($__11) {
-          $__9 = true;
-          $__10 = $__11;
-        } finally {
-          try {
-            if (!$__8 && $__5.return != null) {
-              $__5.return();
-            }
-          } finally {
-            if ($__9) {
-              throw $__10;
-            }
-          }
+        for (const prop of props) {
+          prop.hd.attachToStructTypeDescriptor(this, prop.tl);
         }
       }
       this._propProcedure = this._findProperty(propProcedure);
@@ -3207,191 +2863,176 @@ var $__runtime_47_core_47_struct_46_js__ = (function() {
       if (options.superType) {
         this._totalInitFields += options.superType._totalInitFields;
       }
-      var immutables = options.immutables || Pair.EMPTY;
+      const immutables = options.immutables || Pair.EMPTY;
       this._options.immutables = new Set(Pair.listToArray(immutables));
-      this._options.immutables.forEach(function(e) {
+      this._options.immutables.forEach((e) => {
         if (e < 0 || e >= options.initFieldCount) {
           C.raise('invalid index in immutables provided');
         }
       });
     }
-    return ($traceurRuntime.createClass)(StructTypeDescriptor, {
-      displayNativeString: function(out) {
-        out.consume('#<struct-type:');
-        out.consume(this._options.name);
-        out.consume('>');
-      },
-      printNativeString: function(out) {
-        this.writeNativeString(out);
-      },
-      getName: function() {
-        return this._options.name;
-      },
-      getSuperType: function() {
-        return this._options.superType;
-      },
-      getApplicableStructObject: function(structObject, procSpec) {
-        var structfn = function() {
-          for (var args = [],
-              $__12 = 0; $__12 < arguments.length; $__12++)
-            args[$__12] = arguments[$__12];
-          var proc;
-          if (typeof(procSpec) === 'function') {
-            proc = procSpec;
-            args.unshift(structObject);
-          } else if (Number.isInteger(procSpec)) {
-            proc = structObject.getField(procSpec);
-          } else {
-            throw new Error(("ValueError: invalid field at position " + procSpec));
-          }
-          return proc.apply((void 0), $traceurRuntime.spread(args));
-        };
-        structfn.__rjs_struct_object = structObject;
-        return structfn;
-      },
-      maybeStructObject: function(s) {
-        var structObject;
-        if (s instanceof Struct) {
-          return s;
-        } else if (s instanceof Function && (s.__rjs_struct_object instanceof Struct)) {
-          return s.__rjs_struct_object;
+    static make(options) {
+      return Object.freeze(new StructTypeDescriptor(options));
+    }
+    displayNativeString(out) {
+      out.consume('#<struct-type:');
+      out.consume(this._options.name);
+      out.consume('>');
+    }
+    printNativeString(out) {
+      this.writeNativeString(out);
+    }
+    getName() {
+      return this._options.name;
+    }
+    getSuperType() {
+      return this._options.superType;
+    }
+    getApplicableStructObject(structObject, procSpec) {
+      const structfn = function(...args) {
+        let proc;
+        if (typeof(procSpec) === 'function') {
+          proc = procSpec;
+          args.unshift(structObject);
+        } else if (Number.isInteger(procSpec)) {
+          proc = structObject.getField(procSpec);
+        } else {
+          throw new Error(`ValueError: invalid field at position ${procSpec}`);
         }
-        return false;
-      },
-      getStructConstructor: function() {
-        var subtype = arguments[0] !== (void 0) ? arguments[0] : false;
-        var $__4 = this;
-        return $.attachReadOnlyProperty(function() {
-          for (var args = [],
-              $__12 = 0; $__12 < arguments.length; $__12++)
-            args[$__12] = arguments[$__12];
-          var structObject = new Struct($__4, args, subtype);
-          var hasPropProc = $__4._propProcedure !== undefined && $__4._propProcedure !== false;
-          var hasProcSpec = $__4._options.procSpec !== undefined && $__4._options.procSpec !== false;
-          if (!hasPropProc && !hasProcSpec) {
-            return structObject;
-          } else if (hasPropProc) {
-            return $__4.getApplicableStructObject(structObject, $__4._propProcedure);
-          }
-          return $__4.getApplicableStructObject(structObject, $__4._options.procSpec);
-        }, 'racketProcedureType', 'struct-constructor');
-      },
-      getStructPredicate: function() {
-        var $__4 = this;
-        return $.attachReadOnlyProperty(function(s) {
-          var structObject = $__4.maybeStructObject(s);
-          return structObject && structObject._maybeFindSuperInstance($__4) && true;
-        }, 'racketProcedureType', 'struct-predicate');
-      },
-      getStructAccessor: function() {
-        var $__4 = this;
-        return $.attachReadOnlyProperty(function(s, pos) {
-          var structObject = $__4.maybeStructObject(s);
-          if (!structObject) {
-            C.raise(TypeError, ("(" + s + " : " + $traceurRuntime.typeof((s)) + " != " + $__4._options.name + " object)"));
-          }
-          var sobj = structObject._maybeFindSuperInstance($__4);
-          if (sobj === false) {
-            C.raise(racketCoreError, 'accessor applied to invalid type');
-          }
-          return sobj.getField(pos);
-        }, 'racketProcedureType', 'struct-accessor');
-      },
-      getStructMutator: function() {
-        var $__4 = this;
-        return $.attachReadOnlyProperty(function(s, pos, v) {
-          var structObject = $__4.maybeStructObject(s);
-          if (!structObject) {
-            C.raise(TypeError, ("(" + s + " : " + $traceurRuntime.typeof((s)) + " != " + $__4._options.name + " object)"));
-          }
-          var sobj = structObject._maybeFindSuperInstance($__4);
-          if (sobj === false) {
-            C.raise(racketCoreError, 'mutator applied to invalid type');
-          }
-          return sobj.setField(pos, v);
-        }, 'racketProcedureType', 'struct-mutator');
-      },
-      _findProperty: function(prop) {
-        for (var desc = this; desc; desc = desc.getSuperType()) {
-          var val = desc._options.props.get(prop);
-          if (val !== undefined) {
-            return val;
-          }
-        }
-        return undefined;
-      },
-      isFieldImmutable: function(n) {
-        return this._options.immutables.has(n);
+        return proc(...args);
+      };
+      structfn.__rjs_struct_object = structObject;
+      return structfn;
+    }
+    maybeStructObject(s) {
+      let structObject;
+      if (s instanceof Struct) {
+        return s;
+      } else if (s instanceof Function && (s.__rjs_struct_object instanceof Struct)) {
+        return s.__rjs_struct_object;
       }
-    }, {make: function(options) {
-        return Object.freeze(new StructTypeDescriptor(options));
-      }}, $__super);
-  }(PrintablePrimitive);
-  var StructTypeProperty = function($__super) {
-    function StructTypeProperty(args) {
-      $traceurRuntime.superConstructor(StructTypeProperty).call(this);
+      return false;
+    }
+    getStructConstructor(subtype = false) {
+      return $.attachReadOnlyProperty((...args) => {
+        const structObject = new Struct(this, args, subtype);
+        const hasPropProc = this._propProcedure !== undefined && this._propProcedure !== false;
+        const hasProcSpec = this._options.procSpec !== undefined && this._options.procSpec !== false;
+        if (!hasPropProc && !hasProcSpec) {
+          return structObject;
+        } else if (hasPropProc) {
+          return this.getApplicableStructObject(structObject, this._propProcedure);
+        }
+        return this.getApplicableStructObject(structObject, this._options.procSpec);
+      }, 'racketProcedureType', 'struct-constructor');
+    }
+    getStructPredicate() {
+      return $.attachReadOnlyProperty((s) => {
+        const structObject = this.maybeStructObject(s);
+        return structObject && structObject._maybeFindSuperInstance(this) && true;
+      }, 'racketProcedureType', 'struct-predicate');
+    }
+    getStructAccessor() {
+      return $.attachReadOnlyProperty((s, pos) => {
+        const structObject = this.maybeStructObject(s);
+        if (!structObject) {
+          C.raise(TypeError, `(${s} : ${typeof(s)} != ${this._options.name} object)`);
+        }
+        const sobj = structObject._maybeFindSuperInstance(this);
+        if (sobj === false) {
+          C.raise(racketCoreError, 'accessor applied to invalid type');
+        }
+        return sobj.getField(pos);
+      }, 'racketProcedureType', 'struct-accessor');
+    }
+    getStructMutator() {
+      return $.attachReadOnlyProperty((s, pos, v) => {
+        const structObject = this.maybeStructObject(s);
+        if (!structObject) {
+          C.raise(TypeError, `(${s} : ${typeof(s)} != ${this._options.name} object)`);
+        }
+        const sobj = structObject._maybeFindSuperInstance(this);
+        if (sobj === false) {
+          C.raise(racketCoreError, 'mutator applied to invalid type');
+        }
+        return sobj.setField(pos, v);
+      }, 'racketProcedureType', 'struct-mutator');
+    }
+    _findProperty(prop) {
+      for (let desc = this; desc; desc = desc.getSuperType()) {
+        const val = desc._options.props.get(prop);
+        if (val !== undefined) {
+          return val;
+        }
+      }
+      return undefined;
+    }
+    isFieldImmutable(n) {
+      return this._options.immutables.has(n);
+    }
+  }
+  class StructTypeProperty extends PrintablePrimitive {
+    constructor(args) {
+      super();
       this._name = args.name.toString();
       this._guard = args.guard || false;
       this._canImpersonate = args.canImpersonate || false;
       this._supers = (args.supers && Pair.listToArray(args.supers)) || [];
     }
-    return ($traceurRuntime.createClass)(StructTypeProperty, {
-      displayNativeString: function(out) {
-        out.consume('#<struct-type-property:');
-        out.consume(this._name);
-        out.consume('>');
-      },
-      printNativeString: function(out) {
-        this.writeNativeString(out);
-      },
-      getPropertyPredicate: function() {
-        var $__4 = this;
-        return function(v) {
-          if (v instanceof StructTypeDescriptor) {
-            var desc = v;
-          } else if (v instanceof Struct) {
-            var desc = v._desc;
-          } else {
-            return false;
-          }
-          return desc._findProperty($__4) !== undefined;
-        };
-      },
-      getPropertyAccessor: function() {
-        var $__4 = this;
-        return function(v) {
-          if (v instanceof StructTypeDescriptor) {
-            var desc = v;
-          } else if (v instanceof Struct) {
-            var desc = v._desc;
-          } else {
-            C.raise(racketCoreError, 'invalid argument to accessor');
-          }
-          return desc._findProperty($__4) || C.raise(racketCoreError, 'property not in struct');
-        };
-      },
-      attachToStructTypeDescriptor: function(desc, v) {
-        var newV = v;
-        if (this._guard) {
-          newV = this._guard(v, Pair.listFromArray(structTypeInfo(desc)));
+    static make(args) {
+      return Object.freeze(new StructTypeProperty(args));
+    }
+    displayNativeString(out) {
+      out.consume('#<struct-type-property:');
+      out.consume(this._name);
+      out.consume('>');
+    }
+    printNativeString(out) {
+      this.writeNativeString(out);
+    }
+    getPropertyPredicate() {
+      return (v) => {
+        if (v instanceof StructTypeDescriptor) {
+          var desc = v;
+        } else if (v instanceof Struct) {
+          var desc = v._desc;
+        } else {
+          return false;
         }
-        desc._options.props.set(this, newV);
-        this._supers.forEach(function(superEntry) {
-          var prop = superEntry.hd;
-          var proc = superEntry.tl;
-          prop.attachToStructTypeDescriptor(desc, proc(newV));
-        });
+        return desc._findProperty(this) !== undefined;
+      };
+    }
+    getPropertyAccessor() {
+      return (v) => {
+        if (v instanceof StructTypeDescriptor) {
+          var desc = v;
+        } else if (v instanceof Struct) {
+          var desc = v._desc;
+        } else {
+          C.raise(racketCoreError, 'invalid argument to accessor');
+        }
+        return desc._findProperty(this) || C.raise(racketCoreError, 'property not in struct');
+      };
+    }
+    attachToStructTypeDescriptor(desc, v) {
+      let newV = v;
+      if (this._guard) {
+        newV = this._guard(v, Pair.listFromArray(structTypeInfo(desc)));
       }
-    }, {make: function(args) {
-        return Object.freeze(new StructTypeProperty(args));
-      }}, $__super);
-  }(PrintablePrimitive);
+      desc._options.props.set(this, newV);
+      this._supers.forEach((superEntry) => {
+        const prop = superEntry.hd;
+        const proc = superEntry.tl;
+        prop.attachToStructTypeDescriptor(desc, proc(newV));
+      });
+    }
+  }
   function makeStructTypeProperty(options) {
-    var stProp = StructTypeProperty.make(options);
+    const stProp = StructTypeProperty.make(options);
     return Values.make([stProp, stProp.getPropertyPredicate(), stProp.getPropertyAccessor()]);
   }
   function makeStructType(options) {
-    var descriptor = new StructTypeDescriptor(options);
+    const descriptor = new StructTypeDescriptor(options);
     return Values.make([descriptor, descriptor.getStructConstructor(), descriptor.getStructPredicate(), descriptor.getStructAccessor(), descriptor.getStructMutator()]);
   }
   function isStructType(v) {
@@ -3406,8 +3047,8 @@ var $__runtime_47_core_47_struct_46_js__ = (function() {
   function check(v, desc) {
     return isStructInstance(v) && v._desc == desc;
   }
-  var propProcedure = makeStructTypeProperty({name: 'prop:procedure'}).getAt(0);
-  var propEqualHash = makeStructTypeProperty({name: 'prop:equal+hash'}).getAt(0);
+  let propProcedure = makeStructTypeProperty({name: 'prop:procedure'}).getAt(0);
+  let propEqualHash = makeStructTypeProperty({name: 'prop:equal+hash'}).getAt(0);
   return {
     get makeStructTypeProperty() {
       return makeStructTypeProperty;
@@ -3435,46 +3076,39 @@ var $__runtime_47_core_47_struct_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_symbol_46_js__ = (function() {
+const $__runtime_47_core_47_symbol_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/symbol.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var internedMake = ($__runtime_47_core_47_lib_46_js__).internedMake;
-  var Symbol = function($__super) {
-    function Symbol(v) {
-      $traceurRuntime.superConstructor(Symbol).call(this);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {internedMake} = $__runtime_47_core_47_lib_46_js__;
+  class Symbol extends PrintablePrimitive {
+    constructor(v) {
+      super();
       this.v = v;
       this._cachedHashCode = null;
     }
-    return ($traceurRuntime.createClass)(Symbol, {
-      displayNativeString: function(out) {
-        out.consume(this.v);
-      },
-      equals: function(v) {
-        return v === this;
-      },
-      lt: function(v) {
-        if (v === this) {
-          return false;
-        } else {
-          return this.v < v.v;
-        }
+    displayNativeString(out) {
+      out.consume(this.v);
+    }
+    equals(v) {
+      return v === this;
+    }
+    lt(v) {
+      if (v === this) {
         return false;
-      },
-      hashForEqual: function() {
-        if (this._cachedHashCode === null) {
-          this._cachedHashCode = $traceurRuntime.superGet(this, Symbol.prototype, "hashForEqual").call(this);
-        }
-        return this._cachedHashCode;
+      } else {
+        return this.v < v.v;
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
-  var make = internedMake(function(v) {
-    return new Symbol(v.toString());
-  });
-  var makeUninterned = function(v) {
-    return new Symbol(v.toString());
-  };
+      return false;
+    }
+    hashForEqual() {
+      if (this._cachedHashCode === null) {
+        this._cachedHashCode = super.hashForEqual();
+      }
+      return this._cachedHashCode;
+    }
+  }
+  const make = internedMake((v) => new Symbol(v.toString()));
+  const makeUninterned = (v) => new Symbol(v.toString());
   function check(v) {
     return (v instanceof Symbol);
   }
@@ -3490,81 +3124,77 @@ var $__runtime_47_core_47_symbol_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_vector_46_js__ = (function() {
+const $__runtime_47_core_47_vector_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/vector.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var $__2 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__2.displayNativeString,
-      writeNativeString = $__2.writeNativeString;
-  var isEqual = ($__runtime_47_core_47_equality_46_js__).isEqual;
-  var hashArray = ($__runtime_47_core_47_raw_95_hashing_46_js__).hashArray;
-  var hashForEqual = ($__runtime_47_core_47_hashing_46_js__).hashForEqual;
-  var racketCoreError = ($__runtime_47_core_47_errors_46_js__).racketCoreError;
-  var Vector = function($__super) {
-    function Vector(items, mutable) {
-      $traceurRuntime.superConstructor(Vector).call(this);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {isEqual} = $__runtime_47_core_47_equality_46_js__;
+  const {hashArray} = $__runtime_47_core_47_raw_95_hashing_46_js__;
+  const {hashForEqual} = $__runtime_47_core_47_hashing_46_js__;
+  const {racketCoreError} = $__runtime_47_core_47_errors_46_js__;
+  class Vector extends PrintablePrimitive {
+    constructor(items, mutable) {
+      super();
       this.mutable = mutable;
       this.items = items;
     }
-    return ($traceurRuntime.createClass)(Vector, {
-      writeToPort: function(out, itemFn) {
-        var n = this.items.length;
-        out.consume('#(');
-        for (var i = 0; i < n; i++) {
-          itemFn(out, this.items[i]);
-          if (i !== n - 1)
-            out.consume(' ');
-        }
-        out.consume(')');
-      },
-      displayNativeString: function(out) {
-        this.writeToPort(out, displayNativeString);
-      },
-      writeNativeString: function(out) {
-        this.writeToPort(out, writeNativeString);
-      },
-      isImmutable: function() {
-        return !this.mutable;
-      },
-      ref: function(n) {
-        if (n < 0 || n > this.items.length) {
-          throw racketCoreError(("vector-ref: index out of range\n  index: " + n));
-        }
-        return this.items[n];
-      },
-      set: function(n, v) {
-        if (n < 0 || n > this.items.length) {
-          throw racketCoreError(("vector-set: index out of range\n  index: " + n));
-        } else if (!this.mutable) {
-          throw racketCoreError('vector-set: immutable vector\n ', this);
-        }
-        this.items[n] = v;
-      },
-      length: function() {
-        return this.items.length;
-      },
-      equals: function(v) {
-        if (!check(v)) {
-          return false;
-        }
-        var items1 = this.items;
-        var items2 = v.items;
-        if (items1.length != items2.length) {
-          return false;
-        }
-        for (var i = 0; i < items1.length; i++) {
-          if (!isEqual(items1[i], items2[i])) {
-            return false;
-          }
-        }
-        return true;
-      },
-      hashForEqual: function() {
-        return hashArray(this.items, hashForEqual);
+    writeToPort(out, itemFn) {
+      const n = this.items.length;
+      out.consume('#(');
+      for (let i = 0; i < n; i++) {
+        itemFn(out, this.items[i]);
+        if (i !== n - 1)
+          out.consume(' ');
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
+      out.consume(')');
+    }
+    displayNativeString(out) {
+      this.writeToPort(out, displayNativeString);
+    }
+    writeNativeString(out) {
+      this.writeToPort(out, writeNativeString);
+    }
+    isImmutable() {
+      return !this.mutable;
+    }
+    ref(n) {
+      if (n < 0 || n > this.items.length) {
+        throw racketCoreError(`vector-ref: index out of range\n  index: ${n}`);
+      }
+      return this.items[n];
+    }
+    set(n, v) {
+      if (n < 0 || n > this.items.length) {
+        throw racketCoreError(`vector-set: index out of range\n  index: ${n}`);
+      } else if (!this.mutable) {
+        throw racketCoreError('vector-set: immutable vector\n ', this);
+      }
+      this.items[n] = v;
+    }
+    length() {
+      return this.items.length;
+    }
+    equals(v) {
+      if (!check(v)) {
+        return false;
+      }
+      const items1 = this.items;
+      const items2 = v.items;
+      if (items1.length != items2.length) {
+        return false;
+      }
+      for (let i = 0; i < items1.length; i++) {
+        if (!isEqual(items1[i], items2[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    hashForEqual() {
+      return hashArray(this.items, hashForEqual);
+    }
+  }
   function make(items, mutable) {
     return new Vector(items, mutable);
   }
@@ -3572,7 +3202,7 @@ var $__runtime_47_core_47_vector_46_js__ = (function() {
     return new Vector(vec.items, mutable);
   }
   function makeInit(size, init) {
-    var r = new Array(size);
+    const r = new Array(size);
     r.fill(init);
     return new Vector(r, true);
   }
@@ -3594,17 +3224,16 @@ var $__runtime_47_core_47_vector_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_marks_46_js__ = (function() {
+const $__runtime_47_core_47_marks_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/marks.js";
-  var Pair = $__runtime_47_core_47_pair_46_js__;
-  var Symbol = $__runtime_47_core_47_symbol_46_js__;
-  var racketCoreError = ($__runtime_47_core_47_errors_46_js__).racketCoreError;
-  var HASH = ($__runtime_47_core_47_hashing_46_js__).hashForEq;
-  var __frames;
-  var __prompts = new Map();
-  var __async_callback_wrappers = [];
-  var __defaultContinuationPromptTag = makeContinuationPromptTag(Symbol.make('default'));
+  const Pair = $__runtime_47_core_47_pair_46_js__;
+  const Symbol = $__runtime_47_core_47_symbol_46_js__;
+  const {racketCoreError} = $__runtime_47_core_47_errors_46_js__;
+  const {hashForEq: HASH} = $__runtime_47_core_47_hashing_46_js__;
+  let __frames;
+  const __prompts = new Map();
+  const __async_callback_wrappers = [];
+  const __defaultContinuationPromptTag = makeContinuationPromptTag(Symbol.make('default'));
   function init() {
     __frames = Pair.EMPTY;
     savePrompt(__defaultContinuationPromptTag);
@@ -3635,7 +3264,7 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
   AbortCurrentContinuation.prototype = Object.create(Error.prototype);
   AbortCurrentContinuation.prototype.constructor = AbortCurrentContinuation;
   function savePrompt(promptTag) {
-    var promptVal = __prompts.get(promptTag);
+    let promptVal = __prompts.get(promptTag);
     if (promptVal === undefined) {
       promptVal = [];
       __prompts.set(promptTag, promptVal);
@@ -3643,7 +3272,7 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
     promptVal.push(__frames.hd);
   }
   function deleteCurrentPrompt(promptTag) {
-    var promptVal = __prompts.get(promptTag);
+    const promptVal = __prompts.get(promptTag);
     if (promptVal === undefined) {
       throw racketCoreError('No corresponding tag in continuation!');
     }
@@ -3656,7 +3285,7 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
     if (promptTag === undefined) {
       return promptTag;
     }
-    var result = __prompts.get(promptTag);
+    const result = __prompts.get(promptTag);
     return (result && result[result.length - 1]) || undefined;
   }
   function makeContinuationPromptTag(sym) {
@@ -3665,17 +3294,14 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
   function isContinuationPromptTag(tag) {
     return tag instanceof ContinuationPromptTag;
   }
-  function callWithContinuationPrompt(proc, promptTag, handler) {
-    for (var args = [],
-        $__1 = 3; $__1 < arguments.length; $__1++)
-      args[$__1 - 3] = arguments[$__1];
+  function callWithContinuationPrompt(proc, promptTag, handler, ...args) {
     promptTag = promptTag || __defaultContinuationPromptTag;
     try {
       savePrompt(promptTag);
-      return proc.apply((void 0), $traceurRuntime.spread(args));
+      return proc(...args);
     } catch (e) {
       if (e instanceof AbortCurrentContinuation && e.promptTag === promptTag) {
-        return handler.apply((void 0), $traceurRuntime.spread(e.handlerArgs));
+        return handler(...e.handlerArgs);
       }
       throw e;
     } finally {
@@ -3696,17 +3322,17 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
     return __frames;
   }
   function setMark(key, value) {
-    var frame = __frames.hd;
+    const frame = __frames.hd;
     frame[HASH(key)] = value;
   }
   function getContinuationMarks(promptTag) {
     promptTag = promptTag || __defaultContinuationPromptTag;
-    var frames = __frames;
-    var promptFrame = getPromptFrame(promptTag);
+    let frames = __frames;
+    const promptFrame = getPromptFrame(promptTag);
     if (promptFrame === undefined && promptTag !== __defaultContinuationPromptTag) {
       throw racketCoreError('No corresponding tag in continuation!');
     }
-    var result = [];
+    const result = [];
     while (!Pair.isEmpty(frames)) {
       if (frames.hd === promptFrame) {
         break;
@@ -3718,11 +3344,11 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
   }
   function getMarks(framesArr, key, promptTag) {
     promptTag = promptTag || __defaultContinuationPromptTag;
-    var keyHash = HASH(key);
-    var promptFrame = getPromptFrame(promptTag);
-    var result = [];
-    for (var ii = 0; ii < framesArr.length; ++ii) {
-      var fr = framesArr[ii];
+    const keyHash = HASH(key);
+    const promptFrame = getPromptFrame(promptTag);
+    const result = [];
+    for (let ii = 0; ii < framesArr.length; ++ii) {
+      const fr = framesArr[ii];
       if (keyHash in fr) {
         if (fr === promptFrame) {
           break;
@@ -3733,8 +3359,8 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
     return Pair.listFromArray(result);
   }
   function getFirstMark(frames, key, noneV) {
-    var keyHash = HASH(key);
-    return Pair.listFind(frames, function(fr) {
+    const keyHash = HASH(key);
+    return Pair.listFind(frames, (fr) => {
       if (keyHash in fr) {
         return fr[keyHash];
       }
@@ -3742,20 +3368,13 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
   }
   function wrapWithContext(fn) {
     return (function(currentFrames) {
-      var state = {};
-      __async_callback_wrappers.forEach(function(w) {
-        return w.onCreate(state);
-      });
-      return function() {
-        for (var args = [],
-            $__2 = 0; $__2 < arguments.length; $__2++)
-          args[$__2] = arguments[$__2];
+      const state = {};
+      __async_callback_wrappers.forEach((w) => w.onCreate(state));
+      return function(...args) {
         init();
-        __async_callback_wrappers.forEach(function(w) {
-          return w.onInvoke(state);
-        });
+        __async_callback_wrappers.forEach((w) => w.onInvoke(state));
         try {
-          return fn.apply((void 0), $traceurRuntime.spread(args));
+          return fn(...args);
         } finally {
           __frames = undefined;
         }
@@ -3810,109 +3429,104 @@ var $__runtime_47_core_47_marks_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_mpair_46_js__ = (function() {
+const $__runtime_47_core_47_mpair_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/mpair.js";
-  var PrintablePrimitive = ($__runtime_47_core_47_printable_95_primitive_46_js__).PrintablePrimitive;
-  var $__2 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__2.displayNativeString,
-      writeNativeString = $__2.writeNativeString;
-  var isEqual = ($__runtime_47_core_47_equality_46_js__).isEqual;
-  var $__4 = $__runtime_47_core_47_pair_46_js__,
-      EMPTY = $__4.EMPTY,
-      isEmpty = $__4.isEmpty,
-      isList = $__4.isList;
-  var MPair = function($__super) {
-    function MPair(hd, tl) {
-      $traceurRuntime.superConstructor(MPair).call(this);
+  const {PrintablePrimitive} = $__runtime_47_core_47_printable_95_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {isEqual} = $__runtime_47_core_47_equality_46_js__;
+  const {EMPTY,
+    isEmpty,
+    isList} = $__runtime_47_core_47_pair_46_js__;
+  class MPair extends PrintablePrimitive {
+    constructor(hd, tl) {
+      super();
       this.hd = hd;
       this.tl = tl;
       this._listLength = isList(tl) ? tl.length + 1 : -1;
       this._cachedHashCode = null;
     }
-    return ($traceurRuntime.createClass)(MPair, {
-      writeToPort: function(out, itemFn) {
-        out.consume('(');
-        var rest = this;
-        while (true) {
-          if (check(rest)) {
-            itemFn(out, rest.hd);
-          } else {
-            out.consume('. ');
-            itemFn(out, rest);
-            break;
-          }
-          rest = rest.tl;
-          if (isEmpty(rest)) {
-            break;
-          } else {
-            out.consume(' ');
-          }
+    writeToPort(out, itemFn) {
+      out.consume('(');
+      let rest = this;
+      while (true) {
+        if (check(rest)) {
+          itemFn(out, rest.hd);
+        } else {
+          out.consume('. ');
+          itemFn(out, rest);
+          break;
         }
-        out.consume(')');
-      },
-      displayNativeString: function(out) {
-        this.writeToPort(out, displayNativeString);
-      },
-      writeNativeString: function(out) {
-        this.writeToPort(out, writeNativeString);
-      },
-      equals: function(v) {
-        if (!check(v) || this.length !== v.length) {
-          return false;
+        rest = rest.tl;
+        if (isEmpty(rest)) {
+          break;
+        } else {
+          out.consume(' ');
         }
-        var hd1 = this.hd;
-        var tl1 = this.tl;
-        var hd2 = v.hd;
-        var tl2 = v.tl;
-        while (true) {
-          if (!isEqual(hd1, hd2)) {
-            return false;
-          }
-          if (!check(tl1) || isEmpty(tl1)) {
-            return isEqual(tl1, tl2);
-          }
-          hd1 = tl1.hd;
-          tl1 = tl1.tl;
-          hd2 = tl2.hd;
-          tl2 = tl2.tl;
-        }
-      },
-      hashForEqual: function() {
-        if (this._cachedHashCode === null) {
-          this._cachedHashCode = $traceurRuntime.superGet(this, MPair.prototype, "hashForEqual").call(this);
-        }
-        return this._cachedHashCode;
-      },
-      car: function() {
-        return this.hd;
-      },
-      cdr: function() {
-        return this.tl;
-      },
-      setCar: function(v) {
-        if (this.hd !== v) {
-          this.hd = v;
-          this._cachedHashCode = null;
-        }
-      },
-      setCdr: function(v) {
-        if (this.tl !== v) {
-          this.tl = v;
-          this._listLength = isList(tl) ? tl.length + 1 : -1;
-          this._cachedHashCode = null;
-        }
-      },
-      get length() {
-        return this._listLength;
-      },
-      isImmutable: function() {
+      }
+      out.consume(')');
+    }
+    displayNativeString(out) {
+      this.writeToPort(out, displayNativeString);
+    }
+    writeNativeString(out) {
+      this.writeToPort(out, writeNativeString);
+    }
+    equals(v) {
+      if (!check(v) || this.length !== v.length) {
         return false;
       }
-    }, {}, $__super);
-  }(PrintablePrimitive);
+      let hd1 = this.hd;
+      let tl1 = this.tl;
+      let hd2 = v.hd;
+      let tl2 = v.tl;
+      while (true) {
+        if (!isEqual(hd1, hd2)) {
+          return false;
+        }
+        if (!check(tl1) || isEmpty(tl1)) {
+          return isEqual(tl1, tl2);
+        }
+        hd1 = tl1.hd;
+        tl1 = tl1.tl;
+        hd2 = tl2.hd;
+        tl2 = tl2.tl;
+      }
+    }
+    hashForEqual() {
+      if (this._cachedHashCode === null) {
+        this._cachedHashCode = super.hashForEqual();
+      }
+      return this._cachedHashCode;
+    }
+    car() {
+      return this.hd;
+    }
+    cdr() {
+      return this.tl;
+    }
+    setCar(v) {
+      if (this.hd !== v) {
+        this.hd = v;
+        this._cachedHashCode = null;
+      }
+    }
+    setCdr(v) {
+      if (this.tl !== v) {
+        this.tl = v;
+        this._listLength = isList(tl) ? tl.length + 1 : -1;
+        this._cachedHashCode = null;
+      }
+    }
+    get length() {
+      return this._listLength;
+    }
+    isImmutable() {
+      return false;
+    }
+  }
   function check(v) {
-    return (typeof v === 'undefined' ? 'undefined' : $traceurRuntime.typeof(v)) === 'object' && v !== null && v.constructor === MPair;
+    return typeof v === 'object' && v !== null && v.constructor === MPair;
   }
   function make(hd, tl) {
     return new MPair(hd, tl);
@@ -3926,19 +3540,16 @@ var $__runtime_47_core_47_mpair_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_47_printing_46_js__ = (function() {
+const $__runtime_47_core_47_printing_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core/printing.js";
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var $__0 = $__runtime_47_core_47_print_95_native_95_string_46_js__,
-      displayNativeString = $__0.displayNativeString,
-      writeNativeString = $__0.writeNativeString,
-      printNativeString = $__0.printNativeString;
-  var $__1 = $__runtime_47_core_47_print_95_ustring_46_js__,
-      displayUString = $__1.displayUString,
-      writeUString = $__1.writeUString,
-      printUString = $__1.printUString;
-  var Ports = $__runtime_47_core_47_ports_46_js__;
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const {displayNativeString,
+    writeNativeString,
+    printNativeString} = $__runtime_47_core_47_print_95_native_95_string_46_js__;
+  const {displayUString,
+    writeUString,
+    printUString} = $__runtime_47_core_47_print_95_ustring_46_js__;
+  const Ports = $__runtime_47_core_47_ports_46_js__;
   function display(out, v) {
     if (out.isUStringPort()) {
       displayUString(out, v);
@@ -3972,33 +3583,25 @@ var $__runtime_47_core_47_printing_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_46_js__ = (function() {
+const $__runtime_47_core_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core.js";
-  var Box = $__runtime_47_core_47_box_46_js__;
-  var Bytes = $__runtime_47_core_47_bytes_46_js__;
-  var Char = $__runtime_47_core_47_char_46_js__;
-  var UString = $__runtime_47_core_47_unicode_95_string_46_js__;
-  var Regexp = $__runtime_47_core_47_regexp_46_js__;
-  var Hash = $__runtime_47_core_47_hash_46_js__;
-  var Keyword = $__runtime_47_core_47_keyword_46_js__;
-  var Number = $__runtime_47_core_47_numbers_46_js__;
-  var Pair = $__runtime_47_core_47_pair_46_js__;
-  var Ports = $__runtime_47_core_47_ports_46_js__;
-  var Primitive = $__runtime_47_core_47_primitive_46_js__;
-  var Struct = $__runtime_47_core_47_struct_46_js__;
-  var Symbol = $__runtime_47_core_47_symbol_46_js__;
-  var Values = $__runtime_47_core_47_values_46_js__;
-  var Vector = $__runtime_47_core_47_vector_46_js__;
-  var Marks = $__runtime_47_core_47_marks_46_js__;
-  var MPair = $__runtime_47_core_47_mpair_46_js__;
-  ;
-  ;
-  ;
-  ;
-  ;
-  ;
-  ;
+  const Box = $__runtime_47_core_47_box_46_js__;
+  const Bytes = $__runtime_47_core_47_bytes_46_js__;
+  const Char = $__runtime_47_core_47_char_46_js__;
+  const UString = $__runtime_47_core_47_unicode_95_string_46_js__;
+  const Regexp = $__runtime_47_core_47_regexp_46_js__;
+  const Hash = $__runtime_47_core_47_hash_46_js__;
+  const Keyword = $__runtime_47_core_47_keyword_46_js__;
+  const Number = $__runtime_47_core_47_numbers_46_js__;
+  const Pair = $__runtime_47_core_47_pair_46_js__;
+  const Ports = $__runtime_47_core_47_ports_46_js__;
+  const Primitive = $__runtime_47_core_47_primitive_46_js__;
+  const Struct = $__runtime_47_core_47_struct_46_js__;
+  const Symbol = $__runtime_47_core_47_symbol_46_js__;
+  const Values = $__runtime_47_core_47_values_46_js__;
+  const Vector = $__runtime_47_core_47_vector_46_js__;
+  const Marks = $__runtime_47_core_47_marks_46_js__;
+  const MPair = $__runtime_47_core_47_mpair_46_js__;
   function bitwiseNot(a) {
     return ~a;
   }
@@ -4122,23 +3725,22 @@ var $__runtime_47_core_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_paramz_46_js__ = (function() {
+const $__runtime_47_paramz_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/paramz.js";
-  var Core = $__runtime_47_core_46_js__;
-  var hamt = ($__runtime_47_core_47_lib_46_js__).hamt;
-  var Marks = Core.Marks;
-  var Box = Core.Box;
-  var ParameterizationKey = {};
-  var ExceptionHandlerKey = {};
-  var __top;
+  const Core = $__runtime_47_core_46_js__;
+  const {hamt} = $__runtime_47_core_47_lib_46_js__;
+  const Marks = Core.Marks;
+  const Box = Core.Box;
+  const ParameterizationKey = {};
+  const ExceptionHandlerKey = {};
+  let __top;
   function getCurrentParameterization() {
     return Marks.getFirstMark(Marks.getFrames(), ParameterizationKey, false);
   }
   function makeParameter(initValue) {
-    var param = function(maybeSetVal) {
-      var current = getCurrentParameterization();
-      var pv = (current && current.get(param, false)) || __top.get(param, false);
+    const param = function(maybeSetVal) {
+      const current = getCurrentParameterization();
+      let pv = (current && current.get(param, false)) || __top.get(param, false);
       if (!pv && maybeSetVal !== undefined) {
         pv = Box.make(initValue);
         __top.set(param, pv);
@@ -4150,93 +3752,38 @@ var $__runtime_47_paramz_46_js__ = (function() {
     };
     return param;
   }
-  function extendParameterization(parameterization) {
-    for (var args = [],
-        $__9 = 1; $__9 < arguments.length; $__9++)
-      args[$__9 - 1] = arguments[$__9];
-    var result = parameterization;
-    for (var i = 0; i < args.length; i += 2) {
+  function extendParameterization(parameterization, ...args) {
+    let result = parameterization;
+    for (let i = 0; i < args.length; i += 2) {
       result = result.set(args[i], Box.make(args[i + 1]));
     }
     return result;
   }
   function copyParameterization(parameterization) {
-    var $__11,
-        $__12;
-    var result = hamt.make();
-    var $__5 = true;
-    var $__6 = false;
-    var $__7 = undefined;
-    try {
-      for (var $__3 = void 0,
-          $__2 = (parameterization)[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-        var $__10 = $__3.value,
-            key = ($__11 = $__10[Symbol.iterator](), ($__12 = $__11.next()).done ? void 0 : $__12.value),
-            val = ($__12 = $__11.next()).done ? void 0 : $__12.value;
-        {
-          result = result.set(key, Box.make(val.get()));
-        }
-      }
-    } catch ($__8) {
-      $__6 = true;
-      $__7 = $__8;
-    } finally {
-      try {
-        if (!$__5 && $__2.return != null) {
-          $__2.return();
-        }
-      } finally {
-        if ($__6) {
-          throw $__7;
-        }
-      }
+    let result = hamt.make();
+    for (const [key, val] of parameterization) {
+      result = result.set(key, Box.make(val.get()));
     }
     return result;
   }
   (function() {
-    var p = getCurrentParameterization();
+    const p = getCurrentParameterization();
     if (p !== false) {
       return;
     }
     Marks.setMark(ParameterizationKey, hamt.make());
     __top = new Map();
     Marks.registerAsynCallbackWrapper({
-      onCreate: function(state) {
-        var $__11,
-            $__12;
-        var paramz = {};
+      onCreate(state) {
+        const paramz = {};
         paramz.top = new Map();
-        var $__5 = true;
-        var $__6 = false;
-        var $__7 = undefined;
-        try {
-          for (var $__3 = void 0,
-              $__2 = (__top)[Symbol.iterator](); !($__5 = ($__3 = $__2.next()).done); $__5 = true) {
-            var $__10 = $__3.value,
-                key = ($__11 = $__10[Symbol.iterator](), ($__12 = $__11.next()).done ? void 0 : $__12.value),
-                val = ($__12 = $__11.next()).done ? void 0 : $__12.value;
-            {
-              paramz.top.set(key, Box.make(val.get()));
-            }
-          }
-        } catch ($__8) {
-          $__6 = true;
-          $__7 = $__8;
-        } finally {
-          try {
-            if (!$__5 && $__2.return != null) {
-              $__2.return();
-            }
-          } finally {
-            if ($__6) {
-              throw $__7;
-            }
-          }
+        for (const [key, val] of __top) {
+          paramz.top.set(key, Box.make(val.get()));
         }
         paramz.bottom = copyParameterization(Marks.getFirstMark(Marks.getFrames(), ParameterizationKey, false));
         state.paramz = paramz;
       },
-      onInvoke: function(state) {
+      onInvoke(state) {
         __top = state.paramz.top;
         Marks.setMark(ParameterizationKey, state.paramz.bottom);
       }
@@ -4263,11 +3810,10 @@ var $__runtime_47_paramz_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_kernel_46_js__ = (function() {
+const $__runtime_47_kernel_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/kernel.js";
-  var Core = $__runtime_47_core_46_js__;
-  var Paramz = $__runtime_47_paramz_46_js__;
+  const Core = $__runtime_47_core_46_js__;
+  const Paramz = $__runtime_47_paramz_46_js__;
   function isImmutable(v) {
     if (Core.Primitive.check(v)) {
       return v.isImmutable();
@@ -4278,24 +3824,18 @@ var $__runtime_47_kernel_46_js__ = (function() {
     }
     throw Core.racketCoreError('isImmutable not implemented for', v);
   }
-  var NO_ARG_FORM_RE = /^~[\s~n%]/;
-  function fprintf(isPrintAsExpression, out, form) {
-    var $__7;
-    for (var args = [],
-        $__0 = 3; $__0 < arguments.length; $__0++)
-      args[$__0 - 3] = arguments[$__0];
-    var regex = /~(?:[aAeEsSvVbBoOxX~n%]|\s+)/g;
-    var formStr = form.toString();
-    var reExecResult;
-    var currentMatchIndex = 0;
-    var prevIndex = 0;
-    var lastMatch = '';
-    var matches = formStr.match(regex);
-    var numExpected = matches ? matches.filter(function(m) {
-      return !NO_ARG_FORM_RE.test(m);
-    }).length : 0;
+  const NO_ARG_FORM_RE = /^~[\s~n%]/;
+  function fprintf(isPrintAsExpression, out, form, ...args) {
+    const regex = /~(?:[aAeEsSvVbBoOxX~n%]|\s+)/g;
+    const formStr = form.toString();
+    let reExecResult;
+    let currentMatchIndex = 0;
+    let prevIndex = 0;
+    let lastMatch = '';
+    const matches = formStr.match(regex);
+    const numExpected = matches ? matches.filter((m) => !NO_ARG_FORM_RE.test(m)).length : 0;
     if (numExpected !== args.length) {
-      throw ($__7 = Core).racketContractError.apply($__7, $traceurRuntime.spread([("fprintf: format string requires " + numExpected + " arguments, ") + ("given " + args.length + "; arguments were:"), out, form], args));
+      throw Core.racketContractError(`fprintf: format string requires ${numExpected} arguments, ` + `given ${args.length}; arguments were:`, out, form, ...args);
     }
     while ((reExecResult = regex.exec(formStr)) !== null) {
       Core.display(out, formStr.slice(prevIndex + lastMatch.length, reExecResult.index));
@@ -4312,7 +3852,7 @@ var $__runtime_47_kernel_46_js__ = (function() {
           Core.display(out, '\n');
           continue;
       }
-      var v = args[currentMatchIndex];
+      const v = args[currentMatchIndex];
       currentMatchIndex += 1;
       switch (lastMatch.charAt(1)) {
         case 'a':
@@ -4351,87 +3891,64 @@ var $__runtime_47_kernel_46_js__ = (function() {
       Core.display(out, formStr.slice(lastMatch.length + prevIndex));
     }
   }
-  function format(form) {
-    for (var args = [],
-        $__1 = 1; $__1 < arguments.length; $__1++)
-      args[$__1 - 1] = arguments[$__1];
-    var strOut = Core.Ports.openOutputString();
-    fprintf.apply((void 0), $traceurRuntime.spread([strOut, form], args));
+  function format(form, ...args) {
+    const strOut = Core.Ports.openOutputString();
+    fprintf(strOut, form, ...args);
     return Core.Ports.getOutputString(strOut);
   }
   function listToString(charsList) {
     return Core.UString.makeMutableFromChars(Core.Pair.listToArray(charsList));
   }
-  function error(firstArg) {
-    var $__7,
-        $__8;
-    for (var rest = [],
-        $__2 = 1; $__2 < arguments.length; $__2++)
-      rest[$__2 - 1] = arguments[$__2];
+  function error(firstArg, ...rest) {
     if (Core.Symbol.check(firstArg)) {
       if (rest.length === 0) {
         throw Core.racketCoreError(firstArg.toString());
       } else {
-        throw ($__7 = Core).racketCoreError.apply($__7, $traceurRuntime.spread([(firstArg.toString() + ":")], rest));
+        throw Core.racketCoreError(`${firstArg.toString()}:`, ...rest);
       }
     } else if (Core.UString.check(firstArg) || typeof firstArg === 'string') {
-      throw ($__8 = Core).racketCoreError.apply($__8, $traceurRuntime.spread([firstArg.toString()], rest));
+      throw Core.racketCoreError(firstArg.toString(), ...rest);
     } else {
       throw Core.racketContractError('error: invalid arguments');
     }
   }
   function doraise(e) {
-    var markset = Core.Marks.getContinuationMarks();
-    var marks = Core.Marks.getMarks(markset, Paramz.ExceptionHandlerKey);
+    const markset = Core.Marks.getContinuationMarks();
+    const marks = Core.Marks.getMarks(markset, Paramz.ExceptionHandlerKey);
     if (marks.length === 0) {
       throw e;
     } else {
       marks.hd(e);
     }
   }
-  function argerror(name, expected) {
-    var $__7;
-    for (var rest = [],
-        $__3 = 2; $__3 < arguments.length; $__3++)
-      rest[$__3 - 2] = arguments[$__3];
+  function argerror(name, expected, ...rest) {
     var theerr;
     if (Core.Symbol.check(name) && (Core.UString.check(expected) || typeof expected === 'string') && rest.length >= 1) {
-      theerr = ($__7 = Core).makeArgumentError.apply($__7, $traceurRuntime.spread([name, expected], rest));
+      theerr = Core.makeArgumentError(name, expected, ...rest);
     } else {
       theerr = Core.racketContractError('raise-argument-error: invalid arguments');
     }
     doraise(theerr);
   }
-  function argserror(name, msg, field) {
-    var $__7;
-    for (var rest = [],
-        $__4 = 3; $__4 < arguments.length; $__4++)
-      rest[$__4 - 3] = arguments[$__4];
+  function argserror(name, msg, field, ...rest) {
     var theerr;
     if (Core.Symbol.check(name) && (Core.UString.check(msg) || typeof msg === 'string') && (Core.UString.check(field) || typeof field === 'string') && rest.length >= 1 && rest.length % 2 === 1) {
-      theerr = ($__7 = Core).makeArgumentsError.apply($__7, $traceurRuntime.spread([name, msg, field], rest));
+      theerr = Core.makeArgumentsError(name, msg, field, ...rest);
     } else {
       theerr = Core.racketContractError('raise-arguments-error: invalid arguments');
     }
     doraise(theerr);
   }
-  function mismatcherror(name, msg) {
-    var $__7;
-    for (var rest = [],
-        $__5 = 2; $__5 < arguments.length; $__5++)
-      rest[$__5 - 2] = arguments[$__5];
+  function mismatcherror(name, msg, ...rest) {
     var theerr;
     if (Core.Symbol.check(name) && (Core.UString.check(msg) || typeof msg === 'string')) {
-      theerr = ($__7 = Core).makeMismatchError.apply($__7, $traceurRuntime.spread([name, msg], rest));
+      theerr = Core.makeMismatchError(name, msg, ...rest);
     } else {
       theerr = Core.racketContractError('error: invalid arguments');
     }
     doraise(theerr);
   }
-  function random() {
-    for (var args = [],
-        $__6 = 0; $__6 < arguments.length; $__6++)
-      args[$__6] = arguments[$__6];
+  function random(...args) {
     switch (args.length) {
       case 0:
         return Math.random();
@@ -4490,12 +4007,12 @@ var $__runtime_47_kernel_46_js__ = (function() {
     return false;
   }
   function sort9(lst, cmp) {
-    var arr = Core.Pair.listToArray(lst);
-    var x2i = new Map();
-    arr.forEach(function(x, i) {
+    const arr = Core.Pair.listToArray(lst);
+    const x2i = new Map();
+    arr.forEach((x, i) => {
       x2i.set(x, i);
     });
-    var srted = arr.sort(function(x, y) {
+    const srted = arr.sort((x, y) => {
       if (cmp(x, y)) {
         return -1;
       } else if (cmp(y, x)) {
@@ -4589,20 +4106,18 @@ var $__runtime_47_kernel_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_lib_46_rkt_46_js__ = (function() {
+const $__runtime_47_lib_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/lib.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var Paramz = $__runtime_47_paramz_46_js__;
-  var Core = $__runtime_47_core_46_js__;
-  var Kernel = $__runtime_47_kernel_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const Paramz = $__runtime_47_paramz_46_js__;
+  const Core = $__runtime_47_core_46_js__;
+  const Kernel = $__runtime_47_kernel_46_js__;
   var Values = Core.Values;
   var Pair = Core.Pair;
   var __rjs_quoted__ = {};
   __rjs_quoted__.Core = Core;
   __rjs_quoted__.Pair = Pair;
   __rjs_quoted__.Kernel = Kernel;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -4624,457 +4139,44 @@ var $__runtime_47_lib_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_unsafe_46_rkt_46_js__ = (function() {
+const $__runtime_47_kernel_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/unsafe.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var Core = $__runtime_47_core_46_js__;
-  var unsafe_fx_plus_ = function(a16, b17) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a16 + b17) | 0;
-  };
-  var unsafe_fx_ = function(a18, b19) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a18 - b19) | 0;
-  };
-  var unsafe_fx_times_ = function(a20, b21) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a20 * b21) | 0;
-  };
-  var unsafe_fxquotient = function(a22, b23) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a22 / b23) | 0;
-  };
-  var unsafe_fxremainder = function(a24, b25) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a24 % b25) | 0;
-  };
-  var unsafe_fxmodulo = function(a26, b27) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var remainder28 = a26 % b27;
-    if ((remainder28 >= 0) !== false) {
-      var if_res7 = remainder28;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M1 = $__runtime_47_lib_46_rkt_46_js__;
+  var equal_p = M1.Core.isEqual;
+  var eqv_p = M1.Core.isEqv;
+  var eq_p = M1.Core.isEq;
+  var values = M1.Core.attachProcedureName(M1.Core.attachProcedureArity(function() {
+    var vals79 = M1.Core.argumentsToArray(arguments);
+    if ((vals79.length === 1) !== false) {
+      var if_res4 = vals79[0];
     } else {
-      var if_res7 = remainder28 + b27;
+      var if_res4 = M1.Values.make(vals79);
     }
-    return Math.floor(if_res7);
-  };
-  var unsafe_fxabs = function(a29) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return Math.abs(a29);
-  };
-  var unsafe_fx_eq_ = function(a30, b31) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return a30 === b31;
-  };
-  var unsafe_fx_lt_ = function(a32, b33) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return a32 < b33;
-  };
-  var unsafe_fx_lt__eq_ = function(a34, b35) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return a34 <= b35;
-  };
-  var unsafe_fx_gt_ = function(a36, b37) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return a36 > b37;
-  };
-  var unsafe_fx_gt__eq_ = function(a38, b39) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return a38 >= b39;
-  };
-  var unsafe_fxmin = function(a40, b41) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if ((a40 < b41) !== false) {
-      var if_res8 = a40;
-    } else {
-      var if_res8 = b41;
-    }
-    return if_res8;
-  };
-  var unsafe_fxmax = function(a42, b43) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if ((a42 > b43) !== false) {
-      var if_res9 = b43;
-    } else {
-      var if_res9 = a42;
-    }
-    return if_res9;
-  };
-  var unsafe_fxrshift = function(a44, b45) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a44 >> b45) | 0;
-  };
-  var unsafe_fxlshift = function(a46, b47) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a46 << b47) | 0;
-  };
-  var unsafe_fxand = function(a48, b49) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a48 && b49) | 0;
-  };
-  var unsafe_fxior = function(a50, b51) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a50 || b51) | 0;
-  };
-  var unsafe_fxxor = function(a52, b53) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return (a52 ^ b53) | 0;
-  };
-  var unsafe_fxnot = Core.bitwiseNot;
-  var unsafe_car = function(v54) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v54.hd;
-  };
-  var unsafe_cdr = function(v55) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v55.tl;
-  };
-  var unsafe_mcar = function(v56) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v56.hd;
-  };
-  var unsafe_mcdr = function(v57) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v57.tl;
-  };
-  var unsafe_set_mcar_bang_ = function(p58, v59) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return p58.setCar(v59);
-  };
-  var unsafe_set_mcdr_bang_ = function(p60, v61) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return p60.setCdr(v61);
-  };
-  var unsafe_cons_list = function(v62, rest63) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return Core.Pair.make(v62, rest63);
-  };
-  var unsafe_struct_ref = function(v64, k65) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v64._fields[k65];
-  };
-  var unsafe_vector_ref = function(v66, k67) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v66.ref(k67);
-  };
-  var unsafe_vector_set_bang_ = function(v68, k69, val70) {
-    if (arguments.length !== 3) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v68.set(k69, val70);
-  };
-  var unsafe_vector_length = function(v71) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return v71.length();
-  };
-  var unsafe_immutable_hash_iterate_first = function(h72) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h72.iterateFirst();
-  };
-  var unsafe_immutable_hash_iterate_next = function(h73, i74) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h73.iterateNext(i74);
-  };
-  var unsafe_immutable_hash_iterate_key = function(h75, i76) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h75.iterateKey(i76);
-  };
-  var unsafe_immutable_hash_iterate_value = function(h77, i78) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h77.iterateValue(i78);
-  };
-  var unsafe_immutable_hash_iterate_key_plus_value = function(h79, i80) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h79.iterateKeyValue(i80);
-  };
-  var unsafe_immutable_hash_iterate_pair = function(h81, i82) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h81.iteratePair(i82);
-  };
-  var unsafe_mutable_hash_iterate_first = function(h83) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h83.iterateFirst();
-  };
-  var unsafe_mutable_hash_iterate_next = function(h84, i85) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h84.iterateNext(i85);
-  };
-  var unsafe_mutable_hash_iterate_key = function(h86, i87) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h86.iterateKey(i87);
-  };
-  var unsafe_mutable_hash_iterate_value = function(h88, i89) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h88.iterateValue(i89);
-  };
-  var unsafe_mutable_hash_iterate_key_plus_value = function(h90, i91) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h90.iterateKeyValue(i91);
-  };
-  var unsafe_mutable_hash_iterate_pair = function(h92, i93) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h92.iteratePair(i93);
-  };
-  var __rjs_quoted__ = {};
-  ;
-  return {
-    get __rjs_quoted__() {
-      return __rjs_quoted__;
-    },
-    get unsafe_fx_plus_() {
-      return unsafe_fx_plus_;
-    },
-    get unsafe_fx_() {
-      return unsafe_fx_;
-    },
-    get unsafe_fx_times_() {
-      return unsafe_fx_times_;
-    },
-    get unsafe_fxquotient() {
-      return unsafe_fxquotient;
-    },
-    get unsafe_fxremainder() {
-      return unsafe_fxremainder;
-    },
-    get unsafe_fxmodulo() {
-      return unsafe_fxmodulo;
-    },
-    get unsafe_fxabs() {
-      return unsafe_fxabs;
-    },
-    get unsafe_fx_eq_() {
-      return unsafe_fx_eq_;
-    },
-    get unsafe_fx_lt_() {
-      return unsafe_fx_lt_;
-    },
-    get unsafe_fx_lt__eq_() {
-      return unsafe_fx_lt__eq_;
-    },
-    get unsafe_fx_gt_() {
-      return unsafe_fx_gt_;
-    },
-    get unsafe_fx_gt__eq_() {
-      return unsafe_fx_gt__eq_;
-    },
-    get unsafe_fxmin() {
-      return unsafe_fxmin;
-    },
-    get unsafe_fxmax() {
-      return unsafe_fxmax;
-    },
-    get unsafe_fxrshift() {
-      return unsafe_fxrshift;
-    },
-    get unsafe_fxlshift() {
-      return unsafe_fxlshift;
-    },
-    get unsafe_fxand() {
-      return unsafe_fxand;
-    },
-    get unsafe_fxior() {
-      return unsafe_fxior;
-    },
-    get unsafe_fxxor() {
-      return unsafe_fxxor;
-    },
-    get unsafe_fxnot() {
-      return unsafe_fxnot;
-    },
-    get unsafe_car() {
-      return unsafe_car;
-    },
-    get unsafe_cdr() {
-      return unsafe_cdr;
-    },
-    get unsafe_mcar() {
-      return unsafe_mcar;
-    },
-    get unsafe_mcdr() {
-      return unsafe_mcdr;
-    },
-    get unsafe_set_mcar_bang_() {
-      return unsafe_set_mcar_bang_;
-    },
-    get unsafe_set_mcdr_bang_() {
-      return unsafe_set_mcdr_bang_;
-    },
-    get unsafe_cons_list() {
-      return unsafe_cons_list;
-    },
-    get unsafe_struct_ref() {
-      return unsafe_struct_ref;
-    },
-    get unsafe_vector_ref() {
-      return unsafe_vector_ref;
-    },
-    get unsafe_vector_set_bang_() {
-      return unsafe_vector_set_bang_;
-    },
-    get unsafe_vector_length() {
-      return unsafe_vector_length;
-    },
-    get unsafe_immutable_hash_iterate_first() {
-      return unsafe_immutable_hash_iterate_first;
-    },
-    get unsafe_immutable_hash_iterate_next() {
-      return unsafe_immutable_hash_iterate_next;
-    },
-    get unsafe_immutable_hash_iterate_key() {
-      return unsafe_immutable_hash_iterate_key;
-    },
-    get unsafe_immutable_hash_iterate_value() {
-      return unsafe_immutable_hash_iterate_value;
-    },
-    get unsafe_immutable_hash_iterate_key_plus_value() {
-      return unsafe_immutable_hash_iterate_key_plus_value;
-    },
-    get unsafe_immutable_hash_iterate_pair() {
-      return unsafe_immutable_hash_iterate_pair;
-    },
-    get unsafe_mutable_hash_iterate_first() {
-      return unsafe_mutable_hash_iterate_first;
-    },
-    get unsafe_mutable_hash_iterate_next() {
-      return unsafe_mutable_hash_iterate_next;
-    },
-    get unsafe_mutable_hash_iterate_key() {
-      return unsafe_mutable_hash_iterate_key;
-    },
-    get unsafe_mutable_hash_iterate_value() {
-      return unsafe_mutable_hash_iterate_value;
-    },
-    get unsafe_mutable_hash_iterate_key_plus_value() {
-      return unsafe_mutable_hash_iterate_key_plus_value;
-    },
-    get unsafe_mutable_hash_iterate_pair() {
-      return unsafe_mutable_hash_iterate_pair;
-    }
-  };
-})();
-var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
-  "use strict";
-  var __moduleName = "runtime/kernel.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_lib_46_rkt_46_js__;
-  var M3 = $__runtime_47_unsafe_46_rkt_46_js__;
-  var equal_p = M0.Core.isEqual;
-  var eqv_p = M0.Core.isEqv;
-  var eq_p = M0.Core.isEq;
-  var values = M0.Core.attachProcedureName(M0.Core.attachProcedureArity(function() {
-    var vals94 = M0.Core.argumentsToArray(arguments);
-    if ((vals94.length === 1) !== false) {
-      var if_res10 = vals94[0];
-    } else {
-      var if_res10 = M0.Values.make(vals94);
-    }
-    return if_res10;
+    return if_res4;
   }, 0), $rjs_core.UString.make("values"));
-  var call_with_values = function(generator95, receiver96) {
+  var call_with_values = function(generator80, receiver81) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var vals97 = generator95();
-    if (M0.Values.check(vals97) !== false) {
-      var if_res12 = receiver96.apply(this, vals97.getAll());
+    var vals82 = generator80();
+    if (M1.Values.check(vals82) !== false) {
+      var if_res6 = receiver81.apply(this, vals82.getAll());
     } else {
-      if (not(eq_p(vals97, undefined) || eq_p(vals97, null)) !== false) {
-        var if_res11 = receiver96.apply(this, [vals97]);
+      if (not(eq_p(vals82, undefined) || eq_p(vals82, null)) !== false) {
+        var if_res5 = receiver81.apply(this, [vals82]);
       } else {
-        var if_res11 = rvoid();
+        var if_res5 = rvoid();
       }
-      var if_res12 = if_res11;
+      var if_res6 = if_res5;
     }
-    return if_res12;
+    return if_res6;
   };
-  var immutable_p = function(v98) {
+  var immutable_p = function(v83) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Kernel.isImmutable(v98);
+    return M1.Kernel.isImmutable(v83);
   };
   var rvoid = function() {
     if (arguments.length !== 0) {
@@ -5082,110 +4184,110 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     } else {}
     return null;
   };
-  var void_p = function(v99) {
+  var void_p = function(v84) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return (v99 === null) || (v99 === undefined);
+    return (v84 === null) || (v84 === undefined);
   };
-  var number_p = M0.Core.Number.check;
-  var real_p = M0.Core.Number.check;
+  var number_p = M1.Core.Number.check;
+  var real_p = M1.Core.Number.check;
   var integer_p = Number.isInteger;
-  var zero_p = function(v100) {
-    if (number_p(v100) !== false) {
+  var zero_p = function(v85) {
+    if (number_p(v85) !== false) {
+      var if_res7 = rvoid();
+    } else {
+      var if_res7 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("zero?"), $rjs_core.UString.make("number?"), v85));
+    }
+    if_res7;
+    return v85 === 0;
+  };
+  var positive_p = function(v86) {
+    if (real_p(v86) !== false) {
+      var if_res8 = rvoid();
+    } else {
+      var if_res8 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("positive?"), $rjs_core.UString.make("real?"), v86));
+    }
+    if_res8;
+    return v86 > 0;
+  };
+  var negative_p = function(v87) {
+    if (real_p(v87) !== false) {
+      var if_res9 = rvoid();
+    } else {
+      var if_res9 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("negative?"), $rjs_core.UString.make("real?"), v87));
+    }
+    if_res9;
+    return v87 < 0;
+  };
+  var add1 = function(v88) {
+    if (number_p(v88) !== false) {
+      var if_res10 = rvoid();
+    } else {
+      var if_res10 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("add1"), $rjs_core.UString.make("number?"), v88));
+    }
+    if_res10;
+    return v88 + 1;
+  };
+  var sub1 = function(v89) {
+    if (number_p(v89) !== false) {
+      var if_res11 = rvoid();
+    } else {
+      var if_res11 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("sub1"), $rjs_core.UString.make("number?"), v89));
+    }
+    if_res11;
+    return v89 - 1;
+  };
+  var quotient = function(dividend90, divisor91) {
+    if (integer_p(dividend90) !== false) {
+      var if_res12 = rvoid();
+    } else {
+      var if_res12 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("quotient"), $rjs_core.UString.make("integer?"), dividend90));
+    }
+    if_res12;
+    if (integer_p(divisor91) !== false) {
       var if_res13 = rvoid();
     } else {
-      var if_res13 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("zero?"), $rjs_core.UString.make("number?"), v100));
+      var if_res13 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("quotient"), $rjs_core.UString.make("integer?"), divisor91));
     }
     if_res13;
-    return v100 === 0;
+    return (dividend90 / divisor91) | 0;
   };
-  var positive_p = function(v101) {
-    if (real_p(v101) !== false) {
+  var even_p = function(v92) {
+    if (integer_p(v92) !== false) {
       var if_res14 = rvoid();
     } else {
-      var if_res14 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("positive?"), $rjs_core.UString.make("real?"), v101));
+      var if_res14 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("even?"), $rjs_core.UString.make("integer?"), v92));
     }
     if_res14;
-    return v101 > 0;
+    return (v92 % 2) === 0;
   };
-  var negative_p = function(v102) {
-    if (real_p(v102) !== false) {
+  var odd_p = function(v93) {
+    if (integer_p(v93) !== false) {
       var if_res15 = rvoid();
     } else {
-      var if_res15 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("negative?"), $rjs_core.UString.make("real?"), v102));
+      var if_res15 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("odd?"), $rjs_core.UString.make("integer?"), v93));
     }
     if_res15;
-    return v102 < 0;
+    return not((v93 % 2) === 0);
   };
-  var add1 = function(v103) {
-    if (number_p(v103) !== false) {
-      var if_res16 = rvoid();
-    } else {
-      var if_res16 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("add1"), $rjs_core.UString.make("number?"), v103));
-    }
-    if_res16;
-    return v103 + 1;
-  };
-  var sub1 = function(v104) {
-    if (number_p(v104) !== false) {
-      var if_res17 = rvoid();
-    } else {
-      var if_res17 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("sub1"), $rjs_core.UString.make("number?"), v104));
-    }
-    if_res17;
-    return v104 - 1;
-  };
-  var quotient = function(dividend105, divisor106) {
-    if (integer_p(dividend105) !== false) {
-      var if_res18 = rvoid();
-    } else {
-      var if_res18 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("quotient"), $rjs_core.UString.make("integer?"), dividend105));
-    }
-    if_res18;
-    if (integer_p(divisor106) !== false) {
-      var if_res19 = rvoid();
-    } else {
-      var if_res19 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("quotient"), $rjs_core.UString.make("integer?"), divisor106));
-    }
-    if_res19;
-    return (dividend105 / divisor106) | 0;
-  };
-  var even_p = function(v107) {
-    if (integer_p(v107) !== false) {
-      var if_res20 = rvoid();
-    } else {
-      var if_res20 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("even?"), $rjs_core.UString.make("integer?"), v107));
-    }
-    if_res20;
-    return (v107 % 2) === 0;
-  };
-  var odd_p = function(v108) {
-    if (integer_p(v108) !== false) {
-      var if_res21 = rvoid();
-    } else {
-      var if_res21 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("odd?"), $rjs_core.UString.make("integer?"), v108));
-    }
-    if_res21;
-    return not((v108 % 2) === 0);
-  };
-  var exact_nonnegative_integer_p = function(v109) {
+  var exact_nonnegative_integer_p = function(v94) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return Number.isInteger(v109) && (v109 >= 0);
+    return Number.isInteger(v94) && (v94 >= 0);
   };
-  var exact_integer_p = function(v110) {
+  var exact_integer_p = function(v95) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return Number.isInteger(v110);
+    return Number.isInteger(v95);
   };
-  var exact_p = function(v111) {
+  var exact_p = function(v96) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return Number.isInteger(v111);
+    return Number.isInteger(v96);
   };
   var single_flonum_available_p = function() {
     if (arguments.length !== 0) {
@@ -5193,786 +4295,831 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     } else {}
     return false;
   };
-  var __times_ = M0.Core.attachProcedureArity(M0.Core.Number.mul, 0);
-  var __by_ = M0.Core.attachProcedureArity(M0.Core.Number.div, 1);
-  var __plus_ = M0.Core.attachProcedureArity(M0.Core.Number.add, 0);
-  var __ = M0.Core.attachProcedureArity(M0.Core.Number.sub, 1);
-  var __lt_ = M0.Core.attachProcedureArity(M0.Core.Number.lt, 1);
-  var __gt_ = M0.Core.attachProcedureArity(M0.Core.Number.gt, 1);
-  var __lt__eq_ = M0.Core.attachProcedureArity(M0.Core.Number.lte, 1);
-  var __gt__eq_ = M0.Core.attachProcedureArity(M0.Core.Number.gte, 1);
-  var __eq_ = M0.Core.attachProcedureArity(M0.Core.Number.equals, 1);
-  var floor = function(v112) {
-    if (real_p(v112) !== false) {
+  var __times_ = M1.Core.attachProcedureArity(M1.Core.Number.mul, 0);
+  var __by_ = M1.Core.attachProcedureArity(M1.Core.Number.div, 1);
+  var __plus_ = M1.Core.attachProcedureArity(M1.Core.Number.add, 0);
+  var __ = M1.Core.attachProcedureArity(M1.Core.Number.sub, 1);
+  var __lt_ = M1.Core.attachProcedureArity(M1.Core.Number.lt, 1);
+  var __gt_ = M1.Core.attachProcedureArity(M1.Core.Number.gt, 1);
+  var __lt__eq_ = M1.Core.attachProcedureArity(M1.Core.Number.lte, 1);
+  var __gt__eq_ = M1.Core.attachProcedureArity(M1.Core.Number.gte, 1);
+  var __eq_ = M1.Core.attachProcedureArity(M1.Core.Number.equals, 1);
+  var floor = function(v97) {
+    if (real_p(v97) !== false) {
+      var if_res16 = rvoid();
+    } else {
+      var if_res16 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("floor"), $rjs_core.UString.make("real?"), v97));
+    }
+    if_res16;
+    return Math.floor(v97);
+  };
+  var abs = function(v98) {
+    if (real_p(v98) !== false) {
+      var if_res17 = rvoid();
+    } else {
+      var if_res17 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("abs"), $rjs_core.UString.make("real?"), v98));
+    }
+    if_res17;
+    return Math.abs(v98);
+  };
+  var sin = function(v99) {
+    if (real_p(v99) !== false) {
+      var if_res18 = rvoid();
+    } else {
+      var if_res18 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("sin"), $rjs_core.UString.make("real?"), v99));
+    }
+    if_res18;
+    return Math.sin(v99);
+  };
+  var cos = function(v100) {
+    if (real_p(v100) !== false) {
+      var if_res19 = rvoid();
+    } else {
+      var if_res19 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("cos"), $rjs_core.UString.make("real?"), v100));
+    }
+    if_res19;
+    return Math.cos(v100);
+  };
+  var tan = function(v101) {
+    if (real_p(v101) !== false) {
+      var if_res20 = rvoid();
+    } else {
+      var if_res20 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("tan"), $rjs_core.UString.make("real?"), v101));
+    }
+    if_res20;
+    return Math.tan(v101);
+  };
+  var atan = function(v102) {
+    if (real_p(v102) !== false) {
+      var if_res21 = rvoid();
+    } else {
+      var if_res21 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("atan"), $rjs_core.UString.make("real?"), v102));
+    }
+    if_res21;
+    return Math.atan(v102);
+  };
+  var ceiling = function(v103) {
+    if (real_p(v103) !== false) {
       var if_res22 = rvoid();
     } else {
-      var if_res22 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("floor"), $rjs_core.UString.make("real?"), v112));
+      var if_res22 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("ceiling"), $rjs_core.UString.make("real?"), v103));
     }
     if_res22;
-    return Math.floor(v112);
+    return Math.ceil(v103);
   };
-  var abs = function(v113) {
-    if (real_p(v113) !== false) {
+  var round = function(v104) {
+    if (real_p(v104) !== false) {
       var if_res23 = rvoid();
     } else {
-      var if_res23 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("abs"), $rjs_core.UString.make("real?"), v113));
+      var if_res23 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("round"), $rjs_core.UString.make("real?"), v104));
     }
     if_res23;
-    return Math.abs(v113);
+    return Math.round(v104);
   };
-  var sin = function(v114) {
-    if (real_p(v114) !== false) {
+  var min = function(a105, b106) {
+    if (real_p(a105) !== false) {
       var if_res24 = rvoid();
     } else {
-      var if_res24 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("sin"), $rjs_core.UString.make("real?"), v114));
+      var if_res24 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("min"), $rjs_core.UString.make("real?"), a105));
     }
     if_res24;
-    return Math.sin(v114);
-  };
-  var cos = function(v115) {
-    if (real_p(v115) !== false) {
+    if (real_p(b106) !== false) {
       var if_res25 = rvoid();
     } else {
-      var if_res25 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("cos"), $rjs_core.UString.make("real?"), v115));
+      var if_res25 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("min"), $rjs_core.UString.make("real?"), b106));
     }
     if_res25;
-    return Math.cos(v115);
+    return Math.min(a105, b106);
   };
-  var tan = function(v116) {
-    if (real_p(v116) !== false) {
+  var max = function(a107, b108) {
+    if (real_p(a107) !== false) {
       var if_res26 = rvoid();
     } else {
-      var if_res26 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("tan"), $rjs_core.UString.make("real?"), v116));
+      var if_res26 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("max"), $rjs_core.UString.make("real?"), a107));
     }
     if_res26;
-    return Math.tan(v116);
-  };
-  var atan = function(v117) {
-    if (real_p(v117) !== false) {
+    if (real_p(b108) !== false) {
       var if_res27 = rvoid();
     } else {
-      var if_res27 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("atan"), $rjs_core.UString.make("real?"), v117));
+      var if_res27 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("max"), $rjs_core.UString.make("real?"), b108));
     }
     if_res27;
-    return Math.atan(v117);
+    return Math.max(a107, b108);
   };
-  var ceiling = function(v118) {
-    if (real_p(v118) !== false) {
+  var log = function(v109) {
+    if (real_p(v109) !== false) {
       var if_res28 = rvoid();
     } else {
-      var if_res28 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("ceiling"), $rjs_core.UString.make("real?"), v118));
+      var if_res28 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("log"), $rjs_core.UString.make("real?"), v109));
     }
     if_res28;
-    return Math.ceil(v118);
+    return Math.log(v109);
   };
-  var round = function(v119) {
-    if (real_p(v119) !== false) {
+  var expt = function(w110, z111) {
+    if (number_p(w110) !== false) {
       var if_res29 = rvoid();
     } else {
-      var if_res29 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("round"), $rjs_core.UString.make("real?"), v119));
+      var if_res29 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("expt"), $rjs_core.UString.make("number?"), w110));
     }
     if_res29;
-    return Math.round(v119);
-  };
-  var min = function(a120, b121) {
-    if (real_p(a120) !== false) {
+    if (number_p(z111) !== false) {
       var if_res30 = rvoid();
     } else {
-      var if_res30 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("min"), $rjs_core.UString.make("real?"), a120));
+      var if_res30 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("expt"), $rjs_core.UString.make("number?"), z111));
     }
     if_res30;
-    if (real_p(b121) !== false) {
+    return Math.pow(w110, z111);
+  };
+  var sqrt = function(v112) {
+    if (number_p(v112) !== false) {
       var if_res31 = rvoid();
     } else {
-      var if_res31 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("min"), $rjs_core.UString.make("real?"), b121));
+      var if_res31 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("sqrt"), $rjs_core.UString.make("number?"), v112));
     }
     if_res31;
-    return Math.min(a120, b121);
+    return Math.sqrt(v112);
   };
-  var max = function(a122, b123) {
-    if (real_p(a122) !== false) {
+  var sqr = function(v113) {
+    if (number_p(v113) !== false) {
       var if_res32 = rvoid();
     } else {
-      var if_res32 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("max"), $rjs_core.UString.make("real?"), a122));
+      var if_res32 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("sqr"), $rjs_core.UString.make("number?"), v113));
     }
     if_res32;
-    if (real_p(b123) !== false) {
+    return __times_(v113, v113);
+  };
+  var remainder = function(a114, b115) {
+    if (integer_p(a114) !== false) {
       var if_res33 = rvoid();
     } else {
-      var if_res33 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("max"), $rjs_core.UString.make("real?"), b123));
+      var if_res33 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("remainder"), $rjs_core.UString.make("integer?"), a114));
     }
     if_res33;
-    return Math.max(a122, b123);
-  };
-  var log = function(v124) {
-    if (real_p(v124) !== false) {
+    if (integer_p(b115) !== false) {
       var if_res34 = rvoid();
     } else {
-      var if_res34 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("log"), $rjs_core.UString.make("real?"), v124));
+      var if_res34 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("remainder"), $rjs_core.UString.make("integer?"), b115));
     }
     if_res34;
-    return Math.log(v124);
+    return a114 % b115;
   };
-  var expt = function(w125, z126) {
-    if (number_p(w125) !== false) {
+  var number__gt_string = function(n116) {
+    if (number_p(n116) !== false) {
       var if_res35 = rvoid();
     } else {
-      var if_res35 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("expt"), $rjs_core.UString.make("number?"), w125));
+      var if_res35 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("number->string"), $rjs_core.UString.make("number?"), n116));
     }
     if_res35;
-    if (number_p(z126) !== false) {
+    return M1.Core.UString.makeMutable(n116.toString());
+  };
+  var arithmetic_shift = function(n117, m118) {
+    if (integer_p(n117) !== false) {
       var if_res36 = rvoid();
     } else {
-      var if_res36 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("expt"), $rjs_core.UString.make("number?"), z126));
+      var if_res36 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("arithmetic-shift"), $rjs_core.UString.make("integer?"), n117));
     }
     if_res36;
-    return Math.pow(w125, z126);
-  };
-  var sqrt = function(v127) {
-    if (number_p(v127) !== false) {
+    if (integer_p(m118) !== false) {
       var if_res37 = rvoid();
     } else {
-      var if_res37 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("sqrt"), $rjs_core.UString.make("number?"), v127));
+      var if_res37 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("arithmetic-shift"), $rjs_core.UString.make("integer?"), m118));
     }
     if_res37;
-    return Math.sqrt(v127);
+    if (negative_p(n117) !== false) {
+      var if_res38 = n117 >> m118;
+    } else {
+      var if_res38 = n117 << m118;
+    }
+    return if_res38;
   };
-  var sqr = function(v128) {
-    if (number_p(v128) !== false) {
-      var if_res38 = rvoid();
-    } else {
-      var if_res38 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("sqr"), $rjs_core.UString.make("number?"), v128));
-    }
-    if_res38;
-    return __times_(v128, v128);
-  };
-  var remainder = function(a129, b130) {
-    if (integer_p(a129) !== false) {
-      var if_res39 = rvoid();
-    } else {
-      var if_res39 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("remainder"), $rjs_core.UString.make("integer?"), a129));
-    }
-    if_res39;
-    if (integer_p(b130) !== false) {
-      var if_res40 = rvoid();
-    } else {
-      var if_res40 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("remainder"), $rjs_core.UString.make("integer?"), b130));
-    }
-    if_res40;
-    return a129 % b130;
-  };
-  var number__gt_string = function(n131) {
-    if (number_p(n131) !== false) {
-      var if_res41 = rvoid();
-    } else {
-      var if_res41 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("number->string"), $rjs_core.UString.make("number?"), n131));
-    }
-    if_res41;
-    return M0.Core.UString.makeMutable(n131.toString());
-  };
-  var arithmetic_shift = function(n132, m133) {
-    if (integer_p(n132) !== false) {
-      var if_res42 = rvoid();
-    } else {
-      var if_res42 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("arithmetic-shift"), $rjs_core.UString.make("integer?"), n132));
-    }
-    if_res42;
-    if (integer_p(m133) !== false) {
-      var if_res43 = rvoid();
-    } else {
-      var if_res43 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("arithmetic-shift"), $rjs_core.UString.make("integer?"), m133));
-    }
-    if_res43;
-    if (negative_p(n132) !== false) {
-      var if_res44 = n132 >> m133;
-    } else {
-      var if_res44 = n132 << m133;
-    }
-    return if_res44;
-  };
-  var inexact__gt_exact = function(x134) {
+  var inexact__gt_exact = function(x119) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return x134;
+    return x119;
   };
-  var exact__gt_inexact = function(x135) {
+  var exact__gt_inexact = function(x120) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return x135;
+    return x120;
   };
-  var not = function(v136) {
+  var not = function(v121) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return equal_p(v136, false) || false;
+    return equal_p(v121, false) || false;
   };
   var rfalse = false;
   var rtrue = true;
-  var false_p = function(v137) {
+  var false_p = function(v122) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return v137 === false;
+    return v122 === false;
   };
-  var boolean_p = function(v138) {
+  var boolean_p = function(v123) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return (v138 === true) || (v138 === false);
+    return (v123 === true) || (v123 === false);
   };
-  var car = function(pair139) {
-    if (pair_p(pair139) !== false) {
-      var if_res45 = rvoid();
+  var car = function(pair124) {
+    if (pair_p(pair124) !== false) {
+      var if_res39 = rvoid();
     } else {
-      var if_res45 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("car"), $rjs_core.UString.make("pair?"), pair139));
+      var if_res39 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("car"), $rjs_core.UString.make("pair?"), pair124));
     }
-    if_res45;
-    return pair139.hd;
+    if_res39;
+    return pair124.hd;
   };
-  var cdr = function(pair140) {
-    if (pair_p(pair140) !== false) {
-      var if_res46 = rvoid();
+  var cdr = function(pair125) {
+    if (pair_p(pair125) !== false) {
+      var if_res40 = rvoid();
     } else {
-      var if_res46 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("cdr"), $rjs_core.UString.make("pair?"), pair140));
+      var if_res40 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("cdr"), $rjs_core.UString.make("pair?"), pair125));
     }
-    if_res46;
-    return pair140.tl;
+    if_res40;
+    return pair125.tl;
   };
-  var cons = M0.Core.attachProcedureName(M0.Core.Pair.make, $rjs_core.UString.make("cons"));
-  var pair_p = M0.Core.attachProcedureName(M0.Core.Pair.check, $rjs_core.UString.make("pair?"));
-  var caar = function(v141) {
-    if ((function(v142) {
+  var cons = M1.Core.attachProcedureName(M1.Core.Pair.make, $rjs_core.UString.make("cons"));
+  var pair_p = M1.Core.attachProcedureName(M1.Core.Pair.check, $rjs_core.UString.make("pair?"));
+  var caar = function(v126) {
+    if ((function(v127) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M0.Core.Pair.check(v142) && pair_p(v142.hd);
-    })(v141) !== false) {
-      var if_res47 = rvoid();
+      return M1.Core.Pair.check(v127) && pair_p(v127.hd);
+    })(v126) !== false) {
+      var if_res41 = rvoid();
     } else {
-      var if_res47 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("caar"), $rjs_core.UString.make("(check/pair-of? pair? #t)"), v141));
+      var if_res41 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("caar"), $rjs_core.UString.make("(check/pair-of? pair? #t)"), v126));
     }
-    if_res47;
-    return v141.hd.hd;
+    if_res41;
+    return v126.hd.hd;
   };
-  var cadr = function(v143) {
-    if ((function(v144) {
+  var cadr = function(v128) {
+    if ((function(v129) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M0.Core.Pair.check(v144) && pair_p(v144.tl);
-    })(v143) !== false) {
-      var if_res48 = rvoid();
+      return M1.Core.Pair.check(v129) && pair_p(v129.tl);
+    })(v128) !== false) {
+      var if_res42 = rvoid();
     } else {
-      var if_res48 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("cadr"), $rjs_core.UString.make("(check/pair-of? #t pair?)"), v143));
+      var if_res42 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("cadr"), $rjs_core.UString.make("(check/pair-of? #t pair?)"), v128));
     }
-    if_res48;
-    return v143.tl.hd;
+    if_res42;
+    return v128.tl.hd;
   };
-  var cdar = function(v145) {
-    if ((function(v146) {
+  var cdar = function(v130) {
+    if ((function(v131) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M0.Core.Pair.check(v146) && pair_p(v146.hd);
-    })(v145) !== false) {
-      var if_res49 = rvoid();
+      return M1.Core.Pair.check(v131) && pair_p(v131.hd);
+    })(v130) !== false) {
+      var if_res43 = rvoid();
     } else {
-      var if_res49 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("cdar"), $rjs_core.UString.make("(check/pair-of? pair? #t)"), v145));
+      var if_res43 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("cdar"), $rjs_core.UString.make("(check/pair-of? pair? #t)"), v130));
     }
-    if_res49;
-    return v145.hd.tl;
+    if_res43;
+    return v130.hd.tl;
   };
-  var cddr = function(v147) {
-    if ((function(v148) {
+  var cddr = function(v132) {
+    if ((function(v133) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M0.Core.Pair.check(v148) && pair_p(v148.tl);
-    })(v147) !== false) {
-      var if_res50 = rvoid();
+      return M1.Core.Pair.check(v133) && pair_p(v133.tl);
+    })(v132) !== false) {
+      var if_res44 = rvoid();
     } else {
-      var if_res50 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("cddr"), $rjs_core.UString.make("(check/pair-of? #t pair?)"), v147));
+      var if_res44 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("cddr"), $rjs_core.UString.make("(check/pair-of? #t pair?)"), v132));
     }
-    if_res50;
-    return v147.tl.tl;
+    if_res44;
+    return v132.tl.tl;
   };
-  var caddr = function(v149) {
-    if ((function(v150) {
+  var caddr = function(v134) {
+    if ((function(v135) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M0.Core.Pair.check(v150) && (function(v151) {
+      return M1.Core.Pair.check(v135) && (function(v136) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        return M0.Core.Pair.check(v151) && pair_p(v151.tl);
-      })(v150.tl);
-    })(v149) !== false) {
-      var if_res51 = rvoid();
+        return M1.Core.Pair.check(v136) && pair_p(v136.tl);
+      })(v135.tl);
+    })(v134) !== false) {
+      var if_res45 = rvoid();
     } else {
-      var if_res51 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("caddr"), $rjs_core.UString.make("(check/pair-of? #t (check/pair-of? #t pair?))"), v149));
+      var if_res45 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("caddr"), $rjs_core.UString.make("(check/pair-of? #t (check/pair-of? #t pair?))"), v134));
     }
-    if_res51;
-    return v149.tl.tl.hd;
+    if_res45;
+    return v134.tl.tl.hd;
   };
-  var rnull = M0.Core.Pair.EMPTY;
-  var list = M0.Core.attachProcedureName(M0.Core.attachProcedureArity(M0.Core.Pair.makeList, 0), $rjs_core.UString.make("list"));
-  var null_p = M0.Core.Pair.isEmpty;
-  var list_p = M0.Core.Pair.isList;
-  var length = function(v152) {
-    if (list_p(v152) !== false) {
-      var if_res52 = rvoid();
+  var rnull = M1.Core.Pair.EMPTY;
+  var list = M1.Core.attachProcedureName(M1.Core.attachProcedureArity(M1.Core.Pair.makeList, 0), $rjs_core.UString.make("list"));
+  var null_p = M1.Core.Pair.isEmpty;
+  var list_p = M1.Core.Pair.isList;
+  var length = function(v137) {
+    if (list_p(v137) !== false) {
+      var if_res46 = rvoid();
     } else {
-      var if_res52 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("length"), $rjs_core.UString.make("list?"), v152));
+      var if_res46 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("length"), $rjs_core.UString.make("list?"), v137));
     }
-    if_res52;
-    return v152.length;
+    if_res46;
+    return v137.length;
   };
-  var reverse = function(lst153) {
-    if (list_p(lst153) !== false) {
-      var if_res53 = rvoid();
+  var reverse = function(lst138) {
+    if (list_p(lst138) !== false) {
+      var if_res47 = rvoid();
     } else {
-      var if_res53 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("reverse"), $rjs_core.UString.make("list?"), lst153));
+      var if_res47 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("reverse"), $rjs_core.UString.make("list?"), lst138));
     }
-    if_res53;
-    var loop154 = function(lst155, result156) {
+    if_res47;
+    var loop139 = function(lst140, result141) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if (null_p(lst155) !== false) {
-        var if_res54 = result156;
+      if (null_p(lst140) !== false) {
+        var if_res48 = result141;
       } else {
-        var if_res54 = loop154(lst155.tl, M0.Core.Pair.make(lst155.hd, result156));
+        var if_res48 = loop139(lst140.tl, M1.Core.Pair.make(lst140.hd, result141));
       }
-      return if_res54;
+      return if_res48;
     };
-    return loop154(lst153, $rjs_core.Pair.makeList());
+    return loop139(lst138, $rjs_core.Pair.makeList());
   };
   var list_times_ = function() {
-    var let_result55 = values();
-    var n_args157 = arguments.length;
-    var top_arguments158 = arguments;
-    var loop159 = function(ii160, result161) {
+    var let_result49 = values();
+    var n_args142 = arguments.length;
+    var top_arguments143 = arguments;
+    var loop144 = function(ii145, result146) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((ii160 === 0) !== false) {
-        var if_res56 = result161;
+      if ((ii145 === 0) !== false) {
+        var if_res50 = result146;
       } else {
-        var next_ii162 = ii160 - 1;
-        var if_res56 = loop159(next_ii162, M0.Core.Pair.make(top_arguments158[next_ii162], result161));
+        var next_ii147 = ii145 - 1;
+        var if_res50 = loop144(next_ii147, M1.Core.Pair.make(top_arguments143[next_ii147], result146));
       }
-      return if_res56;
+      return if_res50;
     };
-    return loop159(n_args157 - 1, arguments[n_args157 - 1]);
+    return loop144(n_args142 - 1, arguments[n_args142 - 1]);
   };
   var append = function() {
-    var let_result57 = values();
-    var result163 = $rjs_core.Pair.makeList();
-    var lsts164 = arguments;
-    var loop165 = function(i166) {
+    var let_result51 = values();
+    var result148 = $rjs_core.Pair.makeList();
+    var lsts149 = arguments;
+    var loop150 = function(i151) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((i166 < lsts164.length) !== false) {
-        var lst167 = lsts164[i166];
-        result163 = foldr(M0.Core.Pair.make, lst167, result163);
-        var if_res58 = loop165(i166 + 1);
+      if ((i151 < lsts149.length) !== false) {
+        var lst152 = lsts149[i151];
+        result148 = foldr(M1.Core.Pair.make, lst152, result148);
+        var if_res52 = loop150(i151 + 1);
       } else {
-        var if_res58 = rvoid();
+        var if_res52 = rvoid();
       }
-      return if_res58;
+      return if_res52;
     };
-    loop165(0);
-    return result163;
+    loop150(0);
+    return result148;
   };
-  var for_each = function(lam168) {
+  var for_each = function(lam153) {
     if ((arguments.length < 1) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res59 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res53 = null;
     } else {
-      var if_res59 = rvoid();
+      var if_res53 = rvoid();
     }
-    if_res59;
-    var let_result60 = values();
-    var lsts169 = Array.prototype.slice.call(arguments, 1);
-    if (procedure_p(lam168) !== false) {
-      var if_res61 = rvoid();
+    if_res53;
+    var let_result54 = values();
+    var lsts154 = Array.prototype.slice.call(arguments, 1);
+    if (procedure_p(lam153) !== false) {
+      var if_res55 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), lam168, $rjs_core.UString.make(", at:"), 0);
-      var if_res61 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), lam153, $rjs_core.UString.make(", at:"), 0);
+      var if_res55 = null;
     }
-    if_res61;
-    map.apply(null, [lam168].concat(lsts169));
+    if_res55;
+    map.apply(null, [lam153].concat(lsts154));
     return null;
   };
-  var mcons = function(hd170, tl171) {
+  var mcons = function(hd155, tl156) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.MPair.make(hd170, tl171);
+    return M1.Core.MPair.make(hd155, tl156);
   };
-  var mpair_p = function(v172) {
+  var mpair_p = function(v157) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.MPair.check(v172);
+    return M1.Core.MPair.check(v157);
   };
-  var mcar = function(p173) {
-    if (mpair_p(p173) !== false) {
-      var if_res62 = rvoid();
+  var mcar = function(p158) {
+    if (mpair_p(p158) !== false) {
+      var if_res56 = rvoid();
     } else {
-      var if_res62 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("mcar"), $rjs_core.UString.make("mpair?"), p173));
+      var if_res56 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("mcar"), $rjs_core.UString.make("mpair?"), p158));
     }
-    if_res62;
-    return p173.car();
+    if_res56;
+    return p158.car();
   };
-  var mcdr = function(p174) {
-    if (mpair_p(p174) !== false) {
-      var if_res63 = rvoid();
+  var mcdr = function(p159) {
+    if (mpair_p(p159) !== false) {
+      var if_res57 = rvoid();
     } else {
-      var if_res63 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("mcdr"), $rjs_core.UString.make("mpair?"), p174));
+      var if_res57 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("mcdr"), $rjs_core.UString.make("mpair?"), p159));
     }
-    if_res63;
-    return p174.cdr();
+    if_res57;
+    return p159.cdr();
   };
-  var set_mcar_bang_ = function(p175, v176) {
+  var set_mcar_bang_ = function(p160, v161) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (mpair_p(p175) !== false) {
-      var if_res64 = rvoid();
+    if (mpair_p(p160) !== false) {
+      var if_res58 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("mpair?"), $rjs_core.UString.make(", given:"), p175, $rjs_core.UString.make(", at:"), 0);
-      var if_res64 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("mpair?"), $rjs_core.UString.make(", given:"), p160, $rjs_core.UString.make(", at:"), 0);
+      var if_res58 = null;
     }
-    if_res64;
-    return p175.setCar(v176);
+    if_res58;
+    return p160.setCar(v161);
   };
-  var set_mcdr_bang_ = function(p177, v178) {
+  var set_mcdr_bang_ = function(p162, v163) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (mpair_p(p177) !== false) {
-      var if_res65 = rvoid();
+    if (mpair_p(p162) !== false) {
+      var if_res59 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("mpair?"), $rjs_core.UString.make(", given:"), p177, $rjs_core.UString.make(", at:"), 0);
-      var if_res65 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("mpair?"), $rjs_core.UString.make(", given:"), p162, $rjs_core.UString.make(", at:"), 0);
+      var if_res59 = null;
     }
-    if_res65;
-    return p177.setCdr(v178);
+    if_res59;
+    return p162.setCdr(v163);
   };
-  var make_struct_type = function(name179, super_type180, init_field_count181, auto_field_count182, auto_v183, props184, inspector185, proc_spec186, immutables187, guard188, constructor_name189) {
-    return M0.Core.Struct.makeStructType({
-      'name': name179.toString(),
-      'superType': super_type180,
-      'initFieldCount': init_field_count181,
-      'autoFieldCount': auto_field_count182,
-      'autoV': auto_v183,
-      'props': props184,
-      'inspector': inspector185,
-      'procSpec': proc_spec186,
-      'immutables': immutables187,
-      'guard': guard188,
-      'constructorName': constructor_name189
+  var make_struct_type = function(name164, super_type165, init_field_count166, auto_field_count167, auto_v168, props169, inspector170, proc_spec171, immutables172, guard173, constructor_name174) {
+    return M1.Core.Struct.makeStructType({
+      'name': name164.toString(),
+      'superType': super_type165,
+      'initFieldCount': init_field_count166,
+      'autoFieldCount': auto_field_count167,
+      'autoV': auto_v168,
+      'props': props169,
+      'inspector': inspector170,
+      'procSpec': proc_spec171,
+      'immutables': immutables172,
+      'guard': guard173,
+      'constructorName': constructor_name174
     });
   };
-  var make_struct_field_accessor = function(ref190, index191, field_name192) {
-    return function(s193) {
+  var make_struct_field_accessor = function(ref175, index176, field_name177) {
+    return function(s178) {
       if ((arguments.length !== 1) !== false) {
-        throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-        var if_res66 = null;
+        throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+        var if_res60 = null;
       } else {
-        var if_res66 = rvoid();
+        var if_res60 = rvoid();
       }
-      if_res66;
-      return ref190(s193, index191);
+      if_res60;
+      return ref175(s178, index176);
     };
   };
-  var make_struct_field_mutator = function(set194, index195, fieldName196) {
-    return function(s197, v198) {
+  var make_struct_field_mutator = function(set179, index180, fieldName181) {
+    return function(s182, v183) {
       if ((arguments.length !== 2) !== false) {
-        throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-        var if_res67 = null;
+        throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+        var if_res61 = null;
       } else {
-        var if_res67 = rvoid();
+        var if_res61 = rvoid();
       }
-      if_res67;
-      return set194(s197, index195, v198);
+      if_res61;
+      return set179(s182, index180, v183);
     };
   };
-  var make_struct_type_property = function(name199, guard200, supers201, can_impersonate_p202) {
-    return M0.Core.Struct.makeStructTypeProperty({
-      'name': name199,
-      'guard': guard200,
-      'supers': supers201,
-      'canImpersonate': can_impersonate_p202
+  var make_struct_type_property = function(name184, guard185, supers186, can_impersonate_p187) {
+    return M1.Core.Struct.makeStructTypeProperty({
+      'name': name184,
+      'guard': guard185,
+      'supers': supers186,
+      'canImpersonate': can_impersonate_p187
     });
   };
-  var check_struct_type = function(name203, what204) {
+  var check_struct_type = function(name188, what189) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (what204 !== false) {
-      if (M0.Core.Struct.isStructType(what204) !== false) {
-        var if_res68 = rvoid();
+    if (what189 !== false) {
+      if (M1.Core.Struct.isStructType(what189) !== false) {
+        var if_res62 = rvoid();
       } else {
-        throw M0.Core.racketCoreError($rjs_core.UString.make("not a struct type"));
-        var if_res68 = null;
+        throw M1.Core.racketCoreError($rjs_core.UString.make("not a struct type"));
+        var if_res62 = null;
       }
-      if_res68;
-      var if_res69 = what204;
+      if_res62;
+      var if_res63 = what189;
     } else {
-      var if_res69 = rvoid();
+      var if_res63 = rvoid();
     }
-    return if_res69;
+    return if_res63;
   };
-  var struct_type_p = function(v205) {
+  var struct_type_p = function(v190) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Struct.isStructType(v205);
+    return M1.Core.Struct.isStructType(v190);
   };
-  var struct_type_info = function(desc206) {
+  var struct_type_info = function(desc191) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Values.make(M0.Core.Struct.structTypeInfo(desc206));
+    return M1.Core.Values.make(M1.Core.Struct.structTypeInfo(desc191));
   };
   var vector = function() {
-    return M0.Core.Vector.make(M0.Core.argumentsToArray(arguments), true);
+    return M1.Core.Vector.make(M1.Core.argumentsToArray(arguments), true);
   };
-  var make_vector = function(size207, v208) {
-    if (integer_p(size207) !== false) {
+  var make_vector = function(size192, v193) {
+    if (integer_p(size192) !== false) {
+      var if_res64 = rvoid();
+    } else {
+      var if_res64 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("make-vector"), $rjs_core.UString.make("integer?"), size192));
+    }
+    if_res64;
+    return M1.Core.Vector.makeInit(size192, v193 || 0);
+  };
+  var vector_p = M1.Core.Vector.check;
+  var vector_length = function(v194) {
+    if (vector_p(v194) !== false) {
+      var if_res65 = rvoid();
+    } else {
+      var if_res65 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector-length"), $rjs_core.UString.make("vector?"), v194));
+    }
+    if_res65;
+    return v194.length();
+  };
+  var vector_ref = function(vec195, i196) {
+    if (vector_p(vec195) !== false) {
+      var if_res66 = rvoid();
+    } else {
+      var if_res66 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector-ref"), $rjs_core.UString.make("vector?"), vec195));
+    }
+    if_res66;
+    if (integer_p(i196) !== false) {
+      var if_res67 = rvoid();
+    } else {
+      var if_res67 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector-ref"), $rjs_core.UString.make("integer?"), i196));
+    }
+    if_res67;
+    return vec195.ref(i196);
+  };
+  var vector_set_bang_ = function(vec197, i198, v199) {
+    if (vector(vec197) !== false) {
+      var if_res68 = rvoid();
+    } else {
+      var if_res68 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector-set!"), $rjs_core.UString.make("vector"), vec197));
+    }
+    if_res68;
+    if (integer_p(i198) !== false) {
+      var if_res69 = rvoid();
+    } else {
+      var if_res69 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector-set!"), $rjs_core.UString.make("integer?"), i198));
+    }
+    if_res69;
+    return vec197.set(i198, v199);
+  };
+  var vector__gt_list = function(vec200) {
+    if (vector_p(vec200) !== false) {
       var if_res70 = rvoid();
     } else {
-      var if_res70 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("make-vector"), $rjs_core.UString.make("integer?"), size207));
+      var if_res70 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector->list"), $rjs_core.UString.make("vector?"), vec200));
     }
     if_res70;
-    return M0.Core.Vector.makeInit(size207, v208 || 0);
+    return M1.Core.Pair.listFromArray(vec200.items);
   };
-  var vector_p = M0.Core.Vector.check;
-  var vector_length = function(v209) {
-    if (vector_p(v209) !== false) {
+  var vector__gt_immutable_vector = function(vec201) {
+    if (vector_p(vec201) !== false) {
       var if_res71 = rvoid();
     } else {
-      var if_res71 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector-length"), $rjs_core.UString.make("vector?"), v209));
+      var if_res71 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("vector->immutable-vector"), $rjs_core.UString.make("vector?"), vec201));
     }
     if_res71;
-    return v209.length();
-  };
-  var vector_ref = function(vec210, i211) {
-    if (vector_p(vec210) !== false) {
-      var if_res72 = rvoid();
-    } else {
-      var if_res72 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector-ref"), $rjs_core.UString.make("vector?"), vec210));
-    }
-    if_res72;
-    if (integer_p(i211) !== false) {
-      var if_res73 = rvoid();
-    } else {
-      var if_res73 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector-ref"), $rjs_core.UString.make("integer?"), i211));
-    }
-    if_res73;
-    return vec210.ref(i211);
-  };
-  var vector_set_bang_ = function(vec212, i213, v214) {
-    if (vector(vec212) !== false) {
-      var if_res74 = rvoid();
-    } else {
-      var if_res74 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector-set!"), $rjs_core.UString.make("vector"), vec212));
-    }
-    if_res74;
-    if (integer_p(i213) !== false) {
-      var if_res75 = rvoid();
-    } else {
-      var if_res75 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector-set!"), $rjs_core.UString.make("integer?"), i213));
-    }
-    if_res75;
-    return vec212.set(i213, v214);
-  };
-  var vector__gt_list = function(vec215) {
-    if (vector_p(vec215) !== false) {
-      var if_res76 = rvoid();
-    } else {
-      var if_res76 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector->list"), $rjs_core.UString.make("vector?"), vec215));
-    }
-    if_res76;
-    return M0.Core.Pair.listFromArray(vec215.items);
-  };
-  var vector__gt_immutable_vector = function(vec216) {
-    if (vector_p(vec216) !== false) {
-      var if_res77 = rvoid();
-    } else {
-      var if_res77 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("vector->immutable-vector"), $rjs_core.UString.make("vector?"), vec216));
-    }
-    if_res77;
-    return M0.Core.Vector.copy(vec216, false);
+    return M1.Core.Vector.copy(vec201, false);
   };
   var hash = function() {
+    var let_result72 = values();
+    var kv_times_202 = arguments;
+    if (((kv_times_202.length % 2) !== 0) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
+      var if_res73 = null;
+    } else {
+      var if_res73 = rvoid();
+    }
+    if_res73;
+    var items203 = [];
+    var loop204 = function(i205) {
+      if (arguments.length !== 1) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if ((i205 < kv_times_202.length) !== false) {
+        items203.push([kv_times_202[i205], kv_times_202[__plus_(i205, 1)]]);
+        var if_res74 = loop204(i205 + 2);
+      } else {
+        var if_res74 = rvoid();
+      }
+      return if_res74;
+    };
+    loop204(0);
+    return M1.Core.Hash.makeEqual(items203, false);
+  };
+  var hasheqv = function() {
+    var let_result75 = values();
+    var kv_times_206 = arguments;
+    if (((kv_times_206.length % 2) !== 0) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
+      var if_res76 = null;
+    } else {
+      var if_res76 = rvoid();
+    }
+    if_res76;
+    var items207 = [];
+    var loop208 = function(i209) {
+      if (arguments.length !== 1) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if ((i209 < kv_times_206.length) !== false) {
+        items207.push([kv_times_206[i209], kv_times_206[__plus_(i209, 1)]]);
+        var if_res77 = loop208(i209 + 2);
+      } else {
+        var if_res77 = rvoid();
+      }
+      return if_res77;
+    };
+    loop208(0);
+    return M1.Core.Hash.makeEqv(items207, false);
+  };
+  var hasheq = function() {
     var let_result78 = values();
-    var kv_times_217 = arguments;
-    if (((kv_times_217.length % 2) !== 0) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
+    var kv_times_210 = arguments;
+    if (((kv_times_210.length % 2) !== 0) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
       var if_res79 = null;
     } else {
       var if_res79 = rvoid();
     }
     if_res79;
-    var items218 = [];
-    var loop219 = function(i220) {
+    var items211 = [];
+    var loop212 = function(i213) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((i220 < kv_times_217.length) !== false) {
-        items218.push([kv_times_217[i220], kv_times_217[__plus_(i220, 1)]]);
-        var if_res80 = loop219(i220 + 2);
+      if ((i213 < kv_times_210.length) !== false) {
+        items211.push([kv_times_210[i213], kv_times_210[__plus_(i213, 1)]]);
+        var if_res80 = loop212(i213 + 2);
       } else {
         var if_res80 = rvoid();
       }
       return if_res80;
     };
-    loop219(0);
-    return M0.Core.Hash.makeEqual(items218, false);
+    loop212(0);
+    return M1.Core.Hash.makeEq(items211, false);
   };
-  var hasheqv = function() {
+  var make_hash = function(assocs214) {
     var let_result81 = values();
-    var kv_times_221 = arguments;
-    if (((kv_times_221.length % 2) !== 0) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
-      var if_res82 = null;
-    } else {
-      var if_res82 = rvoid();
-    }
-    if_res82;
-    var items222 = [];
-    var loop223 = function(i224) {
-      if (arguments.length !== 1) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if ((i224 < kv_times_221.length) !== false) {
-        items222.push([kv_times_221[i224], kv_times_221[__plus_(i224, 1)]]);
-        var if_res83 = loop223(i224 + 2);
-      } else {
-        var if_res83 = rvoid();
-      }
-      return if_res83;
-    };
-    loop223(0);
-    return M0.Core.Hash.makeEqv(items222, false);
+    var assocs_times_215 = assocs214 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqualFromAssocs(assocs_times_215, true);
   };
-  var hasheq = function() {
+  var make_hasheqv = function(assocs216) {
+    var let_result82 = values();
+    var assocs_times_217 = assocs216 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqvFromAssocs(assocs_times_217, true);
+  };
+  var make_hasheq = function(assocs218) {
+    var let_result83 = values();
+    var assocs_times_219 = assocs218 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqFromAssocs(assocs_times_219, true);
+  };
+  var make_immutable_hash = function(assocs220) {
     var let_result84 = values();
-    var kv_times_225 = arguments;
-    if (((kv_times_225.length % 2) !== 0) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("invalid number of arguments"));
-      var if_res85 = null;
-    } else {
-      var if_res85 = rvoid();
-    }
-    if_res85;
-    var items226 = [];
-    var loop227 = function(i228) {
-      if (arguments.length !== 1) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if ((i228 < kv_times_225.length) !== false) {
-        items226.push([kv_times_225[i228], kv_times_225[__plus_(i228, 1)]]);
-        var if_res86 = loop227(i228 + 2);
-      } else {
-        var if_res86 = rvoid();
-      }
-      return if_res86;
-    };
-    loop227(0);
-    return M0.Core.Hash.makeEq(items226, false);
+    var assocs_times_221 = assocs220 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqualFromAssocs(assocs_times_221, false);
   };
-  var make_hash = function(assocs229) {
-    var let_result87 = values();
-    var assocs_times_230 = assocs229 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqualFromAssocs(assocs_times_230, true);
+  var make_immutable_hasheqv = function(assocs222) {
+    var let_result85 = values();
+    var assocs_times_223 = assocs222 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqvFromAssocs(assocs_times_223, false);
   };
-  var make_hasheqv = function(assocs231) {
-    var let_result88 = values();
-    var assocs_times_232 = assocs231 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqvFromAssocs(assocs_times_232, true);
+  var make_immutable_hasheq = function(assocs224) {
+    var let_result86 = values();
+    var assocs_times_225 = assocs224 || $rjs_core.Pair.makeList();
+    return M1.Core.Hash.makeEqFromAssocs(assocs_times_225, false);
   };
-  var make_hasheq = function(assocs233) {
-    var let_result89 = values();
-    var assocs_times_234 = assocs233 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqFromAssocs(assocs_times_234, true);
-  };
-  var make_immutable_hash = function(assocs235) {
-    var let_result90 = values();
-    var assocs_times_236 = assocs235 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqualFromAssocs(assocs_times_236, false);
-  };
-  var make_immutable_hasheqv = function(assocs237) {
-    var let_result91 = values();
-    var assocs_times_238 = assocs237 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqvFromAssocs(assocs_times_238, false);
-  };
-  var make_immutable_hasheq = function(assocs239) {
-    var let_result92 = values();
-    var assocs_times_240 = assocs239 || $rjs_core.Pair.makeList();
-    return M0.Core.Hash.makeEqFromAssocs(assocs_times_240, false);
-  };
-  var hash_p = M0.Core.Hash.check;
-  var hash_equal_p = M0.Core.Hash.isEqualHash;
-  var hash_eqv_p = M0.Core.Hash.isEqvHash;
-  var hash_eq_p = M0.Core.Hash.isEqHash;
-  var hash_weak_p = M0.Core.Hash.isWeakHash;
-  var cl93 = function(h241, k242) {
+  var hash_p = M1.Core.Hash.check;
+  var hash_equal_p = M1.Core.Hash.isEqualHash;
+  var hash_eqv_p = M1.Core.Hash.isEqvHash;
+  var hash_eq_p = M1.Core.Hash.isEqHash;
+  var hash_weak_p = M1.Core.Hash.isWeakHash;
+  var cl87 = function(h226, k227) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (h241.hasKey(k242) !== false) {
-      var if_res96 = h241._h.get(k242);
+    if (h226.hasKey(k227) !== false) {
+      var if_res90 = h226._h.get(k227);
     } else {
-      var if_res96 = raise(M0.Core.makeArgumentsError($rjs_core.UString.make("hash-ref"), $rjs_core.UString.make("no value found for key"), $rjs_core.UString.make("key"), k242));
+      var if_res90 = raise(M1.Core.makeArgumentsError($rjs_core.UString.make("hash-ref"), $rjs_core.UString.make("no value found for key"), $rjs_core.UString.make("key"), k227));
     }
-    return if_res96;
+    return if_res90;
   };
-  var cl94 = function(h243, k244, fail245) {
+  var cl88 = function(h228, k229, fail230) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h243.ref(k244, fail245);
+    return h228.ref(k229, fail230);
   };
   var hash_ref = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam95 = {
-      '2': cl93,
-      '3': cl94
+    var fixed_lam89 = {
+      '2': cl87,
+      '3': cl88
     }[arguments.length];
-    if (fixed_lam95 !== undefined) {
-      return fixed_lam95.apply(null, arguments);
+    if (fixed_lam89 !== undefined) {
+      return fixed_lam89.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [2, 3]);
-  var hash_has_key_p = function(h246, k247) {
-    return h246.hasKey(k247);
+  var hash_has_key_p = function(h231, k232) {
+    return h231.hasKey(k232);
   };
-  var cl97 = function(h248, k249) {
+  var cl91 = function(h233, k234) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (h248.hasKey(k249) !== false) {
-      var if_res100 = h248.refKey(k249);
+    if (h233.hasKey(k234) !== false) {
+      var if_res94 = h233.refKey(k234);
     } else {
-      var if_res100 = raise(M0.Core.makeArgumentsError($rjs_core.UString.make("hash-ref-key"), $rjs_core.UString.make("hash does not contain key"), $rjs_core.UString.make("key"), k249));
+      var if_res94 = raise(M1.Core.makeArgumentsError($rjs_core.UString.make("hash-ref-key"), $rjs_core.UString.make("hash does not contain key"), $rjs_core.UString.make("key"), k234));
     }
-    return if_res100;
+    return if_res94;
   };
-  var cl98 = function(h250, k251, fail252) {
+  var cl92 = function(h235, k236, fail237) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h250.refKey(k251, fail252);
+    return h235.refKey(k236, fail237);
   };
   var hash_ref_key = $rjs_core.attachProcedureArity(function() {
+    var fixed_lam93 = {
+      '2': cl91,
+      '3': cl92
+    }[arguments.length];
+    if (fixed_lam93 !== undefined) {
+      return fixed_lam93.apply(null, arguments);
+    } else {
+      return error($rjs_core.UString.make("case-lambda: invalid case"));
+    }
+  }, [2, 3]);
+  var hash_set = function(h238, k239, v240) {
+    if (arguments.length !== 3) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if (h238.isImmutable() !== false) {
+      var if_res95 = h238.set(k239, v240);
+    } else {
+      var if_res95 = raise(M1.Core.makeArgumentError($rjs_core.UString.make("hash-set"), $rjs_core.UString.make("(and hash? immutable?)"), 0, h238, k239, v240));
+    }
+    return if_res95;
+  };
+  var hash_remove = function(h241, k242) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if (h241.isImmutable() !== false) {
+      var if_res96 = h241.remove(k242);
+    } else {
+      var if_res96 = raise(M1.Core.makeArgumentError($rjs_core.UString.make("hash-remove"), $rjs_core.UString.make("(and/c hash? immutable?)"), 0, h241, k242));
+    }
+    return if_res96;
+  };
+  var cl97 = function(h243, proc244) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return M1.Core.Hash.map(h243, proc244);
+  };
+  var cl98 = function(h245, proc246, try_order_p247) {
+    if (arguments.length !== 3) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return M1.Core.Hash.map(h245, proc246);
+  };
+  var hash_map = $rjs_core.attachProcedureArity(function() {
     var fixed_lam99 = {
       '2': cl97,
       '3': cl98
@@ -5983,1795 +5130,1855 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [2, 3]);
-  var hash_set = function(h253, k254, v255) {
+  var hash_count = function(h248) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h248.size();
+  };
+  var hash_remove_bang_ = function(h249, k250) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if (h249.isImmutable(h249) !== false) {
+      var if_res100 = raise(M1.Core.makeArgumentError($rjs_core.UString.make("hash-remove!"), $rjs_core.UString.make("(and/c hash? (not/c immutable?))"), 0, h249, k250));
+    } else {
+      var if_res100 = h249.doremove(k250);
+    }
+    return if_res100;
+  };
+  var hash_set_bang_ = function(h251, k252, v253) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (h253.isImmutable() !== false) {
-      var if_res101 = h253.set(k254, v255);
+    if (h251.isImmutable(h251) !== false) {
+      var if_res101 = raise(M1.Core.makeArgumentError($rjs_core.UString.make("hash-set!"), $rjs_core.UString.make("(and/c hash? (not/c immutable?))"), 0, h251, k252, v253));
     } else {
-      var if_res101 = raise(M0.Core.makeArgumentError($rjs_core.UString.make("hash-set"), $rjs_core.UString.make("(and hash? immutable?)"), 0, h253, k254, v255));
+      var if_res101 = h251.doset(k252, v253);
     }
     return if_res101;
   };
-  var hash_remove = function(h256, k257) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if (h256.isImmutable() !== false) {
-      var if_res102 = h256.remove(k257);
-    } else {
-      var if_res102 = raise(M0.Core.makeArgumentError($rjs_core.UString.make("hash-remove"), $rjs_core.UString.make("(and/c hash? immutable?)"), 0, h256, k257));
-    }
-    return if_res102;
-  };
-  var cl103 = function(h258, proc259) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return M0.Core.Hash.map(h258, proc259);
-  };
-  var cl104 = function(h260, proc261, try_order_p262) {
-    if (arguments.length !== 3) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return M0.Core.Hash.map(h260, proc261);
-  };
-  var hash_map = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam105 = {
-      '2': cl103,
-      '3': cl104
-    }[arguments.length];
-    if (fixed_lam105 !== undefined) {
-      return fixed_lam105.apply(null, arguments);
-    } else {
-      return error($rjs_core.UString.make("case-lambda: invalid case"));
-    }
-  }, [2, 3]);
-  var hash_count = function(h263) {
+  var hash_iterate_first = function(h254) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h263.size();
+    return h254.iterateFirst();
   };
-  var hash_remove_bang_ = function(h264, k265) {
+  var hash_iterate_next = function(h255, i256) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (h264.isImmutable(h264) !== false) {
-      var if_res106 = raise(M0.Core.makeArgumentError($rjs_core.UString.make("hash-remove!"), $rjs_core.UString.make("(and/c hash? (not/c immutable?))"), 0, h264, k265));
-    } else {
-      var if_res106 = h264.doremove(k265);
-    }
-    return if_res106;
+    return h255.iterateNext(i256);
   };
-  var hash_set_bang_ = function(h266, k267, v268) {
-    if (arguments.length !== 3) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if (h266.isImmutable(h266) !== false) {
-      var if_res107 = raise(M0.Core.makeArgumentError($rjs_core.UString.make("hash-set!"), $rjs_core.UString.make("(and/c hash? (not/c immutable?))"), 0, h266, k267, v268));
-    } else {
-      var if_res107 = h266.doset(k267, v268);
-    }
-    return if_res107;
-  };
-  var hash_iterate_first = function(h269) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return h269.iterateFirst();
-  };
-  var hash_iterate_next = function(h270, i271) {
+  var hash_iterate_key = function(h257, i258) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h270.iterateNext(i271);
+    return h257.iterateKey(i258);
   };
-  var hash_iterate_key = function(h272, i273) {
+  var hash_iterate_value = function(h259, i260) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h272.iterateKey(i273);
+    return h259.iterateValue(i260);
   };
-  var hash_iterate_value = function(h274, i275) {
+  var hash_iterate_key_plus_value = function(h261, i262) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h274.iterateValue(i275);
+    return h261.iterateKeyValue(i262);
   };
-  var hash_iterate_key_plus_value = function(h276, i277) {
+  var hash_iterate_pair = function(h263, i264) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h276.iterateKeyValue(i277);
+    return h263.iteratePair(i264);
   };
-  var hash_iterate_pair = function(h278, i279) {
+  var hash_keys_subset_p = function(h1265, h2266) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h278.iteratePair(i279);
-  };
-  var hash_keys_subset_p = function(h1280, h2281) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if ((M0.Core.Hash.check(h1280) && M0.Core.Hash.check(h2281)) !== false) {
-      if (h1280.isSameType(h2281) !== false) {
-        var if_res108 = h1280.isKeysSubset(h2281);
+    if ((M1.Core.Hash.check(h1265) && M1.Core.Hash.check(h2266)) !== false) {
+      if (h1265.isSameType(h2266) !== false) {
+        var if_res102 = h1265.isKeysSubset(h2266);
       } else {
-        var if_res108 = raise(M0.Core.makeArgumentsError($rjs_core.UString.make("hash-keys-subset?"), $rjs_core.UString.make("given hash tables do not use the same key comparison"), $rjs_core.UString.make("first table"), h1280, $rjs_core.UString.make("second table"), h2281));
+        var if_res102 = raise(M1.Core.makeArgumentsError($rjs_core.UString.make("hash-keys-subset?"), $rjs_core.UString.make("given hash tables do not use the same key comparison"), $rjs_core.UString.make("first table"), h1265, $rjs_core.UString.make("second table"), h2266));
       }
-      var if_res109 = if_res108;
+      var if_res103 = if_res102;
     } else {
-      var if_res109 = false;
+      var if_res103 = false;
     }
-    return if_res109;
+    return if_res103;
   };
-  var hash_union = function(h1282, h2283) {
+  var hash_union = function(h1267, h2268) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return h1282.union(h2283);
+    return h1267.union(h2268);
   };
-  var apply = function(lam284) {
-    var let_result110 = values();
-    var args285 = Array.prototype.slice.call(arguments, 1);
-    if (procedure_p(lam284) !== false) {
-      var if_res111 = rvoid();
+  var apply = function(lam269) {
+    var let_result104 = values();
+    var args270 = Array.prototype.slice.call(arguments, 1);
+    if (procedure_p(lam269) !== false) {
+      var if_res105 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), lam284, $rjs_core.UString.make(", at:"), 0);
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), lam269, $rjs_core.UString.make(", at:"), 0);
+      var if_res105 = null;
+    }
+    if_res105;
+    var let_result106 = values();
+    if (zero_p(args270.length) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res110 = null;
+    } else {
+      if (equal_p(args270.length, 1) !== false) {
+        if (null_p(args270[0]) !== false) {
+          var if_res108 = rvoid();
+        } else {
+          if (M1.Core.Pair.check(args270[0]) !== false) {
+            var if_res107 = rvoid();
+          } else {
+            throw M1.Core.racketContractError($rjs_core.UString.make("expected a"), M1.Core.Pair, $rjs_core.UString.make(", but given"), args270[0]);
+            var if_res107 = null;
+          }
+          var if_res108 = if_res107;
+        }
+        if_res108;
+        var if_res109 = M1.Core.Pair.listToArray(args270[0]);
+      } else {
+        var if_res109 = args270.concat(M1.Core.Pair.listToArray(args270.pop()));
+      }
+      var if_res110 = if_res109;
+    }
+    var final_args271 = if_res110;
+    return lam269.apply(null, final_args271);
+  };
+  var map = function(fn272) {
+    if ((arguments.length < 1) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
       var if_res111 = null;
+    } else {
+      var if_res111 = rvoid();
     }
     if_res111;
     var let_result112 = values();
-    if (zero_p(args285.length) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res116 = null;
+    var lists273 = Array.prototype.slice.call(arguments, 1);
+    if (procedure_p(fn272) !== false) {
+      var if_res113 = rvoid();
     } else {
-      if (equal_p(args285.length, 1) !== false) {
-        if (null_p(args285[0]) !== false) {
-          var if_res114 = rvoid();
-        } else {
-          if (M0.Core.Pair.check(args285[0]) !== false) {
-            var if_res113 = rvoid();
-          } else {
-            throw M0.Core.racketContractError($rjs_core.UString.make("expected a"), M0.Core.Pair, $rjs_core.UString.make(", but given"), args285[0]);
-            var if_res113 = null;
-          }
-          var if_res114 = if_res113;
-        }
-        if_res114;
-        var if_res115 = M0.Core.Pair.listToArray(args285[0]);
-      } else {
-        var if_res115 = args285.concat(M0.Core.Pair.listToArray(args285.pop()));
-      }
-      var if_res116 = if_res115;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn272, $rjs_core.UString.make(", at:"), 0);
+      var if_res113 = null;
     }
-    var final_args286 = if_res116;
-    return lam284.apply(null, final_args286);
-  };
-  var map = function(fn287) {
-    if ((arguments.length < 1) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res117 = null;
+    if_res113;
+    var let_result114 = values();
+    if (__lt__eq_(lists273.length, 0) !== false) {
+      var if_res115 = error($rjs_core.Symbol.make("map"), $rjs_core.UString.make("need at-least two arguments"));
     } else {
-      var if_res117 = rvoid();
+      var if_res115 = rvoid();
     }
-    if_res117;
-    var let_result118 = values();
-    var lists288 = Array.prototype.slice.call(arguments, 1);
-    if (procedure_p(fn287) !== false) {
-      var if_res119 = rvoid();
-    } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn287, $rjs_core.UString.make(", at:"), 0);
-      var if_res119 = null;
-    }
-    if_res119;
-    var let_result120 = values();
-    if (__lt__eq_(lists288.length, 0) !== false) {
-      var if_res121 = error($rjs_core.Symbol.make("map"), $rjs_core.UString.make("need at-least two arguments"));
-    } else {
-      var if_res121 = rvoid();
-    }
-    if_res121;
-    var let_result122 = values();
-    var lst_len289 = length(lists288[0]);
-    var loop290 = function(i291) {
+    if_res115;
+    var let_result116 = values();
+    var lst_len274 = length(lists273[0]);
+    var loop275 = function(i276) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((i291 < lists288.length) !== false) {
-        var v292 = lists288[i291];
-        if (eq_p(length(v292), lst_len289) !== false) {
-          var if_res123 = rvoid();
+      if ((i276 < lists273.length) !== false) {
+        var v277 = lists273[i276];
+        if (eq_p(length(v277), lst_len274) !== false) {
+          var if_res117 = rvoid();
         } else {
-          var if_res123 = error($rjs_core.Symbol.make("map"), $rjs_core.UString.make("all input lists must have equal length"));
+          var if_res117 = error($rjs_core.Symbol.make("map"), $rjs_core.UString.make("all input lists must have equal length"));
         }
-        if_res123;
-        var if_res124 = loop290(i291 + 1);
+        if_res117;
+        var if_res118 = loop275(i276 + 1);
       } else {
-        var if_res124 = rvoid();
+        var if_res118 = rvoid();
       }
-      return if_res124;
+      return if_res118;
     };
-    loop290(1);
-    var let_result125 = values();
-    var result293 = Array(lst_len289);
-    var args294 = Array(lists288.length);
-    var loop295 = function(result_i296) {
+    loop275(1);
+    var let_result119 = values();
+    var result278 = Array(lst_len274);
+    var args279 = Array(lists273.length);
+    var loop280 = function(result_i281) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((result_i296 < lst_len289) !== false) {
-        var loop297 = function(lst_j298) {
+      if ((result_i281 < lst_len274) !== false) {
+        var loop282 = function(lst_j283) {
           if (arguments.length !== 1) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
-          if ((lst_j298 < lists288.length) !== false) {
-            var lst299 = lists288[lst_j298];
-            args294[lst_j298] = lst299.hd;
-            lists288[lst_j298] = lst299.tl;
-            var if_res126 = loop297(lst_j298 + 1);
+          if ((lst_j283 < lists273.length) !== false) {
+            var lst284 = lists273[lst_j283];
+            args279[lst_j283] = lst284.hd;
+            lists273[lst_j283] = lst284.tl;
+            var if_res120 = loop282(lst_j283 + 1);
           } else {
-            var if_res126 = rvoid();
+            var if_res120 = rvoid();
           }
-          return if_res126;
+          return if_res120;
         };
-        loop297(0);
-        result293[result_i296] = fn287.apply(null, args294);
-        var if_res127 = loop295(result_i296 + 1);
+        loop282(0);
+        result278[result_i281] = fn272.apply(null, args279);
+        var if_res121 = loop280(result_i281 + 1);
       } else {
-        var if_res127 = rvoid();
+        var if_res121 = rvoid();
       }
-      return if_res127;
+      return if_res121;
     };
-    loop295(0);
-    return M0.Core.Pair.listFromArray(result293);
+    loop280(0);
+    return M1.Core.Pair.listFromArray(result278);
   };
-  var foldl = function(fn300, init301) {
+  var foldl = function(fn285, init286) {
     if ((arguments.length < 2) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res128 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res122 = null;
     } else {
-      var if_res128 = rvoid();
+      var if_res122 = rvoid();
     }
-    if_res128;
-    var let_result129 = values();
-    var lists302 = Array.prototype.slice.call(arguments, 2);
-    if (procedure_p(fn300) !== false) {
-      var if_res130 = rvoid();
+    if_res122;
+    var let_result123 = values();
+    var lists287 = Array.prototype.slice.call(arguments, 2);
+    if (procedure_p(fn285) !== false) {
+      var if_res124 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn300, $rjs_core.UString.make(", at:"), 0);
-      var if_res130 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn285, $rjs_core.UString.make(", at:"), 0);
+      var if_res124 = null;
     }
-    if_res130;
-    var let_result131 = values();
-    if (__lt__eq_(lists302.length, 0) !== false) {
-      var if_res132 = error($rjs_core.Symbol.make("foldl"), $rjs_core.UString.make("need at-least two arguments"));
+    if_res124;
+    var let_result125 = values();
+    if (__lt__eq_(lists287.length, 0) !== false) {
+      var if_res126 = error($rjs_core.Symbol.make("foldl"), $rjs_core.UString.make("need at-least two arguments"));
     } else {
-      var if_res132 = rvoid();
+      var if_res126 = rvoid();
     }
-    if_res132;
-    var let_result133 = values();
-    var lst_len303 = length(lists302[0]);
-    var loop304 = function(i305) {
+    if_res126;
+    var let_result127 = values();
+    var lst_len288 = length(lists287[0]);
+    var loop289 = function(i290) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((i305 < lists302.length) !== false) {
-        var v306 = lists302[i305];
-        if (eq_p(length(v306), lst_len303) !== false) {
-          var if_res134 = rvoid();
+      if ((i290 < lists287.length) !== false) {
+        var v291 = lists287[i290];
+        if (eq_p(length(v291), lst_len288) !== false) {
+          var if_res128 = rvoid();
         } else {
-          var if_res134 = error($rjs_core.Symbol.make("foldl"), $rjs_core.UString.make("all input lists must have equal length"));
+          var if_res128 = error($rjs_core.Symbol.make("foldl"), $rjs_core.UString.make("all input lists must have equal length"));
         }
-        if_res134;
-        var if_res135 = loop304(i305 + 1);
+        if_res128;
+        var if_res129 = loop289(i290 + 1);
       } else {
-        var if_res135 = rvoid();
+        var if_res129 = rvoid();
       }
-      return if_res135;
+      return if_res129;
     };
-    loop304(1);
-    var let_result136 = values();
-    var result307 = init301;
-    var args308 = Array(lists302.length + 1);
-    var loop309 = function(result_i310) {
+    loop289(1);
+    var let_result130 = values();
+    var result292 = init286;
+    var args293 = Array(lists287.length + 1);
+    var loop294 = function(result_i295) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((result_i310 < lst_len303) !== false) {
-        var loop311 = function(lst_j312) {
+      if ((result_i295 < lst_len288) !== false) {
+        var loop296 = function(lst_j297) {
           if (arguments.length !== 1) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
-          if ((lst_j312 < lists302.length) !== false) {
-            var lst313 = lists302[lst_j312];
-            args308[lst_j312] = lst313.hd;
-            lists302[lst_j312] = lst313.tl;
-            var if_res137 = loop311(lst_j312 + 1);
+          if ((lst_j297 < lists287.length) !== false) {
+            var lst298 = lists287[lst_j297];
+            args293[lst_j297] = lst298.hd;
+            lists287[lst_j297] = lst298.tl;
+            var if_res131 = loop296(lst_j297 + 1);
           } else {
-            var if_res137 = rvoid();
+            var if_res131 = rvoid();
           }
-          return if_res137;
+          return if_res131;
         };
-        loop311(0);
-        args308[lists302.length] = result307;
-        result307 = fn300.apply(null, args308);
-        var if_res138 = loop309(result_i310 + 1);
+        loop296(0);
+        args293[lists287.length] = result292;
+        result292 = fn285.apply(null, args293);
+        var if_res132 = loop294(result_i295 + 1);
       } else {
-        var if_res138 = rvoid();
+        var if_res132 = rvoid();
       }
-      return if_res138;
+      return if_res132;
     };
-    loop309(0);
-    return result307;
+    loop294(0);
+    return result292;
   };
-  var _foldr = function(fn314, init315, lists316) {
+  var _foldr = function(fn299, init300, lists301) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (null_p(lists316[0]) !== false) {
-      var if_res140 = init315;
+    if (null_p(lists301[0]) !== false) {
+      var if_res134 = init300;
     } else {
-      var args317 = Array(add1(lists316.length));
-      var loop318 = function(ii319) {
+      var args302 = Array(add1(lists301.length));
+      var loop303 = function(ii304) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        if ((ii319 < lists316.length) !== false) {
-          var lst320 = lists316[ii319];
-          args317[ii319] = lst320.hd;
-          lists316[ii319] = lst320.tl;
-          var if_res139 = loop318(ii319 + 1);
+        if ((ii304 < lists301.length) !== false) {
+          var lst305 = lists301[ii304];
+          args302[ii304] = lst305.hd;
+          lists301[ii304] = lst305.tl;
+          var if_res133 = loop303(ii304 + 1);
         } else {
-          var if_res139 = rvoid();
+          var if_res133 = rvoid();
         }
-        return if_res139;
+        return if_res133;
       };
-      loop318(0);
-      args317[lists316.length] = _foldr(fn314, init315, lists316);
-      var if_res140 = fn314.apply(null, args317);
+      loop303(0);
+      args302[lists301.length] = _foldr(fn299, init300, lists301);
+      var if_res134 = fn299.apply(null, args302);
     }
-    return if_res140;
+    return if_res134;
   };
-  var foldr = function(fn321, init322) {
+  var foldr = function(fn306, init307) {
     if ((arguments.length < 2) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res141 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res135 = null;
     } else {
-      var if_res141 = rvoid();
+      var if_res135 = rvoid();
     }
-    if_res141;
-    var let_result142 = values();
-    var lists323 = Array.prototype.slice.call(arguments, 2);
-    if (procedure_p(fn321) !== false) {
-      var if_res143 = rvoid();
+    if_res135;
+    var let_result136 = values();
+    var lists308 = Array.prototype.slice.call(arguments, 2);
+    if (procedure_p(fn306) !== false) {
+      var if_res137 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn321, $rjs_core.UString.make(", at:"), 0);
-      var if_res143 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("procedure?"), $rjs_core.UString.make(", given:"), fn306, $rjs_core.UString.make(", at:"), 0);
+      var if_res137 = null;
     }
-    if_res143;
-    var let_result144 = values();
-    if (__lt__eq_(lists323.length, 0) !== false) {
-      var if_res145 = error($rjs_core.Symbol.make("foldr"), $rjs_core.UString.make("need at-least two arguments"));
+    if_res137;
+    var let_result138 = values();
+    if (__lt__eq_(lists308.length, 0) !== false) {
+      var if_res139 = error($rjs_core.Symbol.make("foldr"), $rjs_core.UString.make("need at-least two arguments"));
     } else {
-      var if_res145 = rvoid();
+      var if_res139 = rvoid();
     }
-    if_res145;
-    var let_result146 = values();
-    var lst_len324 = length(lists323[0]);
-    var loop325 = function(i326) {
+    if_res139;
+    var let_result140 = values();
+    var lst_len309 = length(lists308[0]);
+    var loop310 = function(i311) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if ((i326 < lists323.length) !== false) {
-        var v327 = lists323[i326];
-        if (eq_p(length(v327), lst_len324) !== false) {
-          var if_res147 = rvoid();
+      if ((i311 < lists308.length) !== false) {
+        var v312 = lists308[i311];
+        if (eq_p(length(v312), lst_len309) !== false) {
+          var if_res141 = rvoid();
         } else {
-          var if_res147 = error($rjs_core.Symbol.make("foldr"), $rjs_core.UString.make("all input lists must have equal length"));
+          var if_res141 = error($rjs_core.Symbol.make("foldr"), $rjs_core.UString.make("all input lists must have equal length"));
         }
-        if_res147;
-        var if_res148 = loop325(i326 + 1);
+        if_res141;
+        var if_res142 = loop310(i311 + 1);
       } else {
-        var if_res148 = rvoid();
+        var if_res142 = rvoid();
       }
-      return if_res148;
+      return if_res142;
     };
-    loop325(1);
-    return _foldr(fn321, init322, lists323);
+    loop310(1);
+    return _foldr(fn306, init307, lists308);
   };
-  var cl149 = function(end328) {
+  var cl143 = function(end313) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return range(0, end328, 1);
+    return range(0, end313, 1);
   };
-  var cl150 = function(start329, end330) {
+  var cl144 = function(start314, end315) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (__lt_(start329, end330) !== false) {
-      var if_res153 = 1;
+    if (__lt_(start314, end315) !== false) {
+      var if_res147 = 1;
     } else {
-      var if_res153 = -1;
+      var if_res147 = -1;
     }
-    return range(start329, end330, if_res153);
+    return range(start314, end315, if_res147);
   };
-  var cl151 = function(start331, end332, step333) {
+  var cl145 = function(start316, end317, step318) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var result334 = [];
-    if ((__gt__eq_(step333, 0) && __lt_(step333, end332)) !== false) {
-      var loop335 = function(i336) {
+    var result319 = [];
+    if ((__gt__eq_(step318, 0) && __lt_(step318, end317)) !== false) {
+      var loop320 = function(i321) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        if ((i336 < end332) !== false) {
-          result334.push(i336);
-          var if_res154 = loop335(i336 + step333);
+        if ((i321 < end317) !== false) {
+          result319.push(i321);
+          var if_res148 = loop320(i321 + step318);
         } else {
-          var if_res154 = rvoid();
+          var if_res148 = rvoid();
         }
-        return if_res154;
+        return if_res148;
       };
-      var if_res157 = loop335(start331);
+      var if_res151 = loop320(start316);
     } else {
-      if ((__lt__eq_(step333, 0) && __lt_(end332, start331)) !== false) {
-        var loop337 = function(i338) {
+      if ((__lt__eq_(step318, 0) && __lt_(end317, start316)) !== false) {
+        var loop322 = function(i323) {
           if (arguments.length !== 1) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
-          if ((i338 < __(end332)) !== false) {
-            result334.push(__(i338));
-            var if_res155 = loop337(i338 + __(step333));
+          if ((i323 < __(end317)) !== false) {
+            result319.push(__(i323));
+            var if_res149 = loop322(i323 + __(step318));
           } else {
-            var if_res155 = rvoid();
+            var if_res149 = rvoid();
           }
-          return if_res155;
+          return if_res149;
         };
-        var if_res156 = loop337(__(start331));
+        var if_res150 = loop322(__(start316));
       } else {
-        var if_res156 = rvoid();
+        var if_res150 = rvoid();
       }
-      var if_res157 = if_res156;
+      var if_res151 = if_res150;
     }
-    if_res157;
-    return M0.Core.Pair.listFromArray(result334);
+    if_res151;
+    return M1.Core.Pair.listFromArray(result319);
   };
   var range = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam152 = {
-      '1': cl149,
-      '2': cl150,
-      '3': cl151
+    var fixed_lam146 = {
+      '1': cl143,
+      '2': cl144,
+      '3': cl145
     }[arguments.length];
-    if (fixed_lam152 !== undefined) {
-      return fixed_lam152.apply(null, arguments);
+    if (fixed_lam146 !== undefined) {
+      return fixed_lam146.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2, 3]);
-  var remove = function(v339, lst340, proc341) {
+  var remove = function(v324, lst325, proc326) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (eq_p(proc341, undefined) !== false) {
-      proc341 = M0.Core.isEqual;
-      var if_res158 = null;
+    if (eq_p(proc326, undefined) !== false) {
+      proc326 = M1.Core.isEqual;
+      var if_res152 = null;
     } else {
-      var if_res158 = rvoid();
+      var if_res152 = rvoid();
     }
-    if_res158;
-    var loop342 = function(result343, lst344) {
+    if_res152;
+    var loop327 = function(result328, lst329) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if (null_p(lst344) !== false) {
-        var if_res160 = reverse(result343);
+      if (null_p(lst329) !== false) {
+        var if_res154 = reverse(result328);
       } else {
-        if (proc341(v339, car(lst344)) !== false) {
-          var if_res159 = append(reverse(result343), cdr(lst344));
+        if (proc326(v324, car(lst329)) !== false) {
+          var if_res153 = append(reverse(result328), cdr(lst329));
         } else {
-          var if_res159 = rvoid();
+          var if_res153 = rvoid();
         }
-        if_res159;
-        var if_res160 = loop342(cons(car(lst344), result343), cdr(lst344));
+        if_res153;
+        var if_res154 = loop327(cons(car(lst329), result328), cdr(lst329));
       }
-      return if_res160;
+      return if_res154;
     };
-    return loop342($rjs_core.Pair.makeList(), lst340);
+    return loop327($rjs_core.Pair.makeList(), lst325);
   };
-  var filter = function(fn345, lst346) {
+  var filter = function(fn330, lst331) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var loop347 = function(result348, lst349) {
+    var loop332 = function(result333, lst334) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if (null_p(lst349) !== false) {
-        var if_res162 = reverse(result348);
+      if (null_p(lst334) !== false) {
+        var if_res156 = reverse(result333);
       } else {
-        if (fn345(lst349.hd) !== false) {
-          var if_res161 = loop347(M0.Core.Pair.make(lst349.hd, result348), lst349.tl);
+        if (fn330(lst334.hd) !== false) {
+          var if_res155 = loop332(M1.Core.Pair.make(lst334.hd, result333), lst334.tl);
         } else {
-          var if_res161 = loop347(result348, lst349.tl);
+          var if_res155 = loop332(result333, lst334.tl);
+        }
+        var if_res156 = if_res155;
+      }
+      return if_res156;
+    };
+    return loop332($rjs_core.Pair.makeList(), lst331);
+  };
+  var ormap = function(fn335) {
+    if ((arguments.length < 1) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res157 = null;
+    } else {
+      var if_res157 = rvoid();
+    }
+    if_res157;
+    var let_result158 = values();
+    var lists336 = Array.prototype.slice.call(arguments, 1);
+    return foldl.apply(this, [function() {
+      var args337 = M1.Core.argumentsToArray(arguments);
+      var final_arg338 = args337.pop();
+      return (final_arg338 || fn335.apply(null, args337)) && true;
+    }, false].concat(lists336));
+  };
+  var andmap = function(fn339) {
+    if ((arguments.length < 1) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res159 = null;
+    } else {
+      var if_res159 = rvoid();
+    }
+    if_res159;
+    var let_result160 = values();
+    var lists340 = Array.prototype.slice.call(arguments, 1);
+    return foldl.apply(this, [function() {
+      var args341 = M1.Core.argumentsToArray(arguments);
+      var final_arg342 = args341.pop();
+      return (final_arg342 && fn339.apply(null, args341)) && true;
+    }, true].concat(lists340));
+  };
+  var member = function(v343, lst344) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var loop345 = function(lst346) {
+      if (arguments.length !== 1) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if (null_p(lst346) !== false) {
+        var if_res162 = false;
+      } else {
+        if (M1.Core.isEqual(v343, lst346.hd) !== false) {
+          var if_res161 = lst346;
+        } else {
+          var if_res161 = loop345(lst346.tl);
         }
         var if_res162 = if_res161;
       }
       return if_res162;
     };
-    return loop347($rjs_core.Pair.makeList(), lst346);
-  };
-  var ormap = function(fn350) {
-    if ((arguments.length < 1) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res163 = null;
-    } else {
-      var if_res163 = rvoid();
-    }
-    if_res163;
-    var let_result164 = values();
-    var lists351 = Array.prototype.slice.call(arguments, 1);
-    return foldl.apply(this, [function() {
-      var args352 = M0.Core.argumentsToArray(arguments);
-      var final_arg353 = args352.pop();
-      return (final_arg353 || fn350.apply(null, args352)) && true;
-    }, false].concat(lists351));
-  };
-  var andmap = function(fn354) {
-    if ((arguments.length < 1) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res165 = null;
-    } else {
-      var if_res165 = rvoid();
-    }
-    if_res165;
-    var let_result166 = values();
-    var lists355 = Array.prototype.slice.call(arguments, 1);
-    return foldl.apply(this, [function() {
-      var args356 = M0.Core.argumentsToArray(arguments);
-      var final_arg357 = args356.pop();
-      return (final_arg357 && fn354.apply(null, args356)) && true;
-    }, true].concat(lists355));
-  };
-  var member = function(v358, lst359) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var loop360 = function(lst361) {
-      if (arguments.length !== 1) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if (null_p(lst361) !== false) {
-        var if_res168 = false;
-      } else {
-        if (M0.Core.isEqual(v358, lst361.hd) !== false) {
-          var if_res167 = lst361;
-        } else {
-          var if_res167 = loop360(lst361.tl);
-        }
-        var if_res168 = if_res167;
-      }
-      return if_res168;
-    };
-    return loop360(lst359);
+    return loop345(lst344);
   };
   var compose = function() {
-    var procs362 = M0.Core.argumentsToArray(arguments);
+    var procs347 = M1.Core.argumentsToArray(arguments);
     return function() {
-      var let_result169 = values();
-      var result363 = M0.Core.argumentsToArray(arguments);
-      var procs_times_364 = procs362.reverse();
-      var loop365 = function(i366) {
+      var let_result163 = values();
+      var result348 = M1.Core.argumentsToArray(arguments);
+      var procs_times_349 = procs347.reverse();
+      var loop350 = function(i351) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        if ((i366 < procs_times_364.length) !== false) {
-          var p367 = procs_times_364[i366];
-          result363 = p367.apply(null, result363);
-          if (M0.Core.Values.check(result363) !== false) {
-            result363 = result363.getAll();
-            var if_res170 = null;
+        if ((i351 < procs_times_349.length) !== false) {
+          var p352 = procs_times_349[i351];
+          result348 = p352.apply(null, result348);
+          if (M1.Core.Values.check(result348) !== false) {
+            result348 = result348.getAll();
+            var if_res164 = null;
           } else {
-            result363 = [result363];
-            var if_res170 = null;
+            result348 = [result348];
+            var if_res164 = null;
           }
-          if_res170;
-          var if_res171 = loop365(i366 + 1);
+          if_res164;
+          var if_res165 = loop350(i351 + 1);
         } else {
-          var if_res171 = rvoid();
+          var if_res165 = rvoid();
         }
-        return if_res171;
+        return if_res165;
       };
-      loop365(0);
-      if ((result363.length === 1) !== false) {
-        var if_res172 = result363[0];
+      loop350(0);
+      if ((result348.length === 1) !== false) {
+        var if_res166 = result348[0];
       } else {
-        var if_res172 = M0.Core.Values.make(result363);
+        var if_res166 = M1.Core.Values.make(result348);
       }
-      return if_res172;
+      return if_res166;
     };
   };
   var compose1 = function() {
-    var procs368 = M0.Core.argumentsToArray(arguments);
-    return function(v369) {
-      var let_result173 = values();
-      var result370 = v369;
-      var procs_times_371 = procs368.reverse();
-      var loop372 = function(i373) {
+    var procs353 = M1.Core.argumentsToArray(arguments);
+    return function(v354) {
+      var let_result167 = values();
+      var result355 = v354;
+      var procs_times_356 = procs353.reverse();
+      var loop357 = function(i358) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        if ((i373 < procs_times_371.length) !== false) {
-          var p374 = procs_times_371[i373];
-          result370 = p374(result370);
-          var if_res174 = loop372(i373 + 1);
+        if ((i358 < procs_times_356.length) !== false) {
+          var p359 = procs_times_356[i358];
+          result355 = p359(result355);
+          var if_res168 = loop357(i358 + 1);
         } else {
-          var if_res174 = rvoid();
+          var if_res168 = rvoid();
         }
-        return if_res174;
+        return if_res168;
       };
-      loop372(0);
-      return result370;
+      loop357(0);
+      return result355;
     };
   };
-  var list_ref = function(lst375, pos376) {
+  var list_ref = function(lst360, pos361) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var loop377 = function(i378, lst379) {
+    var loop362 = function(i363, lst364) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      if (null_p(lst379) !== false) {
-        var if_res176 = error($rjs_core.Symbol.make("list-ref?"), $rjs_core.UString.make("insufficient elements"));
+      if (null_p(lst364) !== false) {
+        var if_res170 = error($rjs_core.Symbol.make("list-ref?"), $rjs_core.UString.make("insufficient elements"));
       } else {
-        if ((i378 === pos376) !== false) {
+        if ((i363 === pos361) !== false) {
+          var if_res169 = lst364.hd;
+        } else {
+          var if_res169 = loop362(i363 + 1, lst364.tl);
+        }
+        var if_res170 = if_res169;
+      }
+      return if_res170;
+    };
+    return loop362(0, lst360);
+  };
+  var build_list = function(n365, proc366) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var arr367 = Array(n365);
+    var loop368 = function(i369) {
+      if (arguments.length !== 1) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if ((i369 < n365) !== false) {
+        arr367[i369] = proc366(i369);
+        var if_res171 = loop368(i369 + 1);
+      } else {
+        var if_res171 = rvoid();
+      }
+      return if_res171;
+    };
+    loop368(0);
+    return M1.Core.Pair.listFromArray(arr367);
+  };
+  var make_list = function(n370, v371) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var loop372 = function(result373, i374) {
+      if (arguments.length !== 2) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if ((i374 === n370) !== false) {
+        var if_res172 = result373;
+      } else {
+        var if_res172 = loop372(M1.Core.Pair.make(v371, result373), i374 + 1);
+      }
+      return if_res172;
+    };
+    return loop372($rjs_core.Pair.makeList(), 0);
+  };
+  var flatten = function(lst375) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if (null_p(lst375) !== false) {
+      var if_res174 = lst375;
+    } else {
+      if (pair_p(lst375) !== false) {
+        var if_res173 = append(flatten(lst375.hd), flatten(lst375.tl));
+      } else {
+        var if_res173 = list(lst375);
+      }
+      var if_res174 = if_res173;
+    }
+    return if_res174;
+  };
+  var assoc = function(k376, lst377) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var loop378 = function(lst379) {
+      if (arguments.length !== 1) {
+        throw $rjs_core.racketContractError("arity mismatch");
+      } else {}
+      if (null_p(lst379) !== false) {
+        var if_res176 = false;
+      } else {
+        if (M1.Core.isEqual(k376, lst379.hd.hd) !== false) {
           var if_res175 = lst379.hd;
         } else {
-          var if_res175 = loop377(i378 + 1, lst379.tl);
+          var if_res175 = loop378(lst379.tl);
         }
         var if_res176 = if_res175;
       }
       return if_res176;
     };
-    return loop377(0, lst375);
+    return loop378(lst377);
   };
-  var build_list = function(n380, proc381) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var arr382 = Array(n380);
-    var loop383 = function(i384) {
-      if (arguments.length !== 1) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if ((i384 < n380) !== false) {
-        arr382[i384] = proc381(i384);
-        var if_res177 = loop383(i384 + 1);
-      } else {
-        var if_res177 = rvoid();
-      }
-      return if_res177;
-    };
-    loop383(0);
-    return M0.Core.Pair.listFromArray(arr382);
-  };
-  var make_list = function(n385, v386) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var loop387 = function(result388, i389) {
-      if (arguments.length !== 2) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if ((i389 === n385) !== false) {
-        var if_res178 = result388;
-      } else {
-        var if_res178 = loop387(M0.Core.Pair.make(v386, result388), i389 + 1);
-      }
-      return if_res178;
-    };
-    return loop387($rjs_core.Pair.makeList(), 0);
-  };
-  var flatten = function(lst390) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if (null_p(lst390) !== false) {
-      var if_res180 = lst390;
-    } else {
-      if (pair_p(lst390) !== false) {
-        var if_res179 = append(flatten(lst390.hd), flatten(lst390.tl));
-      } else {
-        var if_res179 = list(lst390);
-      }
-      var if_res180 = if_res179;
-    }
-    return if_res180;
-  };
-  var assoc = function(k391, lst392) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var loop393 = function(lst394) {
-      if (arguments.length !== 1) {
-        throw $rjs_core.racketContractError("arity mismatch");
-      } else {}
-      if (null_p(lst394) !== false) {
-        var if_res182 = false;
-      } else {
-        if (M0.Core.isEqual(k391, lst394.hd.hd) !== false) {
-          var if_res181 = lst394.hd;
-        } else {
-          var if_res181 = loop393(lst394.tl);
-        }
-        var if_res182 = if_res181;
-      }
-      return if_res182;
-    };
-    return loop393(lst392);
-  };
-  var memv = M0.Kernel.memv;
-  var memq = M0.Kernel.memq;
-  var memf = M0.Kernel.memf;
-  var findf = M0.Kernel.findf;
-  var sort9 = M0.Kernel.sort9;
-  var assv = M0.Kernel.assv;
-  var assq = M0.Kernel.assq;
-  var assf = M0.Kernel.assf;
+  var memv = M1.Kernel.memv;
+  var memq = M1.Kernel.memq;
+  var memf = M1.Kernel.memf;
+  var findf = M1.Kernel.findf;
+  var sort9 = M1.Kernel.sort9;
+  var assv = M1.Kernel.assv;
+  var assq = M1.Kernel.assq;
+  var assf = M1.Kernel.assf;
   var alt_reverse = reverse;
-  var string = M0.Core.attachProcedureName(M0.Core.UString.makeMutableFromCharsVarArgs, $rjs_core.UString.make("string"));
-  var string_append = M0.Core.attachProcedureName(M0.Core.UString.stringAppend, $rjs_core.UString.make("string-append"));
-  var string_ref = function(s395, i396) {
-    if (string_p(s395) !== false) {
+  var string = M1.Core.attachProcedureName(M1.Core.UString.makeMutableFromCharsVarArgs, $rjs_core.UString.make("string"));
+  var string_append = M1.Core.attachProcedureName(M1.Core.UString.stringAppend, $rjs_core.UString.make("string-append"));
+  var string_ref = function(s380, i381) {
+    if (string_p(s380) !== false) {
+      var if_res177 = rvoid();
+    } else {
+      var if_res177 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-ref"), $rjs_core.UString.make("string?"), s380));
+    }
+    if_res177;
+    if (exact_nonnegative_integer_p(i381) !== false) {
+      var if_res178 = rvoid();
+    } else {
+      var if_res178 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-ref"), $rjs_core.UString.make("exact-nonnegative-integer?"), i381));
+    }
+    if_res178;
+    if (s380.isValidIndex(i381) !== false) {
+      var if_res179 = s380.charAt(i381);
+    } else {
+      var if_res179 = raise(M1.Core.makeOutOfRangeError($rjs_core.UString.make("string-ref"), $rjs_core.UString.make("string"), s380, s380.length, i381));
+    }
+    return if_res179;
+  };
+  var string_eq__p = function(sa382, sb383) {
+    if (string_p(sa382) !== false) {
+      var if_res180 = rvoid();
+    } else {
+      var if_res180 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string=?"), $rjs_core.UString.make("string?"), sa382));
+    }
+    if_res180;
+    if (string_p(sb383) !== false) {
+      var if_res181 = rvoid();
+    } else {
+      var if_res181 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string=?"), $rjs_core.UString.make("string?"), sb383));
+    }
+    if_res181;
+    return M1.Core.UString.eq(sa382, sb383);
+  };
+  var string_lt__p = function(sa384, sb385) {
+    if (string_p(sa384) !== false) {
+      var if_res182 = rvoid();
+    } else {
+      var if_res182 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string<?"), $rjs_core.UString.make("string?"), sa384));
+    }
+    if_res182;
+    if (string_p(sb385) !== false) {
       var if_res183 = rvoid();
     } else {
-      var if_res183 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-ref"), $rjs_core.UString.make("string?"), s395));
+      var if_res183 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string<?"), $rjs_core.UString.make("string?"), sb385));
     }
     if_res183;
-    if (exact_nonnegative_integer_p(i396) !== false) {
+    return M1.Core.UString.lt(sa384, sb385);
+  };
+  var string_lt__eq__p = function(sa386, sb387) {
+    if (string_p(sa386) !== false) {
       var if_res184 = rvoid();
     } else {
-      var if_res184 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-ref"), $rjs_core.UString.make("exact-nonnegative-integer?"), i396));
+      var if_res184 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string<=?"), $rjs_core.UString.make("string?"), sa386));
     }
     if_res184;
-    if (s395.isValidIndex(i396) !== false) {
-      var if_res185 = s395.charAt(i396);
+    if (string_p(sb387) !== false) {
+      var if_res185 = rvoid();
     } else {
-      var if_res185 = raise(M0.Core.makeOutOfRangeError($rjs_core.UString.make("string-ref"), $rjs_core.UString.make("string"), s395, s395.length, i396));
+      var if_res185 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string<=?"), $rjs_core.UString.make("string?"), sb387));
     }
-    return if_res185;
+    if_res185;
+    return M1.Core.UString.lte(sa386, sb387);
   };
-  var string_eq__p = function(sa397, sb398) {
-    if (string_p(sa397) !== false) {
+  var string_gt__p = function(sa388, sb389) {
+    if (string_p(sa388) !== false) {
       var if_res186 = rvoid();
     } else {
-      var if_res186 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string=?"), $rjs_core.UString.make("string?"), sa397));
+      var if_res186 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string>?"), $rjs_core.UString.make("string?"), sa388));
     }
     if_res186;
-    if (string_p(sb398) !== false) {
+    if (string_p(sb389) !== false) {
       var if_res187 = rvoid();
     } else {
-      var if_res187 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string=?"), $rjs_core.UString.make("string?"), sb398));
+      var if_res187 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string>?"), $rjs_core.UString.make("string?"), sb389));
     }
     if_res187;
-    return M0.Core.UString.eq(sa397, sb398);
+    return M1.Core.UString.gt(sa388, sb389);
   };
-  var string_lt__p = function(sa399, sb400) {
-    if (string_p(sa399) !== false) {
+  var string_gt__eq__p = function(sa390, sb391) {
+    if (string_p(sa390) !== false) {
       var if_res188 = rvoid();
     } else {
-      var if_res188 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string<?"), $rjs_core.UString.make("string?"), sa399));
+      var if_res188 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string>=?"), $rjs_core.UString.make("string?"), sa390));
     }
     if_res188;
-    if (string_p(sb400) !== false) {
+    if (string_p(sb391) !== false) {
       var if_res189 = rvoid();
     } else {
-      var if_res189 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string<?"), $rjs_core.UString.make("string?"), sb400));
+      var if_res189 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string>=?"), $rjs_core.UString.make("string?"), sb391));
     }
     if_res189;
-    return M0.Core.UString.lt(sa399, sb400);
+    return M1.Core.UString.gte(sa390, sb391);
   };
-  var string_lt__eq__p = function(sa401, sb402) {
-    if (string_p(sa401) !== false) {
-      var if_res190 = rvoid();
-    } else {
-      var if_res190 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string<=?"), $rjs_core.UString.make("string?"), sa401));
-    }
-    if_res190;
-    if (string_p(sb402) !== false) {
-      var if_res191 = rvoid();
-    } else {
-      var if_res191 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string<=?"), $rjs_core.UString.make("string?"), sb402));
-    }
-    if_res191;
-    return M0.Core.UString.lte(sa401, sb402);
-  };
-  var string_gt__p = function(sa403, sb404) {
-    if (string_p(sa403) !== false) {
-      var if_res192 = rvoid();
-    } else {
-      var if_res192 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string>?"), $rjs_core.UString.make("string?"), sa403));
-    }
-    if_res192;
-    if (string_p(sb404) !== false) {
-      var if_res193 = rvoid();
-    } else {
-      var if_res193 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string>?"), $rjs_core.UString.make("string?"), sb404));
-    }
-    if_res193;
-    return M0.Core.UString.gt(sa403, sb404);
-  };
-  var string_gt__eq__p = function(sa405, sb406) {
-    if (string_p(sa405) !== false) {
-      var if_res194 = rvoid();
-    } else {
-      var if_res194 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string>=?"), $rjs_core.UString.make("string?"), sa405));
-    }
-    if_res194;
-    if (string_p(sb406) !== false) {
-      var if_res195 = rvoid();
-    } else {
-      var if_res195 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string>=?"), $rjs_core.UString.make("string?"), sb406));
-    }
-    if_res195;
-    return M0.Core.UString.gte(sa405, sb406);
-  };
-  var string_p = M0.Core.attachProcedureName(M0.Core.UString.check, $rjs_core.UString.make("string?"));
-  var fprintf = $rjs_core.attachProcedureArity(function(out407, form408) {
-    for (var args409196 = [],
-        $__1 = 2; $__1 < arguments.length; $__1++)
-      args409196[$__1 - 2] = arguments[$__1];
+  var string_p = M1.Core.attachProcedureName(M1.Core.UString.check, $rjs_core.UString.make("string?"));
+  var fprintf = $rjs_core.attachProcedureArity(function(out392, form393, ...args394190) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var args409 = $rjs_core.Pair.listFromArray(args409196);
-    return apply(M0.Kernel.fprintf, print_as_expression(), out407, form408, args409);
+    var args394 = $rjs_core.Pair.listFromArray(args394190);
+    return apply(M1.Kernel.fprintf, print_as_expression(), out392, form393, args394);
   });
-  var eprintf = $rjs_core.attachProcedureArity(function(form410) {
-    for (var args411197 = [],
-        $__2 = 1; $__2 < arguments.length; $__2++)
-      args411197[$__2 - 1] = arguments[$__2];
+  var eprintf = $rjs_core.attachProcedureArity(function(form395, ...args396191) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var args411 = $rjs_core.Pair.listFromArray(args411197);
-    return apply(M0.Kernel.fprintf, print_as_expression(), current_error_port(), form410, args411);
+    var args396 = $rjs_core.Pair.listFromArray(args396191);
+    return apply(M1.Kernel.fprintf, print_as_expression(), current_error_port(), form395, args396);
   });
-  var printf = $rjs_core.attachProcedureArity(function(form412) {
-    for (var args413198 = [],
-        $__3 = 1; $__3 < arguments.length; $__3++)
-      args413198[$__3 - 1] = arguments[$__3];
+  var printf = $rjs_core.attachProcedureArity(function(form397, ...args398192) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var args413 = $rjs_core.Pair.listFromArray(args413198);
-    return apply(M0.Kernel.fprintf, print_as_expression(), current_output_port(), form412, args413);
+    var args398 = $rjs_core.Pair.listFromArray(args398192);
+    return apply(M1.Kernel.fprintf, print_as_expression(), current_output_port(), form397, args398);
   });
-  var format = $rjs_core.attachProcedureArity(function(form414) {
-    for (var args415199 = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      args415199[$__4 - 1] = arguments[$__4];
+  var format = $rjs_core.attachProcedureArity(function(form399, ...args400193) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var args415 = $rjs_core.Pair.listFromArray(args415199);
-    var out416 = open_output_string();
-    apply(fprintf, out416, form414, args415);
-    return get_output_string(out416);
+    var args400 = $rjs_core.Pair.listFromArray(args400193);
+    var out401 = open_output_string();
+    apply(fprintf, out401, form399, args400);
+    return get_output_string(out401);
   });
-  var symbol_p = M0.Core.Symbol.check;
-  var keyword_p = M0.Core.Keyword.check;
-  var make_string3417 = function(k2418, c1419) {
-    if (arguments.length !== 2) {
+  var symbol_p = M1.Core.Symbol.check;
+  var keyword_p = M1.Core.Keyword.check;
+  var make_string4402 = function(k3403, c1404, c2405) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var k420 = k2418;
-    if (false !== false) {
-      var if_res200 = $rjs_core.Char.charFromCodepoint(0);
+    var k406 = k3403;
+    if (c2405 !== false) {
+      var if_res194 = c1404;
     } else {
-      var if_res200 = c1419;
+      var if_res194 = $rjs_core.Char.charFromCodepoint(0);
     }
-    var c421 = if_res200;
-    return M0.Core.UString.repeatChar(k420, c421);
+    var c407 = if_res194;
+    return M1.Core.UString.repeatChar(k406, c407);
   };
-  var cl201 = function(k422) {
+  var cl195 = function(k408) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return make_string3417(k422, $rjs_core.Char.charFromCodepoint(0));
+    return make_string4402(k408, false, false);
   };
-  var cl202 = function(k423, c1424) {
+  var cl196 = function(k409, c1410) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return make_string3417(k423, c1424);
+    return make_string4402(k409, c1410, true);
   };
   var make_string = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam203 = {
-      '1': cl201,
-      '2': cl202
+    var fixed_lam197 = {
+      '1': cl195,
+      '2': cl196
     }[arguments.length];
-    if (fixed_lam203 !== undefined) {
-      return fixed_lam203.apply(null, arguments);
+    if (fixed_lam197 !== undefined) {
+      return fixed_lam197.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var list__gt_string = function(lst425) {
+  var list__gt_string = function(lst411) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Kernel.listToString(lst425);
+    return M1.Kernel.listToString(lst411);
   };
-  var string__gt_immutable_string6426 = function(s5427) {
-    if (arguments.length !== 1) {
+  var string__gt_immutable_string8412 = function(s6413, s7414) {
+    if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (eq_p(s5427, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res204 = string_p;
+    if (s7414 !== false) {
+      var if_res198 = s6413;
     } else {
-      var if_res204 = s5427;
+      var if_res198 = string_p;
     }
-    var s428 = if_res204;
-    return M0.Core.UString.stringToImmutableString(s428);
+    var s415 = if_res198;
+    return M1.Core.UString.stringToImmutableString(s415);
   };
-  var cl205 = function() {
+  var cl199 = function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return string__gt_immutable_string6426(M3.__rjs_quoted__.unsafe_undefined);
+    return string__gt_immutable_string8412(false, false);
   };
-  var cl206 = function(s5429) {
+  var cl200 = function(s6416) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return string__gt_immutable_string6426(s5429);
+    return string__gt_immutable_string8412(s6416, true);
   };
   var string__gt_immutable_string = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam207 = {
-      '0': cl205,
-      '1': cl206
+    var fixed_lam201 = {
+      '0': cl199,
+      '1': cl200
     }[arguments.length];
-    if (fixed_lam207 !== undefined) {
-      return fixed_lam207.apply(null, arguments);
+    if (fixed_lam201 !== undefined) {
+      return fixed_lam201.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [0, 1]);
-  var symbol__gt_string = function(v430) {
-    if (symbol_p(v430) !== false) {
-      var if_res208 = rvoid();
+  var symbol__gt_string = function(v417) {
+    if (symbol_p(v417) !== false) {
+      var if_res202 = rvoid();
     } else {
-      var if_res208 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("symbol->string"), $rjs_core.UString.make("symbol?"), v430));
+      var if_res202 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("symbol->string"), $rjs_core.UString.make("symbol?"), v417));
     }
-    if_res208;
-    return M0.Core.UString.makeMutable(v430.toString());
+    if_res202;
+    return M1.Core.UString.makeMutable(v417.toString());
   };
-  var string__gt_symbol = function(s431) {
-    if (string_p(s431) !== false) {
-      var if_res209 = rvoid();
+  var string__gt_symbol = function(s418) {
+    if (string_p(s418) !== false) {
+      var if_res203 = rvoid();
     } else {
-      var if_res209 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string->symbol"), $rjs_core.UString.make("string?"), s431));
+      var if_res203 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string->symbol"), $rjs_core.UString.make("string?"), s418));
     }
-    if_res209;
-    return M0.Core.Symbol.make(s431);
+    if_res203;
+    return M1.Core.Symbol.make(s418);
   };
-  var string__gt_uninterned_symbol = function(s432) {
-    if (string_p(s432) !== false) {
-      var if_res210 = rvoid();
+  var string__gt_uninterned_symbol = function(s419) {
+    if (string_p(s419) !== false) {
+      var if_res204 = rvoid();
     } else {
-      var if_res210 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string->uninterned-symbol"), $rjs_core.UString.make("string?"), s432));
+      var if_res204 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string->uninterned-symbol"), $rjs_core.UString.make("string?"), s419));
     }
-    if_res210;
-    return M0.Core.Symbol.makeUninterned(s432);
+    if_res204;
+    return M1.Core.Symbol.makeUninterned(s419);
   };
-  var string__gt_unreadable_symbol = function(s433) {
-    if (string_p(s433) !== false) {
-      var if_res211 = rvoid();
+  var string__gt_unreadable_symbol = function(s420) {
+    if (string_p(s420) !== false) {
+      var if_res205 = rvoid();
     } else {
-      var if_res211 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string->unreadable-symbol"), $rjs_core.UString.make("string?"), s433));
+      var if_res205 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string->unreadable-symbol"), $rjs_core.UString.make("string?"), s420));
     }
-    if_res211;
-    return M0.Core.Symbol.make(s433);
+    if_res205;
+    return M1.Core.Symbol.make(s420);
   };
-  var string__gt_number10434 = function(s9435, radix8436) {
-    if (arguments.length !== 2) {
+  var string__gt_number13421 = function(s12422, radix10423, radix11424) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var s437 = s9435;
-    if (false !== false) {
-      var if_res212 = 10;
+    var s425 = s12422;
+    if (radix11424 !== false) {
+      var if_res206 = radix10423;
     } else {
-      var if_res212 = radix8436;
+      var if_res206 = 10;
     }
-    var radix438 = if_res212;
-    var integer_in439 = function(lo440, hi441) {
+    var radix426 = if_res206;
+    var integer_in427 = function(lo428, hi429) {
       if (arguments.length !== 2) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return function(v442) {
-        return (exact_integer_p(v442) && __gt__eq_(v442, lo440)) && __lt__eq_(v442, hi441);
+      return function(v430) {
+        return (exact_integer_p(v430) && __gt__eq_(v430, lo428)) && __lt__eq_(v430, hi429);
       };
     };
-    if (string_p(s437) !== false) {
-      var if_res213 = rvoid();
+    if (string_p(s425) !== false) {
+      var if_res207 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("string?"), $rjs_core.UString.make(", given:"), s437, $rjs_core.UString.make(", at:"), 0);
-      var if_res213 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("string?"), $rjs_core.UString.make(", given:"), s425, $rjs_core.UString.make(", at:"), 0);
+      var if_res207 = null;
     }
-    if_res213;
-    if (integer_in439(2, 16)(radix438) !== false) {
-      var if_res214 = rvoid();
+    if_res207;
+    if (integer_in427(2, 16)(radix426) !== false) {
+      var if_res208 = rvoid();
     } else {
-      throw M0.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("(integer-in 2 16)"), $rjs_core.UString.make(", given:"), radix438, $rjs_core.UString.make(", at:"), 1);
-      var if_res214 = null;
+      throw M1.Core.racketContractError($rjs_core.UString.make("Expected:"), $rjs_core.UString.make("(integer-in 2 16)"), $rjs_core.UString.make(", given:"), radix426, $rjs_core.UString.make(", at:"), 1);
+      var if_res208 = null;
     }
-    if_res214;
-    var result443 = parseInt(s437, radix438);
-    if ((isNaN(result443) || not(s437.isValidInteger(radix438))) !== false) {
-      var if_res215 = false;
+    if_res208;
+    var result431 = parseInt(s425, radix426);
+    if ((isNaN(result431) || not(s425.isValidInteger(radix426))) !== false) {
+      var if_res209 = false;
     } else {
-      var if_res215 = result443;
+      var if_res209 = result431;
     }
-    return if_res215;
+    return if_res209;
   };
-  var cl216 = function(s444) {
+  var cl210 = function(s432) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return string__gt_number10434(s444, 10);
+    return string__gt_number13421(s432, false, false);
   };
-  var cl217 = function(s445, radix8446) {
+  var cl211 = function(s433, radix10434) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return string__gt_number10434(s445, radix8446);
+    return string__gt_number13421(s433, radix10434, true);
   };
   var string__gt_number = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam218 = {
-      '1': cl216,
-      '2': cl217
+    var fixed_lam212 = {
+      '1': cl210,
+      '2': cl211
     }[arguments.length];
-    if (fixed_lam218 !== undefined) {
-      return fixed_lam218.apply(null, arguments);
+    if (fixed_lam212 !== undefined) {
+      return fixed_lam212.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var symbol_interned_p = function(sym447) {
-    if (symbol_p(sym447) !== false) {
-      var if_res219 = rvoid();
+  var symbol_interned_p = function(sym435) {
+    if (symbol_p(sym435) !== false) {
+      var if_res213 = rvoid();
     } else {
-      var if_res219 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("symbol-interned?"), $rjs_core.UString.make("symbol?"), sym447));
+      var if_res213 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("symbol-interned?"), $rjs_core.UString.make("symbol?"), sym435));
     }
-    if_res219;
-    return sym447 === M0.Core.Symbol.make(sym447.v);
+    if_res213;
+    return sym435 === M1.Core.Symbol.make(sym435.v);
   };
-  var symbol_eq__p = function(s448, v449) {
+  var symbol_eq__p = function(s436, v437) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return s448.equals(v449);
+    return s436.equals(v437);
   };
-  var symbol_lt__p = function(s450, v451) {
+  var symbol_lt__p = function(s438, v439) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return s450.lt(v451);
+    return s438.lt(v439);
   };
-  var keyword_lt__p = function(s452, v453) {
+  var keyword_lt__p = function(s440, v441) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return s452.lt(v453);
+    return s440.lt(v441);
   };
-  var string_length = function(s454) {
-    if (string_p(s454) !== false) {
-      var if_res220 = rvoid();
+  var string_length = function(s442) {
+    if (string_p(s442) !== false) {
+      var if_res214 = rvoid();
     } else {
-      var if_res220 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-length"), $rjs_core.UString.make("string?"), s454));
+      var if_res214 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-length"), $rjs_core.UString.make("string?"), s442));
     }
-    if_res220;
-    return s454.length;
+    if_res214;
+    return s442.length;
   };
-  var string_downcase = function(s455) {
-    if (string_p(s455) !== false) {
-      var if_res221 = rvoid();
+  var string_downcase = function(s443) {
+    if (string_p(s443) !== false) {
+      var if_res215 = rvoid();
     } else {
-      var if_res221 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-downcase"), $rjs_core.UString.make("string?"), s455));
+      var if_res215 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-downcase"), $rjs_core.UString.make("string?"), s443));
+    }
+    if_res215;
+    return s443.toLowerCase();
+  };
+  var string_upcase = function(s444) {
+    if (string_p(s444) !== false) {
+      var if_res216 = rvoid();
+    } else {
+      var if_res216 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-upcase"), $rjs_core.UString.make("string?"), s444));
+    }
+    if_res216;
+    return s444.toUpperCase();
+  };
+  var substring19445 = function(str17446, start18447, end15448, end16449) {
+    if (arguments.length !== 4) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var str450 = str17446;
+    var start451 = start18447;
+    if (end16449 !== false) {
+      var if_res217 = end15448;
+    } else {
+      var if_res217 = false;
+    }
+    var end452 = if_res217;
+    if (not(M1.Core.UString.check(str450)) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("expected a string"));
+      var if_res221 = null;
+    } else {
+      if ((start451 < 0) !== false) {
+        throw M1.Core.racketContractError($rjs_core.UString.make("invalid start index"));
+        var if_res220 = null;
+      } else {
+        if (((end452 !== false) && (((end452 < 0) || (end452 > str450.length)) || (end452 < start451))) !== false) {
+          throw M1.Core.racketContractError($rjs_core.UString.make("invalid end index"));
+          var if_res219 = null;
+        } else {
+          if ((end452 === false) !== false) {
+            end452 = str450.length;
+            var if_res218 = null;
+          } else {
+            var if_res218 = rvoid();
+          }
+          var if_res219 = if_res218;
+        }
+        var if_res220 = if_res219;
+      }
+      var if_res221 = if_res220;
     }
     if_res221;
-    return s455.toLowerCase();
+    return str450.substring(start451, end452);
   };
-  var string_upcase = function(s456) {
-    if (string_p(s456) !== false) {
-      var if_res222 = rvoid();
-    } else {
-      var if_res222 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-upcase"), $rjs_core.UString.make("string?"), s456));
-    }
-    if_res222;
-    return s456.toUpperCase();
-  };
-  var substring15457 = function(str13458, start14459, end12460) {
-    if (arguments.length !== 3) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var str461 = str13458;
-    var start462 = start14459;
-    if (false !== false) {
-      var if_res223 = false;
-    } else {
-      var if_res223 = end12460;
-    }
-    var end463 = if_res223;
-    if (not(M0.Core.UString.check(str461)) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("expected a string"));
-      var if_res227 = null;
-    } else {
-      if ((start462 < 0) !== false) {
-        throw M0.Core.racketContractError($rjs_core.UString.make("invalid start index"));
-        var if_res226 = null;
-      } else {
-        if (((end463 !== false) && (((end463 < 0) || (end463 > str461.length)) || (end463 < start462))) !== false) {
-          throw M0.Core.racketContractError($rjs_core.UString.make("invalid end index"));
-          var if_res225 = null;
-        } else {
-          if ((end463 === false) !== false) {
-            end463 = str461.length;
-            var if_res224 = null;
-          } else {
-            var if_res224 = rvoid();
-          }
-          var if_res225 = if_res224;
-        }
-        var if_res226 = if_res225;
-      }
-      var if_res227 = if_res226;
-    }
-    if_res227;
-    return str461.substring(start462, end463);
-  };
-  var cl228 = function(str464, start465) {
+  var cl222 = function(str453, start454) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return substring15457(str464, start465, false);
+    return substring19445(str453, start454, false, false);
   };
-  var cl229 = function(str466, start467, end12468) {
+  var cl223 = function(str455, start456, end15457) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return substring15457(str466, start467, end12468);
+    return substring19445(str455, start456, end15457, true);
   };
   var substring = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam230 = {
-      '2': cl228,
-      '3': cl229
+    var fixed_lam224 = {
+      '2': cl222,
+      '3': cl223
     }[arguments.length];
-    if (fixed_lam230 !== undefined) {
-      return fixed_lam230.apply(null, arguments);
+    if (fixed_lam224 !== undefined) {
+      return fixed_lam224.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [2, 3]);
-  var string_split = function(str469, sep470) {
-    if (string_p(str469) !== false) {
-      var if_res231 = rvoid();
+  var string_split = function(str458, sep459) {
+    if (string_p(str458) !== false) {
+      var if_res225 = rvoid();
     } else {
-      var if_res231 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-split"), $rjs_core.UString.make("string?"), str469));
+      var if_res225 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-split"), $rjs_core.UString.make("string?"), str458));
     }
-    if_res231;
-    if ((function(v471) {
+    if_res225;
+    if ((function(v460) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return string_p(v471) || regexp_p(v471);
-    })(sep470) !== false) {
-      var if_res232 = rvoid();
+      return string_p(v460) || regexp_p(v460);
+    })(sep459) !== false) {
+      var if_res226 = rvoid();
     } else {
-      var if_res232 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-split"), $rjs_core.UString.make("(check/or string? regexp?)"), sep470));
+      var if_res226 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-split"), $rjs_core.UString.make("(check/or string? regexp?)"), sep459));
     }
-    if_res232;
-    return M0.Core.Pair.listFromArray(str469.split(sep470));
+    if_res226;
+    return M1.Core.Pair.listFromArray(str458.split(sep459));
   };
-  var string_set_bang_ = function(str472, k473, char474) {
-    if ((function(v475) {
+  var string_set_bang_ = function(str461, k462, char463) {
+    if ((function(v464) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return string_p(v475) && (function(v476) {
+      return string_p(v464) && (function(v465) {
         if (arguments.length !== 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
-        return not(immutable_p(v476));
-      })(v475);
-    })(str472) !== false) {
+        return not(immutable_p(v465));
+      })(v464);
+    })(str461) !== false) {
+      var if_res227 = rvoid();
+    } else {
+      var if_res227 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("(check/and string? (check/not immutable?))"), str461));
+    }
+    if_res227;
+    if (exact_nonnegative_integer_p(k462) !== false) {
+      var if_res228 = rvoid();
+    } else {
+      var if_res228 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("exact-nonnegative-integer?"), k462));
+    }
+    if_res228;
+    if (char_p(char463) !== false) {
+      var if_res229 = rvoid();
+    } else {
+      var if_res229 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("char?"), char463));
+    }
+    if_res229;
+    if (str461.isValidIndex(k462) !== false) {
+      var if_res230 = str461.setCharAt(k462, char463);
+    } else {
+      var if_res230 = raise(M1.Core.makeOutOfRangeError($rjs_core.UString.make("string-set!"), $rjs_core.UString.make("string"), str461, str461.length, k462));
+    }
+    return if_res230;
+  };
+  var char_p = function(c466) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return M1.Core.Char.check(c466);
+  };
+  var char__gt_integer = function(c467) {
+    if (char_p(c467) !== false) {
+      var if_res231 = rvoid();
+    } else {
+      var if_res231 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char->integer"), $rjs_core.UString.make("char?"), c467));
+    }
+    if_res231;
+    return M1.Core.Char.charToInteger(c467);
+  };
+  var integer__gt_char = function(k468) {
+    if (exact_nonnegative_integer_p(k468) !== false) {
+      var if_res232 = rvoid();
+    } else {
+      var if_res232 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("integer->char"), $rjs_core.UString.make("exact-nonnegative-integer?"), k468));
+    }
+    if_res232;
+    return M1.Core.Char.integerToChar(k468);
+  };
+  var char_utf_8_length = function(c469) {
+    if (char_p(c469) !== false) {
       var if_res233 = rvoid();
     } else {
-      var if_res233 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("(check/and string? (check/not immutable?))"), str472));
+      var if_res233 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-utf-8-length"), $rjs_core.UString.make("char?"), c469));
     }
     if_res233;
-    if (exact_nonnegative_integer_p(k473) !== false) {
+    return M1.Core.Char.charUtf8Length(c469);
+  };
+  var char_upcase = function(c470) {
+    if (char_p(c470) !== false) {
       var if_res234 = rvoid();
     } else {
-      var if_res234 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("exact-nonnegative-integer?"), k473));
+      var if_res234 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-upcase"), $rjs_core.UString.make("char?"), c470));
     }
     if_res234;
-    if (char_p(char474) !== false) {
+    return M1.Core.Char.upcase(c470);
+  };
+  var char_downcase = function(c471) {
+    if (char_p(c471) !== false) {
       var if_res235 = rvoid();
     } else {
-      var if_res235 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string-set!"), $rjs_core.UString.make("char?"), char474));
+      var if_res235 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-downcase"), $rjs_core.UString.make("char?"), c471));
     }
     if_res235;
-    if (str472.isValidIndex(k473) !== false) {
-      var if_res236 = str472.setCharAt(k473, char474);
+    return M1.Core.Char.downcase(c471);
+  };
+  var char_alphabetic_p = function(c472) {
+    if (char_p(c472) !== false) {
+      var if_res236 = rvoid();
     } else {
-      var if_res236 = raise(M0.Core.makeOutOfRangeError($rjs_core.UString.make("string-set!"), $rjs_core.UString.make("string"), str472, str472.length, k473));
+      var if_res236 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-alphabetic?"), $rjs_core.UString.make("char?"), c472));
     }
-    return if_res236;
+    if_res236;
+    return M1.Core.Char.isAlphabetic(c472);
   };
-  var char_p = function(c477) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return M0.Core.Char.check(c477);
-  };
-  var char__gt_integer = function(c478) {
-    if (char_p(c478) !== false) {
+  var char_lower_case_p = function(c473) {
+    if (char_p(c473) !== false) {
       var if_res237 = rvoid();
     } else {
-      var if_res237 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char->integer"), $rjs_core.UString.make("char?"), c478));
+      var if_res237 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-lower-case?"), $rjs_core.UString.make("char?"), c473));
     }
     if_res237;
-    return M0.Core.Char.charToInteger(c478);
+    return M1.Core.Char.isLowerCase(c473);
   };
-  var integer__gt_char = function(k479) {
-    if (exact_nonnegative_integer_p(k479) !== false) {
+  var char_upper_case_p = function(c474) {
+    if (char_p(c474) !== false) {
       var if_res238 = rvoid();
     } else {
-      var if_res238 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("integer->char"), $rjs_core.UString.make("exact-nonnegative-integer?"), k479));
+      var if_res238 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-upper-case?"), $rjs_core.UString.make("char?"), c474));
     }
     if_res238;
-    return M0.Core.Char.integerToChar(k479);
+    return M1.Core.Char.isUpperCase(c474);
   };
-  var char_utf_8_length = function(c480) {
-    if (char_p(c480) !== false) {
+  var char_title_case_p = function(c475) {
+    if (char_p(c475) !== false) {
       var if_res239 = rvoid();
     } else {
-      var if_res239 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char-utf-8-length"), $rjs_core.UString.make("char?"), c480));
+      var if_res239 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-title-case?"), $rjs_core.UString.make("char?"), c475));
     }
     if_res239;
-    return M0.Core.Char.charUtf8Length(c480);
+    return M1.Core.Char.isTitleCase(c475);
   };
-  var char_lt__p = function(a481, b482) {
-    if (char_p(a481) !== false) {
+  var char_numeric_p = function(c476) {
+    if (char_p(c476) !== false) {
       var if_res240 = rvoid();
     } else {
-      var if_res240 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char<?"), $rjs_core.UString.make("char?"), a481));
+      var if_res240 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-numeric?"), $rjs_core.UString.make("char?"), c476));
     }
     if_res240;
-    if (char_p(b482) !== false) {
+    return M1.Core.Char.isNumeric(c476);
+  };
+  var char_symbolic_p = function(c477) {
+    if (char_p(c477) !== false) {
       var if_res241 = rvoid();
     } else {
-      var if_res241 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char<?"), $rjs_core.UString.make("char?"), b482));
+      var if_res241 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-symbolic?"), $rjs_core.UString.make("char?"), c477));
     }
     if_res241;
-    return a481 < b482;
+    return M1.Core.Char.isSymbolic(c477);
   };
-  var char_lt__eq__p = function(a483, b484) {
-    if (char_p(a483) !== false) {
+  var char_punctuation_p = function(c478) {
+    if (char_p(c478) !== false) {
       var if_res242 = rvoid();
     } else {
-      var if_res242 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char<=?"), $rjs_core.UString.make("char?"), a483));
+      var if_res242 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-punctuation?"), $rjs_core.UString.make("char?"), c478));
     }
     if_res242;
-    if (char_p(b484) !== false) {
+    return M1.Core.Char.isPunctuation(c478);
+  };
+  var char_graphic_p = function(c479) {
+    if (char_p(c479) !== false) {
       var if_res243 = rvoid();
     } else {
-      var if_res243 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char<=?"), $rjs_core.UString.make("char?"), b484));
+      var if_res243 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-graphic?"), $rjs_core.UString.make("char?"), c479));
     }
     if_res243;
-    return a483 <= b484;
+    return M1.Core.Char.isGraphic(c479);
   };
-  var char_gt__p = function(a485, b486) {
-    if (char_p(a485) !== false) {
+  var char_whitespace_p = function(c480) {
+    if (char_p(c480) !== false) {
       var if_res244 = rvoid();
     } else {
-      var if_res244 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char>?"), $rjs_core.UString.make("char?"), a485));
+      var if_res244 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-whitespace?"), $rjs_core.UString.make("char?"), c480));
     }
     if_res244;
-    if (char_p(b486) !== false) {
+    return M1.Core.Char.isWhitespace(c480);
+  };
+  var char_blank_p = function(c481) {
+    if (char_p(c481) !== false) {
       var if_res245 = rvoid();
     } else {
-      var if_res245 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char>?"), $rjs_core.UString.make("char?"), b486));
+      var if_res245 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-blank?"), $rjs_core.UString.make("char?"), c481));
     }
     if_res245;
-    return a485 > b486;
+    return M1.Core.Char.isBlank(c481);
   };
-  var char_gt__eq__p = function(a487, b488) {
-    if (char_p(a487) !== false) {
+  var char_iso_control_p = function(c482) {
+    if (char_p(c482) !== false) {
       var if_res246 = rvoid();
     } else {
-      var if_res246 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char>=?"), $rjs_core.UString.make("char?"), a487));
+      var if_res246 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char-iso-control?"), $rjs_core.UString.make("char?"), c482));
     }
     if_res246;
-    if (char_p(b488) !== false) {
+    return M1.Core.Char.isIsoControl(c482);
+  };
+  var char_lt__p = function(a483, b484) {
+    if (char_p(a483) !== false) {
       var if_res247 = rvoid();
     } else {
-      var if_res247 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char>=?"), $rjs_core.UString.make("char?"), b488));
+      var if_res247 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char<?"), $rjs_core.UString.make("char?"), a483));
     }
     if_res247;
-    return a487 >= b488;
-  };
-  var char_eq__p = function(a489, b490) {
-    if (char_p(a489) !== false) {
+    if (char_p(b484) !== false) {
       var if_res248 = rvoid();
     } else {
-      var if_res248 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char=?"), $rjs_core.UString.make("char?"), a489));
+      var if_res248 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char<?"), $rjs_core.UString.make("char?"), b484));
     }
     if_res248;
-    if (char_p(b490) !== false) {
+    return a483 < b484;
+  };
+  var char_lt__eq__p = function(a485, b486) {
+    if (char_p(a485) !== false) {
       var if_res249 = rvoid();
     } else {
-      var if_res249 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("char=?"), $rjs_core.UString.make("char?"), b490));
+      var if_res249 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char<=?"), $rjs_core.UString.make("char?"), a485));
     }
     if_res249;
-    return M0.Core.Char.eq(a489, b490);
+    if (char_p(b486) !== false) {
+      var if_res250 = rvoid();
+    } else {
+      var if_res250 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char<=?"), $rjs_core.UString.make("char?"), b486));
+    }
+    if_res250;
+    return a485 <= b486;
   };
-  var box = M0.Core.Box.make;
-  var unbox = function(v491) {
+  var char_gt__p = function(a487, b488) {
+    if (char_p(a487) !== false) {
+      var if_res251 = rvoid();
+    } else {
+      var if_res251 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char>?"), $rjs_core.UString.make("char?"), a487));
+    }
+    if_res251;
+    if (char_p(b488) !== false) {
+      var if_res252 = rvoid();
+    } else {
+      var if_res252 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char>?"), $rjs_core.UString.make("char?"), b488));
+    }
+    if_res252;
+    return a487 > b488;
+  };
+  var char_gt__eq__p = function(a489, b490) {
+    if (char_p(a489) !== false) {
+      var if_res253 = rvoid();
+    } else {
+      var if_res253 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char>=?"), $rjs_core.UString.make("char?"), a489));
+    }
+    if_res253;
+    if (char_p(b490) !== false) {
+      var if_res254 = rvoid();
+    } else {
+      var if_res254 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char>=?"), $rjs_core.UString.make("char?"), b490));
+    }
+    if_res254;
+    return a489 >= b490;
+  };
+  var char_eq__p = function(a491, b492) {
+    if (char_p(a491) !== false) {
+      var if_res255 = rvoid();
+    } else {
+      var if_res255 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char=?"), $rjs_core.UString.make("char?"), a491));
+    }
+    if_res255;
+    if (char_p(b492) !== false) {
+      var if_res256 = rvoid();
+    } else {
+      var if_res256 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("char=?"), $rjs_core.UString.make("char?"), b492));
+    }
+    if_res256;
+    return M1.Core.Char.eq(a491, b492);
+  };
+  var box = M1.Core.Box.make;
+  var unbox = function(v493) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return v491.get();
+    return v493.get();
   };
-  var set_box_bang_ = function(b492, v493) {
+  var set_box_bang_ = function(b494, v495) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return b492.set(v493);
+    return b494.set(v495);
   };
-  var let_result250 = M0.Core.Struct.makeStructTypeProperty({'name': $rjs_core.UString.make("prop:evt")});
-  var prop_evt = let_result250.getAt(0);
-  var evt_p = let_result250.getAt(1);
+  var let_result257 = M1.Core.Struct.makeStructTypeProperty({'name': $rjs_core.UString.make("prop:evt")});
+  var prop_evt = let_result257.getAt(0);
+  var evt_p = let_result257.getAt(1);
   var prop_checked_procedure = make_struct_type_property($rjs_core.UString.make("prop:checked-procedure")).getAt(0);
   var prop_impersonator_of = make_struct_type_property($rjs_core.UString.make("prop:impersonator-of")).getAt(0);
   var prop_arity_string = make_struct_type_property($rjs_core.UString.make("prop:arity-string")).getAt(0);
   var prop_incomplete_arity = make_struct_type_property($rjs_core.UString.make("prop:incomplete-arity")).getAt(0);
   var prop_method_arity_error = make_struct_type_property($rjs_core.UString.make("prop:method-arity-error")).getAt(0);
   var prop_exn_srclocs = make_struct_type_property($rjs_core.UString.make("prop:exn:srclocs")).getAt(0);
-  var prop_procedure = M0.Core.Struct.propProcedure;
-  var prop_equal_plus_hash = M0.Core.Struct.propEqualHash;
-  var error = M0.Kernel.error;
-  var raise_argument_error = M0.Kernel.argerror;
-  var raise_arguments_error = M0.Kernel.argserror;
-  var raise_mismatch_error = M0.Kernel.mismatcherror;
-  var bytes_p = function(bs494) {
+  var prop_procedure = M1.Core.Struct.propProcedure;
+  var prop_equal_plus_hash = M1.Core.Struct.propEqualHash;
+  var error = M1.Kernel.error;
+  var raise_argument_error = M1.Kernel.argerror;
+  var raise_arguments_error = M1.Kernel.argserror;
+  var raise_mismatch_error = M1.Kernel.mismatcherror;
+  var bytes_p = function(bs496) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Bytes.check(bs494);
+    return M1.Core.Bytes.check(bs496);
   };
-  var bytes__gt_string_by_utf_8 = function(bs495) {
-    if (bytes_p(bs495) !== false) {
-      var if_res251 = rvoid();
-    } else {
-      var if_res251 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes->string/utf-8"), $rjs_core.UString.make("bytes?"), bs495));
-    }
-    if_res251;
-    return M0.Core.UString.fromBytesUtf8(bs495);
-  };
-  var string__gt_bytes_by_utf_8 = function(str496) {
-    if (string_p(str496) !== false) {
-      var if_res252 = rvoid();
-    } else {
-      var if_res252 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("string->bytes/utf-8"), $rjs_core.UString.make("string?"), str496));
-    }
-    if_res252;
-    return M0.Core.UString.toBytesUtf8(str496);
-  };
-  var bytes_eq__p = function(bstr1497, bstr2498) {
-    if (bytes_p(bstr1497) !== false) {
-      var if_res253 = rvoid();
-    } else {
-      var if_res253 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes=?"), $rjs_core.UString.make("bytes?"), bstr1497));
-    }
-    if_res253;
-    if (bytes_p(bstr2498) !== false) {
-      var if_res254 = rvoid();
-    } else {
-      var if_res254 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes=?"), $rjs_core.UString.make("bytes?"), bstr2498));
-    }
-    if_res254;
-    return M0.Core.Bytes.eq(bstr1497, bstr2498);
-  };
-  var bytes_lt__p = function(bstr1499, bstr2500) {
-    if (bytes_p(bstr1499) !== false) {
-      var if_res255 = rvoid();
-    } else {
-      var if_res255 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes<?"), $rjs_core.UString.make("bytes?"), bstr1499));
-    }
-    if_res255;
-    if (bytes_p(bstr2500) !== false) {
-      var if_res256 = rvoid();
-    } else {
-      var if_res256 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes<?"), $rjs_core.UString.make("bytes?"), bstr2500));
-    }
-    if_res256;
-    return M0.Core.Bytes.lt(bstr1499, bstr2500);
-  };
-  var bytes_gt__p = function(bstr1501, bstr2502) {
-    if (bytes_p(bstr1501) !== false) {
-      var if_res257 = rvoid();
-    } else {
-      var if_res257 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes>?"), $rjs_core.UString.make("bytes?"), bstr1501));
-    }
-    if_res257;
-    if (bytes_p(bstr2502) !== false) {
+  var bytes__gt_string_by_utf_8 = function(bs497) {
+    if (bytes_p(bs497) !== false) {
       var if_res258 = rvoid();
     } else {
-      var if_res258 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("bytes>?"), $rjs_core.UString.make("bytes?"), bstr2502));
+      var if_res258 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes->string/utf-8"), $rjs_core.UString.make("bytes?"), bs497));
     }
     if_res258;
-    return M0.Core.Bytes.gt(bstr1501, bstr2502);
+    return M1.Core.UString.fromBytesUtf8(bs497);
   };
-  var current_continuation_marks = M0.Core.Marks.getContinuationMarks;
-  var continuation_mark_set__gt_list = M0.Core.Marks.getMarks;
-  var continuation_mark_set_first = function(mark_set503, key_v504, none_v505, prompt_tag506) {
-    var let_result259 = values();
-    var mark_set507 = mark_set507 || M0.Core.Marks.getContinuationMarks(prompt_tag506);
-    var marks508 = M0.Core.Marks.getMarks(mark_set507, key_v504, prompt_tag506);
-    if (null_p(marks508) !== false) {
-      var if_res260 = none_v505;
+  var string__gt_bytes_by_utf_8 = function(str498) {
+    if (string_p(str498) !== false) {
+      var if_res259 = rvoid();
     } else {
-      var if_res260 = marks508.hd;
+      var if_res259 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("string->bytes/utf-8"), $rjs_core.UString.make("string?"), str498));
     }
-    return if_res260;
+    if_res259;
+    return M1.Core.UString.toBytesUtf8(str498);
   };
-  var make_parameter = M0.Paramz.makeParameter;
-  var call_with_continuation_prompt = M0.Core.Marks.callWithContinuationPrompt;
-  var abort_current_continuation = function(prompt_tag509) {
-    if ((arguments.length < 1) !== false) {
-      throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-      var if_res261 = null;
+  var bytes_eq__p = function(bstr1499, bstr2500) {
+    if (bytes_p(bstr1499) !== false) {
+      var if_res260 = rvoid();
     } else {
+      var if_res260 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes=?"), $rjs_core.UString.make("bytes?"), bstr1499));
+    }
+    if_res260;
+    if (bytes_p(bstr2500) !== false) {
       var if_res261 = rvoid();
+    } else {
+      var if_res261 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes=?"), $rjs_core.UString.make("bytes?"), bstr2500));
     }
     if_res261;
-    var let_result262 = values();
-    var args510 = Array.prototype.slice.call(arguments, 1);
-    throw new M0.Core.Marks.AbortCurrentContinuation(prompt_tag509, args510);
-    return null;
+    return M1.Core.Bytes.eq(bstr1499, bstr2500);
   };
-  var make_continuation_prompt_tag = M0.Core.Marks.makeContinuationPromptTag;
-  var default_continuation_prompt_tag = M0.Core.Marks.defaultContinuationPromptTag;
-  var raise = M0.Kernel.doraise;
-  var exn_fail_p = M0.Core.isErr;
-  var exn_fail_contract_p = M0.Core.isContractErr;
-  var exn_fail_contract_arity_p = M0.Core.isContractErr;
-  var exn_message = function(e511) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return M0.Core.UString.makeMutable(M0.Core.errMsg(e511));
-  };
-  var current_output_port = make_parameter(M0.Core.Ports.standardOutputPort);
-  var current_error_port = make_parameter(M0.Core.Ports.standardErrorPort);
-  var current_print = make_parameter(function(p512) {
-    if (void_p(p512) !== false) {
+  var bytes_lt__p = function(bstr1501, bstr2502) {
+    if (bytes_p(bstr1501) !== false) {
+      var if_res262 = rvoid();
+    } else {
+      var if_res262 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes<?"), $rjs_core.UString.make("bytes?"), bstr1501));
+    }
+    if_res262;
+    if (bytes_p(bstr2502) !== false) {
       var if_res263 = rvoid();
     } else {
-      print(p512);
-      var if_res263 = newline();
+      var if_res263 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes<?"), $rjs_core.UString.make("bytes?"), bstr2502));
     }
-    return if_res263;
+    if_res263;
+    return M1.Core.Bytes.lt(bstr1501, bstr2502);
+  };
+  var bytes_gt__p = function(bstr1503, bstr2504) {
+    if (bytes_p(bstr1503) !== false) {
+      var if_res264 = rvoid();
+    } else {
+      var if_res264 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes>?"), $rjs_core.UString.make("bytes?"), bstr1503));
+    }
+    if_res264;
+    if (bytes_p(bstr2504) !== false) {
+      var if_res265 = rvoid();
+    } else {
+      var if_res265 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("bytes>?"), $rjs_core.UString.make("bytes?"), bstr2504));
+    }
+    if_res265;
+    return M1.Core.Bytes.gt(bstr1503, bstr2504);
+  };
+  var current_continuation_marks = M1.Core.Marks.getContinuationMarks;
+  var continuation_mark_set__gt_list = M1.Core.Marks.getMarks;
+  var continuation_mark_set_first = function(mark_set505, key_v506, none_v507, prompt_tag508) {
+    var let_result266 = values();
+    var mark_set509 = mark_set509 || M1.Core.Marks.getContinuationMarks(prompt_tag508);
+    var marks510 = M1.Core.Marks.getMarks(mark_set509, key_v506, prompt_tag508);
+    if (null_p(marks510) !== false) {
+      var if_res267 = none_v507;
+    } else {
+      var if_res267 = marks510.hd;
+    }
+    return if_res267;
+  };
+  var make_parameter = M1.Paramz.makeParameter;
+  var call_with_continuation_prompt = M1.Core.Marks.callWithContinuationPrompt;
+  var abort_current_continuation = function(prompt_tag511) {
+    if ((arguments.length < 1) !== false) {
+      throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+      var if_res268 = null;
+    } else {
+      var if_res268 = rvoid();
+    }
+    if_res268;
+    var let_result269 = values();
+    var args512 = Array.prototype.slice.call(arguments, 1);
+    throw new M1.Core.Marks.AbortCurrentContinuation(prompt_tag511, args512);
+    return null;
+  };
+  var make_continuation_prompt_tag = M1.Core.Marks.makeContinuationPromptTag;
+  var default_continuation_prompt_tag = M1.Core.Marks.defaultContinuationPromptTag;
+  var raise = M1.Kernel.doraise;
+  var exn_fail_p = M1.Core.isErr;
+  var exn_fail_contract_p = M1.Core.isContractErr;
+  var exn_fail_contract_arity_p = M1.Core.isContractErr;
+  var exn_message = function(e513) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return M1.Core.UString.makeMutable(M1.Core.errMsg(e513));
+  };
+  var current_output_port = make_parameter(M1.Core.Ports.standardOutputPort);
+  var current_error_port = make_parameter(M1.Core.Ports.standardErrorPort);
+  var current_print = make_parameter(function(p514) {
+    if (void_p(p514) !== false) {
+      var if_res270 = rvoid();
+    } else {
+      print(p514);
+      var if_res270 = newline();
+    }
+    return if_res270;
   });
-  var port_p = function(p513) {
+  var port_p = function(p515) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.check(p513);
+    return M1.Core.Ports.check(p515);
   };
-  var input_port_p = function(p514) {
+  var input_port_p = function(p516) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.isInputPort(p514);
+    return M1.Core.Ports.isInputPort(p516);
   };
-  var output_port_p = function(p515) {
+  var output_port_p = function(p517) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.isOutputPort(p515);
+    return M1.Core.Ports.isOutputPort(p517);
   };
-  var string_port_p = function(p516) {
+  var string_port_p = function(p518) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.isStringPort(p516);
+    return M1.Core.Ports.isStringPort(p518);
   };
   var open_output_string = function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.openOutputString();
+    return M1.Core.Ports.openOutputString();
   };
-  var get_output_string = function(p517) {
+  var get_output_string = function(p519) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Ports.getOutputString(p517);
+    return M1.Core.Ports.getOutputString(p519);
   };
   var print_as_expression = make_parameter(true);
-  var display19518 = function(datum18519, out17520) {
-    if (arguments.length !== 2) {
+  var display24520 = function(datum23521, out21522, out22523) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum521 = datum18519;
-    if (eq_p(out17520, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res264 = current_output_port();
+    var datum524 = datum23521;
+    if (out22523 !== false) {
+      var if_res271 = out21522;
     } else {
-      var if_res264 = out17520;
+      var if_res271 = current_output_port();
     }
-    var out522 = if_res264;
-    return M0.Core.display(out522, datum521);
+    var out525 = if_res271;
+    return M1.Core.display(out525, datum524);
   };
-  var cl265 = function(datum523) {
+  var cl272 = function(datum526) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return display19518(datum523, M3.__rjs_quoted__.unsafe_undefined);
+    return display24520(datum526, false, false);
   };
-  var cl266 = function(datum524, out17525) {
+  var cl273 = function(datum527, out21528) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return display19518(datum524, out17525);
+    return display24520(datum527, out21528, true);
   };
   var display = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam267 = {
-      '1': cl265,
-      '2': cl266
+    var fixed_lam274 = {
+      '1': cl272,
+      '2': cl273
     }[arguments.length];
-    if (fixed_lam267 !== undefined) {
-      return fixed_lam267.apply(null, arguments);
+    if (fixed_lam274 !== undefined) {
+      return fixed_lam274.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var displayln23526 = function(datum22527, out21528) {
-    if (arguments.length !== 2) {
+  var displayln29529 = function(datum28530, out26531, out27532) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum529 = datum22527;
-    if (eq_p(out21528, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res268 = current_output_port();
+    var datum533 = datum28530;
+    if (out27532 !== false) {
+      var if_res275 = out26531;
     } else {
-      var if_res268 = out21528;
+      var if_res275 = current_output_port();
     }
-    var out530 = if_res268;
-    display(datum529, out530);
-    return newline(out530);
+    var out534 = if_res275;
+    display(datum533, out534);
+    return newline(out534);
   };
-  var cl269 = function(datum531) {
+  var cl276 = function(datum535) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return displayln23526(datum531, M3.__rjs_quoted__.unsafe_undefined);
+    return displayln29529(datum535, false, false);
   };
-  var cl270 = function(datum532, out21533) {
+  var cl277 = function(datum536, out26537) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return displayln23526(datum532, out21533);
+    return displayln29529(datum536, out26537, true);
   };
   var displayln = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam271 = {
-      '1': cl269,
-      '2': cl270
+    var fixed_lam278 = {
+      '1': cl276,
+      '2': cl277
     }[arguments.length];
-    if (fixed_lam271 !== undefined) {
-      return fixed_lam271.apply(null, arguments);
+    if (fixed_lam278 !== undefined) {
+      return fixed_lam278.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var write27534 = function(datum26535, out25536) {
-    if (arguments.length !== 2) {
+  var write34538 = function(datum33539, out31540, out32541) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum537 = datum26535;
-    if (eq_p(out25536, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res272 = current_output_port();
+    var datum542 = datum33539;
+    if (out32541 !== false) {
+      var if_res279 = out31540;
     } else {
-      var if_res272 = out25536;
+      var if_res279 = current_output_port();
     }
-    var out538 = if_res272;
-    return M0.Core.write(out538, datum537);
+    var out543 = if_res279;
+    return M1.Core.write(out543, datum542);
   };
-  var cl273 = function(datum539) {
+  var cl280 = function(datum544) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return write27534(datum539, M3.__rjs_quoted__.unsafe_undefined);
+    return write34538(datum544, false, false);
   };
-  var cl274 = function(datum540, out25541) {
+  var cl281 = function(datum545, out31546) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return write27534(datum540, out25541);
+    return write34538(datum545, out31546, true);
   };
   var write = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam275 = {
-      '1': cl273,
-      '2': cl274
+    var fixed_lam282 = {
+      '1': cl280,
+      '2': cl281
     }[arguments.length];
-    if (fixed_lam275 !== undefined) {
-      return fixed_lam275.apply(null, arguments);
+    if (fixed_lam282 !== undefined) {
+      return fixed_lam282.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var writeln31542 = function(datum30543, out29544) {
-    if (arguments.length !== 2) {
+  var writeln39547 = function(datum38548, out36549, out37550) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum545 = datum30543;
-    if (eq_p(out29544, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res276 = current_output_port();
+    var datum551 = datum38548;
+    if (out37550 !== false) {
+      var if_res283 = out36549;
     } else {
-      var if_res276 = out29544;
+      var if_res283 = current_output_port();
     }
-    var out546 = if_res276;
-    write(datum545, out546);
-    return newline(out546);
+    var out552 = if_res283;
+    write(datum551, out552);
+    return newline(out552);
   };
-  var cl277 = function(datum547) {
+  var cl284 = function(datum553) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return writeln31542(datum547, M3.__rjs_quoted__.unsafe_undefined);
+    return writeln39547(datum553, false, false);
   };
-  var cl278 = function(datum548, out29549) {
+  var cl285 = function(datum554, out36555) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return writeln31542(datum548, out29549);
+    return writeln39547(datum554, out36555, true);
   };
   var writeln = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam279 = {
-      '1': cl277,
-      '2': cl278
+    var fixed_lam286 = {
+      '1': cl284,
+      '2': cl285
     }[arguments.length];
-    if (fixed_lam279 !== undefined) {
-      return fixed_lam279.apply(null, arguments);
+    if (fixed_lam286 !== undefined) {
+      return fixed_lam286.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var print36550 = function(datum35551, out33552, quote_depth34553) {
-    if (arguments.length !== 3) {
+  var print46556 = function(datum45557, out41558, quote_depth42559, out43560, quote_depth44561) {
+    if (arguments.length !== 5) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum554 = datum35551;
-    if (eq_p(out33552, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res280 = current_output_port();
+    var datum562 = datum45557;
+    if (out43560 !== false) {
+      var if_res287 = out41558;
     } else {
-      var if_res280 = out33552;
+      var if_res287 = current_output_port();
     }
-    var out555 = if_res280;
-    if (false !== false) {
-      var if_res281 = 0;
+    var out563 = if_res287;
+    if (quote_depth44561 !== false) {
+      var if_res288 = quote_depth42559;
     } else {
-      var if_res281 = quote_depth34553;
+      var if_res288 = 0;
     }
-    var quote_depth556 = if_res281;
-    return M0.Core.print(out555, datum554, print_as_expression(), quote_depth556);
+    var quote_depth564 = if_res288;
+    return M1.Core.print(out563, datum562, print_as_expression(), quote_depth564);
   };
-  var cl282 = function(datum557) {
+  var cl289 = function(datum565) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return print36550(datum557, M3.__rjs_quoted__.unsafe_undefined, 0);
+    return print46556(datum565, false, false, false, false);
   };
-  var cl283 = function(datum558, out559, quote_depth34560) {
+  var cl290 = function(datum566, out567, quote_depth42568) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return print36550(datum558, out559, quote_depth34560);
+    return print46556(datum566, out567, quote_depth42568, true, true);
   };
-  var cl284 = function(datum561, out33562) {
+  var cl291 = function(datum569, out41570) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return print36550(datum561, out33562, 0);
+    return print46556(datum569, out41570, false, true, false);
   };
   var print = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam285 = {
-      '1': cl282,
-      '3': cl283,
-      '2': cl284
+    var fixed_lam292 = {
+      '1': cl289,
+      '3': cl290,
+      '2': cl291
     }[arguments.length];
-    if (fixed_lam285 !== undefined) {
-      return fixed_lam285.apply(null, arguments);
+    if (fixed_lam292 !== undefined) {
+      return fixed_lam292.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2, 3]);
-  var println40563 = function(datum39564, out38565) {
-    if (arguments.length !== 2) {
+  var println51571 = function(datum50572, out48573, out49574) {
+    if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    var datum566 = datum39564;
-    if (eq_p(out38565, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res286 = current_output_port();
+    var datum575 = datum50572;
+    if (out49574 !== false) {
+      var if_res293 = out48573;
     } else {
-      var if_res286 = out38565;
+      var if_res293 = current_output_port();
     }
-    var out567 = if_res286;
-    print(datum566, out567);
-    return newline(out567);
+    var out576 = if_res293;
+    print(datum575, out576);
+    return newline(out576);
   };
-  var cl287 = function(datum568) {
+  var cl294 = function(datum577) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return println40563(datum568, M3.__rjs_quoted__.unsafe_undefined);
+    return println51571(datum577, false, false);
   };
-  var cl288 = function(datum569, out38570) {
+  var cl295 = function(datum578, out48579) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return println40563(datum569, out38570);
+    return println51571(datum578, out48579, true);
   };
   var println = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam289 = {
-      '1': cl287,
-      '2': cl288
+    var fixed_lam296 = {
+      '1': cl294,
+      '2': cl295
     }[arguments.length];
-    if (fixed_lam289 !== undefined) {
-      return fixed_lam289.apply(null, arguments);
+    if (fixed_lam296 !== undefined) {
+      return fixed_lam296.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var newline43571 = function(out42572) {
-    if (arguments.length !== 1) {
+  var newline55580 = function(out53581, out54582) {
+    if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (eq_p(out42572, M3.__rjs_quoted__.unsafe_undefined) !== false) {
-      var if_res290 = current_output_port();
+    if (out54582 !== false) {
+      var if_res297 = out53581;
     } else {
-      var if_res290 = out42572;
+      var if_res297 = current_output_port();
     }
-    var out573 = if_res290;
-    return display($rjs_core.UString.make("\n"), out573);
+    var out583 = if_res297;
+    return display($rjs_core.UString.make("\n"), out583);
   };
-  var cl291 = function() {
+  var cl298 = function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return newline43571(M3.__rjs_quoted__.unsafe_undefined);
+    return newline55580(false, false);
   };
-  var cl292 = function(out42574) {
+  var cl299 = function(out53584) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return newline43571(out42574);
+    return newline55580(out53584, true);
   };
   var newline = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam293 = {
-      '0': cl291,
-      '1': cl292
+    var fixed_lam300 = {
+      '0': cl298,
+      '1': cl299
     }[arguments.length];
-    if (fixed_lam293 !== undefined) {
-      return fixed_lam293.apply(null, arguments);
+    if (fixed_lam300 !== undefined) {
+      return fixed_lam300.apply(null, arguments);
     } else {
       return error($rjs_core.UString.make("case-lambda: invalid case"));
     }
@@ -7785,24 +6992,24 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     } else {}
     return false;
   };
-  var random = M0.Kernel.random;
+  var random = M1.Kernel.random;
   var current_seconds = function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return Math.floor(Date.now() / 1000);
   };
-  var object_name = function(fn575) {
+  var object_name = function(fn585) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return fn575.name;
+    return fn585.name;
   };
-  var unquoted_printing_string = function(s576) {
+  var unquoted_printing_string = function(s586) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return s576;
+    return s586;
   };
   var error_print_width = function() {
     if (arguments.length !== 0) {
@@ -7814,168 +7021,168 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return function(x577, n578) {
+    return function(x587, n588) {
       if ((arguments.length !== 2) !== false) {
-        throw M0.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
-        var if_res294 = null;
+        throw M1.Core.racketContractError($rjs_core.UString.make("arity mismatch"));
+        var if_res301 = null;
       } else {
-        var if_res294 = rvoid();
+        var if_res301 = rvoid();
       }
-      if_res294;
+      if_res301;
       return $rjs_core.UString.make("str");
     };
   };
-  var procedure_arity_mask = function(fn579) {
+  var procedure_arity_mask = function(fn589) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return procedure_arity(fn579);
+    return procedure_arity(fn589);
   };
-  var bitwise_bit_set_p = function(mask580, n581) {
+  var bitwise_bit_set_p = function(mask590, n591) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return true;
   };
-  var procedure_extract_target = function(f582) {
+  var procedure_extract_target = function(f592) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return false;
   };
-  var regexp_p = function(v583) {
+  var regexp_p = function(v593) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Regexp.check(v583);
+    return M1.Core.Regexp.check(v593);
   };
   var pregexp_p = regexp_p;
   var byte_regexp_p = regexp_p;
   var byte_pregexp_p = regexp_p;
-  var regexp = function(str584) {
-    if (string_p(str584) !== false) {
-      var if_res295 = rvoid();
+  var regexp = function(str594) {
+    if (string_p(str594) !== false) {
+      var if_res302 = rvoid();
     } else {
-      var if_res295 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("regexp"), $rjs_core.UString.make("string?"), str584));
+      var if_res302 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("regexp"), $rjs_core.UString.make("string?"), str594));
     }
-    if_res295;
-    return M0.Core.Regexp.fromString(str584);
+    if_res302;
+    return M1.Core.Regexp.fromString(str594);
   };
   var pregexp = regexp;
-  var byte_regexp = function(bs585) {
-    if (bytes_p(bs585) !== false) {
-      var if_res296 = rvoid();
+  var byte_regexp = function(bs595) {
+    if (bytes_p(bs595) !== false) {
+      var if_res303 = rvoid();
     } else {
-      var if_res296 = M0.Kernel.doraise(M0.Core.makeArgumentError($rjs_core.Symbol.make("byte-regexp"), $rjs_core.UString.make("bytes?"), bs585));
+      var if_res303 = M1.Kernel.doraise(M1.Core.makeArgumentError($rjs_core.Symbol.make("byte-regexp"), $rjs_core.UString.make("bytes?"), bs595));
     }
-    if_res296;
-    return M0.Core.Regexp.fromString(bytes__gt_string_by_utf_8(bs585));
+    if_res303;
+    return M1.Core.Regexp.fromString(bytes__gt_string_by_utf_8(bs595));
   };
   var byte_pregexp = byte_regexp;
-  var regexp_match = function(pattern586, input587) {
+  var regexp_match = function(pattern596, input597) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return M0.Core.Regexp.match(pattern586, input587);
+    return M1.Core.Regexp.match(pattern596, input597);
   };
-  var let_result297 = make_struct_type($rjs_core.Symbol.make("kernel:arity-at-least"), false, 1, 0, false, rnull, false, false, $rjs_core.Pair.makeList(0), false, $rjs_core.Symbol.make("kernel:arity-at-least"));
-  var struct_588 = let_result297.getAt(0);
-  var make_589 = let_result297.getAt(1);
-  var __p590 = let_result297.getAt(2);
-  var __ref591 = let_result297.getAt(3);
-  var __set_bang_592 = let_result297.getAt(4);
-  var let_result298 = values(struct_588, make_589, __p590, make_struct_field_accessor(__ref591, 0, $rjs_core.Symbol.make("value")));
-  var struct_kernel_arity_at_least = let_result298.getAt(0);
-  var make_arity_at_least = let_result298.getAt(1);
-  var kernel_arity_at_least_p = let_result298.getAt(2);
-  var kernel_arity_at_least_value = let_result298.getAt(3);
-  var procedure_p = function(f593) {
+  var let_result304 = make_struct_type($rjs_core.Symbol.make("kernel:arity-at-least"), false, 1, 0, false, rnull, false, false, $rjs_core.Pair.makeList(0), false, $rjs_core.Symbol.make("kernel:arity-at-least"));
+  var struct_598 = let_result304.getAt(0);
+  var make_599 = let_result304.getAt(1);
+  var __p600 = let_result304.getAt(2);
+  var __ref601 = let_result304.getAt(3);
+  var __set_bang_602 = let_result304.getAt(4);
+  var let_result305 = values(struct_598, make_599, __p600, make_struct_field_accessor(__ref601, 0, $rjs_core.Symbol.make("value")));
+  var struct_kernel_arity_at_least = let_result305.getAt(0);
+  var make_arity_at_least = let_result305.getAt(1);
+  var kernel_arity_at_least_p = let_result305.getAt(2);
+  var kernel_arity_at_least_value = let_result305.getAt(3);
+  var procedure_p = function(f603) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return typeof(f593) === "function";
+    return typeof(f603) === "function";
   };
   var arity_at_least = make_arity_at_least;
-  var arity_at_least_p = function(p594) {
+  var arity_at_least_p = function(p604) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return kernel_arity_at_least_p(p594);
+    return kernel_arity_at_least_p(p604);
   };
-  var arity_at_least_value = function(p595) {
+  var arity_at_least_value = function(p605) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return kernel_arity_at_least_value(p595);
+    return kernel_arity_at_least_value(p605);
   };
-  var procedure_arity_includes_p = function(fn596, n597) {
-    var ar598 = procedure_arity(fn596);
-    if (kernel_arity_at_least_p(ar598) !== false) {
-      var if_res300 = __lt__eq_(kernel_arity_at_least_value(ar598), n597);
+  var procedure_arity_includes_p = function(fn606, n607) {
+    var ar608 = procedure_arity(fn606);
+    if (kernel_arity_at_least_p(ar608) !== false) {
+      var if_res307 = __lt__eq_(kernel_arity_at_least_value(ar608), n607);
     } else {
-      if (list_p(ar598) !== false) {
-        var if_res299 = member(n597, ar598);
+      if (list_p(ar608) !== false) {
+        var if_res306 = member(n607, ar608);
       } else {
-        var if_res299 = n597 === ar598;
+        var if_res306 = n607 === ar608;
       }
-      var if_res300 = if_res299;
+      var if_res307 = if_res306;
     }
-    return if_res300;
+    return if_res307;
   };
-  var procedure_arity = function(fn599) {
+  var procedure_arity = function(fn609) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if (Array.isArray(fn599.__rjs_arityValue) !== false) {
-      if ((fn599.__rjs_arityValue.length === 1) !== false) {
-        var if_res301 = fn599.__rjs_arityValue[0];
+    if (Array.isArray(fn609.__rjs_arityValue) !== false) {
+      if ((fn609.__rjs_arityValue.length === 1) !== false) {
+        var if_res308 = fn609.__rjs_arityValue[0];
       } else {
-        var if_res301 = M0.Core.Pair.listFromArray(fn599.__rjs_arityValue);
+        var if_res308 = M1.Core.Pair.listFromArray(fn609.__rjs_arityValue);
       }
-      var if_res303 = if_res301;
+      var if_res310 = if_res308;
     } else {
-      if ((fn599.__rjs_arityValue === undefined) !== false) {
-        var if_res302 = fn599.length;
+      if ((fn609.__rjs_arityValue === undefined) !== false) {
+        var if_res309 = fn609.length;
       } else {
-        var if_res302 = make_arity_at_least(fn599.__rjs_arityValue || fn599.length);
+        var if_res309 = make_arity_at_least(fn609.__rjs_arityValue || fn609.length);
       }
-      var if_res303 = if_res302;
+      var if_res310 = if_res309;
     }
-    return if_res303;
+    return if_res310;
   };
-  var procedure_arity_p = function(v600) {
+  var procedure_arity_p = function(v610) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return (exact_nonnegative_integer_p(v600) || kernel_arity_at_least_p(v600)) || ormap(function(v601) {
+    return (exact_nonnegative_integer_p(v610) || kernel_arity_at_least_p(v610)) || ormap(function(v611) {
       if (arguments.length !== 1) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return exact_nonnegative_integer_p(v601) || kernel_arity_at_least_p(v601);
-    }, v600);
+      return exact_nonnegative_integer_p(v611) || kernel_arity_at_least_p(v611);
+    }, v610);
   };
-  var checked_procedure_check_and_extract = function(type602, v603, proc604, v1605, v2606) {
+  var checked_procedure_check_and_extract = function(type612, v613, proc614, v1615, v2616) {
     if (arguments.length !== 5) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    if ((M0.Core.Struct.check(v603, type602) && type602._findProperty(prop_checked_procedure)) !== false) {
-      var fn607 = v603.getField(0);
-      var r1608 = fn607(v1605, v2606);
-      if (r1608 !== false) {
-        var if_res304 = v603.getField(1);
+    if ((M1.Core.Struct.check(v613, type612) && type612._findProperty(prop_checked_procedure)) !== false) {
+      var fn617 = v613.getField(0);
+      var r1618 = fn617(v1615, v2616);
+      if (r1618 !== false) {
+        var if_res311 = v613.getField(1);
       } else {
-        var if_res304 = proc604(v603, v1605, v2606);
+        var if_res311 = proc614(v613, v1615, v2616);
       }
-      var if_res305 = if_res304;
+      var if_res312 = if_res311;
     } else {
-      var if_res305 = proc604(v603, v1605, v2606);
+      var if_res312 = proc614(v613, v1615, v2616);
     }
-    return if_res305;
+    return if_res312;
   };
-  var gensym = function(sym609) {
-    var s610 = (sym609 && sym609.v) || $rjs_core.UString.make("");
+  var gensym = function(sym619) {
+    var s620 = (sym619 && sym619.v) || $rjs_core.UString.make("");
     __count = __count + 1;
-    return M0.Core.Symbol.makeUninterned(s610 + __count);
+    return M1.Core.Symbol.makeUninterned(s620 + __count);
   };
   var eval_jit_enabled = function() {
     if (arguments.length !== 0) {
@@ -7983,46 +7190,45 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     } else {}
     return false;
   };
-  var variable_reference_constant_p = function(x611) {
+  var variable_reference_constant_p = function(x621) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return false;
   };
-  var variable_reference_from_unsafe_p = function(x612) {
+  var variable_reference_from_unsafe_p = function(x622) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return false;
   };
-  var inspector_p = function(p613) {
+  var inspector_p = function(p623) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     return true;
   };
-  var make_thread_cell = function(p614) {
+  var make_thread_cell = function(p624) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return p614;
+    return p624;
   };
   var __count = 1000;
-  var system_type = function(system_type615, mod616) {
+  var system_type = function(system_type625, mod626) {
     return $rjs_core.Symbol.make("javascript");
   };
   var make_weak_hash = make_hash;
   var make_weak_hasheqv = make_hasheqv;
   var make_weak_hasheq = make_hasheq;
   var __rjs_quoted__ = {};
+  __rjs_quoted__.make_struct_type_property = make_struct_type_property;
   __rjs_quoted__.__plus_ = __plus_;
   __rjs_quoted__.struct_kernel_arity_at_least = struct_kernel_arity_at_least;
   __rjs_quoted__.length = length;
-  __rjs_quoted__.make_struct_type_property = make_struct_type_property;
   __rjs_quoted__.kernel_arity_at_least_value = kernel_arity_at_least_value;
   __rjs_quoted__.make_arity_at_least = make_arity_at_least;
   __rjs_quoted__.kernel_arity_at_least_p = kernel_arity_at_least_p;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -8597,6 +7803,45 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     get char_utf_8_length() {
       return char_utf_8_length;
     },
+    get char_upcase() {
+      return char_upcase;
+    },
+    get char_downcase() {
+      return char_downcase;
+    },
+    get char_alphabetic_p() {
+      return char_alphabetic_p;
+    },
+    get char_lower_case_p() {
+      return char_lower_case_p;
+    },
+    get char_upper_case_p() {
+      return char_upper_case_p;
+    },
+    get char_title_case_p() {
+      return char_title_case_p;
+    },
+    get char_numeric_p() {
+      return char_numeric_p;
+    },
+    get char_symbolic_p() {
+      return char_symbolic_p;
+    },
+    get char_punctuation_p() {
+      return char_punctuation_p;
+    },
+    get char_graphic_p() {
+      return char_graphic_p;
+    },
+    get char_whitespace_p() {
+      return char_whitespace_p;
+    },
+    get char_blank_p() {
+      return char_blank_p;
+    },
+    get char_iso_control_p() {
+      return char_iso_control_p;
+    },
     get char_lt__p() {
       return char_lt__p;
     },
@@ -8899,22 +8144,19 @@ var $__runtime_47_kernel_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_core_46_rkt_46_js__ = (function() {
+const $__runtime_47_core_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/core.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
   var __rjs_quoted__ = {};
-  ;
   return {get __rjs_quoted__() {
       return __rjs_quoted__;
     }};
 })();
-var $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/reverse.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M1 = $__runtime_47_core_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M1 = $__runtime_47_core_46_rkt_46_js__;
   var reverse = function(l1907) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -8944,7 +8186,6 @@ var $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__ = (function() {
     return loop1908(M0.rnull, l1907);
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -8954,20 +8195,15 @@ var $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__ = (function() {
+const $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "links/racketscript-compiler/racketscript/private/interop.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
-  var ___js_ffi = $rjs_core.attachProcedureArity(function() {
-    for (var _618307 = [],
-        $__1 = 0; $__1 < arguments.length; $__1++)
-      _618307[$__1] = arguments[$__1];
-    var _618 = $rjs_core.Pair.listFromArray(_618307);
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  var ___js_ffi = $rjs_core.attachProcedureArity(function(..._628314) {
+    var _628 = $rjs_core.Pair.listFromArray(_628314);
     return M0.error($rjs_core.Symbol.make("racketscript"), $rjs_core.UString.make("can't make JS ffi calls in Racket"));
   });
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -8977,13 +8213,12 @@ var $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_4
     }
   };
 })();
-var $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js__ = (function() {
+const $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "links/racketscript-compiler/racketscript/interop.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
-  var M1 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M2 = $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
+  const M1 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M2 = $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__;
   var __eq__gt_$ = function(lam_expr750) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -9145,7 +8380,7 @@ var $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
-    return $traceurRuntime.typeof((v782)) === "object";
+    return typeof(v782) === "object";
   };
   var check_object = function(v783) {
     if (arguments.length !== 1) {
@@ -9163,7 +8398,6 @@ var $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js
   __rjs_quoted__.js_object_p = js_object_p;
   __rjs_quoted__.js_array_p = js_array_p;
   __rjs_quoted__.in_js_array = in_js_array;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -9182,11 +8416,10 @@ var $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js
     }
   };
 })();
-var $__collects_47_waxeye_47_fa_46_rkt_46_js__ = (function() {
+const $__collects_47_waxeye_47_fa_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/waxeye/fa.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
   var let_result1162 = M0.make_struct_type($rjs_core.Symbol.make("edge"), false, 3, 0, false, M0.rnull, M0.current_inspector(), false, $rjs_core.Pair.makeList(), false, $rjs_core.Symbol.make("edge"));
   var struct_1892 = let_result1162.getAt(0);
   var make_1893 = let_result1162.getAt(1);
@@ -9253,7 +8486,6 @@ var $__collects_47_waxeye_47_fa_46_rkt_46_js__ = (function() {
   __rjs_quoted__.set_edge_s_bang_ = set_edge_s_bang_;
   __rjs_quoted__.edge_v = edge_v;
   __rjs_quoted__.fa3 = fa3;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -9317,11 +8549,10 @@ var $__collects_47_waxeye_47_fa_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_waxeye_47_set_46_rkt_46_js__ = (function() {
+const $__collects_47_waxeye_47_set_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/waxeye/set.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
   var within_set_p = function(a3534, b3535) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -9365,7 +8596,6 @@ var $__collects_47_waxeye_47_set_46_rkt_46_js__ = (function() {
     return if_res2389;
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -9375,12 +8605,420 @@ var $__collects_47_waxeye_47_set_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
+const $__runtime_47_unsafe_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/kw.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M1 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const Core = $__runtime_47_core_46_js__;
+  var unsafe_fx_plus_ = function(a1, b2) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a1 + b2) | 0;
+  };
+  var unsafe_fx_ = function(a3, b4) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a3 - b4) | 0;
+  };
+  var unsafe_fx_times_ = function(a5, b6) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a5 * b6) | 0;
+  };
+  var unsafe_fxquotient = function(a7, b8) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a7 / b8) | 0;
+  };
+  var unsafe_fxremainder = function(a9, b10) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a9 % b10) | 0;
+  };
+  var unsafe_fxmodulo = function(a11, b12) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    var remainder13 = a11 % b12;
+    if ((remainder13 >= 0) !== false) {
+      var if_res1 = remainder13;
+    } else {
+      var if_res1 = remainder13 + b12;
+    }
+    return Math.floor(if_res1);
+  };
+  var unsafe_fxabs = function(a14) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return Math.abs(a14);
+  };
+  var unsafe_fx_eq_ = function(a15, b16) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return a15 === b16;
+  };
+  var unsafe_fx_lt_ = function(a17, b18) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return a17 < b18;
+  };
+  var unsafe_fx_lt__eq_ = function(a19, b20) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return a19 <= b20;
+  };
+  var unsafe_fx_gt_ = function(a21, b22) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return a21 > b22;
+  };
+  var unsafe_fx_gt__eq_ = function(a23, b24) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return a23 >= b24;
+  };
+  var unsafe_fxmin = function(a25, b26) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if ((a25 < b26) !== false) {
+      var if_res2 = a25;
+    } else {
+      var if_res2 = b26;
+    }
+    return if_res2;
+  };
+  var unsafe_fxmax = function(a27, b28) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    if ((a27 > b28) !== false) {
+      var if_res3 = b28;
+    } else {
+      var if_res3 = a27;
+    }
+    return if_res3;
+  };
+  var unsafe_fxrshift = function(a29, b30) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a29 >> b30) | 0;
+  };
+  var unsafe_fxlshift = function(a31, b32) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a31 << b32) | 0;
+  };
+  var unsafe_fxand = function(a33, b34) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a33 && b34) | 0;
+  };
+  var unsafe_fxior = function(a35, b36) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a35 || b36) | 0;
+  };
+  var unsafe_fxxor = function(a37, b38) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return (a37 ^ b38) | 0;
+  };
+  var unsafe_fxnot = Core.bitwiseNot;
+  var unsafe_car = function(v39) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v39.hd;
+  };
+  var unsafe_cdr = function(v40) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v40.tl;
+  };
+  var unsafe_mcar = function(v41) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v41.hd;
+  };
+  var unsafe_mcdr = function(v42) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v42.tl;
+  };
+  var unsafe_set_mcar_bang_ = function(p43, v44) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return p43.setCar(v44);
+  };
+  var unsafe_set_mcdr_bang_ = function(p45, v46) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return p45.setCdr(v46);
+  };
+  var unsafe_cons_list = function(v47, rest48) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return Core.Pair.make(v47, rest48);
+  };
+  var unsafe_struct_ref = function(v49, k50) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v49._fields[k50];
+  };
+  var unsafe_vector_ref = function(v51, k52) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v51.ref(k52);
+  };
+  var unsafe_vector_set_bang_ = function(v53, k54, val55) {
+    if (arguments.length !== 3) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v53.set(k54, val55);
+  };
+  var unsafe_vector_length = function(v56) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return v56.length();
+  };
+  var unsafe_immutable_hash_iterate_first = function(h57) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h57.iterateFirst();
+  };
+  var unsafe_immutable_hash_iterate_next = function(h58, i59) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h58.iterateNext(i59);
+  };
+  var unsafe_immutable_hash_iterate_key = function(h60, i61) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h60.iterateKey(i61);
+  };
+  var unsafe_immutable_hash_iterate_value = function(h62, i63) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h62.iterateValue(i63);
+  };
+  var unsafe_immutable_hash_iterate_key_plus_value = function(h64, i65) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h64.iterateKeyValue(i65);
+  };
+  var unsafe_immutable_hash_iterate_pair = function(h66, i67) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h66.iteratePair(i67);
+  };
+  var unsafe_mutable_hash_iterate_first = function(h68) {
+    if (arguments.length !== 1) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h68.iterateFirst();
+  };
+  var unsafe_mutable_hash_iterate_next = function(h69, i70) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h69.iterateNext(i70);
+  };
+  var unsafe_mutable_hash_iterate_key = function(h71, i72) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h71.iterateKey(i72);
+  };
+  var unsafe_mutable_hash_iterate_value = function(h73, i74) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h73.iterateValue(i74);
+  };
+  var unsafe_mutable_hash_iterate_key_plus_value = function(h75, i76) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h75.iterateKeyValue(i76);
+  };
+  var unsafe_mutable_hash_iterate_pair = function(h77, i78) {
+    if (arguments.length !== 2) {
+      throw $rjs_core.racketContractError("arity mismatch");
+    } else {}
+    return h77.iteratePair(i78);
+  };
+  var __rjs_quoted__ = {};
+  return {
+    get __rjs_quoted__() {
+      return __rjs_quoted__;
+    },
+    get unsafe_fx_plus_() {
+      return unsafe_fx_plus_;
+    },
+    get unsafe_fx_() {
+      return unsafe_fx_;
+    },
+    get unsafe_fx_times_() {
+      return unsafe_fx_times_;
+    },
+    get unsafe_fxquotient() {
+      return unsafe_fxquotient;
+    },
+    get unsafe_fxremainder() {
+      return unsafe_fxremainder;
+    },
+    get unsafe_fxmodulo() {
+      return unsafe_fxmodulo;
+    },
+    get unsafe_fxabs() {
+      return unsafe_fxabs;
+    },
+    get unsafe_fx_eq_() {
+      return unsafe_fx_eq_;
+    },
+    get unsafe_fx_lt_() {
+      return unsafe_fx_lt_;
+    },
+    get unsafe_fx_lt__eq_() {
+      return unsafe_fx_lt__eq_;
+    },
+    get unsafe_fx_gt_() {
+      return unsafe_fx_gt_;
+    },
+    get unsafe_fx_gt__eq_() {
+      return unsafe_fx_gt__eq_;
+    },
+    get unsafe_fxmin() {
+      return unsafe_fxmin;
+    },
+    get unsafe_fxmax() {
+      return unsafe_fxmax;
+    },
+    get unsafe_fxrshift() {
+      return unsafe_fxrshift;
+    },
+    get unsafe_fxlshift() {
+      return unsafe_fxlshift;
+    },
+    get unsafe_fxand() {
+      return unsafe_fxand;
+    },
+    get unsafe_fxior() {
+      return unsafe_fxior;
+    },
+    get unsafe_fxxor() {
+      return unsafe_fxxor;
+    },
+    get unsafe_fxnot() {
+      return unsafe_fxnot;
+    },
+    get unsafe_car() {
+      return unsafe_car;
+    },
+    get unsafe_cdr() {
+      return unsafe_cdr;
+    },
+    get unsafe_mcar() {
+      return unsafe_mcar;
+    },
+    get unsafe_mcdr() {
+      return unsafe_mcdr;
+    },
+    get unsafe_set_mcar_bang_() {
+      return unsafe_set_mcar_bang_;
+    },
+    get unsafe_set_mcdr_bang_() {
+      return unsafe_set_mcdr_bang_;
+    },
+    get unsafe_cons_list() {
+      return unsafe_cons_list;
+    },
+    get unsafe_struct_ref() {
+      return unsafe_struct_ref;
+    },
+    get unsafe_vector_ref() {
+      return unsafe_vector_ref;
+    },
+    get unsafe_vector_set_bang_() {
+      return unsafe_vector_set_bang_;
+    },
+    get unsafe_vector_length() {
+      return unsafe_vector_length;
+    },
+    get unsafe_immutable_hash_iterate_first() {
+      return unsafe_immutable_hash_iterate_first;
+    },
+    get unsafe_immutable_hash_iterate_next() {
+      return unsafe_immutable_hash_iterate_next;
+    },
+    get unsafe_immutable_hash_iterate_key() {
+      return unsafe_immutable_hash_iterate_key;
+    },
+    get unsafe_immutable_hash_iterate_value() {
+      return unsafe_immutable_hash_iterate_value;
+    },
+    get unsafe_immutable_hash_iterate_key_plus_value() {
+      return unsafe_immutable_hash_iterate_key_plus_value;
+    },
+    get unsafe_immutable_hash_iterate_pair() {
+      return unsafe_immutable_hash_iterate_pair;
+    },
+    get unsafe_mutable_hash_iterate_first() {
+      return unsafe_mutable_hash_iterate_first;
+    },
+    get unsafe_mutable_hash_iterate_next() {
+      return unsafe_mutable_hash_iterate_next;
+    },
+    get unsafe_mutable_hash_iterate_key() {
+      return unsafe_mutable_hash_iterate_key;
+    },
+    get unsafe_mutable_hash_iterate_value() {
+      return unsafe_mutable_hash_iterate_value;
+    },
+    get unsafe_mutable_hash_iterate_key_plus_value() {
+      return unsafe_mutable_hash_iterate_key_plus_value;
+    },
+    get unsafe_mutable_hash_iterate_pair() {
+      return unsafe_mutable_hash_iterate_pair;
+    }
+  };
+})();
+const $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
+  "use strict";
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M1 = $__runtime_47_unsafe_46_rkt_46_js__;
   var let_result1598 = M0.make_struct_type_property($rjs_core.Symbol.make("keyword-impersonator"));
   var prop_keyword_impersonator = let_result1598.getAt(0);
   var keyword_impersonator_p = let_result1598.getAt(1);
@@ -9667,10 +9305,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     var proc_name2598 = M0.object_name(proc2597);
-    var plain_proc2599 = $rjs_core.attachProcedureArity(function() {
-      for (var args26001641 = [],
-          $__1 = 0; $__1 < arguments.length; $__1++)
-        args26001641[$__1] = arguments[$__1];
+    var plain_proc2599 = $rjs_core.attachProcedureArity(function(...args26001641) {
       var args2600 = $rjs_core.Pair.listFromArray(args26001641);
       return M0.apply(proc2597, M0.rnull, M0.rnull, args2600);
     });
@@ -9703,10 +9338,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
       return M0.error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [1, 2]);
-  var keyword_apply = $rjs_core.attachProcedureArity(function(proc2603, kws2604, kw_vals2605, normal_args2606) {
-    for (var normal_argss26071644 = [],
-        $__1 = 4; $__1 < arguments.length; $__1++)
-      normal_argss26071644[$__1 - 4] = arguments[$__1];
+  var keyword_apply = $rjs_core.attachProcedureArity(function(proc2603, kws2604, kw_vals2605, normal_args2606, ...normal_argss26071644) {
     if (arguments.length < 4) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -9837,10 +9469,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     }
     return if_res1662;
   };
-  var missing_kw = $rjs_core.attachProcedureArity(function(proc2623) {
-    for (var args26241663 = [],
-        $__2 = 1; $__2 < arguments.length; $__2++)
-      args26241663[$__2 - 1] = arguments[$__2];
+  var missing_kw = $rjs_core.attachProcedureArity(function(proc2623, ...args26241663) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10130,10 +9759,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
       if (p22659 !== false) {
         if (M0.eq_p(p22659, $rjs_core.Symbol.make("method")) !== false) {
           var p32663 = keyword_procedure_extract_by_method(kws2655, M0.add1(n2656), new_procedure_ref(p2657), M0.add1(method_n2658));
-          var if_res1707 = $rjs_core.attachProcedureArity(function(kws2664, kw_args2665) {
-            for (var args26661706 = [],
-                $__3 = 2; $__3 < arguments.length; $__3++)
-              args26661706[$__3 - 2] = arguments[$__3];
+          var if_res1707 = $rjs_core.attachProcedureArity(function(kws2664, kw_args2665, ...args26661706) {
             if (arguments.length < 2) {
               throw $rjs_core.racketContractError("arity mismatch");
             } else {}
@@ -10145,10 +9771,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
         }
         var if_res1725 = if_res1707;
       } else {
-        var if_res1725 = $rjs_core.attachProcedureArity(function(kws2667, kw_args2668) {
-          for (var args26691708 = [],
-              $__4 = 2; $__4 < arguments.length; $__4++)
-            args26691708[$__4 - 2] = arguments[$__4];
+        var if_res1725 = $rjs_core.attachProcedureArity(function(kws2667, kw_args2668, ...args26691708) {
           if (arguments.length < 2) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
@@ -10683,10 +10306,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return if_res1793;
   };
   var new_procedure_rename = procedure_rename2757;
-  var chaperone_procedure2762 = $rjs_core.attachProcedureArity(function(proc2763, wrap_proc2764) {
-    for (var props27651794 = [],
-        $__3 = 2; $__3 < arguments.length; $__3++)
-      props27651794[$__3 - 2] = arguments[$__3];
+  var chaperone_procedure2762 = $rjs_core.attachProcedureArity(function(proc2763, wrap_proc2764, ...props27651794) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10694,10 +10314,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return do_chaperone_procedure(false, false, M0.__rjs_quoted__.chaperone_procedure, $rjs_core.Symbol.make("chaperone-procedure"), proc2763, wrap_proc2764, props2765);
   });
   var new_chaperone_procedure = chaperone_procedure2762;
-  var unsafe_chaperone_procedure2766 = $rjs_core.attachProcedureArity(function(proc2767, wrap_proc2768) {
-    for (var props27691795 = [],
-        $__4 = 2; $__4 < arguments.length; $__4++)
-      props27691795[$__4 - 2] = arguments[$__4];
+  var unsafe_chaperone_procedure2766 = $rjs_core.attachProcedureArity(function(proc2767, wrap_proc2768, ...props27691795) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10705,10 +10322,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return do_unsafe_chaperone_procedure(M1.__rjs_quoted__.unsafe_chaperone_procedure, $rjs_core.Symbol.make("unsafe-chaperone-procedure"), proc2767, wrap_proc2768, props2769);
   });
   var new_unsafe_chaperone_procedure = unsafe_chaperone_procedure2766;
-  var impersonate_procedure2770 = $rjs_core.attachProcedureArity(function(proc2771, wrap_proc2772) {
-    for (var props27731796 = [],
-        $__5 = 2; $__5 < arguments.length; $__5++)
-      props27731796[$__5 - 2] = arguments[$__5];
+  var impersonate_procedure2770 = $rjs_core.attachProcedureArity(function(proc2771, wrap_proc2772, ...props27731796) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10716,10 +10330,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return do_chaperone_procedure(true, false, M0.__rjs_quoted__.impersonate_procedure, $rjs_core.Symbol.make("impersonate-procedure"), proc2771, wrap_proc2772, props2773);
   });
   var new_impersonate_procedure = impersonate_procedure2770;
-  var unsafe_impersonate_procedure2774 = $rjs_core.attachProcedureArity(function(proc2775, wrap_proc2776) {
-    for (var props27771797 = [],
-        $__6 = 2; $__6 < arguments.length; $__6++)
-      props27771797[$__6 - 2] = arguments[$__6];
+  var unsafe_impersonate_procedure2774 = $rjs_core.attachProcedureArity(function(proc2775, wrap_proc2776, ...props27771797) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10727,10 +10338,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return do_unsafe_chaperone_procedure(M1.__rjs_quoted__.unsafe_impersonate_procedure, $rjs_core.Symbol.make("unsafe-impersonate-procedure"), proc2775, wrap_proc2776, props2777);
   });
   var new_unsafe_impersonate_procedure = unsafe_impersonate_procedure2774;
-  var chaperone_procedure_times_2778 = $rjs_core.attachProcedureArity(function(proc2779, wrap_proc2780) {
-    for (var props27811798 = [],
-        $__7 = 2; $__7 < arguments.length; $__7++)
-      props27811798[$__7 - 2] = arguments[$__7];
+  var chaperone_procedure_times_2778 = $rjs_core.attachProcedureArity(function(proc2779, wrap_proc2780, ...props27811798) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10738,10 +10346,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     return do_chaperone_procedure(false, true, M0.__rjs_quoted__.chaperone_procedure_times_, $rjs_core.Symbol.make("chaperone-procedure"), proc2779, wrap_proc2780, props2781);
   });
   var new_chaperone_procedure_times_ = chaperone_procedure_times_2778;
-  var impersonate_procedure_times_2782 = $rjs_core.attachProcedureArity(function(proc2783, wrap_proc2784) {
-    for (var props27851799 = [],
-        $__8 = 2; $__8 < arguments.length; $__8++)
-      props27851799[$__8 - 2] = arguments[$__8];
+  var impersonate_procedure_times_2782 = $rjs_core.attachProcedureArity(function(proc2783, wrap_proc2784, ...props27851799) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -10773,10 +10378,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
       chaperone_arity_match_checking(self_arg_p2787, name2789, proc2790, wrap_proc2791, props2792);
       var p2798 = keyword_procedure_proc(n_wrap_proc2794);
       if (self_arg_p2787 !== false) {
-        var cl1802 = $rjs_core.attachProcedureArity(function(self_proc2799, kws2800, args2801) {
-          for (var rest28021807 = [],
-              $__9 = 3; $__9 < arguments.length; $__9++)
-            rest28021807[$__9 - 3] = arguments[$__9];
+        var cl1802 = $rjs_core.attachProcedureArity(function(self_proc2799, kws2800, args2801, ...rest28021807) {
           if (arguments.length < 3) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
@@ -10786,10 +10388,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
               throw $rjs_core.racketContractError("arity mismatch");
             } else {}
             return M0.apply(p2798, kws2800, args2801, self_proc2799, rest2802);
-          }, $rjs_core.attachProcedureArity(function() {
-            for (var results28031808 = [],
-                $__10 = 0; $__10 < arguments.length; $__10++)
-              results28031808[$__10] = arguments[$__10];
+          }, $rjs_core.attachProcedureArity(function(...results28031808) {
             var results2803 = $rjs_core.Pair.listFromArray(results28031808);
             var len2804 = M0.length(results2803);
             var alen2805 = M0.length(rest2802);
@@ -10860,10 +10459,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
             return if_res1819;
           }));
         });
-        var cl1803 = $rjs_core.attachProcedureArity(function() {
-          for (var other28151820 = [],
-              $__10 = 0; $__10 < arguments.length; $__10++)
-            other28151820[$__10] = arguments[$__10];
+        var cl1803 = $rjs_core.attachProcedureArity(function(...other28151820) {
           var other2815 = $rjs_core.Pair.listFromArray(other28151820);
           return M0.error($rjs_core.UString.make("shouldn't get here"));
         });
@@ -10886,10 +10482,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
           }
         }, [M0.make_arity_at_least(0)]);
       } else {
-        var cl1821 = $rjs_core.attachProcedureArity(function(kws2816, args2817) {
-          for (var rest28181826 = [],
-              $__11 = 2; $__11 < arguments.length; $__11++)
-            rest28181826[$__11 - 2] = arguments[$__11];
+        var cl1821 = $rjs_core.attachProcedureArity(function(kws2816, args2817, ...rest28181826) {
           if (arguments.length < 2) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
@@ -10899,10 +10492,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
               throw $rjs_core.racketContractError("arity mismatch");
             } else {}
             return M0.apply(p2798, kws2816, args2817, rest2818);
-          }, $rjs_core.attachProcedureArity(function() {
-            for (var results28191827 = [],
-                $__12 = 0; $__12 < arguments.length; $__12++)
-              results28191827[$__12] = arguments[$__12];
+          }, $rjs_core.attachProcedureArity(function(...results28191827) {
             var results2819 = $rjs_core.Pair.listFromArray(results28191827);
             var len2820 = M0.length(results2819);
             var alen2821 = M0.length(rest2818);
@@ -10973,10 +10563,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
             return if_res1838;
           }));
         });
-        var cl1822 = $rjs_core.attachProcedureArity(function() {
-          for (var other28311839 = [],
-              $__12 = 0; $__12 < arguments.length; $__12++)
-            other28311839[$__12] = arguments[$__12];
+        var cl1822 = $rjs_core.attachProcedureArity(function(...other28311839) {
           var other2831 = $rjs_core.Pair.listFromArray(other28311839);
           return M0.error($rjs_core.UString.make("shouldn't get here"));
         });
@@ -11043,10 +10630,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
                 var if_res1854 = new_chaperone_procedure;
               }
               if (self_arg_p2787 !== false) {
-                var if_res1853 = $rjs_core.attachProcedureArity(function(proc_self2846, kws2847, kw_args2848, self2849) {
-                  for (var args28501843 = [],
-                      $__13 = 4; $__13 < arguments.length; $__13++)
-                    args28501843[$__13 - 4] = arguments[$__13];
+                var if_res1853 = $rjs_core.attachProcedureArity(function(proc_self2846, kws2847, kw_args2848, self2849, ...args28501843) {
                   if (arguments.length < 4) {
                     throw $rjs_core.racketContractError("arity mismatch");
                   } else {}
@@ -11057,10 +10641,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
                       throw $rjs_core.racketContractError("arity mismatch");
                     } else {}
                     return M0.apply(kw_chaperone2797, proc_self2846, kws2847, kw_args2848, args2850);
-                  }, $rjs_core.attachProcedureArity(function() {
-                    for (var results28521844 = [],
-                        $__14 = 0; $__14 < arguments.length; $__14++)
-                      results28521844[$__14] = arguments[$__14];
+                  }, $rjs_core.attachProcedureArity(function(...results28521844) {
                     var results2852 = $rjs_core.Pair.listFromArray(results28521844);
                     var r_len2853 = M0.length(results2852);
                     var list_take2854 = function(l2855, n2856) {
@@ -11089,10 +10670,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
                   }));
                 });
               } else {
-                var if_res1853 = $rjs_core.attachProcedureArity(function(kws2858, kw_args2859, self2860) {
-                  for (var args28611848 = [],
-                      $__14 = 3; $__14 < arguments.length; $__14++)
-                    args28611848[$__14 - 3] = arguments[$__14];
+                var if_res1853 = $rjs_core.attachProcedureArity(function(kws2858, kw_args2859, self2860, ...args28611848) {
                   if (arguments.length < 3) {
                     throw $rjs_core.racketContractError("arity mismatch");
                   } else {}
@@ -11103,10 +10681,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
                       throw $rjs_core.racketContractError("arity mismatch");
                     } else {}
                     return M0.apply(kw_chaperone2797, kws2858, kw_args2859, args2861);
-                  }, $rjs_core.attachProcedureArity(function() {
-                    for (var results28631849 = [],
-                        $__15 = 0; $__15 < arguments.length; $__15++)
-                      results28631849[$__15] = arguments[$__15];
+                  }, $rjs_core.attachProcedureArity(function(...results28631849) {
                     var results2863 = $rjs_core.Pair.listFromArray(results28631849);
                     var r_len2864 = M0.length(results2863);
                     var list_take2865 = function(l2866, n2867) {
@@ -11384,10 +10959,7 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
               var if_res1890 = false;
             }
             return if_res1890;
-          }, $rjs_core.attachProcedureArity(function(kws2916, kw_args2917) {
-            for (var vals29181887 = [],
-                $__9 = 2; $__9 < arguments.length; $__9++)
-              vals29181887[$__9 - 2] = arguments[$__9];
+          }, $rjs_core.attachProcedureArity(function(kws2916, kw_args2917, ...vals29181887) {
             if (arguments.length < 2) {
               throw $rjs_core.racketContractError("arity mismatch");
             } else {}
@@ -11414,7 +10986,6 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
   __rjs_quoted__.struct_keyword_procedure = struct_keyword_procedure;
   __rjs_quoted__.subset_p = subset_p;
   __rjs_quoted__.make_optional_keyword_procedure = make_optional_keyword_procedure;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -11463,13 +11034,12 @@ var $__collects_47_racket_47_private_47_kw_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/map.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M1 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M2 = $__runtime_47_core_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M1 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M2 = $__runtime_47_core_46_rkt_46_js__;
   var cl947 = function(f1607, l1608) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -11557,10 +11127,7 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
     }
     return if_res963;
   };
-  var cl949 = $rjs_core.attachProcedureArity(function(f1620, l1621) {
-    for (var args1622964 = [],
-        $__1 = 2; $__1 < arguments.length; $__1++)
-      args1622964[$__1 - 2] = arguments[$__1];
+  var cl949 = $rjs_core.attachProcedureArity(function(f1620, l1621, ...args1622964) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -11673,10 +11240,7 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
     }
     return if_res981;
   };
-  var cl967 = $rjs_core.attachProcedureArity(function(f1637, l1638) {
-    for (var args1639982 = [],
-        $__2 = 2; $__2 < arguments.length; $__2++)
-      args1639982[$__2 - 2] = arguments[$__2];
+  var cl967 = $rjs_core.attachProcedureArity(function(f1637, l1638, ...args1639982) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -11807,10 +11371,7 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
     }
     return if_res1003;
   };
-  var cl985 = $rjs_core.attachProcedureArity(function(f1654, l1655) {
-    for (var args16561004 = [],
-        $__3 = 2; $__3 < arguments.length; $__3++)
-      args16561004[$__3 - 2] = arguments[$__3];
+  var cl985 = $rjs_core.attachProcedureArity(function(f1654, l1655, ...args16561004) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -11943,10 +11504,7 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
     }
     return if_res1025;
   };
-  var cl1007 = $rjs_core.attachProcedureArity(function(f1673, l1674) {
-    for (var args16751026 = [],
-        $__4 = 2; $__4 < arguments.length; $__4++)
-      args16751026[$__4 - 2] = arguments[$__4];
+  var cl1007 = $rjs_core.attachProcedureArity(function(f1673, l1674, ...args16751026) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -12216,7 +11774,6 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
   };
   M1.rvoid();
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -12235,12 +11792,11 @@ var $__collects_47_racket_47_private_47_map_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_sort_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_sort_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/sort.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M1 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M1 = $__runtime_47_unsafe_46_rkt_46_js__;
   var generic_sort3537 = function(A3538, less_than_p3539, n3540) {
     if (arguments.length !== 3) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -13753,7 +13309,6 @@ var $__collects_47_racket_47_private_47_sort_46_rkt_46_js__ = (function() {
   var vector_sort = let_result2596.getAt(1);
   var vector_sort_bang_ = let_result2596.getAt(2);
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -13769,26 +13324,19 @@ var $__collects_47_racket_47_private_47_sort_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/pre-base.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M1 = $__runtime_47_kernel_46_rkt_46_js__;
-  var new_apply_proc = M0.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws1911, kw_args1912, proc1913, args1914) {
-    for (var rest19151171 = [],
-        $__1 = 4; $__1 < arguments.length; $__1++)
-      rest19151171[$__1 - 4] = arguments[$__1];
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M1 = $__runtime_47_kernel_46_rkt_46_js__;
+  var new_apply_proc = M0.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws1911, kw_args1912, proc1913, args1914, ...rest19151171) {
     if (arguments.length < 4) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
     var rest1915 = $rjs_core.Pair.listFromArray(rest19151171);
     return M0.keyword_apply(proc1913, kws1911, kw_args1912, M1.apply(M1.list_times_, args1914, rest1915));
   }), M1.apply);
-  var new_keyword_apply = M0.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws1916, kw_args1917, proc1918, orig_kws1919, orig_kw_args1920, args1921) {
-    for (var rest19221172 = [],
-        $__2 = 6; $__2 < arguments.length; $__2++)
-      rest19221172[$__2 - 6] = arguments[$__2];
+  var new_keyword_apply = M0.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws1916, kw_args1917, proc1918, orig_kws1919, orig_kw_args1920, args1921, ...rest19221172) {
     if (arguments.length < 6) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -13949,7 +13497,6 @@ var $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__ = (function()
   }, [0, 1, 2, 3]);
   var __random = random1934;
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -13968,17 +13515,16 @@ var $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__ = (function()
     }
   };
 })();
-var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/list.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M3 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
-  var M4 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M5 = $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__;
-  var M6 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M3 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
+  const M4 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M5 = $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__;
+  const M6 = $__runtime_47_unsafe_46_rkt_46_js__;
   var sort7 = function(cache_keys_p22974, key12975, lst52976, less_p62977) {
     if (arguments.length !== 4) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -14844,10 +14390,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     };
     return loop3128(init3126, l3127);
   };
-  var cl2082 = $rjs_core.attachProcedureArity(function(f3131, init3132, l3133) {
-    for (var ls31342086 = [],
-        $__1 = 3; $__1 < arguments.length; $__1++)
-      ls31342086[$__1 - 3] = arguments[$__1];
+  var cl2082 = $rjs_core.attachProcedureArity(function(f3131, init3132, l3133, ...ls31342086) {
     if (arguments.length < 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -14897,10 +14440,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     };
     return loop3141(init3139, l3140);
   };
-  var cl2089 = $rjs_core.attachProcedureArity(function(f3144, init3145, l3146) {
-    for (var ls31472093 = [],
-        $__2 = 3; $__2 < arguments.length; $__2++)
-      ls31472093[$__2 - 3] = arguments[$__2];
+  var cl2089 = $rjs_core.attachProcedureArity(function(f3144, init3145, l3146, ...ls31472093) {
     if (arguments.length < 3) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -15157,10 +14697,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
                 return f3189(fst3191(x3192));
               };
             } else {
-              var if_res2117 = $rjs_core.attachProcedureArity(function() {
-                for (var xs31932116 = [],
-                    $__3 = 0; $__3 < arguments.length; $__3++)
-                  xs31932116[$__3] = arguments[$__3];
+              var if_res2117 = $rjs_core.attachProcedureArity(function(...xs31932116) {
                 var xs3193 = $rjs_core.Pair.listFromArray(xs31932116);
                 return f3189(M4.apply(fst3191, xs3193));
               });
@@ -15180,10 +14717,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
                 }, f3189);
               };
             } else {
-              var if_res2119 = $rjs_core.attachProcedureArity(function() {
-                for (var xs31952118 = [],
-                    $__4 = 0; $__4 < arguments.length; $__4++)
-                  xs31952118[$__4] = arguments[$__4];
+              var if_res2119 = $rjs_core.attachProcedureArity(function(...xs31952118) {
                 var xs3195 = $rjs_core.Pair.listFromArray(xs31952118);
                 return M4.call_with_values(function() {
                   if (arguments.length !== 0) {
@@ -15231,10 +14765,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
         } else {}
         return f3198(g3199(x3206, y3207));
       };
-      var cl2126 = $rjs_core.attachProcedureArity(function() {
-        for (var args32082129 = [],
-            $__3 = 0; $__3 < arguments.length; $__3++)
-          args32082129[$__3] = arguments[$__3];
+      var cl2126 = $rjs_core.attachProcedureArity(function(...args32082129) {
         var args3208 = $rjs_core.Pair.listFromArray(args32082129);
         return f3198(M4.apply(g3199, args3208));
       });
@@ -15259,10 +14790,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     if (M4.null_p(allowed_kwds3202) !== false) {
       var if_res2132 = composed3203;
     } else {
-      var if_res2132 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3209, kw_args3210) {
-        for (var xs32112131 = [],
-            $__4 = 2; $__4 < arguments.length; $__4++)
-          xs32112131[$__4 - 2] = arguments[$__4];
+      var if_res2132 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3209, kw_args3210, ...xs32112131) {
         if (arguments.length < 2) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
@@ -15322,10 +14850,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     } else {}
     return M4.values;
   };
-  var cl2136 = $rjs_core.attachProcedureArity(function(f03217) {
-    for (var fs032182145 = [],
-        $__3 = 1; $__3 < arguments.length; $__3++)
-      fs032182145[$__3 - 1] = arguments[$__3];
+  var cl2136 = $rjs_core.attachProcedureArity(function(f03217, ...fs032182145) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -15410,10 +14935,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
           } else {}
           return f3228(g3229(x3236, y3237));
         };
-        var cl2154 = $rjs_core.attachProcedureArity(function() {
-          for (var args32382157 = [],
-              $__4 = 0; $__4 < arguments.length; $__4++)
-            args32382157[$__4] = arguments[$__4];
+        var cl2154 = $rjs_core.attachProcedureArity(function(...args32382157) {
           var args3238 = $rjs_core.Pair.listFromArray(args32382157);
           return f3228(M4.apply(g3229, args3238));
         });
@@ -15438,10 +14960,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
       if (M4.null_p(allowed_kwds3232) !== false) {
         var if_res2160 = composed3233;
       } else {
-        var if_res2160 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3239, kw_args3240) {
-          for (var xs32412159 = [],
-              $__5 = 2; $__5 < arguments.length; $__5++)
-            xs32412159[$__5 - 2] = arguments[$__5];
+        var if_res2160 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3239, kw_args3240, ...xs32412159) {
           if (arguments.length < 2) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
@@ -15490,10 +15009,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
             return g3229(x3248, y3249);
           }, f3228);
         };
-        var cl2164 = $rjs_core.attachProcedureArity(function() {
-          for (var args32502167 = [],
-              $__6 = 0; $__6 < arguments.length; $__6++)
-            args32502167[$__6] = arguments[$__6];
+        var cl2164 = $rjs_core.attachProcedureArity(function(...args32502167) {
           var args3250 = $rjs_core.Pair.listFromArray(args32502167);
           return M4.call_with_values(function() {
             if (arguments.length !== 0) {
@@ -15523,10 +15039,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
       if (M4.null_p(allowed_kwds3244) !== false) {
         var if_res2170 = composed3245;
       } else {
-        var if_res2170 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3251, kw_args3252) {
-          for (var xs32532169 = [],
-              $__7 = 2; $__7 < arguments.length; $__7++)
-            xs32532169[$__7 - 2] = arguments[$__7];
+        var if_res2170 = M1.make_keyword_procedure($rjs_core.attachProcedureArity(function(kws3251, kw_args3252, ...xs32532169) {
           if (arguments.length < 2) {
             throw $rjs_core.racketContractError("arity mismatch");
           } else {}
@@ -15587,10 +15100,7 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     } else {}
     return M4.values;
   };
-  var cl2175 = $rjs_core.attachProcedureArity(function(f03259) {
-    for (var fs032602183 = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      fs032602183[$__4 - 1] = arguments[$__4];
+  var cl2175 = $rjs_core.attachProcedureArity(function(f03259, ...fs032602183) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -15646,7 +15156,6 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
   var __rjs_quoted__ = {};
   __rjs_quoted__.sort7 = sort7;
   __rjs_quoted__.sort9 = sort9;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -15713,11 +15222,10 @@ var $__collects_47_racket_47_private_47_list_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_paramz_46_rkt_46_js__ = (function() {
+const $__runtime_47_paramz_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/paramz.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var Paramz = $__runtime_47_paramz_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const Paramz = $__runtime_47_paramz_46_js__;
   var parameterization_key = Paramz.ParameterizationKey;
   var extend_parameterization = Paramz.extendParameterization;
   var exception_handler_key = Paramz.ExceptionHandlerKey;
@@ -15728,7 +15236,6 @@ var $__runtime_47_paramz_46_rkt_46_js__ = (function() {
     return undefined;
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -15747,13 +15254,12 @@ var $__runtime_47_paramz_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/more-scheme.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_paramz_46_rkt_46_js__;
-  var M1 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M2 = $__runtime_47_core_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_paramz_46_rkt_46_js__;
+  const M1 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M2 = $__runtime_47_core_46_rkt_46_js__;
   var current_parameterization = function() {
     if (arguments.length !== 0) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -16136,7 +15642,6 @@ var $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__ = (functio
   __rjs_quoted__.call_by_cc = call_by_cc;
   __rjs_quoted__.select_handler_by_no_breaks = select_handler_by_no_breaks;
   __rjs_quoted__.call_handled_body = call_handled_body;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -16176,11 +15681,10 @@ var $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__ = (functio
     }
   };
 })();
-var $__collects_47_racket_47_private_47_qq_45_and_45_or_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_qq_45_and_45_or_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/qq-and-or.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
   var qq_append = function(a2559, b2560) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -16194,16 +15698,14 @@ var $__collects_47_racket_47_private_47_qq_45_and_45_or_46_rkt_46_js__ = (functi
   };
   var __rjs_quoted__ = {};
   __rjs_quoted__.qq_append = qq_append;
-  ;
   return {get __rjs_quoted__() {
       return __rjs_quoted__;
     }};
 })();
-var $__collects_47_racket_47_private_47_member_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_member_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/member.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
   var bad_list = function(who2530, orig_l2531) {
     if (arguments.length !== 2) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -16358,7 +15860,6 @@ var $__collects_47_racket_47_private_47_member_46_rkt_46_js__ = (function() {
   var memv = let_result1596.getAt(1);
   var member = let_result1596.getAt(2);
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -16374,37 +15875,32 @@ var $__collects_47_racket_47_private_47_member_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__runtime_47_flfxnum_46_rkt_46_js__ = (function() {
+const $__runtime_47_flfxnum_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/flfxnum.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
   var __rjs_quoted__ = {};
-  ;
   return {get __rjs_quoted__() {
       return __rjs_quoted__;
     }};
 })();
-var $__runtime_47_read_46_rkt_46_js__ = (function() {
+const $__runtime_47_read_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "runtime/read.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
   var __rjs_quoted__ = {};
-  ;
   return {get __rjs_quoted__() {
       return __rjs_quoted__;
     }};
 })();
-var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/for.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
-  var M1 = $__runtime_47_flfxnum_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
-  var M3 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
-  var M4 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M5 = $__runtime_47_read_46_rkt_46_js__;
-  var M6 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
+  const M1 = $__runtime_47_flfxnum_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
+  const M3 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
+  const M4 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M5 = $__runtime_47_read_46_rkt_46_js__;
+  const M6 = $__runtime_47_unsafe_46_rkt_46_js__;
   var let_result1197 = M4.make_struct_type($rjs_core.Symbol.make("sequence"), false, 1, 0, false);
   var struct_do_sequence = let_result1197.getAt(0);
   var make_do_sequence = let_result1197.getAt(1);
@@ -18757,10 +18253,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
         }
         return if_res1437;
       };
-      var cl1433 = $rjs_core.attachProcedureArity(function() {
-        for (var vals22681438 = [],
-            $__1 = 0; $__1 < arguments.length; $__1++)
-          vals22681438[$__1] = arguments[$__1];
+      var cl1433 = $rjs_core.attachProcedureArity(function(...vals22681438) {
         var vals2268 = $rjs_core.Pair.listFromArray(vals22681438);
         if (pre_cont_p2265 !== false) {
           var if_res1439 = M4.apply(pre_cont_p2265, vals2268);
@@ -18838,10 +18331,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
         }
         return if_res1450;
       };
-      var cl1446 = $rjs_core.attachProcedureArity(function(pos2280) {
-        for (var vals22811451 = [],
-            $__1 = 1; $__1 < arguments.length; $__1++)
-          vals22811451[$__1 - 1] = arguments[$__1];
+      var cl1446 = $rjs_core.attachProcedureArity(function(pos2280, ...vals22811451) {
         if (arguments.length < 1) {
           throw $rjs_core.racketContractError("arity mismatch");
         } else {}
@@ -19097,10 +18587,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           }
           return if_res1475;
         };
-        var cl1472 = $rjs_core.attachProcedureArity(function() {
-          for (var vs23251476 = [],
-              $__1 = 0; $__1 < arguments.length; $__1++)
-            vs23251476[$__1] = arguments[$__1];
+        var cl1472 = $rjs_core.attachProcedureArity(function(...vs23251476) {
           var vs2325 = $rjs_core.Pair.listFromArray(vs23251476);
           return vs2325;
         });
@@ -19197,10 +18684,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
       return if_res1483;
     }, sequences2339);
   };
-  var in_sequences = $rjs_core.attachProcedureArity(function() {
-    for (var sequences23411484 = [],
-        $__1 = 0; $__1 < arguments.length; $__1++)
-      sequences23411484[$__1] = arguments[$__1];
+  var in_sequences = $rjs_core.attachProcedureArity(function(...sequences23411484) {
     var sequences2341 = $rjs_core.Pair.listFromArray(sequences23411484);
     check_sequences($rjs_core.Symbol.make("in-sequences"), sequences2341);
     if (M4.pair_p(sequences2341) !== false) {
@@ -19215,18 +18699,12 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
     }
     return if_res1486;
   });
-  var in_cycle = $rjs_core.attachProcedureArity(function() {
-    for (var sequences23421487 = [],
-        $__2 = 0; $__2 < arguments.length; $__2++)
-      sequences23421487[$__2] = arguments[$__2];
+  var in_cycle = $rjs_core.attachProcedureArity(function(...sequences23421487) {
     var sequences2342 = $rjs_core.Pair.listFromArray(sequences23421487);
     check_sequences($rjs_core.Symbol.make("in-cycle"), sequences2342);
     return append_sequences(sequences2342, true);
   });
-  var in_parallel = $rjs_core.attachProcedureArity(function() {
-    for (var sequences23431488 = [],
-        $__3 = 0; $__3 < arguments.length; $__3++)
-      sequences23431488[$__3] = arguments[$__3];
+  var in_parallel = $rjs_core.attachProcedureArity(function(...sequences23431488) {
     var sequences2343 = $rjs_core.Pair.listFromArray(sequences23431488);
     check_sequences($rjs_core.Symbol.make("in-parallel"), sequences2343);
     if (M4.__eq_(1, M4.length(sequences2343)) !== false) {
@@ -19394,10 +18872,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           var if_res1512 = false;
         }
         if (M4.ormap(M4.values, pre_cont_ps2349) !== false) {
-          var if_res1510 = $rjs_core.attachProcedureArity(function() {
-            for (var vals24191508 = [],
-                $__4 = 0; $__4 < arguments.length; $__4++)
-              vals24191508[$__4] = arguments[$__4];
+          var if_res1510 = $rjs_core.attachProcedureArity(function(...vals24191508) {
             var vals2419 = $rjs_core.Pair.listFromArray(vals24191508);
             return M4.andmap(function(pre_cont_p2420, val2421) {
               if (arguments.length !== 2) {
@@ -19415,10 +18890,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           var if_res1510 = false;
         }
         if (M4.ormap(M4.values, post_cont_ps2350) !== false) {
-          var if_res1507 = $rjs_core.attachProcedureArity(function(poses2422) {
-            for (var vals24231505 = [],
-                $__5 = 1; $__5 < arguments.length; $__5++)
-              vals24231505[$__5 - 1] = arguments[$__5];
+          var if_res1507 = $rjs_core.attachProcedureArity(function(poses2422, ...vals24231505) {
             if (arguments.length < 1) {
               throw $rjs_core.racketContractError("arity mismatch");
             } else {}
@@ -19471,19 +18943,13 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
       if (arguments.length !== 0) {
         throw $rjs_core.racketContractError("arity mismatch");
       } else {}
-      return M4.values($rjs_core.attachProcedureArity(function() {
-        for (var _24281520 = [],
-            $__4 = 0; $__4 < arguments.length; $__4++)
-          _24281520[$__4] = arguments[$__4];
+      return M4.values($rjs_core.attachProcedureArity(function(..._24281520) {
         var _2428 = $rjs_core.Pair.listFromArray(_24281520);
         return producer2427();
       }), M4.rvoid, M4.rvoid(), false, false, false);
     });
   };
-  var cl1517 = $rjs_core.attachProcedureArity(function(producer2429, stop2430) {
-    for (var more24311521 = [],
-        $__4 = 2; $__4 < arguments.length; $__4++)
-      more24311521[$__4 - 2] = arguments[$__4];
+  var cl1517 = $rjs_core.attachProcedureArity(function(producer2429, stop2430, ...more24311521) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -19520,10 +18986,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           return M4.not(stop2430(x2437));
         };
       } else {
-        var if_res1524 = $rjs_core.attachProcedureArity(function() {
-          for (var xs24381523 = [],
-              $__5 = 0; $__5 < arguments.length; $__5++)
-            xs24381523[$__5] = arguments[$__5];
+        var if_res1524 = $rjs_core.attachProcedureArity(function(...xs24381523) {
           var xs2438 = $rjs_core.Pair.listFromArray(xs24381523);
           return M4.not(M4.apply(stop2430, xs2438));
         });
@@ -19763,10 +19226,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           }
           if_res1548;
           return begin_res1547;
-        }, $rjs_core.attachProcedureArity(function() {
-          for (var vals24721542 = [],
-              $__5 = 0; $__5 < arguments.length; $__5++)
-            vals24721542[$__5] = arguments[$__5];
+        }, $rjs_core.attachProcedureArity(function(...vals24721542) {
           var vals2472 = $rjs_core.Pair.listFromArray(vals24721542);
           if (pre_cont_p2463 !== false) {
             var if_res1543 = M4.apply(pre_cont_p2463, vals2472);
@@ -19898,10 +19358,7 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
           }
           if_res1559;
           return begin_res1558;
-        }, $rjs_core.attachProcedureArity(function() {
-          for (var vals24861553 = [],
-              $__5 = 0; $__5 < arguments.length; $__5++)
-            vals24861553[$__5] = arguments[$__5];
+        }, $rjs_core.attachProcedureArity(function(...vals24861553) {
           var vals2486 = $rjs_core.Pair.listFromArray(vals24861553);
           if (pre_cont_p2482 !== false) {
             var if_res1554 = M4.apply(pre_cont_p2482, vals2486);
@@ -20189,7 +19646,6 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
   __rjs_quoted__.shrink_vector = shrink_vector;
   __rjs_quoted__.in_bytes_lines = in_bytes_lines;
   __rjs_quoted__.in_list = in_list;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -20262,22 +19718,21 @@ var $__collects_47_racket_47_private_47_for_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/list.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_list_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__;
-  var M3 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M4 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M5 = $__collects_47_racket_47_private_47_qq_45_and_45_or_46_rkt_46_js__;
-  var M6 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
-  var M7 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M8 = $__runtime_47_core_46_rkt_46_js__;
-  var M9 = $__collects_47_racket_47_private_47_for_46_rkt_46_js__;
-  var M10 = $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__;
-  var M11 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_list_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_more_45_scheme_46_rkt_46_js__;
+  const M3 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M4 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M5 = $__collects_47_racket_47_private_47_qq_45_and_45_or_46_rkt_46_js__;
+  const M6 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
+  const M7 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M8 = $__runtime_47_core_46_rkt_46_js__;
+  const M9 = $__collects_47_racket_47_private_47_for_46_rkt_46_js__;
+  const M10 = $__collects_47_racket_47_private_47_pre_45_base_46_rkt_46_js__;
+  const M11 = $__runtime_47_unsafe_46_rkt_46_js__;
   var first = function(x784) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -21298,10 +20753,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
     } else {}
     return M7.apply(M7.append, l1983, l2984, l3985, l4986);
   };
-  var cl533 = $rjs_core.attachProcedureArity(function(l987) {
-    for (var lss988536 = [],
-        $__1 = 1; $__1 < arguments.length; $__1++)
-      lss988536[$__1 - 1] = arguments[$__1];
+  var cl533 = $rjs_core.attachProcedureArity(function(l987, ...lss988536) {
     if (arguments.length < 1) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -22204,10 +21656,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
               var result1188 = same_p1174(key_item1179, prev1184);
               var result1186 = M7.values(result1188);
               if (true !== false) {
-                var if_res656 = M7.not($rjs_core.attachProcedureArity(function() {
-                  for (var x1189655 = [],
-                      $__2 = 0; $__2 < arguments.length; $__2++)
-                    x1189655[$__2] = arguments[$__2];
+                var if_res656 = M7.not($rjs_core.attachProcedureArity(function(...x1189655) {
                   var x1189 = $rjs_core.Pair.listFromArray(x1189655);
                   return result1186;
                 })(prev1184));
@@ -22381,10 +21830,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
     }
     return if_res685;
   };
-  var filter_map = $rjs_core.attachProcedureArity(function(f1211, l1212) {
-    for (var ls1213686 = [],
-        $__2 = 2; $__2 < arguments.length; $__2++)
-      ls1213686[$__2 - 2] = arguments[$__2];
+  var filter_map = $rjs_core.attachProcedureArity(function(f1211, l1212, ...ls1213686) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -22442,10 +21888,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
     }
     return if_res692;
   });
-  var count = $rjs_core.attachProcedureArity(function(f1223, l1224) {
-    for (var ls1225693 = [],
-        $__3 = 2; $__3 < arguments.length; $__3++)
-      ls1225693[$__3 - 2] = arguments[$__3];
+  var count = $rjs_core.attachProcedureArity(function(f1223, l1224, ...ls1225693) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -22710,10 +22153,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
     } else {}
     return M7.apply(M7.append, M4.map(f1282, l11283, l21284));
   };
-  var cl730 = $rjs_core.attachProcedureArity(function(f1285, l1286) {
-    for (var ls1287733 = [],
-        $__4 = 2; $__4 < arguments.length; $__4++)
-      ls1287733[$__4 - 2] = arguments[$__4];
+  var cl730 = $rjs_core.attachProcedureArity(function(f1285, l1286, ...ls1287733) {
     if (arguments.length < 2) {
       throw $rjs_core.racketContractError("arity mismatch");
     } else {}
@@ -23698,10 +23138,7 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
       return M7.error($rjs_core.UString.make("case-lambda: invalid case"));
     }
   }, [2, 3]);
-  var cartesian_product = $rjs_core.attachProcedureArity(function() {
-    for (var ls1496869 = [],
-        $__5 = 0; $__5 < arguments.length; $__5++)
-      ls1496869[$__5] = arguments[$__5];
+  var cartesian_product = $rjs_core.attachProcedureArity(function(...ls1496869) {
     var ls1496 = $rjs_core.Pair.listFromArray(ls1496869);
     var let_result870 = M9.__rjs_quoted__.make_sequence($rjs_core.Pair.makeList($rjs_core.Symbol.make("l")), ls1496);
     var pos__gt_vals1497 = let_result870.getAt(0);
@@ -24186,7 +23623,6 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
   __rjs_quoted__.remove_duplicates38 = remove_duplicates38;
   __rjs_quoted__.check_duplicates47 = check_duplicates47;
   __rjs_quoted__.range_proc = range_proc;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -24358,14 +23794,13 @@ var $__collects_47_racket_47_list_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_waxeye_47_ast_46_rkt_46_js__ = (function() {
+const $__collects_47_waxeye_47_ast_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/waxeye/ast.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M1 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_list_46_rkt_46_js__;
-  var M3 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M1 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_list_46_rkt_46_js__;
+  const M3 = $__runtime_47_unsafe_46_rkt_46_js__;
   var let_result365 = M1.make_struct_type($rjs_core.Symbol.make("ast"), false, 3, 0, false, M1.rnull, M1.current_inspector(), false, $rjs_core.Pair.makeList(), false, $rjs_core.Symbol.make("ast"));
   var struct_661 = let_result365.getAt(0);
   var make_662 = let_result365.getAt(1);
@@ -24588,7 +24023,6 @@ var $__collects_47_waxeye_47_ast_46_rkt_46_js__ = (function() {
   __rjs_quoted__.parse_error_p = parse_error_p;
   __rjs_quoted__.set_ast_pos_bang_ = set_ast_pos_bang_;
   __rjs_quoted__.parse_error_expected = parse_error_expected;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -24658,14 +24092,13 @@ var $__collects_47_waxeye_47_ast_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_waxeye_47_parser_46_rkt_46_js__ = (function() {
+const $__collects_47_waxeye_47_parser_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/waxeye/parser.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_waxeye_47_fa_46_rkt_46_js__;
-  var M1 = $__collects_47_waxeye_47_set_46_rkt_46_js__;
-  var M2 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M3 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_waxeye_47_fa_46_rkt_46_js__;
+  const M1 = $__collects_47_waxeye_47_set_46_rkt_46_js__;
+  const M2 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M3 = $__runtime_47_kernel_46_rkt_46_js__;
   var let_result1118 = M3.make_struct_type($rjs_core.Symbol.make("cache-item"), false, 5, 0, false, M3.rnull, M3.current_inspector(), false, $rjs_core.Pair.makeList(0, 1, 2, 3, 4), false, $rjs_core.Symbol.make("cache-item"));
   var struct_1803 = let_result1118.getAt(0);
   var make_1804 = let_result1118.getAt(1);
@@ -25094,7 +24527,6 @@ var $__collects_47_waxeye_47_parser_46_rkt_46_js__ = (function() {
   __rjs_quoted__.cache_item1 = cache_item1;
   __rjs_quoted__.struct_cache_item = struct_cache_item;
   __rjs_quoted__.cache_item_col = cache_item_col;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -25104,17 +24536,15 @@ var $__collects_47_waxeye_47_parser_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_grammar_45_parser_46_rkt_46_js__ = (function() {
+const $__modules_47_grammar_45_parser_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/grammar-parser.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_waxeye_47_fa_46_rkt_46_js__;
-  var M1 = $__collects_47_waxeye_47_parser_46_rkt_46_js__;
-  var M2 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_waxeye_47_fa_46_rkt_46_js__;
+  const M1 = $__collects_47_waxeye_47_parser_46_rkt_46_js__;
+  const M2 = $__runtime_47_kernel_46_rkt_46_js__;
   var automata = M2.vector(M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("grammar"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(1, 1, false)), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("definition"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(8, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(17, 2, false), M0.__rjs_quoted__.edge1(18, 2, false), M0.__rjs_quoted__.edge1(19, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(2, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("alternation"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(3, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(20, 2, false)), true), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(3, 1, false)), false)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("sequence"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(4, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(4, 1, false)), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("unit"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(5, 0, false), M0.__rjs_quoted__.edge1(6, 0, false), M0.__rjs_quoted__.edge1(8, 1, false), M0.__rjs_quoted__.edge1(21, 3, false), M0.__rjs_quoted__.edge1(7, 2, false), M0.__rjs_quoted__.edge1(9, 2, false), M0.__rjs_quoted__.edge1(10, 2, false), M0.__rjs_quoted__.edge1(12, 2, false), M0.__rjs_quoted__.edge1(16, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(28, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(2, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(22, 2, false)), false)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("prefix"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(33), $rjs_core.Char.charFromCodepoint(38), M2.cons($rjs_core.Char.charFromCodepoint(42), $rjs_core.Char.charFromCodepoint(43)), $rjs_core.Char.charFromCodepoint(58), $rjs_core.Char.charFromCodepoint(63)), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("label"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(8, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(61), 3, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("action"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(64), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(8, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(60), 3, true), M0.__rjs_quoted__.edge1(27, 8, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(8, 5, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(23, 6, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(62), 7, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(8, 5, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 8, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("identifier"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(90)), $rjs_core.Char.charFromCodepoint(95), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(122))), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(45), M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(90)), $rjs_core.Char.charFromCodepoint(95), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(122))), 1, false), M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("literal"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(39)), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(30, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(11, 3, false), M0.__rjs_quoted__.edge1(15, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(29, 4, false), M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(39)), 5, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(11, 3, false), M0.__rjs_quoted__.edge1(15, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 6, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("caseLiteral"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(34)), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(32, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(11, 3, false), M0.__rjs_quoted__.edge1(15, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(31, 4, false), M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(34)), 5, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(11, 3, false), M0.__rjs_quoted__.edge1(15, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 6, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("lChar"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(92), 1, false), M0.__rjs_quoted__.edge1(34, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(34), $rjs_core.Char.charFromCodepoint(39), $rjs_core.Char.charFromCodepoint(92), $rjs_core.Char.charFromCodepoint(110), $rjs_core.Char.charFromCodepoint(114), $rjs_core.Char.charFromCodepoint(116)), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(33, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Symbol.make("wild"), 2, false)), false)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("charClass"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(91), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(35, 2, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(93), 3, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(13, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("range"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(14, 1, false), M0.__rjs_quoted__.edge1(15, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(45), 2, true)), true), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(14, 3, false), M0.__rjs_quoted__.edge1(15, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("char"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(92), 1, false), M0.__rjs_quoted__.edge1(38, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(45), M2.cons($rjs_core.Char.charFromCodepoint(92), $rjs_core.Char.charFromCodepoint(93)), $rjs_core.Char.charFromCodepoint(110), $rjs_core.Char.charFromCodepoint(114), $rjs_core.Char.charFromCodepoint(116)), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(37, 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(36, 5, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Symbol.make("wild"), 2, false)), false)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("hex"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(92), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(117), 2, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(123), 3, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 5, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 6, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 7, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 8, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list(M2.cons($rjs_core.Char.charFromCodepoint(48), $rjs_core.Char.charFromCodepoint(57)), M2.cons($rjs_core.Char.charFromCodepoint(65), $rjs_core.Char.charFromCodepoint(70)), M2.cons($rjs_core.Char.charFromCodepoint(97), $rjs_core.Char.charFromCodepoint(102))), 9, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(125), 10, true)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("wildCard"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(46), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("leftArrow"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(60), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(45), 2, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("pruneArrow"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(60), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(61), 2, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("voidArrow"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(60), 1, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(58), 2, true)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("leftArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("alt"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(124), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("open"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(40), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("close"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(41), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("comma"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(44), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(27, 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("sComment"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(35), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(40, 2, false), M0.__rjs_quoted__.edge1(26, 3, false), M0.__rjs_quoted__.edge1(39, 3, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Symbol.make("wild"), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("mComment"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(47), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(42), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(25, 2, false), M0.__rjs_quoted__.edge1(41, 3, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(42), 4, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Symbol.make("wild"), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(47), 5, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("endOfLine"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(13), 1, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(10), 2, false), M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(13), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(10), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("ws"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(9), $rjs_core.Char.charFromCodepoint(32)), 0, false), M0.__rjs_quoted__.edge1(26, 0, false), M0.__rjs_quoted__.edge1(24, 0, false), M0.__rjs_quoted__.edge1(25, 0, false)), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(17, 1, false), M0.__rjs_quoted__.edge1(18, 1, false), M0.__rjs_quoted__.edge1(19, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(39)), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(39)), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(34)), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(M2.list($rjs_core.Char.charFromCodepoint(34)), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(26, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(92), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(93), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(26, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(93), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(92), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Symbol.make("wild"), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1(26, 1, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")), M0.__rjs_quoted__.fa3($rjs_core.Symbol.make("!"), M2.vector(M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(42), 1, false)), false), M0.__rjs_quoted__.state2(M2.list(M0.__rjs_quoted__.edge1($rjs_core.Char.charFromCodepoint(47), 2, false)), false), M0.__rjs_quoted__.state2(M2.list(), true)), $rjs_core.Symbol.make("voidArrow")));
   var grammar_parser = M1.make_parser(0, true, automata);
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -25124,13 +24554,12 @@ var $__modules_47_grammar_45_parser_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_gen_46_rkt_46_js__ = (function() {
+const $__modules_47_gen_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/gen.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M1 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M2 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M1 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M2 = $__runtime_47_kernel_46_rkt_46_js__;
   var __times_eof_check_times_ = true;
   var __times_expression_level_times_ = $rjs_core.Pair.makeList();
   var __times_file_header_times_ = false;
@@ -25272,7 +24701,6 @@ var $__modules_47_gen_46_rkt_46_js__ = (function() {
     return M2.caddr(M1.ast_c(def721));
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -25345,17 +24773,16 @@ var $__modules_47_gen_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_expand_46_rkt_46_js__ = (function() {
+const $__modules_47_expand_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/expand.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_list_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M2 = $__modules_47_gen_46_rkt_46_js__;
-  var M3 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M4 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M5 = $__runtime_47_read_46_rkt_46_js__;
-  var M6 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_list_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M2 = $__modules_47_gen_46_rkt_46_js__;
+  const M3 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M4 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M5 = $__runtime_47_read_46_rkt_46_js__;
+  const M6 = $__runtime_47_unsafe_46_rkt_46_js__;
   var expand_grammar = function(grammar1734) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -25801,7 +25228,6 @@ var $__modules_47_expand_46_rkt_46_js__ = (function() {
     return M3.set_ast_c_bang_(exp1782, minimise1791(if_res1117));
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -25829,15 +25255,14 @@ var $__modules_47_expand_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_action_46_rkt_46_js__ = (function() {
+const $__modules_47_action_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/action.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M2 = $__modules_47_gen_46_rkt_46_js__;
-  var M3 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M4 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_reverse_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M2 = $__modules_47_gen_46_rkt_46_js__;
+  const M3 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M4 = $__runtime_47_kernel_46_rkt_46_js__;
   var collect_actions = function(grammar1716) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -25909,7 +25334,6 @@ var $__modules_47_action_46_rkt_46_js__ = (function() {
     return null;
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -25919,16 +25343,15 @@ var $__modules_47_action_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_transform_46_rkt_46_js__ = (function() {
+const $__modules_47_transform_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/transform.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__modules_47_expand_46_rkt_46_js__;
-  var M1 = $__modules_47_action_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M3 = $__modules_47_gen_46_rkt_46_js__;
-  var M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M5 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__modules_47_expand_46_rkt_46_js__;
+  const M1 = $__modules_47_action_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M3 = $__modules_47_gen_46_rkt_46_js__;
+  const M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M5 = $__runtime_47_kernel_46_rkt_46_js__;
   var transform_grammar = function(g722) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -26061,7 +25484,6 @@ var $__modules_47_transform_46_rkt_46_js__ = (function() {
     return M2.for_each(check_nt_refs748, M3.get_defs(grammar731));
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -26080,11 +25502,10 @@ var $__modules_47_transform_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_path_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_path_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/path.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_kernel_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_kernel_46_rkt_46_js__;
   var path_string_p = function(s3805) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -26445,7 +25866,6 @@ var $__collects_47_racket_47_private_47_path_46_rkt_46_js__ = (function() {
     return if_res2657;
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -26467,17 +25887,16 @@ var $__collects_47_racket_47_private_47_path_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__ = (function() {
+const $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "collects/racket/private/kw-file.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
-  var M3 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
-  var M4 = $__collects_47_racket_47_private_47_path_46_rkt_46_js__;
-  var M5 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M6 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_sort_46_rkt_46_js__;
+  const M3 = $__collects_47_racket_47_private_47_member_46_rkt_46_js__;
+  const M4 = $__collects_47_racket_47_private_47_path_46_rkt_46_js__;
+  const M5 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M6 = $__runtime_47_unsafe_46_rkt_46_js__;
   var exists_syms = $rjs_core.Pair.makeList($rjs_core.Symbol.make("error"), $rjs_core.Symbol.make("append"), $rjs_core.Symbol.make("update"), $rjs_core.Symbol.make("can-update"), $rjs_core.Symbol.make("replace"), $rjs_core.Symbol.make("truncate"), $rjs_core.Symbol.make("must-truncate"), $rjs_core.Symbol.make("truncate/replace"));
   var exists_desc = $rjs_core.UString.make("(or/c 'error 'append 'update 'can-update 'replace 'truncate 'must-truncate 'truncate/replace)");
   var binary_or_text_desc = $rjs_core.UString.make("(or/c 'binary 'text)");
@@ -27814,7 +27233,6 @@ var $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__ = (function() 
   __rjs_quoted__.open_input_file8 = open_input_file8;
   __rjs_quoted__.open_input_output_file24 = open_input_output_file24;
   __rjs_quoted__.call_with_output_file_times_72 = call_with_output_file_times_72;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -27824,13 +27242,11 @@ var $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__ = (function() 
     }
   };
 })();
-var $__modules_47_version_46_rkt_46_js__ = (function() {
+const $__modules_47_version_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/version.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
   var __times_version_times_ = $rjs_core.UString.make("0.8.1");
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -27840,16 +27256,15 @@ var $__modules_47_version_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_code_46_rkt_46_js__ = (function() {
+const $__modules_47_code_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/code.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__;
-  var M1 = $__modules_47_version_46_rkt_46_js__;
-  var M2 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
-  var M3 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M4 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M5 = $__collects_47_racket_47_list_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__collects_47_racket_47_private_47_kw_45_file_46_rkt_46_js__;
+  const M1 = $__modules_47_version_46_rkt_46_js__;
+  const M2 = $__collects_47_racket_47_private_47_kw_46_rkt_46_js__;
+  const M3 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M4 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M5 = $__collects_47_racket_47_list_46_rkt_46_js__;
   var __times_default_header_times_ = M4.list(M4.string_append($rjs_core.UString.make("Generated by the Waxeye Parser Generator - version "), M1.__times_version_times_), $rjs_core.UString.make("www.waxeye.org"));
   var __times_indent_unit_times_ = 4;
   var __times_indent_level_times_ = 0;
@@ -28006,7 +27421,6 @@ var $__modules_47_code_46_rkt_46_js__ = (function() {
   var __rjs_quoted__ = {};
   __rjs_quoted__.indent_ = indent_;
   __rjs_quoted__.indent_plus_ = indent_plus_;
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -28064,18 +27478,17 @@ var $__modules_47_code_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_javascript_46_rkt_46_js__ = (function() {
+const $__modules_47_javascript_46_rkt_46_js__ = (function() {
   "use strict";
-  var __moduleName = "modules/javascript.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__runtime_47_paramz_46_rkt_46_js__;
-  var M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
-  var M2 = $__modules_47_code_46_rkt_46_js__;
-  var M3 = $__modules_47_gen_46_rkt_46_js__;
-  var M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M5 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M6 = $__collects_47_racket_47_list_46_rkt_46_js__;
-  var M7 = $__runtime_47_unsafe_46_rkt_46_js__;
+  const $rjs_core = $__runtime_47_core_46_js__;
+  const M0 = $__runtime_47_paramz_46_rkt_46_js__;
+  const M1 = $__collects_47_racket_47_private_47_map_46_rkt_46_js__;
+  const M2 = $__modules_47_code_46_rkt_46_js__;
+  const M3 = $__modules_47_gen_46_rkt_46_js__;
+  const M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+  const M5 = $__runtime_47_kernel_46_rkt_46_js__;
+  const M6 = $__collects_47_racket_47_list_46_rkt_46_js__;
+  const M7 = $__runtime_47_unsafe_46_rkt_46_js__;
   var javascript_comment = function(lines619) {
     if (arguments.length !== 1) {
       throw $rjs_core.racketContractError("arity mismatch");
@@ -28441,7 +27854,6 @@ var $__modules_47_javascript_46_rkt_46_js__ = (function() {
     return M5.format(temp364, if_res363, gen_nodejs_imports657(), gen_parser_class656(), gen_nodejs_exports659());
   };
   var __rjs_quoted__ = {};
-  ;
   return {
     get __rjs_quoted__() {
       return __rjs_quoted__;
@@ -28460,105 +27872,98 @@ var $__modules_47_javascript_46_rkt_46_js__ = (function() {
     }
   };
 })();
-var $__modules_47_racketscript_46_rkt_46_js__ = (function() {
-  "use strict";
-  var __moduleName = "modules/racketscript.rkt.js";
-  var $rjs_core = $__runtime_47_core_46_js__;
-  var M0 = $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js__;
-  var M1 = $__modules_47_grammar_45_parser_46_rkt_46_js__;
-  var M2 = $__modules_47_transform_46_rkt_46_js__;
-  var M3 = $__modules_47_gen_46_rkt_46_js__;
-  var M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
-  var M5 = $__runtime_47_kernel_46_rkt_46_js__;
-  var M6 = $__modules_47_javascript_46_rkt_46_js__;
-  var M7 = $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__;
-  var syntax_error_message = function(error1) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return M5.string_append($rjs_core.UString.make("syntax error in grammar: "), M4.parse_error__gt_string(error1));
-  };
-  var transform_and_set_start32 = function(grammar_or_error23, start_name14) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    var grammar_or_error5 = grammar_or_error23;
-    if (false !== false) {
-      var if_res1 = $rjs_core.UString.make("");
-    } else {
-      var if_res1 = start_name14;
-    }
-    var start_name6 = if_res1;
-    if (M4.ast_p(grammar_or_error5) !== false) {
-      var grammar7 = grammar_or_error5;
-      M2.transform_grammar(grammar7);
-      M3.start_nt_bang_(start_name6, grammar7);
-      var if_res2 = grammar7;
-    } else {
-      var if_res2 = grammar_or_error5;
-    }
-    return if_res2;
-  };
-  var cl3 = function(grammar_or_error8) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return transform_and_set_start32(grammar_or_error8, $rjs_core.UString.make(""));
-  };
-  var cl4 = function(grammar_or_error9, start_name110) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return transform_and_set_start32(grammar_or_error9, start_name110);
-  };
-  var transform_and_set_start = $rjs_core.attachProcedureArity(function() {
-    var fixed_lam5 = {
-      '1': cl3,
-      '2': cl4
-    }[arguments.length];
-    if (fixed_lam5 !== undefined) {
-      return fixed_lam5.apply(null, arguments);
-    } else {
-      return M5.error($rjs_core.UString.make("case-lambda: invalid case"));
-    }
-  }, [1, 2]);
-  var js_result = function(grammar_or_error11, fn12) {
-    if (arguments.length !== 2) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    if (M4.ast_p(grammar_or_error11) !== false) {
-      var if_res6 = [M0.js_string(fn12(grammar_or_error11)), null];
-    } else {
-      var if_res6 = [null, M0.js_string(syntax_error_message(grammar_or_error11))];
-    }
-    return if_res6;
-  };
-  var grammar_to_ast_string = function(grammar_src13) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return js_result(M1.grammar_parser(M0.racket_string(grammar_src13)), M4.ast__gt_string);
-  };
-  var grammar_to_transformed_ast_string = function(grammar_src14) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return js_result(transform_and_set_start(M1.grammar_parser(M0.racket_string(grammar_src14))), M4.ast__gt_string);
-  };
-  var generate_parser = function(grammar_src15) {
-    if (arguments.length !== 1) {
-      throw $rjs_core.racketContractError("arity mismatch");
-    } else {}
-    return js_result(transform_and_set_start(M1.grammar_parser(M0.racket_string(grammar_src15))), M6.gen_javascript_parser);
-  };
-  window.waxeyeCompiler = {
-    'grammarToAstString': grammar_to_ast_string,
-    'grammarToTransformedAstString': grammar_to_transformed_ast_string,
-    'generateParser': generate_parser
-  };
-  var __rjs_quoted__ = {};
-  ;
-  return {get __rjs_quoted__() {
-      return __rjs_quoted__;
-    }};
-})();
+"use strict";
+const $rjs_core = $__runtime_47_core_46_js__;
+const M0 = $__links_47_racketscript_45_compiler_47_racketscript_47_interop_46_rkt_46_js__;
+const M1 = $__modules_47_grammar_45_parser_46_rkt_46_js__;
+const M2 = $__modules_47_transform_46_rkt_46_js__;
+const M3 = $__modules_47_gen_46_rkt_46_js__;
+const M4 = $__collects_47_waxeye_47_ast_46_rkt_46_js__;
+const M5 = $__runtime_47_kernel_46_rkt_46_js__;
+const M6 = $__modules_47_javascript_46_rkt_46_js__;
+const M7 = $__links_47_racketscript_45_compiler_47_racketscript_47_private_47_interop_46_rkt_46_js__;
+var syntax_error_message = function(error1) {
+  if (arguments.length !== 1) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return M5.string_append($rjs_core.UString.make("syntax error in grammar: "), M4.parse_error__gt_string(error1));
+};
+var transform_and_set_start32 = function(grammar_or_error23, start_name14) {
+  if (arguments.length !== 2) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  var grammar_or_error5 = grammar_or_error23;
+  if (false !== false) {
+    var if_res1 = $rjs_core.UString.make("");
+  } else {
+    var if_res1 = start_name14;
+  }
+  var start_name6 = if_res1;
+  if (M4.ast_p(grammar_or_error5) !== false) {
+    var grammar7 = grammar_or_error5;
+    M2.transform_grammar(grammar7);
+    M3.start_nt_bang_(start_name6, grammar7);
+    var if_res2 = grammar7;
+  } else {
+    var if_res2 = grammar_or_error5;
+  }
+  return if_res2;
+};
+var cl3 = function(grammar_or_error8) {
+  if (arguments.length !== 1) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return transform_and_set_start32(grammar_or_error8, $rjs_core.UString.make(""));
+};
+var cl4 = function(grammar_or_error9, start_name110) {
+  if (arguments.length !== 2) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return transform_and_set_start32(grammar_or_error9, start_name110);
+};
+var transform_and_set_start = $rjs_core.attachProcedureArity(function() {
+  var fixed_lam5 = {
+    '1': cl3,
+    '2': cl4
+  }[arguments.length];
+  if (fixed_lam5 !== undefined) {
+    return fixed_lam5.apply(null, arguments);
+  } else {
+    return M5.error($rjs_core.UString.make("case-lambda: invalid case"));
+  }
+}, [1, 2]);
+var js_result = function(grammar_or_error11, fn12) {
+  if (arguments.length !== 2) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  if (M4.ast_p(grammar_or_error11) !== false) {
+    var if_res6 = [M0.js_string(fn12(grammar_or_error11)), null];
+  } else {
+    var if_res6 = [null, M0.js_string(syntax_error_message(grammar_or_error11))];
+  }
+  return if_res6;
+};
+var grammar_to_ast_string = function(grammar_src13) {
+  if (arguments.length !== 1) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return js_result(M1.grammar_parser(M0.racket_string(grammar_src13)), M4.ast__gt_string);
+};
+var grammar_to_transformed_ast_string = function(grammar_src14) {
+  if (arguments.length !== 1) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return js_result(transform_and_set_start(M1.grammar_parser(M0.racket_string(grammar_src14))), M4.ast__gt_string);
+};
+var generate_parser = function(grammar_src15) {
+  if (arguments.length !== 1) {
+    throw $rjs_core.racketContractError("arity mismatch");
+  } else {}
+  return js_result(transform_and_set_start(M1.grammar_parser(M0.racket_string(grammar_src15))), M6.gen_javascript_parser);
+};
+window.waxeyeCompiler = {
+  'grammarToAstString': grammar_to_ast_string,
+  'grammarToTransformedAstString': grammar_to_transformed_ast_string,
+  'generateParser': generate_parser
+};
+var __rjs_quoted__ = {};
