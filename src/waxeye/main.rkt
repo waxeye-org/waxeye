@@ -14,6 +14,7 @@
          "java.rkt"
          "javascript.rkt"
          "load.rkt"
+         "php.rkt"
          "python.rkt"
          "ruby.rkt"
          "racket.rkt"
@@ -74,6 +75,7 @@
     (set! *target-lang* (case (string->symbol language)
                           ((c) gen-c)
                           ((java) gen-java)
+                          ((php) gen-php)
                           ((python) gen-python)
                           ((ruby) gen-ruby)
                           ((racket) gen-racket)
