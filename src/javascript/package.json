@@ -12,12 +12,12 @@
   "devDependencies": {
     "@types/node": "^10.17.28",
     "clang-format": "^1.4.0",
-    "ts-loader": "^4.5.0",
+    "ts-loader": "^9.4.2",
     "ts-node": "^8.10.2",
     "tslint": "^5.20.1",
     "typescript": "^3.9.7",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "scripts": {
     "compile": "node_modules/.bin/webpack --mode production",
